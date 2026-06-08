@@ -64,6 +64,8 @@ Install the required packages:
 ```bash
 sudo apt update
 sudo apt install -y \
+  python3 \
+  python3-pip \
   git \
   python3-flask \
   python3-gpiozero \
@@ -76,6 +78,14 @@ Optional audio test tools for a future USB speaker:
 ```bash
 sudo apt install -y alsa-utils
 ```
+
+Optional package for future MQTT messaging:
+
+```bash
+sudo apt install -y python3-paho-mqtt
+```
+
+Do not create a Python virtual environment for the current Raspberry Pi station setup. This project originally tried `.venv` and `pip install flask gpiozero`, but the station now uses system Python packages because GPIO libraries are simpler and more reliable that way.
 
 ## 4. Clone the Project
 
