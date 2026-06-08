@@ -24,6 +24,7 @@ Completed:
 - Live telegraph key input in the web app
 - Beginner Practice Mode for `E`, `T`, `A`, `N`, `I`, and `M`
 - Project pushed to GitHub at `luminerdy/morsePi`
+- Fresh Raspberry Pi setup guide added
 
 ## Milestones
 
@@ -167,3 +168,7 @@ Create these GitHub issues next:
 - Added beginner Practice Mode.
 - Created GitHub repository `luminerdy/morsePi`.
 - Added project plan.
+
+### 2026-06-08
+
+- Added fresh Raspberry Pi setup and configuration guide.
