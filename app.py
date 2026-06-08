@@ -44,7 +44,7 @@ DEFAULT_STATION_VOLUME = 0.35
 
 # Your USB speaker showed up as:
 # card 3: UACDemoV10 [UACDemoV1.0], device 0: USB Audio
-AUDIO_DEVICE = "plughw:3,0"
+AUDIO_DEVICE = os.environ.get("MORSE_AUDIO_DEVICE", "plughw:3,0")
 
 # -----------------------------
 # App state

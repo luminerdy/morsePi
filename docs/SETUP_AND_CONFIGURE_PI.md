@@ -67,17 +67,14 @@ sudo apt install -y \
   python3 \
   python3-pip \
   git \
+  alsa-utils \
   python3-flask \
   python3-gpiozero \
   python3-lgpio \
   python3-rpi.gpio
 ```
 
-Optional audio test tools for a future USB speaker:
-
-```bash
-sudo apt install -y alsa-utils
-```
+The current app uses `aplay` for station playback and `speaker-test` for the key-down tone. Both commands come from `alsa-utils`.
 
 Optional package for future MQTT messaging:
 
@@ -104,7 +101,33 @@ cd /home/morse/morse-station
 git pull
 ```
 
-## 5. Wire the Hardware
+## 5. Configure USB Speaker Output
+
+The current station app defaults to:
+
+```text
+MORSE_AUDIO_DEVICE=plughw:3,0
+```
+
+To inspect available audio devices:
+
+```bash
+aplay -l
+```
+
+To test the known USB speaker device:
+
+```bash
+speaker-test -D plughw:3,0 -t sine -f 700 -l 1
+```
+
+If a fresh Pi assigns a different card/device number, start the app with a different device:
+
+```bash
+MORSE_AUDIO_DEVICE=plughw:<card>,<device> python3 app.py
+```
+
+## 6. Wire the Hardware
 
 GPIO layout:
 
@@ -114,7 +137,7 @@ GPIO layout:
 | Telegraph key ground | GND | Pin 9 | Shared ground |
 | Status LED | GPIO27 | Pin 13 | Use resistor in series with LED |
 | LED ground | GND | Pin 14 | Shared ground |
-| Passive piezo buzzer | GPIO18 | Pin 12 | PWM tone output |
+| Passive piezo buzzer | GPIO18 | Pin 12 | Optional hardware test output |
 | Buzzer ground | GND | Pin 20 | Shared ground |
 
 Wiring summary:
@@ -125,9 +148,9 @@ GPIO27 / Pin 13 -> Resistor -> LED + ; LED - -> GND / Pin 14
 GPIO18 / Pin 12 -> Passive Piezo + ; Piezo - -> GND / Pin 20
 ```
 
-Use a resistor with the LED, usually `220` to `330` ohms.
+Use a resistor with the LED, usually `220` to `330` ohms. The active web app currently uses the USB speaker for sound; the passive piezo buzzer is still useful for standalone hardware tests.
 
-## 6. Test the Hardware
+## 7. Test the Hardware
 
 Run each hardware test from the project folder.
 
@@ -135,36 +158,36 @@ Telegraph key:
 
 ```bash
 cd /home/morse/morse-station
-python3 key_reader.py
+python3 hardware_tests/key_reader.py
 ```
 
 LED:
 
 ```bash
-python3 test_led.py
+python3 hardware_tests/test_led.py
 ```
 
 Buzzer:
 
 ```bash
-python3 test_buzzer.py
+python3 hardware_tests/test_buzzer.py
 ```
 
 Key, LED, and buzzer together:
 
 ```bash
-python3 key_reader_led_buzzer.py
+python3 hardware_tests/key_reader_led_buzzer.py
 ```
 
 Typed message playback:
 
 ```bash
-python3 morse_output.py
+python3 hardware_tests/morse_output.py
 ```
 
 Stop each test with `Ctrl+C` before starting the next one. Only one running script should own the GPIO pins at a time.
 
-## 7. Run the Web App
+## 8. Run the Web App
 
 Start the Flask app:
 
@@ -187,7 +210,7 @@ http://10.10.10.129:5000
 
 Important: run the app with `debug=False` and `use_reloader=False`. The current `app.py` already does this. The Flask debug reloader can start multiple processes and claim the GPIO pins twice.
 
-## 8. Update the Station
+## 9. Update the Station
 
 To pull the latest GitHub changes onto the Pi:
 
@@ -202,34 +225,27 @@ If the Flask app is running, stop it with `Ctrl+C` before updating. Start it aga
 python3 app.py
 ```
 
-## 9. Optional: Run at Boot with systemd
+## 10. Optional: Run at Boot with systemd
 
 The current station can be started manually with `python3 app.py`. Later, it can be configured to start automatically.
 
-Create a service file:
+Copy the service file from the repo:
 
 ```bash
-sudo nano /etc/systemd/system/morse-station.service
+sudo cp /home/morse/morse-station/systemd/morse-station.service /etc/systemd/system/morse-station.service
 ```
 
-Paste:
+If your USB speaker is not `plughw:3,0`, edit the service and add an environment line under `[Service]`:
+
+```bash
+sudo systemctl edit morse-station
+```
+
+Example override:
 
 ```ini
-[Unit]
-Description=Pappy's Internet Telegraph Morse Station
-After=network-online.target
-Wants=network-online.target
-
 [Service]
-Type=simple
-User=morse
-WorkingDirectory=/home/morse/morse-station
-ExecStart=/usr/bin/python3 /home/morse/morse-station/app.py
-Restart=on-failure
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
+Environment=MORSE_AUDIO_DEVICE=plughw:<card>,<device>
 ```
 
 Enable and start it:
@@ -258,7 +274,7 @@ Stop it before running hardware test scripts:
 sudo systemctl stop morse-station
 ```
 
-## 10. Troubleshooting
+## 11. Troubleshooting
 
 ### GPIO busy
 
@@ -294,6 +310,26 @@ Install the GPIO packages:
 sudo apt install -y python3-gpiozero python3-lgpio python3-rpi.gpio
 ```
 
+### USB speaker does not play
+
+Make sure `alsa-utils` is installed:
+
+```bash
+sudo apt install -y alsa-utils
+```
+
+List audio devices:
+
+```bash
+aplay -l
+```
+
+Test the configured device:
+
+```bash
+speaker-test -D plughw:3,0 -t sine -f 700 -l 1
+```
+
 ### App is not reachable in the browser
 
 Check that the app is running:
@@ -318,7 +354,7 @@ app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)
 
 Make sure no other hardware test script is still running. The web app owns GPIO17, GPIO27, and GPIO18 while it runs.
 
-## 11. Fresh Pi Done Checklist
+## 12. Fresh Pi Done Checklist
 
 - Raspberry Pi OS installed
 - SSH enabled
@@ -327,7 +363,8 @@ Make sure no other hardware test script is still running. The web app owns GPIO1
 - Repo cloned to `/home/morse/morse-station`
 - Telegraph key wired to GPIO17
 - LED wired to GPIO27 with resistor
-- Passive piezo buzzer wired to GPIO18
+- USB speaker tested with `speaker-test`
+- Optional passive piezo buzzer wired to GPIO18
 - Hardware tests pass
 - `python3 app.py` starts successfully
 - Browser can open `http://<pi-ip-address>:5000`

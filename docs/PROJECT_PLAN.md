@@ -25,6 +25,7 @@ Completed:
 - Beginner Practice Mode for `E`, `T`, `A`, `N`, `I`, and `M`
 - Project pushed to GitHub at `luminerdy/morsePi`
 - Fresh Raspberry Pi setup guide added
+- Repository structure cleaned up
 
 ## Milestones
 
@@ -153,8 +154,8 @@ Create these GitHub issues next:
 3. Show recent attempts on Practice page
 4. Capture raw key timing events
 5. Add default student profile
-6. Move project docs from `MD/` to `docs/`
-7. Add web app tutorial documentation
+6. Add web app tutorial documentation
+7. Move hardware/audio code out of `app.py`
 
 ## Progress Log
 
@@ -172,3 +173,7 @@ Create these GitHub issues next:
 ### 2026-06-08
 
 - Added fresh Raspberry Pi setup and configuration guide.
+- Moved hardware test scripts into `hardware_tests/`.
+- Moved earlier app prototypes into `archive/`.
+- Moved project requirements and tutorial docs into `docs/`.
+- Added `README.md`, shared browser JavaScript, and a reusable systemd service file.

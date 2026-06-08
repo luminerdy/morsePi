@@ -1,0 +1,15 @@
+[Unit]
+Description=Pappy's Internet Telegraph Morse Station
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=morse
+WorkingDirectory=/home/morse/morse-station
+ExecStart=/usr/bin/python3 /home/morse/morse-station/app.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

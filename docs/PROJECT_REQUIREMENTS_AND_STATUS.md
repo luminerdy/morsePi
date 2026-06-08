@@ -41,7 +41,7 @@ Raspberry Pi 4, 2GB
 TGKY01 telegraph key
 LED with resistor
 Passive piezo buzzer
-USB speaker, planned/ordered
+USB speaker
 Wi-Fi or Ethernet network connection
 ```
 
@@ -57,7 +57,7 @@ The Raspberry Pi is currently using system Python instead of a virtual environme
 | Telegraph key ground | GND | Pin 9 | Shared ground |
 | Status LED | GPIO27 | Pin 13 | Visual key/Morse feedback |
 | LED ground | GND | Pin 14 | Use resistor in series with LED |
-| Passive piezo buzzer | GPIO18 | Pin 12 | PWM tone output |
+| Passive piezo buzzer | GPIO18 | Pin 12 | Optional hardware test output |
 | Buzzer ground | GND | Pin 20 | Shared ground |
 
 Recommended wiring:
@@ -160,7 +160,7 @@ Completed:
 Important design decision:
 
 ```text
-Use a passive piezo buzzer for temporary station audio until the USB speaker is added.
+Keep the passive piezo buzzer tests available for troubleshooting, but use the USB speaker for the current web app station audio.
 ```
 
 ---
@@ -281,21 +281,27 @@ Current project folder is expected to look similar to this:
 
 ```text
 morse-station/
+├── README.md
 ├── app.py
 ├── morse.py
-├── key_reader.py
-├── test_led.py
-├── test_buzzer.py
-├── key_reader_led_buzzer.py
-├── morse_output.py
+├── config.example.env
+├── requirements.txt
 ├── templates/
 │   ├── index.html
 │   └── practice.html
-└── static/
-    └── style.css
+├── static/
+│   ├── style.css
+│   └── app.js
+├── hardware_tests/
+│   ├── key_reader.py
+│   ├── test_led.py
+│   ├── test_buzzer.py
+│   ├── key_reader_led_buzzer.py
+│   └── morse_output.py
+├── archive/
+├── docs/
+└── systemd/
 ```
-
-Some test scripts may later move into a `tests/` or `hardware_tests/` folder.
 
 Recommended future repo structure:
 
@@ -936,6 +942,9 @@ Each station should only publish and subscribe to approved topics.
 | Pi hardware playback | Complete |
 | Live key display in web app | Complete |
 | Basic Practice Mode | Complete |
+| USB speaker integration | Complete |
+| GitHub repo setup | Complete |
+| Fresh Pi setup guide | Complete |
 
 ---
 
@@ -949,45 +958,13 @@ Each station should only publish and subscribe to approved topics.
 | Morse password login | Not started |
 | Progress dashboard | Not started |
 | Better timing feedback | Not started |
-| USB speaker integration | Pending hardware arrival |
 | Refactor hardware code | Not started |
-| GitHub repo setup | Recommended next step |
 
 ---
 
 ## 16. Recommended Next Steps
 
-### Step 1: Create GitHub repo
-
-Create a project repo and commit the current working state.
-
-Suggested repo name:
-
-```text
-MorseMissionStation
-```
-
-Suggested first commit:
-
-```text
-Initial Raspberry Pi Morse station with key, LED, buzzer, web app, and practice mode
-```
-
----
-
-### Step 2: Add documentation
-
-Add documentation files:
-
-```text
-docs/PROJECT_REQUIREMENTS_AND_STATUS.md
-docs/tutorials/01-morse-station-hardware-baby-steps.md
-docs/tutorials/02-webapp-and-practice-mode.md
-```
-
----
-
-### Step 3: Add SQLite logging
+### Step 1: Add SQLite logging
 
 Next coding milestone:
 
@@ -1002,7 +979,7 @@ Show recent attempts on Practice page
 
 ---
 
-### Step 4: Add student profiles
+### Step 2: Add student profiles
 
 Add a simple profile selection page.
 
@@ -1017,13 +994,13 @@ Student 2
 
 ---
 
-### Step 5: Add Morse password login
+### Step 3: Add Morse password login
 
 Add student login using a Morse-tapped password.
 
 ---
 
-### Step 6: Improve Practice Mode
+### Step 4: Improve Practice Mode
 
 Add:
 
@@ -1038,20 +1015,7 @@ copy-rhythm activity
 
 ---
 
-### Step 7: Add USB speaker option
-
-When the USB speaker arrives:
-
-```text
-Test with aplay -l
-Test with speaker-test
-Add output option for USB speaker
-Keep piezo as optional station sound
-```
-
----
-
-### Step 8: Add adaptive lessons
+### Step 5: Add adaptive lessons
 
 Use logged data to recommend next practice.
 
@@ -1061,7 +1025,7 @@ Later version may use an LLM.
 
 ---
 
-### Step 9: Add secure messaging
+### Step 6: Add secure messaging
 
 Add local messaging first.
 
