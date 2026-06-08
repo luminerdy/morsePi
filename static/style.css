@@ -1,0 +1,302 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    margin: 0;
+    padding: 30px;
+}
+
+.card {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 18px;
+    padding: 28px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
+}
+
+h1 {
+    font-size: 42px;
+    margin-bottom: 8px;
+}
+
+h2 {
+    font-size: 30px;
+    margin-top: 28px;
+    margin-bottom: 12px;
+}
+
+.subtitle {
+    font-size: 20px;
+    color: #555;
+}
+
+label {
+    display: block;
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 24px;
+}
+
+textarea {
+    width: 100%;
+    height: 120px;
+    font-size: 30px;
+    margin-top: 8px;
+    padding: 12px;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 12px;
+}
+
+button {
+    font-size: 26px;
+    padding: 14px 24px;
+    margin-top: 16px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #1f6feb;
+    color: white;
+}
+
+button:hover {
+    background: #155ac4;
+}
+
+button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+button:disabled:hover {
+    background: #1f6feb;
+}
+
+.play-button {
+    font-size: 30px;
+}
+
+.button-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 16px;
+}
+
+.inline-form {
+    display: inline;
+    margin: 0;
+}
+
+.inline-form button {
+    margin-top: 0;
+}
+
+.morse-box {
+    min-height: 80px;
+    background: #111;
+    color: #00ff66;
+    padding: 22px;
+    border-radius: 14px;
+    font-size: 36px;
+    word-wrap: break-word;
+    letter-spacing: 3px;
+    line-height: 1.5;
+}
+
+.hint {
+    margin-top: 30px;
+    background: #eef5ff;
+    padding: 18px;
+    border-radius: 14px;
+}
+
+.hint p {
+    font-size: 24px;
+    margin: 8px 0;
+    background: white;
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 10px;
+    margin-right: 10px;
+}
+
+.nav-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 18px;
+    margin-bottom: 24px;
+}
+
+.nav-row a {
+    font-size: 22px;
+    text-decoration: none;
+    background: #eef5ff;
+    color: #1f6feb;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.key-panel {
+    margin-top: 30px;
+    background: #fff7e6;
+    padding: 20px;
+    border-radius: 14px;
+}
+
+.key-label {
+    font-size: 22px;
+    font-weight: bold;
+    margin-top: 16px;
+}
+
+.live-morse {
+    min-height: 70px;
+    background: #111;
+    color: #00ff66;
+    padding: 18px;
+    border-radius: 14px;
+    font-size: 40px;
+    word-wrap: break-word;
+    letter-spacing: 4px;
+    line-height: 1.5;
+}
+
+.live-decoded {
+    min-height: 50px;
+    background: #ffffff;
+    color: #222;
+    padding: 18px;
+    border-radius: 14px;
+    font-size: 34px;
+    border: 2px solid #ddd;
+}
+
+.volume-panel {
+    margin-top: 30px;
+    background: #f0f7ff;
+    padding: 20px;
+    border-radius: 14px;
+}
+
+.volume-panel input[type="range"] {
+    width: 100%;
+    margin-top: 14px;
+}
+
+.volume-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-top: 12px;
+}
+
+.volume-row span {
+    font-size: 26px;
+    font-weight: bold;
+    min-width: 80px;
+}
+
+.practice-card {
+    margin-top: 24px;
+    background: #f2fff4;
+    padding: 22px;
+    border-radius: 14px;
+    border: 2px solid #cdeed2;
+}
+
+.practice-label {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 12px;
+}
+
+.target-letter {
+    font-size: 96px;
+    font-weight: bold;
+    color: #1f6feb;
+    line-height: 1.1;
+}
+
+.expected-morse {
+    font-size: 56px;
+    font-weight: bold;
+    background: #111;
+    color: #00ff66;
+    padding: 18px;
+    border-radius: 14px;
+    letter-spacing: 6px;
+    display: inline-block;
+    min-width: 120px;
+    text-align: center;
+}
+
+.feedback-box {
+    margin-top: 24px;
+    padding: 20px;
+    border-radius: 14px;
+    background: #fff1c2;
+    border: 2px solid #ffd966;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+@media (max-width: 700px) {
+    body {
+        padding: 12px;
+    }
+
+    .card {
+        padding: 18px;
+    }
+
+    h1 {
+        font-size: 34px;
+    }
+
+    textarea {
+        font-size: 24px;
+    }
+
+    .morse-box {
+        font-size: 28px;
+    }
+
+    button {
+        width: 100%;
+        font-size: 24px;
+    }
+
+    .button-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .inline-form {
+        width: 100%;
+    }
+
+    .nav-row {
+        flex-direction: column;
+    }
+
+    .target-letter {
+        font-size: 76px;
+    }
+
+    .expected-morse {
+        font-size: 42px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .live-morse {
+        font-size: 30px;
+    }
+
+    .live-decoded {
+        font-size: 28px;
+    }
+}

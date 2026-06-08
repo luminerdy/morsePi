@@ -1,0 +1,181 @@
+<!doctype html>
+<html>
+<head>
+    <title>Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <main class="card">
+        <h1>Pappy's Internet Telegraph</h1>
+        <p class="subtitle">Type a message, convert it to Morse, then play it with light and sound.</p>
+
+        <nav class="nav-row">
+            <a href="/">Home</a>
+            <a href="/practice">Practice</a>
+        </nav>
+
+        <form method="post" action="/">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" autofocus>{{ message }}</textarea>
+
+            <button type="submit">Convert to Morse</button>
+        </form>
+
+        <section>
+            <h2>Morse Code</h2>
+            <div class="morse-box" id="morseBox">
+                {% if morse %}
+                    {{ morse }}
+                {% else %}
+                    Type a message above.
+                {% endif %}
+            </div>
+        </section>
+
+        <div class="button-row">
+            <button type="button"
+                    class="play-button"
+                    onclick="playInBrowser()"
+                    {% if not morse %}disabled{% endif %}>
+                Play on Speaker
+            </button>
+
+            <form method="post" action="/play" class="inline-form">
+                <button type="submit"
+                        class="play-button"
+                        {% if not morse %}disabled{% endif %}>
+                    Play on Station
+                </button>
+            </form>
+        </div>
+
+        <section class="volume-panel">
+            <h2>Station Volume</h2>
+            <form method="post" action="/station-volume">
+                <label for="station_volume">
+                    Play on Station volume:
+                    <span id="volumeValue">{{ station_volume_percent }}%</span>
+                </label>
+
+                <input
+                    type="range"
+                    id="station_volume"
+                    name="station_volume"
+                    min="0"
+                    max="100"
+                    value="{{ station_volume_percent }}"
+                    oninput="document.getElementById('volumeValue').innerText = this.value + '%'"
+                >
+
+                <div class="volume-row">
+                    <button type="submit">Save Volume</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="key-panel">
+            <h2>Telegraph Key Input</h2>
+            <p class="subtitle">Tap the physical key and watch the Morse appear here.</p>
+
+            <div class="key-label">You tapped:</div>
+            <div class="live-morse" id="liveMorse">Waiting for key...</div>
+
+            <div class="key-label">Decoded:</div>
+            <div class="live-decoded" id="liveDecoded">---</div>
+
+            <button type="button" onclick="clearKeyInput()">Clear Key Input</button>
+        </section>
+
+        <section class="hint">
+            <h2>Try these</h2>
+            <p>HI</p>
+            <p>HI PAPPY</p>
+            <p>SOS</p>
+            <p>MEET ME</p>
+        </section>
+    </main>
+
+<script>
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function browserBeep(audioCtx, durationMs) {
+    const oscillator = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    oscillator.frequency.value = 700;
+    oscillator.type = "sine";
+    gain.gain.value = 0.2;
+
+    oscillator.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    oscillator.start();
+    await sleep(durationMs);
+    oscillator.stop();
+}
+
+async function playInBrowser() {
+    const morseText = document.getElementById("morseBox").innerText.trim();
+
+    if (!morseText || morseText === "Type a message above.") {
+        return;
+    }
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    const dotMs = 250;
+    const dashMs = dotMs * 3;
+    const symbolGapMs = dotMs;
+    const letterGapMs = dotMs * 3;
+    const wordGapMs = dotMs * 7;
+
+    for (const ch of morseText) {
+        if (ch === ".") {
+            await browserBeep(audioCtx, dotMs);
+            await sleep(symbolGapMs);
+        } else if (ch === "-") {
+            await browserBeep(audioCtx, dashMs);
+            await sleep(symbolGapMs);
+        } else if (ch === " ") {
+            await sleep(letterGapMs);
+        } else if (ch === "/") {
+            await sleep(wordGapMs);
+        }
+    }
+}
+
+async function updateLiveKey() {
+    try {
+        const response = await fetch("/live-key");
+        const data = await response.json();
+
+        const liveMorse = document.getElementById("liveMorse");
+        const liveDecoded = document.getElementById("liveDecoded");
+
+        if (data.morse) {
+            liveMorse.innerText = data.morse;
+            liveDecoded.innerText = data.decoded || "---";
+        } else {
+            liveMorse.innerText = "Waiting for key...";
+            liveDecoded.innerText = "---";
+        }
+    } catch (error) {
+        console.log("Unable to update key display", error);
+    }
+}
+
+async function clearKeyInput() {
+    await fetch("/clear-key", {
+        method: "POST"
+    });
+
+    updateLiveKey();
+}
+
+setInterval(updateLiveKey, 300);
+updateLiveKey();
+</script>
+</body>
+</html>

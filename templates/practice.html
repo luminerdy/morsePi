@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+<head>
+    <title>Practice Mode - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <main class="card">
+        <h1>Practice Mode</h1>
+        <p class="subtitle">Tap the Morse code for the letter shown below.</p>
+
+        <nav class="nav-row">
+            <a href="/">Home</a>
+            <a href="/practice">Practice</a>
+        </nav>
+
+        <section class="practice-card">
+            <div class="practice-label">Tap this letter:</div>
+            <div class="target-letter">{{ target }}</div>
+
+            <div class="practice-label">Expected Morse:</div>
+            <div class="expected-morse">{{ expected_morse }}</div>
+
+            <div class="button-row">
+                <form method="post" action="/practice/play" class="inline-form">
+                    <button type="submit">Play Letter</button>
+                </form>
+
+                <form method="post" action="/practice/check" class="inline-form">
+                    <button type="submit">Check Answer</button>
+                </form>
+
+                <form method="post" action="/practice/new" class="inline-form">
+                    <button type="submit">Try Another</button>
+                </form>
+
+                <button type="button" onclick="clearKeyInput()">Clear</button>
+            </div>
+        </section>
+
+        <section class="key-panel">
+            <h2>Your Key Input</h2>
+
+            <div class="key-label">You tapped:</div>
+            <div class="live-morse" id="liveMorse">Waiting for key...</div>
+
+            <div class="key-label">Decoded:</div>
+            <div class="live-decoded" id="liveDecoded">---</div>
+        </section>
+
+        {% if feedback %}
+        <section class="feedback-box">
+            {{ feedback }}
+        </section>
+        {% endif %}
+
+        <section class="hint">
+            <h2>Beginner Letters</h2>
+            <p>E = .</p>
+            <p>T = -</p>
+            <p>A = .-</p>
+            <p>N = -.</p>
+            <p>I = ..</p>
+            <p>M = --</p>
+        </section>
+    </main>
+
+<script>
+async function updateLiveKey() {
+    try {
+        const response = await fetch("/live-key");
+        const data = await response.json();
+
+        const liveMorse = document.getElementById("liveMorse");
+        const liveDecoded = document.getElementById("liveDecoded");
+
+        if (data.morse) {
+            liveMorse.innerText = data.morse;
+            liveDecoded.innerText = data.decoded || "---";
+        } else {
+            liveMorse.innerText = "Waiting for key...";
+            liveDecoded.innerText = "---";
+        }
+    } catch (error) {
+        console.log("Unable to update key display", error);
+    }
+}
+
+async function clearKeyInput() {
+    await fetch("/clear-key", {
+        method: "POST"
+    });
+
+    updateLiveKey();
+}
+
+setInterval(updateLiveKey, 300);
+updateLiveKey();
+</script>
+</body>
+</html>
