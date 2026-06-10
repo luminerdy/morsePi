@@ -3,97 +3,132 @@
 <head>
     <title>Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-    <main class="card">
-        <h1>Pappy's Internet Telegraph</h1>
-        <p class="subtitle">Type a message, convert it to Morse, then play it with light and sound.</p>
-
-        <nav class="nav-row">
-            <a href="/">Home</a>
-            <a href="/practice">Practice</a>
-        </nav>
-
-        <form method="post" action="/">
-            <label for="message">Message</label>
-            <textarea id="message" name="message" autofocus>{{ message }}</textarea>
-
-            <button type="submit">Convert to Morse</button>
-        </form>
-
-        <section>
-            <h2>Morse Code</h2>
-            <div class="morse-box" id="morseBox">
-                {% if morse %}
-                    {{ morse }}
-                {% else %}
-                    Type a message above.
-                {% endif %}
+    <div class="app-shell">
+        <header class="app-header">
+            <div>
+                <p class="eyebrow">Morse Station</p>
+                <h1>Pappy's Internet Telegraph</h1>
             </div>
-        </section>
 
-        <div class="button-row">
-            <button type="button"
-                    class="play-button"
-                    onclick="playInBrowser()"
-                    {% if not morse %}disabled{% endif %}>
-                Play on Speaker
-            </button>
+            <nav class="nav-row" aria-label="Primary navigation">
+                <a class="active" href="/">Home</a>
+                <a href="/practice">Practice</a>
+            </nav>
+        </header>
 
-            <form method="post" action="/play" class="inline-form">
-                <button type="submit"
-                        class="play-button"
-                        {% if not morse %}disabled{% endif %}>
-                    Play on Station
-                </button>
-            </form>
-        </div>
-
-        <section class="volume-panel">
-            <h2>Station Volume</h2>
-            <form method="post" action="/station-volume">
-                <label for="station_volume">
-                    Play on Station volume:
-                    <span id="volumeValue">{{ station_volume_percent }}%</span>
-                </label>
-
-                <input
-                    type="range"
-                    id="station_volume"
-                    name="station_volume"
-                    min="0"
-                    max="100"
-                    value="{{ station_volume_percent }}"
-                    oninput="document.getElementById('volumeValue').innerText = this.value + '%'"
-                >
-
-                <div class="volume-row">
-                    <button type="submit">Save Volume</button>
+        <main class="dashboard-grid">
+            <section class="panel compose-panel">
+                <div class="section-heading">
+                    <h2>Message</h2>
+                    <span class="panel-meta">Text to Morse</span>
                 </div>
-            </form>
-        </section>
 
-        <section class="key-panel">
-            <h2>Telegraph Key Input</h2>
-            <p class="subtitle">Tap the physical key and watch the Morse appear here.</p>
+                <form method="post" action="/">
+                    <label class="sr-only" for="message">Message</label>
+                    <textarea id="message" name="message" autofocus placeholder="Type a message">{{ message }}</textarea>
 
-            <div class="key-label">You tapped:</div>
-            <div class="live-morse" id="liveMorse">Waiting for key...</div>
+                    <div class="action-row">
+                        <button type="submit" class="button primary">Convert</button>
+                    </div>
+                </form>
+            </section>
 
-            <div class="key-label">Decoded:</div>
-            <div class="live-decoded" id="liveDecoded">---</div>
+            <section class="panel output-panel">
+                <div class="section-heading">
+                    <h2>Morse Code</h2>
+                    <span class="panel-meta">Preview</span>
+                </div>
 
-            <button type="button" onclick="clearKeyInput()">Clear Key Input</button>
-        </section>
+                <div class="morse-box" id="morseBox">
+                    {% if morse %}
+                        {{ morse }}
+                    {% else %}
+                        Type a message above.
+                    {% endif %}
+                </div>
 
-        <section class="hint">
-            <h2>Try these</h2>
-            <p>HI</p>
-            <p>HI PAPPY</p>
-            <p>SOS</p>
-            <p>MEET ME</p>
-        </section>
-    </main>
+                <div class="action-row">
+                    <button type="button"
+                            class="button secondary"
+                            onclick="playInBrowser()"
+                            {% if not morse %}disabled{% endif %}>
+                        Play Here
+                    </button>
+
+                    <form method="post" action="/play" class="inline-form">
+                        <button type="submit"
+                                class="button primary"
+                                {% if not morse %}disabled{% endif %}>
+                            Play Station
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <section class="panel key-panel">
+                <div class="section-heading">
+                    <h2>Telegraph Key</h2>
+                    <span class="status-pill">Live</span>
+                </div>
+
+                <div class="readout-grid">
+                    <div>
+                        <div class="field-label">Tapped Morse</div>
+                        <div class="live-morse" id="liveMorse">Waiting for key...</div>
+                    </div>
+
+                    <div>
+                        <div class="field-label">Decoded</div>
+                        <div class="live-decoded" id="liveDecoded">---</div>
+                    </div>
+                </div>
+
+                <div class="action-row">
+                    <button type="button" class="button secondary" onclick="clearKeyInput()">Clear Key</button>
+                </div>
+            </section>
+
+            <aside class="side-stack">
+                <section class="panel compact-panel">
+                    <div class="section-heading">
+                        <h2>Station Volume</h2>
+                        <span class="volume-value" id="volumeValue">{{ station_volume_percent }}%</span>
+                    </div>
+
+                    <form method="post" action="/station-volume">
+                        <label class="sr-only" for="station_volume">Station volume</label>
+                        <input
+                            type="range"
+                            id="station_volume"
+                            name="station_volume"
+                            min="0"
+                            max="100"
+                            value="{{ station_volume_percent }}"
+                            oninput="document.getElementById('volumeValue').innerText = this.value + '%'"
+                        >
+
+                        <button type="submit" class="button secondary full-width">Save Volume</button>
+                    </form>
+                </section>
+
+                <section class="panel compact-panel">
+                    <div class="section-heading">
+                        <h2>Samples</h2>
+                    </div>
+
+                    <div class="chip-row">
+                        <span>HI</span>
+                        <span>HI PAPPY</span>
+                        <span>SOS</span>
+                        <span>MEET ME</span>
+                    </div>
+                </section>
+            </aside>
+        </main>
+    </div>
 
 <script src="/static/app.js"></script>
 </body>

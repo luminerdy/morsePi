@@ -177,3 +177,7 @@ Create these GitHub issues next:
 - Moved earlier app prototypes into `archive/`.
 - Moved project requirements and tutorial docs into `docs/`.
 - Added `README.md`, shared browser JavaScript, and a reusable systemd service file.
+
+### 2026-06-09
+
+- Cleaned up the web UI to feel more like a production station console.
