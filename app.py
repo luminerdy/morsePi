@@ -1,9 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from gpiozero import Button, LED
 from morse import text_to_morse, morse_to_text
+from practice_progress import choose_next_letter, progress_summary, record_attempt
 from time import time, sleep
 import threading
-import random
 import wave
 import math
 import tempfile
@@ -336,8 +336,7 @@ def clear_key_state():
 def choose_new_practice_target():
     global practice_target, practice_feedback
 
-    choices = [letter for letter in practice_letters if letter != practice_target]
-    practice_target = random.choice(choices or practice_letters)
+    practice_target = choose_next_letter(practice_letters, practice_target)
     practice_feedback = ""
     clear_key_state()
 
@@ -416,7 +415,8 @@ def practice():
         "practice.html",
         target=practice_target,
         expected_morse=expected_morse,
-        feedback=practice_feedback
+        feedback=practice_feedback,
+        progress=progress_summary(practice_letters)
     )
 
 
@@ -432,7 +432,8 @@ def practice_next():
 
     return jsonify({
         "target": practice_target,
-        "expected_morse": text_to_morse(practice_target)
+        "expected_morse": text_to_morse(practice_target),
+        "progress": progress_summary(practice_letters)
     })
 
 
@@ -442,7 +443,25 @@ def practice_retry():
 
     return jsonify({
         "target": practice_target,
-        "expected_morse": text_to_morse(practice_target)
+        "expected_morse": text_to_morse(practice_target),
+        "progress": progress_summary(practice_letters)
+    })
+
+
+@app.route("/practice/result", methods=["POST"])
+def practice_result():
+    data = request.get_json(silent=True) or {}
+    letter = data.get("target", practice_target)
+    is_correct = bool(data.get("correct", False))
+
+    if letter not in practice_letters:
+        return jsonify({"status": "ignored", "progress": progress_summary(practice_letters)})
+
+    progress = record_attempt(letter, is_correct, practice_letters)
+
+    return jsonify({
+        "status": "recorded",
+        "progress": progress_summary(practice_letters)
     })
 
 
@@ -464,9 +483,11 @@ def practice_check():
         practice_feedback = "Tap the telegraph key first, then check your answer."
 
     elif actual_morse == expected_morse:
+        record_attempt(practice_target, True, practice_letters)
         practice_feedback = f"Great job! You tapped {practice_target} correctly."
 
     else:
+        record_attempt(practice_target, False, practice_letters)
         practice_feedback = (
             f"Good try. I heard {actual_morse}, but {practice_target} is {expected_morse}. "
             "Try again and listen to the rhythm."

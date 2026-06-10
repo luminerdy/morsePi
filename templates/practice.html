@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Practice Mode - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260610-2">
+    <link rel="stylesheet" href="/static/style.css?v=20260610-3">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -93,10 +93,35 @@
                         <span>M <strong>--</strong></span>
                     </div>
                 </section>
+
+                <section class="panel compact-panel">
+                    <div class="section-heading">
+                        <h2>Practice Progress</h2>
+                    </div>
+
+                    <div class="progress-list" id="practiceProgress">
+                        {% for item in progress %}
+                            <div class="progress-item" data-progress-letter="{{ item.letter }}">
+                                <div class="progress-row">
+                                    <strong>{{ item.letter }}</strong>
+                                    <span>{{ item.strength_percent }}%</span>
+                                </div>
+                                <div class="progress-bar" aria-hidden="true">
+                                    <span style="width: {{ item.strength_percent }}%"></span>
+                                </div>
+                                <div class="progress-meta">
+                                    <span>{{ item.accuracy }}% accuracy</span>
+                                    <span>{{ item.streak }} streak</span>
+                                    <span>{{ item.attempts }} tries</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </section>
             </aside>
         </main>
     </div>
 
-<script src="/static/app.js?v=20260610-2"></script>
+<script src="/static/app.js?v=20260610-3"></script>
 </body>
 </html>

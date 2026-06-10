@@ -213,12 +213,32 @@ function checkPracticeAnswer(actualMorse, expectedMorse, target) {
 
     if (actualMorse === expectedMorse) {
         setPracticeFeedback(`Correct: ${target}. Next letter coming up.`);
-        setTimeout(loadNextPracticePrompt, 950);
+        recordPracticeResult(target, true).finally(() => {
+            setTimeout(loadNextPracticePrompt, 950);
+        });
     } else {
         setPracticeFeedback(
             `Try ${target} again. I heard ${actualMorse}, but ${target} is ${expectedMorse}.`
         );
-        setTimeout(retryPracticePrompt, 1200);
+        recordPracticeResult(target, false).finally(() => {
+            setTimeout(retryPracticePrompt, 1200);
+        });
+    }
+}
+
+async function recordPracticeResult(target, correct) {
+    try {
+        const response = await fetch("/practice/result", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ target, correct })
+        });
+        const data = await response.json();
+        updateProgressPanel(data.progress || []);
+    } catch (error) {
+        console.log("Unable to record practice result", error);
     }
 }
 
@@ -230,6 +250,7 @@ async function loadNextPracticePrompt() {
         const data = await response.json();
 
         updatePracticePrompt(data.target, data.expected_morse);
+        updateProgressPanel(data.progress || []);
         resetInputDisplay();
         setPracticeFeedback(`Now try ${data.target}.`);
     } catch (error) {
@@ -243,10 +264,12 @@ async function loadNextPracticePrompt() {
 
 async function retryPracticePrompt() {
     try {
-        await fetch("/practice/retry", {
+        const response = await fetch("/practice/retry", {
             method: "POST"
         });
+        const data = await response.json();
 
+        updateProgressPanel(data.progress || []);
         resetInputDisplay();
         setPracticeFeedback("Ready. Try it again.");
     } catch (error) {
@@ -271,6 +294,43 @@ function updatePracticePrompt(target, expectedMorse) {
     panel.dataset.expectedMorse = expectedMorse;
     targetLetter.innerText = target;
     expected.innerText = expectedMorse;
+}
+
+function updateProgressPanel(progress) {
+    const progressPanel = document.getElementById("practiceProgress");
+
+    if (!progressPanel || !Array.isArray(progress)) {
+        return;
+    }
+
+    for (const item of progress) {
+        const row = progressPanel.querySelector(`[data-progress-letter="${item.letter}"]`);
+
+        if (!row) {
+            continue;
+        }
+
+        const percent = Math.max(0, Math.min(Number(item.strength_percent) || 0, 100));
+        const summary = row.querySelector(".progress-row span");
+        const bar = row.querySelector(".progress-bar span");
+        const meta = row.querySelector(".progress-meta");
+
+        if (summary) {
+            summary.innerText = `${percent}%`;
+        }
+
+        if (bar) {
+            bar.style.width = `${percent}%`;
+        }
+
+        if (meta) {
+            meta.innerHTML = `
+                <span>${item.accuracy}% accuracy</span>
+                <span>${item.streak} streak</span>
+                <span>${item.attempts} tries</span>
+            `;
+        }
+    }
 }
 
 function resetLiveKeyDisplay() {
