@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Practice Mode - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260609-3">
+    <link rel="stylesheet" href="/static/style.css?v=20260610-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -25,18 +25,18 @@
                      data-expected-morse="{{ expected_morse }}">
                 <div class="section-heading">
                     <h2>Current Prompt</h2>
-                    <span class="status-pill">Auto-check on</span>
+                    <span class="status-pill" id="practiceStatus">Auto practice on</span>
                 </div>
 
                 <div class="practice-readout">
                     <div>
                         <div class="field-label">Letter</div>
-                        <div class="target-letter">{{ target }}</div>
+                        <div class="target-letter" id="targetLetter">{{ target }}</div>
                     </div>
 
                     <div>
                         <div class="field-label">Morse</div>
-                        <div class="expected-morse">{{ expected_morse }}</div>
+                        <div class="expected-morse" id="expectedMorse">{{ expected_morse }}</div>
                     </div>
                 </div>
 
@@ -45,14 +45,11 @@
                         <button type="submit" class="button secondary">Play Letter</button>
                     </form>
 
-                    <form method="post" action="/practice/check" class="inline-form">
-                        <button type="submit" class="button secondary">Check Now</button>
-                    </form>
-
                     <form method="post" action="/practice/new" class="inline-form">
                         <button type="submit" class="button secondary">Try Another</button>
                     </form>
 
+                    <button type="button" class="button secondary" id="practiceToggle">Stop Practice</button>
                     <button type="button" class="button secondary" onclick="clearKeyInput()">Clear</button>
                 </div>
 
@@ -99,6 +96,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260609-3"></script>
+<script src="/static/app.js?v=20260610-1"></script>
 </body>
 </html>

@@ -336,7 +336,8 @@ def clear_key_state():
 def choose_new_practice_target():
     global practice_target, practice_feedback
 
-    practice_target = random.choice(practice_letters)
+    choices = [letter for letter in practice_letters if letter != practice_target]
+    practice_target = random.choice(choices or practice_letters)
     practice_feedback = ""
     clear_key_state()
 
@@ -423,6 +424,26 @@ def practice():
 def practice_new():
     choose_new_practice_target()
     return redirect(url_for("practice"))
+
+
+@app.route("/practice/next", methods=["POST"])
+def practice_next():
+    choose_new_practice_target()
+
+    return jsonify({
+        "target": practice_target,
+        "expected_morse": text_to_morse(practice_target)
+    })
+
+
+@app.route("/practice/retry", methods=["POST"])
+def practice_retry():
+    clear_key_state()
+
+    return jsonify({
+        "target": practice_target,
+        "expected_morse": text_to_morse(practice_target)
+    })
 
 
 @app.route("/practice/play", methods=["POST"])

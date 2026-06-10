@@ -182,3 +182,7 @@ Create these GitHub issues next:
 
 - Cleaned up the web UI to feel more like a production station console.
 - Added delayed auto-check feedback for individual-letter Practice Mode.
+
+### 2026-06-10
+
+- Changed Practice Mode into a continuous hands-on loop that advances after correct letters and retries after missed letters.

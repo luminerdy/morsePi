@@ -4,6 +4,8 @@ function sleep(ms) {
 
 let practiceCheckTimer = null;
 let lastCheckedPracticeMorse = "";
+let practiceActive = true;
+let practiceBusy = false;
 
 async function browserBeep(audioCtx, durationMs) {
     const oscillator = audioCtx.createOscillator();
@@ -116,9 +118,9 @@ function setPracticeFeedback(message) {
 
     feedback.classList.remove("success", "needs-practice");
 
-    if (message.startsWith("Great job")) {
+    if (message.startsWith("Correct")) {
         feedback.classList.add("success");
-    } else if (message) {
+    } else if (message.startsWith("Try")) {
         feedback.classList.add("needs-practice");
     }
 }
@@ -136,7 +138,7 @@ function resetPracticeAutoCheck() {
 function schedulePracticeAutoCheck(rawMorse) {
     const panel = getPracticePanel();
 
-    if (!panel) {
+    if (!panel || !practiceActive || practiceBusy) {
         return;
     }
 
@@ -175,17 +177,119 @@ function schedulePracticeAutoCheck(rawMorse) {
 
 function checkPracticeAnswer(actualMorse, expectedMorse, target) {
     lastCheckedPracticeMorse = actualMorse;
+    practiceBusy = true;
 
     if (actualMorse === expectedMorse) {
-        setPracticeFeedback(`Great job! You tapped ${target} correctly.`);
+        setPracticeFeedback(`Correct: ${target}. Next letter coming up.`);
+        setTimeout(loadNextPracticePrompt, 950);
     } else {
         setPracticeFeedback(
-            `Good try. I heard ${actualMorse}, but ${target} is ${expectedMorse}. Try again and listen to the rhythm.`
+            `Try ${target} again. I heard ${actualMorse}, but ${target} is ${expectedMorse}.`
         );
+        setTimeout(retryPracticePrompt, 1200);
     }
 }
 
+async function loadNextPracticePrompt() {
+    try {
+        const response = await fetch("/practice/next", {
+            method: "POST"
+        });
+        const data = await response.json();
+
+        updatePracticePrompt(data.target, data.expected_morse);
+        resetLiveKeyDisplay();
+        setPracticeFeedback(`Now try ${data.target}.`);
+    } catch (error) {
+        console.log("Unable to load next practice prompt", error);
+    } finally {
+        practiceBusy = false;
+        lastCheckedPracticeMorse = "";
+    }
+}
+
+async function retryPracticePrompt() {
+    try {
+        await fetch("/practice/retry", {
+            method: "POST"
+        });
+
+        resetLiveKeyDisplay();
+        setPracticeFeedback("Ready. Try it again.");
+    } catch (error) {
+        console.log("Unable to reset practice prompt", error);
+    } finally {
+        practiceBusy = false;
+        lastCheckedPracticeMorse = "";
+    }
+}
+
+function updatePracticePrompt(target, expectedMorse) {
+    const panel = getPracticePanel();
+    const targetLetter = document.getElementById("targetLetter");
+    const expected = document.getElementById("expectedMorse");
+
+    if (!panel || !targetLetter || !expected) {
+        return;
+    }
+
+    panel.dataset.practiceTarget = target;
+    panel.dataset.expectedMorse = expectedMorse;
+    targetLetter.innerText = target;
+    expected.innerText = expectedMorse;
+}
+
+function resetLiveKeyDisplay() {
+    const liveMorse = document.getElementById("liveMorse");
+    const liveDecoded = document.getElementById("liveDecoded");
+
+    if (liveMorse) {
+        liveMorse.innerText = "Waiting for key...";
+    }
+
+    if (liveDecoded) {
+        liveDecoded.innerText = "---";
+    }
+}
+
+function updatePracticeToggle() {
+    const toggle = document.getElementById("practiceToggle");
+    const status = document.getElementById("practiceStatus");
+
+    if (!toggle || !status) {
+        return;
+    }
+
+    toggle.innerText = practiceActive ? "Stop Practice" : "Resume Practice";
+    status.innerText = practiceActive ? "Auto practice on" : "Practice paused";
+    status.classList.toggle("paused", !practiceActive);
+}
+
+function initializePracticeMode() {
+    const panel = getPracticePanel();
+    const toggle = document.getElementById("practiceToggle");
+
+    if (!panel || !toggle) {
+        return;
+    }
+
+    toggle.addEventListener("click", () => {
+        practiceActive = !practiceActive;
+
+        if (!practiceActive && practiceCheckTimer) {
+            clearTimeout(practiceCheckTimer);
+            practiceCheckTimer = null;
+        }
+
+        updatePracticeToggle();
+    });
+
+    updatePracticeToggle();
+    clearKeyInput();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+    initializePracticeMode();
     updateLiveKey();
     setInterval(updateLiveKey, 300);
 });
