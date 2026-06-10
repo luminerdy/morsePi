@@ -386,6 +386,22 @@ input[type="range"] + .button {
     display: none;
 }
 
+.inline-feedback {
+    margin-top: 16px;
+    box-shadow: none;
+}
+
+.feedback-box.success {
+    background: #e8f7ee;
+    border-color: #9cd5b6;
+    color: #155f36;
+}
+
+.feedback-box.needs-practice {
+    background: var(--warning-bg);
+    border-color: var(--warning-border);
+}
+
 @media (max-width: 900px) {
     .app-header {
         align-items: stretch;

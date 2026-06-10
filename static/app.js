@@ -113,6 +113,14 @@ function setPracticeFeedback(message) {
 
     feedback.innerText = message;
     feedback.hidden = !message;
+
+    feedback.classList.remove("success", "needs-practice");
+
+    if (message.startsWith("Great job")) {
+        feedback.classList.add("success");
+    } else if (message) {
+        feedback.classList.add("needs-practice");
+    }
 }
 
 function resetPracticeAutoCheck() {

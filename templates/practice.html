@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Practice Mode - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260609-2">
+    <link rel="stylesheet" href="/static/style.css?v=20260609-3">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -25,7 +25,7 @@
                      data-expected-morse="{{ expected_morse }}">
                 <div class="section-heading">
                     <h2>Current Prompt</h2>
-                    <span class="panel-meta">Beginner letters</span>
+                    <span class="status-pill">Auto-check on</span>
                 </div>
 
                 <div class="practice-readout">
@@ -55,6 +55,10 @@
 
                     <button type="button" class="button secondary" onclick="clearKeyInput()">Clear</button>
                 </div>
+
+                <section class="feedback-box inline-feedback" id="practiceFeedback" {% if not feedback %}hidden{% endif %}>
+                    {{ feedback }}
+                </section>
             </section>
 
             <section class="panel key-panel">
@@ -77,10 +81,6 @@
             </section>
 
             <aside class="side-stack">
-                <section class="panel feedback-box" id="practiceFeedback" {% if not feedback %}hidden{% endif %}>
-                    {{ feedback }}
-                </section>
-
                 <section class="panel compact-panel">
                     <div class="section-heading">
                         <h2>Beginner Letters</h2>
@@ -99,6 +99,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260609-2"></script>
+<script src="/static/app.js?v=20260609-3"></script>
 </body>
 </html>
