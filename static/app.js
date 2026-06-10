@@ -4,8 +4,22 @@ function sleep(ms) {
 
 let practiceCheckTimer = null;
 let lastCheckedPracticeMorse = "";
+let pendingPracticeMorse = "";
 let practiceActive = true;
 let practiceBusy = false;
+let keyboardKeyerActive = false;
+let keyboardPressStartedAt = null;
+let keyboardMorse = "";
+
+const KEYBOARD_DASH_THRESHOLD_MS = 400;
+const MORSE_DECODE = {
+    ".": "E",
+    "-": "T",
+    ".-": "A",
+    "-.": "N",
+    "..": "I",
+    "--": "M"
+};
 
 async function browserBeep(audioCtx, durationMs) {
     const oscillator = audioCtx.createOscillator();
@@ -67,6 +81,10 @@ async function updateLiveKey() {
         return;
     }
 
+    if (keyboardKeyerActive) {
+        return;
+    }
+
     try {
         const response = await fetch("/live-key");
         const data = await response.json();
@@ -86,6 +104,11 @@ async function updateLiveKey() {
 }
 
 async function clearKeyInput() {
+    if (keyboardKeyerActive) {
+        resetVirtualKeyer();
+        return;
+    }
+
     await fetch("/clear-key", {
         method: "POST"
     });
@@ -132,6 +155,7 @@ function resetPracticeAutoCheck() {
 
     practiceCheckTimer = null;
     lastCheckedPracticeMorse = "";
+    pendingPracticeMorse = "";
     setPracticeFeedback("");
 }
 
@@ -151,6 +175,7 @@ function schedulePracticeAutoCheck(rawMorse) {
             practiceCheckTimer = null;
         }
         lastCheckedPracticeMorse = "";
+        pendingPracticeMorse = "";
         return;
     }
 
@@ -163,6 +188,11 @@ function schedulePracticeAutoCheck(rawMorse) {
             clearTimeout(practiceCheckTimer);
             practiceCheckTimer = null;
         }
+        pendingPracticeMorse = "";
+        return;
+    }
+
+    if (actualMorse === pendingPracticeMorse) {
         return;
     }
 
@@ -170,6 +200,7 @@ function schedulePracticeAutoCheck(rawMorse) {
         clearTimeout(practiceCheckTimer);
     }
 
+    pendingPracticeMorse = actualMorse;
     practiceCheckTimer = setTimeout(() => {
         checkPracticeAnswer(actualMorse, expectedMorse, panel.dataset.practiceTarget || "");
     }, 1100);
@@ -177,6 +208,7 @@ function schedulePracticeAutoCheck(rawMorse) {
 
 function checkPracticeAnswer(actualMorse, expectedMorse, target) {
     lastCheckedPracticeMorse = actualMorse;
+    pendingPracticeMorse = "";
     practiceBusy = true;
 
     if (actualMorse === expectedMorse) {
@@ -198,13 +230,14 @@ async function loadNextPracticePrompt() {
         const data = await response.json();
 
         updatePracticePrompt(data.target, data.expected_morse);
-        resetLiveKeyDisplay();
+        resetInputDisplay();
         setPracticeFeedback(`Now try ${data.target}.`);
     } catch (error) {
         console.log("Unable to load next practice prompt", error);
     } finally {
         practiceBusy = false;
         lastCheckedPracticeMorse = "";
+        pendingPracticeMorse = "";
     }
 }
 
@@ -214,13 +247,14 @@ async function retryPracticePrompt() {
             method: "POST"
         });
 
-        resetLiveKeyDisplay();
+        resetInputDisplay();
         setPracticeFeedback("Ready. Try it again.");
     } catch (error) {
         console.log("Unable to reset practice prompt", error);
     } finally {
         practiceBusy = false;
         lastCheckedPracticeMorse = "";
+        pendingPracticeMorse = "";
     }
 }
 
@@ -252,6 +286,103 @@ function resetLiveKeyDisplay() {
     }
 }
 
+function resetInputDisplay() {
+    if (keyboardKeyerActive) {
+        resetVirtualKeyer();
+        return;
+    }
+
+    resetLiveKeyDisplay();
+}
+
+function resetVirtualKeyer() {
+    keyboardPressStartedAt = null;
+    keyboardMorse = "";
+    resetLiveKeyDisplay();
+    lastCheckedPracticeMorse = "";
+    pendingPracticeMorse = "";
+
+    if (practiceCheckTimer) {
+        clearTimeout(practiceCheckTimer);
+        practiceCheckTimer = null;
+    }
+}
+
+function updateVirtualKeyerDisplay() {
+    const liveMorse = document.getElementById("liveMorse");
+    const liveDecoded = document.getElementById("liveDecoded");
+    const morse = normalizeMorse(keyboardMorse);
+
+    if (liveMorse) {
+        liveMorse.innerText = morse || "Waiting for key...";
+    }
+
+    if (liveDecoded) {
+        liveDecoded.innerText = morse ? (MORSE_DECODE[morse] || "?") : "---";
+    }
+
+    schedulePracticeAutoCheck(morse);
+}
+
+function updateKeyboardKeyerToggle() {
+    const toggle = document.getElementById("keyboardKeyerToggle");
+    const status = document.getElementById("keyerStatus");
+
+    if (toggle) {
+        toggle.innerText = keyboardKeyerActive ? "Spacebar Keyer: On" : "Spacebar Keyer: Off";
+        toggle.classList.toggle("active", keyboardKeyerActive);
+    }
+
+    if (status) {
+        status.innerText = keyboardKeyerActive ? "Spacebar keyer" : "Live";
+        status.classList.toggle("keyboard", keyboardKeyerActive);
+    }
+}
+
+function setKeyboardKeyerActive(active) {
+    keyboardKeyerActive = active;
+    resetVirtualKeyer();
+    updateKeyboardKeyerToggle();
+
+    if (!keyboardKeyerActive) {
+        updateLiveKey();
+    }
+}
+
+function ignoreKeyboardKeyerEvent(event) {
+    const tagName = event.target && event.target.tagName;
+    return ["INPUT", "TEXTAREA", "BUTTON", "A", "SELECT"].includes(tagName);
+}
+
+function handleKeyboardKeyDown(event) {
+    if (!keyboardKeyerActive || event.code !== "Space" || event.repeat || ignoreKeyboardKeyerEvent(event)) {
+        return;
+    }
+
+    event.preventDefault();
+
+    if (keyboardPressStartedAt === null) {
+        keyboardPressStartedAt = performance.now();
+    }
+}
+
+function handleKeyboardKeyUp(event) {
+    if (!keyboardKeyerActive || event.code !== "Space" || ignoreKeyboardKeyerEvent(event)) {
+        return;
+    }
+
+    event.preventDefault();
+
+    if (keyboardPressStartedAt === null) {
+        return;
+    }
+
+    const durationMs = performance.now() - keyboardPressStartedAt;
+    keyboardPressStartedAt = null;
+    keyboardMorse += durationMs >= KEYBOARD_DASH_THRESHOLD_MS ? "-" : ".";
+    updateVirtualKeyerDisplay();
+}
+
 function updatePracticeToggle() {
     const toggle = document.getElementById("practiceToggle");
     const status = document.getElementById("practiceStatus");
@@ -268,6 +399,7 @@ function updatePracticeToggle() {
 function initializePracticeMode() {
     const panel = getPracticePanel();
     const toggle = document.getElementById("practiceToggle");
+    const keyboardToggle = document.getElementById("keyboardKeyerToggle");
 
     if (!panel || !toggle) {
         return;
@@ -284,7 +416,17 @@ function initializePracticeMode() {
         updatePracticeToggle();
     });
 
+    if (keyboardToggle) {
+        keyboardToggle.addEventListener("click", () => {
+            setKeyboardKeyerActive(!keyboardKeyerActive);
+        });
+    }
+
+    document.addEventListener("keydown", handleKeyboardKeyDown);
+    document.addEventListener("keyup", handleKeyboardKeyUp);
+
     updatePracticeToggle();
+    updateKeyboardKeyerToggle();
     clearKeyInput();
 }
 

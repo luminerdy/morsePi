@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Practice Mode - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260610-1">
+    <link rel="stylesheet" href="/static/style.css?v=20260610-2">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -50,6 +50,7 @@
                     </form>
 
                     <button type="button" class="button secondary" id="practiceToggle">Stop Practice</button>
+                    <button type="button" class="button secondary" id="keyboardKeyerToggle">Spacebar Keyer: Off</button>
                     <button type="button" class="button secondary" onclick="clearKeyInput()">Clear</button>
                 </div>
 
@@ -61,7 +62,7 @@
             <section class="panel key-panel">
                 <div class="section-heading">
                     <h2>Your Key Input</h2>
-                    <span class="status-pill">Live</span>
+                    <span class="status-pill" id="keyerStatus">Live</span>
                 </div>
 
                 <div class="readout-grid">
@@ -96,6 +97,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260610-1"></script>
+<script src="/static/app.js?v=20260610-2"></script>
 </body>
 </html>

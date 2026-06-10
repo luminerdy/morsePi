@@ -156,6 +156,12 @@ h2 {
     border-color: var(--border);
 }
 
+.status-pill.keyboard {
+    background: #e8f1ff;
+    color: #1d46ad;
+    border-color: #b9cef8;
+}
+
 .volume-value {
     color: var(--primary);
     font-size: 18px;
@@ -246,6 +252,12 @@ a:focus-visible {
 
 .button.secondary:hover {
     background: var(--surface-muted);
+}
+
+.button.secondary.active {
+    background: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
 }
 
 .button:disabled {
