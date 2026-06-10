@@ -181,3 +181,4 @@ Create these GitHub issues next:
 ### 2026-06-09
 
 - Cleaned up the web UI to feel more like a production station console.
+- Added delayed auto-check feedback for individual-letter Practice Mode.

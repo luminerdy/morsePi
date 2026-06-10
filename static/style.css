@@ -382,6 +382,10 @@ input[type="range"] + .button {
     line-height: 1.4;
 }
 
+.feedback-box[hidden] {
+    display: none;
+}
+
 @media (max-width: 900px) {
     .app-header {
         align-items: stretch;

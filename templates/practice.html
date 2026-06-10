@@ -20,7 +20,9 @@
         </header>
 
         <main class="dashboard-grid">
-            <section class="panel practice-panel">
+            <section class="panel practice-panel"
+                     data-practice-target="{{ target }}"
+                     data-expected-morse="{{ expected_morse }}">
                 <div class="section-heading">
                     <h2>Current Prompt</h2>
                     <span class="panel-meta">Beginner letters</span>
@@ -44,7 +46,7 @@
                     </form>
 
                     <form method="post" action="/practice/check" class="inline-form">
-                        <button type="submit" class="button primary">Check Answer</button>
+                        <button type="submit" class="button secondary">Check Now</button>
                     </form>
 
                     <form method="post" action="/practice/new" class="inline-form">
@@ -75,11 +77,9 @@
             </section>
 
             <aside class="side-stack">
-                {% if feedback %}
-                <section class="panel feedback-box">
+                <section class="panel feedback-box" id="practiceFeedback" {% if not feedback %}hidden{% endif %}>
                     {{ feedback }}
                 </section>
-                {% endif %}
 
                 <section class="panel compact-panel">
                     <div class="section-heading">
