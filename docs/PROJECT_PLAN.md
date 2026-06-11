@@ -23,6 +23,12 @@ Completed:
 - Pi hardware playback using LED and buzzer
 - Live telegraph key input in the web app
 - Beginner Practice Mode for `E`, `T`, `A`, `N`, `I`, and `M`
+- Continuous Send practice loop with automatic feedback and advancement
+- Read practice mode for identifying letters from visible Morse patterns
+- Spacebar keyer for testing and keyboard-based practice
+- JSON-backed per-letter, per-mode progress tracking
+- Student-facing level/mastery score card on Practice Mode
+- Detailed Progress page with per-letter Morse reinforcement
 - Project pushed to GitHub at `luminerdy/morsePi`
 - Fresh Raspberry Pi setup guide added
 - Repository structure cleaned up
@@ -48,20 +54,25 @@ Completed work:
 
 ### MVP 2: Logging and Progress
 
-Status: Next
+Status: In Progress
 
-Goal: Save practice attempts locally so the app can show recent progress and later adapt lessons.
+Goal: Save practice attempts locally so the app can show progress, motivate students, and later adapt lessons.
 
-Planned work:
+Completed work:
 
-- Create `db.py`
-- Create SQLite database `morse_station.db`
-- Add default student profile
-- Add `practice_attempts` table
-- Log every Practice Mode check
-- Capture actual Morse and correctness
-- Preserve raw timing data for future feedback
-- Show recent attempts on Practice page
+- Store progress in `data/practice_progress.json`
+- Track progress per letter and per practice mode
+- Track attempts, correct answers, streak, accuracy, and strength
+- Weight next prompts toward weak or new letters
+- Add Practice score card with level, mastery, streak, accuracy, tries, and next goal
+- Add detailed `/progress` page
+
+Still planned:
+
+- Add student/profile support
+- Decide whether/when to migrate JSON progress to SQLite
+- Capture raw key timing data for future feedback
+- Add session history and recent-attempt summaries
 
 ### MVP 3: Student Profiles
 
@@ -92,9 +103,16 @@ Planned work:
 
 ### MVP 5: Better Practice and Adaptive Lessons
 
-Status: Planned
+Status: In Progress
 
 Goal: Make practice smarter and more useful based on saved student performance.
+
+Completed work:
+
+- Add Send mode: show a letter and have the student key Morse
+- Add Read mode: show Morse and have the student identify the letter
+- Track Send and Read progress separately
+- Recommend next prompts using simple rule-based weighting
 
 Planned work:
 
@@ -102,9 +120,10 @@ Planned work:
 - Add letter gap feedback
 - Add more beginner letters
 - Add word practice
-- Add listen-and-choose activity
+- Add Listen mode: play Morse and have the student type/select the letter
+- Add Learn mode: show letter, show Morse, play sound, and let the student key along
+- Add Mixed mode that rotates through weak skills
 - Add copy-rhythm activity
-- Recommend next practice using rule-based logic
 
 ### MVP 6: Messaging
 
@@ -149,13 +168,15 @@ Recommended GitHub Project columns:
 
 Create these GitHub issues next:
 
-1. Add SQLite database setup
-2. Log Practice Mode attempts
-3. Show recent attempts on Practice page
-4. Capture raw key timing events
-5. Add default student profile
-6. Add web app tutorial documentation
-7. Move hardware/audio code out of `app.py`
+1. Add Listen mode with Replay and typed/choice answer
+2. Add Learn mode for guided letter/Morse/sound/keyer association
+3. Add Mixed mode that selects weak mode+letter combinations
+4. Add settings for active letter set and difficulty
+5. Capture raw key timing events for dot/dash and spacing feedback
+6. Add student/profile support
+7. Decide whether JSON progress should migrate to SQLite
+8. Add web app tutorial documentation
+9. Move hardware/audio code out of `app.py`
 
 ## Progress Log
 
@@ -186,3 +207,9 @@ Create these GitHub issues next:
 ### 2026-06-10
 
 - Changed Practice Mode into a continuous hands-on loop that advances after correct letters and retries after missed letters.
+- Added Spacebar Keyer for testing and keyboard-only practice.
+- Added JSON-backed progress tracking in `data/practice_progress.json`.
+- Added mode-aware progress for Send and Read skills.
+- Added Read mode: show Morse, answer with a letter.
+- Replaced detailed Practice sidebar with a student-friendly score card.
+- Added `/progress` details page with per-letter stats and Morse code reinforcement.

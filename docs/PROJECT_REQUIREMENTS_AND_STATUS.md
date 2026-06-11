@@ -945,6 +945,11 @@ Each station should only publish and subscribe to approved topics.
 | USB speaker integration | Complete |
 | GitHub repo setup | Complete |
 | Fresh Pi setup guide | Complete |
+| Continuous Send practice loop | Complete |
+| Read practice mode | Complete |
+| JSON progress tracking | Complete |
+| Student score card | Complete |
+| Detailed Progress page | Complete |
 
 ---
 
@@ -952,11 +957,11 @@ Each station should only publish and subscribe to approved topics.
 
 | Item | Status |
 |---|---|
-| SQLite database | Not started |
-| Log practice attempts | Not started |
+| SQLite database | Deferred |
+| Log practice attempts | Started with JSON progress |
 | Student profile selection | Not started |
 | Morse password login | Not started |
-| Progress dashboard | Not started |
+| Progress dashboard | Started |
 | Better timing feedback | Not started |
 | Refactor hardware code | Not started |
 
@@ -964,22 +969,45 @@ Each station should only publish and subscribe to approved topics.
 
 ## 16. Recommended Next Steps
 
-### Step 1: Add SQLite logging
+### Step 1: Add Listen mode
 
 Next coding milestone:
 
 ```text
-Create db.py
-Create morse_station.db
-Create students table
-Create practice_attempts table
-Log every Practice Mode check
-Show recent attempts on Practice page
+Play a single Morse letter
+Add Replay button
+Let student type/select the heard letter
+Track Listen progress separately from Send and Read
+Keep feedback spoiler-free
 ```
 
 ---
 
-### Step 2: Add student profiles
+### Step 2: Add Learn mode
+
+Add a guided mode for first exposure and reinforcement.
+
+First version should:
+
+```text
+Show the letter
+Show the Morse pattern
+Play the sound
+Let the student key along
+Track gentle practice progress
+```
+
+---
+
+### Step 3: Add Mixed mode
+
+Use current progress data to rotate between weak mode+letter combinations.
+
+First version should be rule-based.
+
+---
+
+### Step 4: Add student profiles
 
 Add a simple profile selection page.
 
@@ -994,13 +1022,13 @@ Student 2
 
 ---
 
-### Step 3: Add Morse password login
+### Step 5: Add Morse password login
 
 Add student login using a Morse-tapped password.
 
 ---
 
-### Step 4: Improve Practice Mode
+### Step 6: Improve Practice Mode
 
 Add:
 
@@ -1009,13 +1037,12 @@ dot/dash timing feedback
 letter gap feedback
 more beginner letters
 word practice
-listen-and-choose activity
 copy-rhythm activity
 ```
 
 ---
 
-### Step 5: Add adaptive lessons
+### Step 7: Add adaptive lessons
 
 Use logged data to recommend next practice.
 
@@ -1025,7 +1052,7 @@ Later version may use an LLM.
 
 ---
 
-### Step 6: Add secure messaging
+### Step 8: Add secure messaging
 
 Add local messaging first.
 
@@ -1155,12 +1182,13 @@ This stage is working.
 The next stage is successful when:
 
 ```text
-The app creates a SQLite database.
-A default student exists.
-Every Practice Mode check is logged.
-Recent attempts are displayed on the Practice page.
+Listen mode plays a Morse prompt.
+The student can replay the prompt.
+The student can answer by typing or selecting a letter.
+Listen progress is tracked separately from Send and Read.
+The Practice score card updates after Listen answers.
+The Progress page shows Listen details.
 The project is committed to GitHub.
-The documentation explains how the station was built step by step.
 ```
 
 ---
