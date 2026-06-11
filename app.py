@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from gpiozero import Button, LED
 from morse import text_to_morse, morse_to_text
-from practice_progress import choose_next_letter, progress_summary, record_attempt
+from practice_progress import all_mode_details, choose_next_letter, mode_score, progress_summary, record_attempt
 from time import time, sleep
 import threading
 import wave
@@ -449,6 +449,7 @@ def practice():
         read_choices=get_read_choices(practice_target),
         feedback=practice_feedback,
         progress=progress_summary(practice_letters, mode),
+        score=mode_score(practice_letters, mode),
         progress_label=practice_modes[mode]["progress_label"]
     )
 
@@ -470,7 +471,8 @@ def practice_next():
         "target": practice_target,
         "expected_morse": text_to_morse(practice_target),
         "read_choices": get_read_choices(practice_target),
-        "progress": progress_summary(practice_letters, mode)
+        "progress": progress_summary(practice_letters, mode),
+        "score": mode_score(practice_letters, mode)
     })
 
 
@@ -484,7 +486,8 @@ def practice_retry():
         "target": practice_target,
         "expected_morse": text_to_morse(practice_target),
         "read_choices": get_read_choices(practice_target),
-        "progress": progress_summary(practice_letters, mode)
+        "progress": progress_summary(practice_letters, mode),
+        "score": mode_score(practice_letters, mode)
     })
 
 
@@ -499,14 +502,31 @@ def practice_result():
         mode = "send"
 
     if letter not in practice_letters:
-        return jsonify({"status": "ignored", "progress": progress_summary(practice_letters, mode)})
+        return jsonify({
+            "status": "ignored",
+            "progress": progress_summary(practice_letters, mode),
+            "score": mode_score(practice_letters, mode)
+        })
 
     record_attempt(letter, is_correct, practice_letters, mode)
 
     return jsonify({
         "status": "recorded",
-        "progress": progress_summary(practice_letters, mode)
+        "progress": progress_summary(practice_letters, mode),
+        "score": mode_score(practice_letters, mode)
     })
+
+
+@app.route("/progress")
+def progress():
+    mode = get_practice_mode()
+
+    return render_template(
+        "progress.html",
+        mode=mode,
+        modes=practice_modes,
+        details=all_mode_details(practice_letters, practice_modes.keys())
+    )
 
 
 @app.route("/practice/play", methods=["POST"])

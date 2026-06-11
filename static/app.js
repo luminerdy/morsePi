@@ -242,6 +242,7 @@ async function recordPracticeResult(target, correct) {
         });
         const data = await response.json();
         updateProgressPanel(data.progress || []);
+        updateScoreCard(data.score || null);
     } catch (error) {
         console.log("Unable to record practice result", error);
     }
@@ -256,6 +257,7 @@ async function loadNextPracticePrompt() {
 
         updatePracticePrompt(data.target, data.expected_morse, data.read_choices || []);
         updateProgressPanel(data.progress || []);
+        updateScoreCard(data.score || null);
         resetInputDisplay();
         setPracticeFeedback(`Now try ${data.target}.`);
         focusReadInput();
@@ -277,6 +279,7 @@ async function retryPracticePrompt() {
 
         updatePracticePrompt(data.target, data.expected_morse, data.read_choices || []);
         updateProgressPanel(data.progress || []);
+        updateScoreCard(data.score || null);
         resetInputDisplay();
         setPracticeFeedback("Ready. Try it again.");
         focusReadInput();
@@ -359,6 +362,50 @@ function updateProgressPanel(progress) {
                 <span>${item.attempts} tries</span>
             `;
         }
+    }
+}
+
+function updateScoreCard(score) {
+    if (!score) {
+        return;
+    }
+
+    const scorePanel = document.getElementById("practiceScore");
+    const mastery = document.getElementById("scoreMastery");
+    const masteryBar = document.getElementById("scoreMasteryBar");
+    const streak = document.getElementById("scoreStreak");
+    const accuracy = document.getElementById("scoreAccuracy");
+    const attempts = document.getElementById("scoreAttempts");
+    const goal = document.getElementById("scoreGoal");
+
+    if (!scorePanel) {
+        return;
+    }
+
+    const masteryValue = Math.max(0, Math.min(Number(score.mastery) || 0, 100));
+
+    if (mastery) {
+        mastery.innerText = `${masteryValue}%`;
+    }
+
+    if (masteryBar) {
+        masteryBar.style.width = `${masteryValue}%`;
+    }
+
+    if (streak) {
+        streak.innerText = score.streak;
+    }
+
+    if (accuracy) {
+        accuracy.innerText = `${score.accuracy}% accuracy`;
+    }
+
+    if (attempts) {
+        attempts.innerText = `${score.attempts} tries`;
+    }
+
+    if (goal) {
+        goal.innerText = score.next_goal;
     }
 }
 

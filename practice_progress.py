@@ -154,3 +154,47 @@ def progress_summary(letters, mode=DEFAULT_MODE):
         })
 
     return summary
+
+
+def mode_score(letters, mode=DEFAULT_MODE):
+    summary = progress_summary(letters, mode)
+    total_attempts = sum(item["attempts"] for item in summary)
+    total_correct = sum(item["correct"] for item in summary)
+    mastery = int(round(sum(item["strength_percent"] for item in summary) / len(summary))) if summary else 0
+    best_streak = max((item["streak"] for item in summary), default=0)
+    accuracy = int(round((total_correct / total_attempts) * 100)) if total_attempts else 0
+    level = min(5, mastery // 20 + 1)
+    next_level_mastery = min(level * 20, 100)
+    points_to_next = max(0, next_level_mastery - mastery)
+
+    if mastery >= 80:
+        title = "Sharp Copy"
+    elif mastery >= 60:
+        title = "Getting Strong"
+    elif mastery >= 40:
+        title = "Finding Rhythm"
+    elif mastery >= 20:
+        title = "Warming Up"
+    else:
+        title = "First Signals"
+
+    return {
+        "mode": mode,
+        "level": level,
+        "title": title,
+        "mastery": mastery,
+        "accuracy": accuracy,
+        "streak": best_streak,
+        "attempts": total_attempts,
+        "next_goal": "Level complete" if mastery == 100 else f"{points_to_next} mastery points to Level {min(level + 1, 5)}"
+    }
+
+
+def all_mode_details(letters, modes):
+    return {
+        mode: {
+            "score": mode_score(letters, mode),
+            "letters": progress_summary(letters, mode)
+        }
+        for mode in modes
+    }

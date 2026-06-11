@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+    <title>Progress - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260610-6">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div class="app-shell">
+        <header class="app-header">
+            <div>
+                <p class="eyebrow">Morse Station</p>
+                <h1>Progress</h1>
+            </div>
+
+            <nav class="nav-row" aria-label="Primary navigation">
+                <a href="/">Home</a>
+                <a href="/practice?mode={{ mode }}">Practice</a>
+                <a class="active" href="/progress?mode={{ mode }}">Progress</a>
+            </nav>
+        </header>
+
+        <main class="progress-page">
+            <section class="panel">
+                <div class="mode-tabs" aria-label="Progress modes">
+                    {% for mode_key, mode_config in modes.items() %}
+                        <a class="{% if mode == mode_key %}active{% endif %}" href="/progress?mode={{ mode_key }}">
+                            {{ mode_config.label }}
+                        </a>
+                    {% endfor %}
+                </div>
+
+                {% set mode_details = details[mode] %}
+                <div class="score-card score-card-wide">
+                    <div class="section-heading">
+                        <h2>{{ modes[mode].label }} Level {{ mode_details.score.level }}</h2>
+                        <span class="status-pill">{{ mode_details.score.title }}</span>
+                    </div>
+
+                    <div class="score-main">
+                        <div>
+                            <span class="score-label">Mastery</span>
+                            <strong>{{ mode_details.score.mastery }}%</strong>
+                        </div>
+                        <div>
+                            <span class="score-label">Accuracy</span>
+                            <strong>{{ mode_details.score.accuracy }}%</strong>
+                        </div>
+                        <div>
+                            <span class="score-label">Best Streak</span>
+                            <strong>{{ mode_details.score.streak }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="score-bar" aria-hidden="true">
+                        <span style="width: {{ mode_details.score.mastery }}%"></span>
+                    </div>
+
+                    <p class="score-goal">{{ mode_details.score.next_goal }}</p>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="section-heading">
+                    <h2>Letter Details</h2>
+                </div>
+
+                <div class="progress-list progress-list-wide">
+                    {% for item in mode_details.letters %}
+                        <div class="progress-item">
+                            <div class="progress-row">
+                                <strong>{{ item.letter }}</strong>
+                                <span>{{ item.strength_percent }}%</span>
+                            </div>
+                            <div class="progress-bar" aria-hidden="true">
+                                <span style="width: {{ item.strength_percent }}%"></span>
+                            </div>
+                            <div class="progress-meta">
+                                <span>{{ item.accuracy }}% accuracy</span>
+                                <span>{{ item.streak }} streak</span>
+                                <span>{{ item.correct }} correct</span>
+                                <span>{{ item.attempts }} tries</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

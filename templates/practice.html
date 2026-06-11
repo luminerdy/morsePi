@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Practice Mode - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260610-5">
+    <link rel="stylesheet" href="/static/style.css?v=20260610-6">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -16,6 +16,7 @@
             <nav class="nav-row" aria-label="Primary navigation">
                 <a href="/">Home</a>
                 <a class="active" href="/practice">Practice</a>
+                <a href="/progress?mode={{ mode }}">Progress</a>
             </nav>
         </header>
 
@@ -112,32 +113,40 @@
             <aside class="side-stack">
                 <section class="panel compact-panel">
                     <div class="section-heading">
-                        <h2>{{ progress_label }}</h2>
+                        <h2>{{ modes[mode].label }} Level {{ score.level }}</h2>
+                        <span class="status-pill">{{ score.title }}</span>
                     </div>
 
-                    <div class="progress-list" id="practiceProgress">
-                        {% for item in progress %}
-                            <div class="progress-item" data-progress-letter="{{ item.letter }}">
-                                <div class="progress-row">
-                                    <strong>{{ item.letter }}</strong>
-                                    <span>{{ item.strength_percent }}%</span>
-                                </div>
-                                <div class="progress-bar" aria-hidden="true">
-                                    <span style="width: {{ item.strength_percent }}%"></span>
-                                </div>
-                                <div class="progress-meta">
-                                    <span>{{ item.accuracy }}% accuracy</span>
-                                    <span>{{ item.streak }} streak</span>
-                                    <span>{{ item.attempts }} tries</span>
-                                </div>
+                    <div class="score-card" id="practiceScore">
+                        <div class="score-main">
+                            <div>
+                                <span class="score-label">Mastery</span>
+                                <strong id="scoreMastery">{{ score.mastery }}%</strong>
                             </div>
-                        {% endfor %}
+                            <div>
+                                <span class="score-label">Streak</span>
+                                <strong id="scoreStreak">{{ score.streak }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="score-bar" aria-hidden="true">
+                            <span id="scoreMasteryBar" style="width: {{ score.mastery }}%"></span>
+                        </div>
+
+                        <div class="score-stats">
+                            <span id="scoreAccuracy">{{ score.accuracy }}% accuracy</span>
+                            <span id="scoreAttempts">{{ score.attempts }} tries</span>
+                        </div>
+
+                        <p class="score-goal" id="scoreGoal">{{ score.next_goal }}</p>
+
+                        <a class="button secondary full-width" href="/progress?mode={{ mode }}">Details</a>
                     </div>
                 </section>
             </aside>
         </main>
     </div>
 
-<script src="/static/app.js?v=20260610-5"></script>
+<script src="/static/app.js?v=20260610-6"></script>
 </body>
 </html>

@@ -104,6 +104,11 @@ h2 {
     align-items: start;
 }
 
+.progress-page {
+    display: grid;
+    gap: 16px;
+}
+
 .panel {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -448,6 +453,84 @@ input[type="range"] + .button {
     font-weight: 800;
 }
 
+.progress-list-wide {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.score-card {
+    display: grid;
+    gap: 14px;
+}
+
+.score-card-wide {
+    margin-top: 14px;
+}
+
+.score-main {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.score-card-wide .score-main {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.score-main div {
+    padding: 12px;
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.score-label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.score-main strong {
+    color: var(--primary);
+    font-size: 34px;
+    line-height: 1;
+}
+
+.score-bar {
+    height: 14px;
+    overflow: hidden;
+    background: #dfe6ee;
+    border-radius: 999px;
+}
+
+.score-bar span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--accent);
+    border-radius: inherit;
+    transition: width 180ms ease;
+}
+
+.score-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.score-stats span,
+.score-goal {
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.score-goal {
+    margin-bottom: 0;
+}
+
 .practice-readout {
     display: grid;
     grid-template-columns: 180px minmax(0, 1fr);
@@ -565,6 +648,10 @@ input[type="range"] + .button {
         grid-template-columns: 1fr;
     }
 
+    .progress-list-wide {
+        grid-template-columns: 1fr;
+    }
+
     .compose-panel,
     .output-panel,
     .key-panel,
@@ -632,7 +719,9 @@ input[type="range"] + .button {
 
     .mode-tabs,
     .choice-grid,
-    .read-type-row {
+    .read-type-row,
+    .score-main,
+    .score-card-wide .score-main {
         grid-template-columns: 1fr;
     }
 
