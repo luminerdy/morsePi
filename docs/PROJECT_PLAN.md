@@ -178,6 +178,7 @@ Create or refine these GitHub issues next:
 8. Decide whether JSON progress should migrate to SQLite
 9. Add web app tutorial documentation
 10. Move hardware/audio code out of `app.py`
+11. Test Kindle Fire/Silk browser compatibility for Practice modes, audio playback, and touch layout
 
 ## Progress Log
 
