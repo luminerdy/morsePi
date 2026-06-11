@@ -13,6 +13,7 @@ let keyboardMorse = "";
 let keyboardAudioCtx = null;
 let keyboardToneOscillator = null;
 let keyboardToneGain = null;
+let practiceAudioPlaying = false;
 
 const KEYBOARD_DASH_THRESHOLD_MS = 400;
 const MORSE_DECODE = {
@@ -119,16 +120,8 @@ function stopKeyboardTone() {
     keyboardToneGain = null;
 }
 
-async function playInBrowser() {
-    const morseBox = document.getElementById("morseBox");
-
-    if (!morseBox) {
-        return;
-    }
-
-    const morseText = morseBox.innerText.trim();
-
-    if (!morseText || morseText === "Type a message above.") {
+async function playMorseText(morseText) {
+    if (!morseText) {
         return;
     }
 
@@ -152,6 +145,38 @@ async function playInBrowser() {
         } else if (ch === "/") {
             await sleep(wordGapMs);
         }
+    }
+}
+
+async function playInBrowser() {
+    const morseBox = document.getElementById("morseBox");
+
+    if (!morseBox) {
+        return;
+    }
+
+    const morseText = morseBox.innerText.trim();
+
+    if (!morseText || morseText === "Type a message above.") {
+        return;
+    }
+
+    await playMorseText(morseText);
+}
+
+async function playPracticePromptInBrowser() {
+    const panel = getPracticePanel();
+
+    if (!panel || practiceAudioPlaying) {
+        return;
+    }
+
+    practiceAudioPlaying = true;
+
+    try {
+        await playMorseText(panel.dataset.expectedMorse || "");
+    } finally {
+        practiceAudioPlaying = false;
     }
 }
 
@@ -341,7 +366,12 @@ async function loadNextPracticePrompt() {
         updateProgressPanel(data.progress || []);
         updateScoreCard(data.score || null);
         resetInputDisplay();
-        setPracticeFeedback(getPracticeMode() === "read" ? "Next one." : `Now try ${data.target}.`);
+        if (getPracticeMode() === "listen") {
+            setPracticeFeedback("Next one. Listen and choose the letter.");
+            playPracticePromptInBrowser();
+        } else {
+            setPracticeFeedback(getPracticeMode() === "read" ? "Next one." : `Now try ${data.target}.`);
+        }
         focusReadInput();
     } catch (error) {
         console.log("Unable to load next practice prompt", error);
@@ -364,6 +394,9 @@ async function retryPracticePrompt() {
         updateScoreCard(data.score || null);
         resetInputDisplay();
         setPracticeFeedback("Ready. Try it again.");
+        if (getPracticeMode() === "listen") {
+            playPracticePromptInBrowser();
+        }
         focusReadInput();
     } catch (error) {
         console.log("Unable to reset practice prompt", error);
@@ -385,8 +418,17 @@ function updatePracticePrompt(target, expectedMorse, readChoices = []) {
 
     panel.dataset.practiceTarget = target;
     panel.dataset.expectedMorse = expectedMorse;
-    targetLetter.innerText = getPracticeMode() === "read" ? "?" : target;
-    expected.innerText = expectedMorse;
+    if (getPracticeMode() === "send") {
+        targetLetter.innerText = target;
+        expected.innerText = "?";
+    } else if (getPracticeMode() === "listen") {
+        targetLetter.innerText = "?";
+        expected.innerText = "Play Code";
+    } else {
+        targetLetter.innerText = "?";
+        expected.innerText = expectedMorse;
+    }
+
     updateReadChoices(readChoices);
 }
 
@@ -506,7 +548,7 @@ function clearReadInput() {
 function focusReadInput() {
     const input = document.getElementById("readAnswerInput");
 
-    if (getPracticeMode() === "read" && input) {
+    if (["read", "listen"].includes(getPracticeMode()) && input) {
         input.focus();
     }
 }
@@ -514,7 +556,7 @@ function focusReadInput() {
 function submitReadAnswer(answer) {
     const panel = getPracticePanel();
 
-    if (!panel || getPracticeMode() !== "read" || practiceBusy || !practiceActive) {
+    if (!panel || !["read", "listen"].includes(getPracticeMode()) || practiceBusy || !practiceActive) {
         return;
     }
 
@@ -535,7 +577,10 @@ function submitReadAnswer(answer) {
             setTimeout(loadNextPracticePrompt, 850);
         });
     } else {
-        setPracticeFeedback(`Try again. ${expectedMorse} is ${target}, not ${normalizedAnswer}.`);
+        const feedback = getPracticeMode() === "listen"
+            ? `Try again. That was ${target}, not ${normalizedAnswer}.`
+            : `Try again. ${expectedMorse} is ${target}, not ${normalizedAnswer}.`;
+        setPracticeFeedback(feedback);
         recordPracticeResult(target, false).finally(() => {
             setTimeout(retryPracticePrompt, 1200);
         });
@@ -678,6 +723,7 @@ function initializePracticeMode() {
     const keyboardToggle = document.getElementById("keyboardKeyerToggle");
     const readSubmit = document.getElementById("readSubmit");
     const readInput = document.getElementById("readAnswerInput");
+    const listenReplay = document.getElementById("listenReplay");
 
     if (panel && toggle) {
         toggle.addEventListener("click", () => {
@@ -713,6 +759,10 @@ function initializePracticeMode() {
         readInput.addEventListener("input", () => {
             readInput.value = normalizeLetterAnswer(readInput.value);
         });
+    }
+
+    if (listenReplay) {
+        listenReplay.addEventListener("click", playPracticePromptInBrowser);
     }
 
     document.addEventListener("keydown", handleKeyboardKeyDown);

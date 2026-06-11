@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Practice Mode - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260610-9">
+    <link rel="stylesheet" href="/static/style.css?v=20260610-10">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -39,18 +39,20 @@
                 </div>
 
                 <div class="practice-readout">
-                    <div class="{% if mode == 'read' %}read-answer-card{% endif %}">
-                        <div class="field-label">Letter</div>
-                        <div class="target-letter" id="targetLetter">{% if mode == 'read' %}?{% else %}{{ target }}{% endif %}</div>
+                    <div class="{% if mode in ['read', 'listen'] %}read-answer-card{% endif %}">
+                        <div class="field-label">{% if mode == 'send' %}Letter{% else %}Your Answer{% endif %}</div>
+                        <div class="target-letter" id="targetLetter">{% if mode in ['read', 'listen'] %}?{% else %}{{ target }}{% endif %}</div>
                     </div>
 
                     <div>
-                        <div class="field-label">Morse</div>
-                        <div class="expected-morse" id="expectedMorse">{{ expected_morse }}</div>
+                        <div class="field-label">{% if mode == 'listen' %}Audio Prompt{% else %}Morse{% endif %}</div>
+                        <div class="expected-morse {% if mode in ['send', 'listen'] %}prompt-placeholder{% endif %}" id="expectedMorse">
+                            {% if mode == 'read' %}{{ expected_morse }}{% elif mode == 'listen' %}Play Code{% else %}?{% endif %}
+                        </div>
                     </div>
                 </div>
 
-                <div class="read-answer-area" id="readAnswerArea" {% if mode != 'read' %}hidden{% endif %}>
+                <div class="read-answer-area" id="readAnswerArea" {% if mode not in ['read', 'listen'] %}hidden{% endif %}>
                     <div class="choice-grid" id="readChoices">
                         {% for choice in read_choices %}
                             <button type="button" class="button secondary read-choice" data-read-choice="{{ choice }}">
@@ -66,7 +68,7 @@
                     </div>
                 </div>
 
-                <div class="action-row send-actions" {% if mode == 'read' %}hidden{% endif %}>
+                <div class="action-row send-actions" {% if mode != 'send' %}hidden{% endif %}>
                     <form method="post" action="/practice/play?mode={{ mode }}" class="inline-form">
                         <button type="submit" class="button secondary">Play Letter</button>
                     </form>
@@ -80,7 +82,11 @@
                     <button type="button" class="button secondary" onclick="clearKeyInput()">Clear</button>
                 </div>
 
-                <div class="action-row read-actions" {% if mode != 'read' %}hidden{% endif %}>
+                <div class="action-row read-actions" {% if mode not in ['read', 'listen'] %}hidden{% endif %}>
+                    {% if mode == 'listen' %}
+                        <button type="button" class="button primary" id="listenReplay">Play Code</button>
+                    {% endif %}
+
                     <form method="post" action="/practice/new?mode={{ mode }}" class="inline-form">
                         <button type="submit" class="button secondary">Try Another</button>
                     </form>
@@ -147,6 +153,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260610-9"></script>
+<script src="/static/app.js?v=20260610-10"></script>
 </body>
 </html>

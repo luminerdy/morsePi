@@ -577,6 +577,13 @@ input[type="range"] + .button {
     font-size: 56px;
 }
 
+.expected-morse.prompt-placeholder {
+    color: #d3e4dc;
+    font-family: Arial, sans-serif;
+    font-size: 42px;
+    letter-spacing: 0;
+}
+
 .read-answer-card .target-letter {
     color: var(--muted);
 }
