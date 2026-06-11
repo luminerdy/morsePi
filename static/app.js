@@ -259,7 +259,7 @@ async function loadNextPracticePrompt() {
         updateProgressPanel(data.progress || []);
         updateScoreCard(data.score || null);
         resetInputDisplay();
-        setPracticeFeedback(`Now try ${data.target}.`);
+        setPracticeFeedback(getPracticeMode() === "read" ? "Next one." : `Now try ${data.target}.`);
         focusReadInput();
     } catch (error) {
         console.log("Unable to load next practice prompt", error);
