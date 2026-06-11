@@ -21,7 +21,37 @@ const MORSE_DECODE = {
     ".-": "A",
     "-.": "N",
     "..": "I",
-    "--": "M"
+    "--": "M",
+    "-...": "B",
+    "-.-.": "C",
+    "-..": "D",
+    "..-.": "F",
+    "--.": "G",
+    "....": "H",
+    ".---": "J",
+    "-.-": "K",
+    ".-..": "L",
+    "---": "O",
+    ".--.": "P",
+    "--.-": "Q",
+    ".-.": "R",
+    "...": "S",
+    "..-": "U",
+    "...-": "V",
+    ".--": "W",
+    "-..-": "X",
+    "-.--": "Y",
+    "--..": "Z",
+    ".----": "1",
+    "..---": "2",
+    "...--": "3",
+    "....-": "4",
+    ".....": "5",
+    "-....": "6",
+    "--...": "7",
+    "---..": "8",
+    "----.": "9",
+    "-----": "0"
 };
 
 async function browserBeep(audioCtx, durationMs) {
@@ -584,6 +614,10 @@ function setKeyboardKeyerActive(active) {
     resetVirtualKeyer();
     updateKeyboardKeyerToggle();
 
+    if (keyboardKeyerActive && document.activeElement) {
+        document.activeElement.blur();
+    }
+
     if (!keyboardKeyerActive) {
         updateLiveKey();
     }
@@ -591,7 +625,7 @@ function setKeyboardKeyerActive(active) {
 
 function ignoreKeyboardKeyerEvent(event) {
     const tagName = event.target && event.target.tagName;
-    return ["INPUT", "TEXTAREA", "BUTTON", "A", "SELECT"].includes(tagName);
+    return !keyboardKeyerActive && ["INPUT", "TEXTAREA", "BUTTON", "A", "SELECT"].includes(tagName);
 }
 
 function handleKeyboardKeyDown(event) {
@@ -645,20 +679,18 @@ function initializePracticeMode() {
     const readSubmit = document.getElementById("readSubmit");
     const readInput = document.getElementById("readAnswerInput");
 
-    if (!panel || !toggle) {
-        return;
+    if (panel && toggle) {
+        toggle.addEventListener("click", () => {
+            practiceActive = !practiceActive;
+
+            if (!practiceActive && practiceCheckTimer) {
+                clearTimeout(practiceCheckTimer);
+                practiceCheckTimer = null;
+            }
+
+            updatePracticeToggle();
+        });
     }
-
-    toggle.addEventListener("click", () => {
-        practiceActive = !practiceActive;
-
-        if (!practiceActive && practiceCheckTimer) {
-            clearTimeout(practiceCheckTimer);
-            practiceCheckTimer = null;
-        }
-
-        updatePracticeToggle();
-    });
 
     if (keyboardToggle) {
         keyboardToggle.addEventListener("click", () => {
@@ -689,7 +721,9 @@ function initializePracticeMode() {
 
     updatePracticeToggle();
     updateKeyboardKeyerToggle();
-    clearKeyInput();
+    if (keyboardToggle || panel) {
+        clearKeyInput();
+    }
     focusReadInput();
 }
 

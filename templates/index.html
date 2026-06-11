@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260610-8">
+    <link rel="stylesheet" href="/static/style.css?v=20260610-9">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -72,7 +72,7 @@
             <section class="panel key-panel">
                 <div class="section-heading">
                     <h2>Telegraph Key</h2>
-                    <span class="status-pill">Live</span>
+                    <span class="status-pill" id="keyerStatus">Live</span>
                 </div>
 
                 <div class="readout-grid">
@@ -88,6 +88,7 @@
                 </div>
 
                 <div class="action-row">
+                    <button type="button" class="button secondary" id="keyboardKeyerToggle">Spacebar Keyer: Off</button>
                     <button type="button" class="button secondary" onclick="clearKeyInput()">Clear Key</button>
                 </div>
             </section>
@@ -131,6 +132,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260610-8"></script>
+<script src="/static/app.js?v=20260610-9"></script>
 </body>
 </html>
