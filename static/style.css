@@ -204,11 +204,41 @@ textarea {
 }
 
 textarea:focus,
+input[type="text"]:focus,
 input[type="range"]:focus-visible,
 button:focus-visible,
 a:focus-visible {
     outline: 3px solid rgba(36, 87, 214, 0.24);
     outline-offset: 2px;
+}
+
+.mode-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding: 4px;
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.mode-tabs a {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 0 14px;
+    border-radius: 6px;
+    color: var(--muted);
+    font-size: 16px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.mode-tabs a.active {
+    background: var(--primary);
+    color: #ffffff;
 }
 
 .action-row {
@@ -448,6 +478,53 @@ input[type="range"] + .button {
     font-size: 56px;
 }
 
+.read-answer-card .target-letter {
+    color: var(--muted);
+}
+
+.read-answer-area {
+    display: grid;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.read-answer-area[hidden] {
+    display: none;
+}
+
+.choice-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.read-choice {
+    min-height: 64px;
+    font-size: 28px;
+}
+
+.read-type-row {
+    display: grid;
+    grid-template-columns: 110px minmax(110px, 160px);
+    gap: 10px;
+    align-items: center;
+}
+
+.letter-answer-input {
+    width: 100%;
+    min-height: 54px;
+    padding: 0 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    background: var(--surface-muted);
+    color: var(--text);
+    font: inherit;
+    font-size: 30px;
+    font-weight: 900;
+    text-align: center;
+    text-transform: uppercase;
+}
+
 .feedback-box {
     background: var(--warning-bg);
     border-color: var(--warning-border);
@@ -551,5 +628,15 @@ input[type="range"] + .button {
     .button,
     .inline-form {
         width: 100%;
+    }
+
+    .mode-tabs,
+    .choice-grid,
+    .read-type-row {
+        grid-template-columns: 1fr;
+    }
+
+    .mode-tabs {
+        display: grid;
     }
 }

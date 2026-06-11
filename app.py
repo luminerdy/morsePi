@@ -9,6 +9,7 @@ import math
 import tempfile
 import subprocess
 import os
+import random
 
 app = Flask(__name__)
 
@@ -65,6 +66,16 @@ key_tone_process = None
 practice_letters = ["E", "T", "A", "N", "I", "M"]
 practice_target = "E"
 practice_feedback = ""
+practice_modes = {
+    "send": {
+        "label": "Send",
+        "progress_label": "Send Progress"
+    },
+    "read": {
+        "label": "Read",
+        "progress_label": "Read Progress"
+    }
+}
 
 key_lock = threading.Lock()
 output_lock = threading.Lock()
@@ -333,10 +344,27 @@ def clear_key_state():
         press_started_at = None
 
 
-def choose_new_practice_target():
+def get_practice_mode():
+    mode = request.values.get("mode", "send")
+
+    if request.is_json:
+        data = request.get_json(silent=True) or {}
+        mode = data.get("mode", mode)
+
+    return mode if mode in practice_modes else "send"
+
+
+def get_read_choices(target):
+    choices = [target]
+    others = [letter for letter in practice_letters if letter != target]
+    choices.extend(random.sample(others, min(3, len(others))))
+    return random.sample(choices, len(choices))
+
+
+def choose_new_practice_target(mode="send"):
     global practice_target, practice_feedback
 
-    practice_target = choose_next_letter(practice_letters, practice_target)
+    practice_target = choose_next_letter(practice_letters, practice_target, mode)
     practice_feedback = ""
     clear_key_state()
 
@@ -409,42 +437,54 @@ def clear_key():
 # -----------------------------
 @app.route("/practice")
 def practice():
+    mode = get_practice_mode()
     expected_morse = text_to_morse(practice_target)
 
     return render_template(
         "practice.html",
+        mode=mode,
+        modes=practice_modes,
         target=practice_target,
         expected_morse=expected_morse,
+        read_choices=get_read_choices(practice_target),
         feedback=practice_feedback,
-        progress=progress_summary(practice_letters)
+        progress=progress_summary(practice_letters, mode),
+        progress_label=practice_modes[mode]["progress_label"]
     )
 
 
 @app.route("/practice/new", methods=["POST"])
 def practice_new():
-    choose_new_practice_target()
-    return redirect(url_for("practice"))
+    mode = get_practice_mode()
+    choose_new_practice_target(mode)
+    return redirect(url_for("practice", mode=mode))
 
 
 @app.route("/practice/next", methods=["POST"])
 def practice_next():
-    choose_new_practice_target()
+    mode = get_practice_mode()
+    choose_new_practice_target(mode)
 
     return jsonify({
+        "mode": mode,
         "target": practice_target,
         "expected_morse": text_to_morse(practice_target),
-        "progress": progress_summary(practice_letters)
+        "read_choices": get_read_choices(practice_target),
+        "progress": progress_summary(practice_letters, mode)
     })
 
 
 @app.route("/practice/retry", methods=["POST"])
 def practice_retry():
+    mode = get_practice_mode()
     clear_key_state()
 
     return jsonify({
+        "mode": mode,
         "target": practice_target,
         "expected_morse": text_to_morse(practice_target),
-        "progress": progress_summary(practice_letters)
+        "read_choices": get_read_choices(practice_target),
+        "progress": progress_summary(practice_letters, mode)
     })
 
 
@@ -453,15 +493,19 @@ def practice_result():
     data = request.get_json(silent=True) or {}
     letter = data.get("target", practice_target)
     is_correct = bool(data.get("correct", False))
+    mode = data.get("mode", "send")
+
+    if mode not in practice_modes:
+        mode = "send"
 
     if letter not in practice_letters:
-        return jsonify({"status": "ignored", "progress": progress_summary(practice_letters)})
+        return jsonify({"status": "ignored", "progress": progress_summary(practice_letters, mode)})
 
-    progress = record_attempt(letter, is_correct, practice_letters)
+    record_attempt(letter, is_correct, practice_letters, mode)
 
     return jsonify({
         "status": "recorded",
-        "progress": progress_summary(practice_letters)
+        "progress": progress_summary(practice_letters, mode)
     })
 
 
@@ -483,11 +527,11 @@ def practice_check():
         practice_feedback = "Tap the telegraph key first, then check your answer."
 
     elif actual_morse == expected_morse:
-        record_attempt(practice_target, True, practice_letters)
+        record_attempt(practice_target, True, practice_letters, "send")
         practice_feedback = f"Great job! You tapped {practice_target} correctly."
 
     else:
-        record_attempt(practice_target, False, practice_letters)
+        record_attempt(practice_target, False, practice_letters, "send")
         practice_feedback = (
             f"Good try. I heard {actual_morse}, but {practice_target} is {expected_morse}. "
             "Try again and listen to the rhythm."

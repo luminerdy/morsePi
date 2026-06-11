@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Practice Mode - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260610-3">
+    <link rel="stylesheet" href="/static/style.css?v=20260610-4">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -21,6 +21,7 @@
 
         <main class="dashboard-grid">
             <section class="panel practice-panel"
+                     data-practice-mode="{{ mode }}"
                      data-practice-target="{{ target }}"
                      data-expected-morse="{{ expected_morse }}">
                 <div class="section-heading">
@@ -28,10 +29,18 @@
                     <span class="status-pill" id="practiceStatus">Auto practice on</span>
                 </div>
 
+                <div class="mode-tabs" aria-label="Practice modes">
+                    {% for mode_key, mode_config in modes.items() %}
+                        <a class="{% if mode == mode_key %}active{% endif %}" href="/practice?mode={{ mode_key }}">
+                            {{ mode_config.label }}
+                        </a>
+                    {% endfor %}
+                </div>
+
                 <div class="practice-readout">
-                    <div>
+                    <div class="{% if mode == 'read' %}read-answer-card{% endif %}">
                         <div class="field-label">Letter</div>
-                        <div class="target-letter" id="targetLetter">{{ target }}</div>
+                        <div class="target-letter" id="targetLetter">{% if mode == 'read' %}?{% else %}{{ target }}{% endif %}</div>
                     </div>
 
                     <div>
@@ -40,18 +49,40 @@
                     </div>
                 </div>
 
-                <div class="action-row">
+                <div class="read-answer-area" id="readAnswerArea" {% if mode != 'read' %}hidden{% endif %}>
+                    <div class="choice-grid" id="readChoices">
+                        {% for choice in read_choices %}
+                            <button type="button" class="button secondary read-choice" data-read-choice="{{ choice }}">
+                                {{ choice }}
+                            </button>
+                        {% endfor %}
+                    </div>
+
+                    <div class="read-type-row">
+                        <label class="sr-only" for="readAnswerInput">Letter answer</label>
+                        <input id="readAnswerInput" class="letter-answer-input" type="text" maxlength="1" autocomplete="off" inputmode="text">
+                        <button type="button" class="button primary" id="readSubmit">Answer</button>
+                    </div>
+                </div>
+
+                <div class="action-row send-actions" {% if mode == 'read' %}hidden{% endif %}>
                     <form method="post" action="/practice/play" class="inline-form">
                         <button type="submit" class="button secondary">Play Letter</button>
                     </form>
 
-                    <form method="post" action="/practice/new" class="inline-form">
+                    <form method="post" action="/practice/new?mode={{ mode }}" class="inline-form">
                         <button type="submit" class="button secondary">Try Another</button>
                     </form>
 
                     <button type="button" class="button secondary" id="practiceToggle">Stop Practice</button>
                     <button type="button" class="button secondary" id="keyboardKeyerToggle">Spacebar Keyer: Off</button>
                     <button type="button" class="button secondary" onclick="clearKeyInput()">Clear</button>
+                </div>
+
+                <div class="action-row read-actions" {% if mode != 'read' %}hidden{% endif %}>
+                    <form method="post" action="/practice/new?mode={{ mode }}" class="inline-form">
+                        <button type="submit" class="button secondary">Try Another</button>
+                    </form>
                 </div>
 
                 <section class="feedback-box inline-feedback" id="practiceFeedback" {% if not feedback %}hidden{% endif %}>
@@ -96,7 +127,7 @@
 
                 <section class="panel compact-panel">
                     <div class="section-heading">
-                        <h2>Practice Progress</h2>
+                        <h2>{{ progress_label }}</h2>
                     </div>
 
                     <div class="progress-list" id="practiceProgress">
@@ -122,6 +153,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260610-3"></script>
+<script src="/static/app.js?v=20260610-4"></script>
 </body>
 </html>

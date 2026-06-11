@@ -5,6 +5,7 @@ from pathlib import Path
 
 
 PROGRESS_PATH = Path("data/practice_progress.json")
+DEFAULT_MODE = "send"
 
 
 def empty_record():
@@ -27,9 +28,7 @@ def load_progress(letters):
             progress = {}
 
     for letter in letters:
-        record = empty_record()
-        record.update(progress.get(letter, {}))
-        progress[letter] = normalize_record(record)
+        progress[letter] = normalize_letter_progress(progress.get(letter, {}))
 
     return {letter: progress[letter] for letter in letters}
 
@@ -57,9 +56,40 @@ def normalize_record(record):
     }
 
 
-def record_attempt(letter, is_correct, letters):
+def normalize_letter_progress(value):
+    if not isinstance(value, dict):
+        value = {}
+
+    if "attempts" in value or "correct" in value or "strength" in value:
+        return {DEFAULT_MODE: normalize_record(value)}
+
+    modes = {}
+
+    for mode, record in value.items():
+        if isinstance(record, dict):
+            modes[mode] = normalize_record(record)
+
+    if DEFAULT_MODE not in modes:
+        modes[DEFAULT_MODE] = empty_record()
+
+    return modes
+
+
+def get_record(progress, letter, mode):
+    letter_progress = progress.get(letter, {})
+    record = letter_progress.get(mode)
+
+    if record is None:
+        record = empty_record()
+        letter_progress[mode] = record
+        progress[letter] = letter_progress
+
+    return record
+
+
+def record_attempt(letter, is_correct, letters, mode=DEFAULT_MODE):
     progress = load_progress(letters)
-    record = progress.get(letter, empty_record())
+    record = get_record(progress, letter, mode)
 
     record["attempts"] += 1
     record["last_seen"] = datetime.now(timezone.utc).isoformat()
@@ -72,18 +102,18 @@ def record_attempt(letter, is_correct, letters):
         record["streak"] = 0
         record["strength"] = max(0.0, record["strength"] - 0.35)
 
-    progress[letter] = normalize_record(record)
+    progress[letter][mode] = normalize_record(record)
     save_progress(progress)
     return progress
 
 
-def choose_next_letter(letters, current_letter=""):
+def choose_next_letter(letters, current_letter="", mode=DEFAULT_MODE):
     progress = load_progress(letters)
     candidates = [letter for letter in letters if letter != current_letter] or list(letters)
     weights = []
 
     for letter in candidates:
-        record = progress[letter]
+        record = get_record(progress, letter, mode)
         strength = record["strength"]
         attempts = record["attempts"]
         streak = record["streak"]
@@ -104,12 +134,12 @@ def choose_next_letter(letters, current_letter=""):
     return random.choices(candidates, weights=weights, k=1)[0]
 
 
-def progress_summary(letters):
+def progress_summary(letters, mode=DEFAULT_MODE):
     progress = load_progress(letters)
     summary = []
 
     for letter in letters:
-        record = progress[letter]
+        record = get_record(progress, letter, mode)
         attempts = record["attempts"]
         accuracy = int(round((record["correct"] / attempts) * 100)) if attempts else 0
 

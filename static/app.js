@@ -121,6 +121,11 @@ function getPracticePanel() {
     return document.querySelector("[data-practice-target][data-expected-morse]");
 }
 
+function getPracticeMode() {
+    const panel = getPracticePanel();
+    return panel ? (panel.dataset.practiceMode || "send") : "send";
+}
+
 function normalizeMorse(value) {
     return value.trim().replace(/\s+/g, " ");
 }
@@ -162,7 +167,7 @@ function resetPracticeAutoCheck() {
 function schedulePracticeAutoCheck(rawMorse) {
     const panel = getPracticePanel();
 
-    if (!panel || !practiceActive || practiceBusy) {
+    if (!panel || getPracticeMode() !== "send" || !practiceActive || practiceBusy) {
         return;
     }
 
@@ -233,7 +238,7 @@ async function recordPracticeResult(target, correct) {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ target, correct })
+            body: JSON.stringify({ target, correct, mode: getPracticeMode() })
         });
         const data = await response.json();
         updateProgressPanel(data.progress || []);
@@ -244,15 +249,16 @@ async function recordPracticeResult(target, correct) {
 
 async function loadNextPracticePrompt() {
     try {
-        const response = await fetch("/practice/next", {
+        const response = await fetch(`/practice/next?mode=${encodeURIComponent(getPracticeMode())}`, {
             method: "POST"
         });
         const data = await response.json();
 
-        updatePracticePrompt(data.target, data.expected_morse);
+        updatePracticePrompt(data.target, data.expected_morse, data.read_choices || []);
         updateProgressPanel(data.progress || []);
         resetInputDisplay();
         setPracticeFeedback(`Now try ${data.target}.`);
+        focusReadInput();
     } catch (error) {
         console.log("Unable to load next practice prompt", error);
     } finally {
@@ -264,14 +270,16 @@ async function loadNextPracticePrompt() {
 
 async function retryPracticePrompt() {
     try {
-        const response = await fetch("/practice/retry", {
+        const response = await fetch(`/practice/retry?mode=${encodeURIComponent(getPracticeMode())}`, {
             method: "POST"
         });
         const data = await response.json();
 
+        updatePracticePrompt(data.target, data.expected_morse, data.read_choices || []);
         updateProgressPanel(data.progress || []);
         resetInputDisplay();
         setPracticeFeedback("Ready. Try it again.");
+        focusReadInput();
     } catch (error) {
         console.log("Unable to reset practice prompt", error);
     } finally {
@@ -281,7 +289,7 @@ async function retryPracticePrompt() {
     }
 }
 
-function updatePracticePrompt(target, expectedMorse) {
+function updatePracticePrompt(target, expectedMorse, readChoices = []) {
     const panel = getPracticePanel();
     const targetLetter = document.getElementById("targetLetter");
     const expected = document.getElementById("expectedMorse");
@@ -292,8 +300,29 @@ function updatePracticePrompt(target, expectedMorse) {
 
     panel.dataset.practiceTarget = target;
     panel.dataset.expectedMorse = expectedMorse;
-    targetLetter.innerText = target;
+    targetLetter.innerText = getPracticeMode() === "read" ? "?" : target;
     expected.innerText = expectedMorse;
+    updateReadChoices(readChoices);
+}
+
+function updateReadChoices(choices) {
+    const choiceGrid = document.getElementById("readChoices");
+
+    if (!choiceGrid || !Array.isArray(choices) || choices.length === 0) {
+        return;
+    }
+
+    choiceGrid.innerHTML = "";
+
+    for (const choice of choices) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "button secondary read-choice";
+        button.dataset.readChoice = choice;
+        button.innerText = choice;
+        button.addEventListener("click", () => submitReadAnswer(choice));
+        choiceGrid.appendChild(button);
+    }
 }
 
 function updateProgressPanel(progress) {
@@ -330,6 +359,57 @@ function updateProgressPanel(progress) {
                 <span>${item.attempts} tries</span>
             `;
         }
+    }
+}
+
+function normalizeLetterAnswer(value) {
+    return (value || "").trim().toUpperCase().slice(0, 1);
+}
+
+function clearReadInput() {
+    const input = document.getElementById("readAnswerInput");
+
+    if (input) {
+        input.value = "";
+    }
+}
+
+function focusReadInput() {
+    const input = document.getElementById("readAnswerInput");
+
+    if (getPracticeMode() === "read" && input) {
+        input.focus();
+    }
+}
+
+function submitReadAnswer(answer) {
+    const panel = getPracticePanel();
+
+    if (!panel || getPracticeMode() !== "read" || practiceBusy || !practiceActive) {
+        return;
+    }
+
+    const target = panel.dataset.practiceTarget || "";
+    const expectedMorse = panel.dataset.expectedMorse || "";
+    const normalizedAnswer = normalizeLetterAnswer(answer);
+
+    if (!normalizedAnswer) {
+        return;
+    }
+
+    practiceBusy = true;
+    clearReadInput();
+
+    if (normalizedAnswer === target) {
+        setPracticeFeedback(`Correct: ${target}. Next letter coming up.`);
+        recordPracticeResult(target, true).finally(() => {
+            setTimeout(loadNextPracticePrompt, 850);
+        });
+    } else {
+        setPracticeFeedback(`Try again. ${expectedMorse} is ${target}, not ${normalizedAnswer}.`);
+        recordPracticeResult(target, false).finally(() => {
+            setTimeout(retryPracticePrompt, 1200);
+        });
     }
 }
 
@@ -460,6 +540,8 @@ function initializePracticeMode() {
     const panel = getPracticePanel();
     const toggle = document.getElementById("practiceToggle");
     const keyboardToggle = document.getElementById("keyboardKeyerToggle");
+    const readSubmit = document.getElementById("readSubmit");
+    const readInput = document.getElementById("readAnswerInput");
 
     if (!panel || !toggle) {
         return;
@@ -482,12 +564,30 @@ function initializePracticeMode() {
         });
     }
 
+    document.querySelectorAll("[data-read-choice]").forEach(button => {
+        button.addEventListener("click", () => submitReadAnswer(button.dataset.readChoice || ""));
+    });
+
+    if (readSubmit && readInput) {
+        readSubmit.addEventListener("click", () => submitReadAnswer(readInput.value));
+        readInput.addEventListener("keydown", event => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                submitReadAnswer(readInput.value);
+            }
+        });
+        readInput.addEventListener("input", () => {
+            readInput.value = normalizeLetterAnswer(readInput.value);
+        });
+    }
+
     document.addEventListener("keydown", handleKeyboardKeyDown);
     document.addEventListener("keyup", handleKeyboardKeyUp);
 
     updatePracticeToggle();
     updateKeyboardKeyerToggle();
     clearKeyInput();
+    focusReadInput();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
