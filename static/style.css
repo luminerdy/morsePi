@@ -429,6 +429,22 @@ input[type="range"] + .button {
     font-weight: 800;
 }
 
+.progress-letter-code {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.progress-letter-code span {
+    padding: 3px 7px;
+    background: var(--signal-bg);
+    border-radius: 6px;
+    color: var(--signal);
+    font-family: "Courier New", monospace;
+    font-size: 18px;
+    letter-spacing: 1px;
+}
+
 .progress-bar {
     height: 9px;
     overflow: hidden;

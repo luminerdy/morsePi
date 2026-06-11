@@ -361,6 +361,10 @@ def get_read_choices(target):
     return random.sample(choices, len(choices))
 
 
+def get_practice_letter_morse():
+    return {letter: text_to_morse(letter) for letter in practice_letters}
+
+
 def choose_new_practice_target(mode="send"):
     global practice_target, practice_feedback
 
@@ -525,7 +529,8 @@ def progress():
         "progress.html",
         mode=mode,
         modes=practice_modes,
-        details=all_mode_details(practice_letters, practice_modes.keys())
+        details=all_mode_details(practice_letters, practice_modes.keys()),
+        letter_morse=get_practice_letter_morse()
     )
 
 

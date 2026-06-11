@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Progress - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260610-6">
+    <link rel="stylesheet" href="/static/style.css?v=20260610-7">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -69,7 +69,10 @@
                     {% for item in mode_details.letters %}
                         <div class="progress-item">
                             <div class="progress-row">
-                                <strong>{{ item.letter }}</strong>
+                                <div class="progress-letter-code">
+                                    <strong>{{ item.letter }}</strong>
+                                    <span>{{ letter_morse[item.letter] }}</span>
+                                </div>
                                 <span>{{ item.strength_percent }}%</span>
                             </div>
                             <div class="progress-bar" aria-hidden="true">
