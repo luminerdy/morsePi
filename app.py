@@ -536,9 +536,10 @@ def progress():
 
 @app.route("/practice/play", methods=["POST"])
 def practice_play():
+    mode = get_practice_mode()
     expected_morse = text_to_morse(practice_target)
     play_in_background(expected_morse)
-    return redirect(url_for("practice"))
+    return redirect(url_for("practice", mode=mode))
 
 
 @app.route("/practice/check", methods=["POST"])

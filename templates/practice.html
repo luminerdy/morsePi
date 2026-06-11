@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Practice Mode - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260610-7">
+    <link rel="stylesheet" href="/static/style.css?v=20260610-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -67,7 +67,7 @@
                 </div>
 
                 <div class="action-row send-actions" {% if mode == 'read' %}hidden{% endif %}>
-                    <form method="post" action="/practice/play" class="inline-form">
+                    <form method="post" action="/practice/play?mode={{ mode }}" class="inline-form">
                         <button type="submit" class="button secondary">Play Letter</button>
                     </form>
 
@@ -147,6 +147,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260610-7"></script>
+<script src="/static/app.js?v=20260610-8"></script>
 </body>
 </html>

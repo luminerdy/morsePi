@@ -10,6 +10,9 @@ let practiceBusy = false;
 let keyboardKeyerActive = false;
 let keyboardPressStartedAt = null;
 let keyboardMorse = "";
+let keyboardAudioCtx = null;
+let keyboardToneOscillator = null;
+let keyboardToneGain = null;
 
 const KEYBOARD_DASH_THRESHOLD_MS = 400;
 const MORSE_DECODE = {
@@ -35,6 +38,55 @@ async function browserBeep(audioCtx, durationMs) {
     oscillator.start();
     await sleep(durationMs);
     oscillator.stop();
+}
+
+function ensureKeyboardAudioContext() {
+    if (!keyboardAudioCtx) {
+        keyboardAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    if (keyboardAudioCtx.state === "suspended") {
+        keyboardAudioCtx.resume();
+    }
+
+    return keyboardAudioCtx;
+}
+
+function startKeyboardTone() {
+    if (keyboardToneOscillator) {
+        return;
+    }
+
+    const audioCtx = ensureKeyboardAudioContext();
+    const oscillator = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    oscillator.frequency.value = 700;
+    oscillator.type = "sine";
+    gain.gain.value = 0.2;
+
+    oscillator.connect(gain);
+    gain.connect(audioCtx.destination);
+    oscillator.start();
+
+    keyboardToneOscillator = oscillator;
+    keyboardToneGain = gain;
+}
+
+function stopKeyboardTone() {
+    if (!keyboardToneOscillator) {
+        return;
+    }
+
+    keyboardToneOscillator.stop();
+    keyboardToneOscillator.disconnect();
+
+    if (keyboardToneGain) {
+        keyboardToneGain.disconnect();
+    }
+
+    keyboardToneOscillator = null;
+    keyboardToneGain = null;
 }
 
 async function playInBrowser() {
@@ -483,6 +535,7 @@ function resetInputDisplay() {
 }
 
 function resetVirtualKeyer() {
+    stopKeyboardTone();
     keyboardPressStartedAt = null;
     keyboardMorse = "";
     resetLiveKeyDisplay();
@@ -550,6 +603,7 @@ function handleKeyboardKeyDown(event) {
 
     if (keyboardPressStartedAt === null) {
         keyboardPressStartedAt = performance.now();
+        startKeyboardTone();
     }
 }
 
@@ -566,6 +620,7 @@ function handleKeyboardKeyUp(event) {
 
     const durationMs = performance.now() - keyboardPressStartedAt;
     keyboardPressStartedAt = null;
+    stopKeyboardTone();
     keyboardMorse += durationMs >= KEYBOARD_DASH_THRESHOLD_MS ? "-" : ".";
     updateVirtualKeyerDisplay();
 }
@@ -630,6 +685,7 @@ function initializePracticeMode() {
 
     document.addEventListener("keydown", handleKeyboardKeyDown);
     document.addEventListener("keyup", handleKeyboardKeyUp);
+    window.addEventListener("blur", stopKeyboardTone);
 
     updatePracticeToggle();
     updateKeyboardKeyerToggle();
