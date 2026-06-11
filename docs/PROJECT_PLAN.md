@@ -111,7 +111,8 @@ Completed work:
 
 - Add Send mode: show a letter and have the student key Morse
 - Add Read mode: show Morse and have the student identify the letter
-- Track Send and Read progress separately
+- Add Listen mode: play Morse and have the student type/select the letter
+- Track Send, Read, and Listen progress separately
 - Recommend next prompts using simple rule-based weighting
 
 Planned work:
@@ -120,7 +121,6 @@ Planned work:
 - Add letter gap feedback
 - Add more beginner letters
 - Add word practice
-- Add Listen mode: play Morse and have the student type/select the letter
 - Add Learn mode: show letter, show Morse, play sound, and let the student key along
 - Add Mixed mode that rotates through weak skills
 - Add copy-rhythm activity
@@ -166,17 +166,18 @@ Recommended GitHub Project columns:
 
 ## Immediate Next Issues
 
-Create these GitHub issues next:
+Create or refine these GitHub issues next:
 
-1. Add Listen mode with Replay and typed/choice answer
-2. Add Learn mode for guided letter/Morse/sound/keyer association
-3. Add Mixed mode that selects weak mode+letter combinations
-4. Add settings for active letter set and difficulty
-5. Capture raw key timing events for dot/dash and spacing feedback
-6. Add student/profile support
-7. Decide whether JSON progress should migrate to SQLite
-8. Add web app tutorial documentation
-9. Move hardware/audio code out of `app.py`
+1. Test Send, Read, and Listen modes with a real student session
+2. Tune Listen mode audio speed, replay behavior, and feedback wording
+3. Add Learn mode for guided letter/Morse/sound/keyer association
+4. Add Mixed mode that selects weak mode+letter combinations
+5. Add settings for active letter set and difficulty
+6. Capture raw key timing events for dot/dash and spacing feedback
+7. Add student/profile support
+8. Decide whether JSON progress should migrate to SQLite
+9. Add web app tutorial documentation
+10. Move hardware/audio code out of `app.py`
 
 ## Progress Log
 
@@ -213,3 +214,15 @@ Create these GitHub issues next:
 - Added Read mode: show Morse, answer with a letter.
 - Replaced detailed Practice sidebar with a student-friendly score card.
 - Added `/progress` details page with per-letter stats and Morse code reinforcement.
+- Added Home Spacebar Keyer so the browser keyboard can act like a telegraph key outside Practice.
+- Added Listen mode: play Morse audio, replay it, and answer by choosing or typing the letter.
+- Added mode-aware progress for Listen, including Practice score card and Progress detail support.
+- Verified Send, Read, Listen, and Progress routes on the live Pi at `10.10.10.129`.
+
+### Ready for 2026-06-11
+
+- Test the full student flow in Chrome on the laptop: Send, Read, Listen, Progress details, Home keyer.
+- Watch whether Listen should autoplay the first prompt or stay click-to-play.
+- Watch whether audio timing is too slow, too fast, or just right for beginner letters.
+- Decide whether feedback should reveal the answer immediately in Listen misses or offer one replay first.
+- Decide the next learning feature: Learn mode, Mixed mode, more letters, or timing feedback.

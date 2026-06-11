@@ -947,6 +947,7 @@ Each station should only publish and subscribe to approved topics.
 | Fresh Pi setup guide | Complete |
 | Continuous Send practice loop | Complete |
 | Read practice mode | Complete |
+| Listen practice mode | Complete |
 | JSON progress tracking | Complete |
 | Student score card | Complete |
 | Detailed Progress page | Complete |
@@ -962,6 +963,7 @@ Each station should only publish and subscribe to approved topics.
 | Student profile selection | Not started |
 | Morse password login | Not started |
 | Progress dashboard | Started |
+| Listen progress tracking | Complete |
 | Better timing feedback | Not started |
 | Refactor hardware code | Not started |
 
@@ -969,16 +971,16 @@ Each station should only publish and subscribe to approved topics.
 
 ## 16. Recommended Next Steps
 
-### Step 1: Add Listen mode
+### Step 1: Test the three core practice loops
 
-Next coding milestone:
+Next testing milestone:
 
 ```text
-Play a single Morse letter
-Add Replay button
-Let student type/select the heard letter
-Track Listen progress separately from Send and Read
-Keep feedback spoiler-free
+Run Send, Read, and Listen in a real practice session.
+Confirm the browser audio is comfortable for beginners.
+Confirm Replay is easy to find and use.
+Confirm Progress details make sense after a few attempts.
+Decide whether wrong Listen answers should reveal the letter immediately or invite one replay first.
 ```
 
 ---
@@ -1182,13 +1184,12 @@ This stage is working.
 The next stage is successful when:
 
 ```text
-Listen mode plays a Morse prompt.
-The student can replay the prompt.
-The student can answer by typing or selecting a letter.
-Listen progress is tracked separately from Send and Read.
-The Practice score card updates after Listen answers.
-The Progress page shows Listen details.
-The project is committed to GitHub.
+The student can complete a short Send practice session without mouse use.
+The student can complete a short Read practice session from visible Morse.
+The student can complete a short Listen practice session from audio prompts.
+Feedback feels encouraging and does not make practice too easy.
+Progress details are understandable to a student or parent.
+The next coding priority is selected from Learn mode, Mixed mode, more letters, or timing feedback.
 ```
 
 ---

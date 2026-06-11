@@ -13,6 +13,7 @@ Pappy's Internet Telegraph is a Raspberry Pi Morse code learning station. It let
 - Live tapped Morse display in the browser
 - Beginner Send practice for `E`, `T`, `A`, `N`, `I`, and `M`
 - Read practice for identifying letters from Morse patterns
+- Listen practice for identifying letters from browser-played Morse audio
 - Spacebar keyer for browser testing and keyboard-only practice
 - Student score card with level, mastery, streak, accuracy, and next goal
 - Detailed Progress page with per-letter Morse reinforcement
@@ -68,4 +69,4 @@ systemd/                Optional Linux service file
 
 See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) for milestones and next steps.
 
-Current next focus: add Listen mode with Replay, answer input, and mode-specific progress tracking.
+Current next focus: test the new Send, Read, and Listen practice loops with a student session, then refine feedback, timing, and the next learning mode.
