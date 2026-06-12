@@ -78,6 +78,10 @@ practice_modes = {
     "listen": {
         "label": "Listen",
         "progress_label": "Listen Progress"
+    },
+    "learn": {
+        "label": "Learn",
+        "progress_label": "Learn Progress"
     }
 }
 

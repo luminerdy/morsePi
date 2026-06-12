@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Practice Mode - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260610-10">
+    <link rel="stylesheet" href="/static/style.css?v=20260611-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -40,14 +40,14 @@
 
                 <div class="practice-readout">
                     <div class="{% if mode in ['read', 'listen'] %}read-answer-card{% endif %}">
-                        <div class="field-label">{% if mode == 'send' %}Letter{% else %}Your Answer{% endif %}</div>
+                        <div class="field-label">{% if mode in ['send', 'learn'] %}Letter{% else %}Your Answer{% endif %}</div>
                         <div class="target-letter" id="targetLetter">{% if mode in ['read', 'listen'] %}?{% else %}{{ target }}{% endif %}</div>
                     </div>
 
                     <div>
                         <div class="field-label">{% if mode == 'listen' %}Audio Prompt{% else %}Morse{% endif %}</div>
                         <div class="expected-morse {% if mode in ['send', 'listen'] %}prompt-placeholder{% endif %}" id="expectedMorse">
-                            {% if mode == 'read' %}{{ expected_morse }}{% elif mode == 'listen' %}Play Code{% else %}?{% endif %}
+                            {% if mode in ['read', 'learn'] %}{{ expected_morse }}{% elif mode == 'listen' %}Play Code{% else %}?{% endif %}
                         </div>
                     </div>
                 </div>
@@ -68,10 +68,14 @@
                     </div>
                 </div>
 
-                <div class="action-row send-actions" {% if mode != 'send' %}hidden{% endif %}>
-                    <form method="post" action="/practice/play?mode={{ mode }}" class="inline-form">
-                        <button type="submit" class="button secondary">Play Letter</button>
-                    </form>
+                <div class="action-row send-actions" {% if mode not in ['send', 'learn'] %}hidden{% endif %}>
+                    {% if mode == 'learn' %}
+                        <button type="button" class="button primary" id="listenReplay">Play Code</button>
+                    {% else %}
+                        <form method="post" action="/practice/play?mode={{ mode }}" class="inline-form">
+                            <button type="submit" class="button secondary">Play Letter</button>
+                        </form>
+                    {% endif %}
 
                     <form method="post" action="/practice/new?mode={{ mode }}" class="inline-form">
                         <button type="submit" class="button secondary">Try Another</button>
@@ -153,6 +157,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260610-10"></script>
+<script src="/static/app.js?v=20260611-1"></script>
 </body>
 </html>

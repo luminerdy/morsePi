@@ -110,9 +110,10 @@ Goal: Make practice smarter and more useful based on saved student performance.
 Completed work:
 
 - Add Send mode: show a letter and have the student key Morse
+- Add Learn mode: show letter, show Morse, play sound, and let the student key along
 - Add Read mode: show Morse and have the student identify the letter
 - Add Listen mode: play Morse and have the student type/select the letter
-- Track Send, Read, and Listen progress separately
+- Track Learn, Send, Read, and Listen progress separately
 - Recommend next prompts using simple rule-based weighting
 
 Planned work:
@@ -121,7 +122,6 @@ Planned work:
 - Add letter gap feedback
 - Add more beginner letters
 - Add word practice
-- Add Learn mode: show letter, show Morse, play sound, and let the student key along
 - Add Mixed mode that rotates through weak skills
 - Add copy-rhythm activity
 
@@ -168,17 +168,16 @@ Recommended GitHub Project columns:
 
 Create or refine these GitHub issues next:
 
-1. Test Send, Read, and Listen modes with a real student session
-2. Tune Listen mode audio speed, replay behavior, and feedback wording
-3. Add Learn mode for guided letter/Morse/sound/keyer association
-4. Add Mixed mode that selects weak mode+letter combinations
-5. Add settings for active letter set and difficulty
-6. Capture raw key timing events for dot/dash and spacing feedback
-7. Add student/profile support
-8. Decide whether JSON progress should migrate to SQLite
-9. Add web app tutorial documentation
-10. Move hardware/audio code out of `app.py`
-11. Test Kindle Fire/Silk browser compatibility for Practice modes, audio playback, and touch layout
+1. Test Learn, Send, Read, and Listen modes with a real student session
+2. Tune Listen/Learn audio speed, replay behavior, and feedback wording
+3. Add Mixed mode that selects weak mode+letter combinations
+4. Add settings for active letter set and difficulty
+5. Capture raw key timing events for dot/dash and spacing feedback
+6. Add student/profile support
+7. Decide whether JSON progress should migrate to SQLite
+8. Add web app tutorial documentation
+9. Move hardware/audio code out of `app.py`
+10. Test Kindle Fire/Silk browser compatibility for Practice modes, audio playback, and touch layout
 
 ## Progress Log
 
@@ -227,3 +226,21 @@ Create or refine these GitHub issues next:
 - Watch whether audio timing is too slow, too fast, or just right for beginner letters.
 - Decide whether feedback should reveal the answer immediately in Listen misses or offer one replay first.
 - Decide the next learning feature: Learn mode, Mixed mode, more letters, or timing feedback.
+
+### 2026-06-11
+
+- Started the Pi app after finding Flask was not running.
+- Verified Send, Read, and Listen practice pages were live on the Pi.
+- Added Kindle Fire/Silk browser compatibility to the backlog.
+- Decided Learn mode should be the next learning feature after the first three practice loops.
+- Added Learn mode: show the letter, show the Morse pattern, play the browser tone, and let the student key along.
+- Added Learn-specific progress tracking and Progress detail support.
+- Verified Learn, Send, Read, Listen, and Learn Progress routes on the live Pi at `10.10.10.129`.
+
+### Ready Next
+
+- Test Learn, Send, Read, and Listen by hand in Chrome with the physical key and Spacebar Keyer.
+- Decide whether Learn should count progress the same way as Send or stay more forgiving.
+- Tune browser audio speed and replay behavior for Learn and Listen.
+- Test on Kindle Fire/Silk when a device is available.
+- Choose next build: Mixed mode, more letters, or timing feedback.

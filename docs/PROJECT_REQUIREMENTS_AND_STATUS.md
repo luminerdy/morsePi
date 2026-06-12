@@ -946,6 +946,7 @@ Each station should only publish and subscribe to approved topics.
 | GitHub repo setup | Complete |
 | Fresh Pi setup guide | Complete |
 | Continuous Send practice loop | Complete |
+| Learn practice mode | Complete |
 | Read practice mode | Complete |
 | Listen practice mode | Complete |
 | JSON progress tracking | Complete |
@@ -964,6 +965,7 @@ Each station should only publish and subscribe to approved topics.
 | Morse password login | Not started |
 | Progress dashboard | Started |
 | Listen progress tracking | Complete |
+| Learn progress tracking | Complete |
 | Better timing feedback | Not started |
 | Refactor hardware code | Not started |
 
@@ -971,32 +973,32 @@ Each station should only publish and subscribe to approved topics.
 
 ## 16. Recommended Next Steps
 
-### Step 1: Test the three core practice loops
+### Step 1: Test the core practice loops
 
 Next testing milestone:
 
 ```text
-Run Send, Read, and Listen in a real practice session.
+Run Learn, Send, Read, and Listen in a real practice session.
 Confirm the browser audio is comfortable for beginners.
 Confirm Replay is easy to find and use.
 Confirm Progress details make sense after a few attempts.
 Decide whether wrong Listen answers should reveal the letter immediately or invite one replay first.
+Decide whether Learn should score progress the same way as Send or be more forgiving.
 ```
 
 ---
 
-### Step 2: Add Learn mode
+### Step 2: Refine Learn mode
 
-Add a guided mode for first exposure and reinforcement.
+Learn mode has a first working version for first exposure and reinforcement.
 
-First version should:
+Next refinement should decide:
 
 ```text
-Show the letter
-Show the Morse pattern
-Play the sound
-Let the student key along
-Track gentle practice progress
+Whether Learn should score progress like Send or use gentler scoring
+Whether Learn should auto-play when a new prompt appears
+Whether feedback should be shorter for younger students
+Whether the Play Code button label is clear enough
 ```
 
 ---
@@ -1185,11 +1187,12 @@ The next stage is successful when:
 
 ```text
 The student can complete a short Send practice session without mouse use.
+The student can complete a short Learn practice session with letter, Morse, sound, and key-along support.
 The student can complete a short Read practice session from visible Morse.
 The student can complete a short Listen practice session from audio prompts.
 Feedback feels encouraging and does not make practice too easy.
 Progress details are understandable to a student or parent.
-The next coding priority is selected from Learn mode, Mixed mode, more letters, or timing feedback.
+The next coding priority is selected from Mixed mode, more letters, or timing feedback.
 ```
 
 ---

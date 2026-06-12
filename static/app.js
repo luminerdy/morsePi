@@ -274,7 +274,7 @@ function resetPracticeAutoCheck() {
 function schedulePracticeAutoCheck(rawMorse) {
     const panel = getPracticePanel();
 
-    if (!panel || getPracticeMode() !== "send" || !practiceActive || practiceBusy) {
+    if (!panel || !["send", "learn"].includes(getPracticeMode()) || !practiceActive || practiceBusy) {
         return;
     }
 
@@ -329,9 +329,10 @@ function checkPracticeAnswer(actualMorse, expectedMorse, target) {
             setTimeout(loadNextPracticePrompt, 950);
         });
     } else {
-        setPracticeFeedback(
-            `Try ${target} again. I heard ${actualMorse}, but ${target} is ${expectedMorse}.`
-        );
+        const feedback = getPracticeMode() === "learn"
+            ? `Try ${target} again. Follow ${expectedMorse}; I heard ${actualMorse}.`
+            : `Try ${target} again. I heard ${actualMorse}, but ${target} is ${expectedMorse}.`;
+        setPracticeFeedback(feedback);
         recordPracticeResult(target, false).finally(() => {
             setTimeout(retryPracticePrompt, 1200);
         });
@@ -369,6 +370,8 @@ async function loadNextPracticePrompt() {
         if (getPracticeMode() === "listen") {
             setPracticeFeedback("Next one. Listen and choose the letter.");
             playPracticePromptInBrowser();
+        } else if (getPracticeMode() === "learn") {
+            setPracticeFeedback(`Follow ${data.target}: ${data.expected_morse}.`);
         } else {
             setPracticeFeedback(getPracticeMode() === "read" ? "Next one." : `Now try ${data.target}.`);
         }
@@ -394,7 +397,7 @@ async function retryPracticePrompt() {
         updateScoreCard(data.score || null);
         resetInputDisplay();
         setPracticeFeedback("Ready. Try it again.");
-        if (getPracticeMode() === "listen") {
+        if (["listen", "learn"].includes(getPracticeMode())) {
             playPracticePromptInBrowser();
         }
         focusReadInput();
@@ -418,9 +421,9 @@ function updatePracticePrompt(target, expectedMorse, readChoices = []) {
 
     panel.dataset.practiceTarget = target;
     panel.dataset.expectedMorse = expectedMorse;
-    if (getPracticeMode() === "send") {
+    if (["send", "learn"].includes(getPracticeMode())) {
         targetLetter.innerText = target;
-        expected.innerText = "?";
+        expected.innerText = getPracticeMode() === "learn" ? expectedMorse : "?";
     } else if (getPracticeMode() === "listen") {
         targetLetter.innerText = "?";
         expected.innerText = "Play Code";
