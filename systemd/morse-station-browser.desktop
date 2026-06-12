@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Morse Station Browser
+Comment=Open Pappy's Internet Telegraph
+Exec=/home/morse/bin/start-morse-browser.sh
+Terminal=false
+X-GNOME-Autostart-enabled=true

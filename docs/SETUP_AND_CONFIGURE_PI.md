@@ -225,14 +225,27 @@ If the Flask app is running, stop it with `Ctrl+C` before updating. Start it aga
 python3 app.py
 ```
 
-## 10. Optional: Run at Boot with systemd
+## 10. Run the App at Boot with systemd
 
-The current station can be started manually with `python3 app.py`. Later, it can be configured to start automatically.
+The station should run as a system service so it starts automatically after the Pi boots.
+
+If you do not have sudo access during setup, use the user service instead:
+
+```bash
+mkdir -p /home/morse/.config/systemd/user
+install -m 0644 /home/morse/morse-station/systemd/morse-station.user.service /home/morse/.config/systemd/user/morse-station.service
+systemctl --user daemon-reload
+systemctl --user enable morse-station
+systemctl --user restart morse-station
+systemctl --user status morse-station
+```
+
+The user service starts when the `morse` user session starts. On a station Pi with desktop auto-login enabled, that means the app and browser come up together after reboot.
 
 Copy the service file from the repo:
 
 ```bash
-sudo cp /home/morse/morse-station/systemd/morse-station.service /etc/systemd/system/morse-station.service
+sudo install -m 0644 /home/morse/morse-station/systemd/morse-station.service /etc/systemd/system/morse-station.service
 ```
 
 If your USB speaker is not `plughw:3,0`, edit the service and add an environment line under `[Service]`:
@@ -253,7 +266,7 @@ Enable and start it:
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable morse-station
-sudo systemctl start morse-station
+sudo systemctl restart morse-station
 ```
 
 Check status:
@@ -274,7 +287,35 @@ Stop it before running hardware test scripts:
 sudo systemctl stop morse-station
 ```
 
-## 11. Troubleshooting
+## 11. Launch the Browser at Desktop Startup
+
+The Pi desktop can also open Chromium directly to the Morse Station web app after login.
+
+Install the browser helper script:
+
+```bash
+mkdir -p /home/morse/bin
+install -m 0755 /home/morse/morse-station/systemd/start-morse-browser.sh /home/morse/bin/start-morse-browser.sh
+```
+
+Install the desktop autostart entry:
+
+```bash
+mkdir -p /home/morse/.config/autostart
+install -m 0644 /home/morse/morse-station/systemd/morse-station-browser.desktop /home/morse/.config/autostart/morse-station-browser.desktop
+```
+
+On Raspberry Pi OS Bookworm with Labwc, also add the helper to the Labwc autostart file:
+
+```bash
+mkdir -p /home/morse/.config/labwc
+grep -qxF '/home/morse/bin/start-morse-browser.sh &' /home/morse/.config/labwc/autostart 2>/dev/null || \
+  printf '\n/home/morse/bin/start-morse-browser.sh &\n' >> /home/morse/.config/labwc/autostart
+```
+
+The helper waits for `http://localhost:5000/` to answer before launching Chromium. If graphical auto-login is disabled, Chromium opens after the `morse` user signs in to the desktop.
+
+## 12. Troubleshooting
 
 ### GPIO busy
 

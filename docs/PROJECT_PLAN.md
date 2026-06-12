@@ -247,6 +247,12 @@ Create or refine these GitHub issues next:
 - Reset Pi practice progress by deleting `/home/morse/morse-station/data/practice_progress.json` so the next test starts fresh.
 - Confirmed the live Progress page returned to Operator Level 1, 0% mastery, 0 tries, unlocked `E T`, and next unlock `A N`.
 
+### 2026-06-12
+
+- Configured the Pi app to autostart with a `morse` user systemd service.
+- Added a browser startup helper and desktop autostart entry so Chromium opens to `http://localhost:5000/`.
+- Updated the fresh Pi setup guide with the service and browser autostart steps.
+
 ### Ready Next
 
 - Start from a clean progress slate and test Learn, Send, Read, and Listen by hand in Chrome with the physical key and Spacebar Keyer.
