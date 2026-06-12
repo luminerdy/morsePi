@@ -7,6 +7,26 @@ from pathlib import Path
 PROGRESS_PATH = Path("data/practice_progress.json")
 DEFAULT_MODE = "send"
 
+RANKS = [
+    "First Signal",
+    "Signal Scout",
+    "Code Cadet",
+    "Junior Operator",
+    "Station Helper",
+    "Clear Copy",
+    "Relay Ready",
+    "Telegraph Pro"
+]
+
+LETTER_UNLOCKS = [
+    {"level": 1, "letters": ["E", "T"], "label": "First Signals"},
+    {"level": 2, "letters": ["A", "N"], "label": "First Pair"},
+    {"level": 3, "letters": ["I", "M"], "label": "Short Copy"},
+    {"level": 4, "letters": ["S", "O"], "label": "Signal Builder"},
+    {"level": 5, "letters": ["R", "K"], "label": "Rhythm Builder"},
+    {"level": 6, "letters": ["D", "U"], "label": "Relay Builder"}
+]
+
 
 def empty_record():
     return {
@@ -178,6 +198,13 @@ def mode_score(letters, mode=DEFAULT_MODE):
     else:
         title = "First Signals"
 
+    if mastery == 100:
+        next_goal = "Level complete"
+    elif level >= 5:
+        next_goal = f"{points_to_next} mastery {'point' if points_to_next == 1 else 'points'} to complete"
+    else:
+        next_goal = f"{points_to_next} mastery {'point' if points_to_next == 1 else 'points'} to Level {min(level + 1, 5)}"
+
     return {
         "mode": mode,
         "level": level,
@@ -186,7 +213,7 @@ def mode_score(letters, mode=DEFAULT_MODE):
         "accuracy": accuracy,
         "streak": best_streak,
         "attempts": total_attempts,
-        "next_goal": "Level complete" if mastery == 100 else f"{points_to_next} mastery points to Level {min(level + 1, 5)}"
+        "next_goal": next_goal
     }
 
 
@@ -197,4 +224,67 @@ def all_mode_details(letters, modes):
             "letters": progress_summary(letters, mode)
         }
         for mode in modes
+    }
+
+
+def overall_score(letters, modes):
+    progress = load_progress(letters)
+    records = []
+
+    for letter in letters:
+        for mode in modes:
+            records.append(get_record(progress, letter, mode))
+
+    total_attempts = sum(record["attempts"] for record in records)
+    total_correct = sum(record["correct"] for record in records)
+    mastery = int(round((sum(record["strength"] for record in records) / len(records)) * 100)) if records else 0
+    accuracy = int(round((total_correct / total_attempts) * 100)) if total_attempts else 0
+    best_streak = max((record["streak"] for record in records), default=0)
+    level = min(len(RANKS), mastery // 13 + 1)
+    next_level_mastery = min(level * 13, 100)
+    points_to_next = max(0, next_level_mastery - mastery)
+    unlocked_letters = unlocked_letters_for_level(level)
+    next_unlock = next_unlock_for_level(level)
+
+    if mastery == 100:
+        next_goal = "Top rank reached"
+    else:
+        next_goal = f"{points_to_next} mastery {'point' if points_to_next == 1 else 'points'} to Level {min(level + 1, len(RANKS))}"
+
+    return {
+        "level": level,
+        "rank": RANKS[level - 1],
+        "mastery": mastery,
+        "accuracy": accuracy,
+        "streak": best_streak,
+        "attempts": total_attempts,
+        "unlocked_letters": [letter for letter in unlocked_letters if letter in letters],
+        "next_unlock": next_unlock,
+        "next_goal": next_goal
+    }
+
+
+def unlocked_letters_for_level(level):
+    unlocked = []
+
+    for unlock in LETTER_UNLOCKS:
+        if unlock["level"] <= level:
+            unlocked.extend(unlock["letters"])
+
+    return unlocked
+
+
+def next_unlock_for_level(level):
+    for unlock in LETTER_UNLOCKS:
+        if unlock["level"] > level:
+            return {
+                "level": unlock["level"],
+                "letters": unlock["letters"],
+                "label": unlock["label"]
+            }
+
+    return {
+        "level": None,
+        "letters": [],
+        "label": "All planned letters unlocked"
     }

@@ -351,6 +351,7 @@ async function recordPracticeResult(target, correct) {
         const data = await response.json();
         updateProgressPanel(data.progress || []);
         updateScoreCard(data.score || null);
+        updateOverallScoreCard(data.overall || null);
     } catch (error) {
         console.log("Unable to record practice result", error);
     }
@@ -366,6 +367,7 @@ async function loadNextPracticePrompt() {
         updatePracticePrompt(data.target, data.expected_morse, data.read_choices || []);
         updateProgressPanel(data.progress || []);
         updateScoreCard(data.score || null);
+        updateOverallScoreCard(data.overall || null);
         resetInputDisplay();
         if (getPracticeMode() === "listen") {
             setPracticeFeedback("Next one. Listen and choose the letter.");
@@ -395,6 +397,7 @@ async function retryPracticePrompt() {
         updatePracticePrompt(data.target, data.expected_morse, data.read_choices || []);
         updateProgressPanel(data.progress || []);
         updateScoreCard(data.score || null);
+        updateOverallScoreCard(data.overall || null);
         resetInputDisplay();
         setPracticeFeedback("Ready. Try it again.");
         if (["listen", "learn"].includes(getPracticeMode())) {
@@ -533,6 +536,52 @@ function updateScoreCard(score) {
 
     if (goal) {
         goal.innerText = score.next_goal;
+    }
+}
+
+function updateOverallScoreCard(overall) {
+    if (!overall) {
+        return;
+    }
+
+    const mastery = document.getElementById("overallMastery");
+    const masteryBar = document.getElementById("overallMasteryBar");
+    const accuracy = document.getElementById("overallAccuracy");
+    const attempts = document.getElementById("overallAttempts");
+    const streak = document.getElementById("overallStreak");
+    const unlockedLetters = document.getElementById("overallUnlockedLetters");
+    const nextUnlock = document.getElementById("overallNextUnlock");
+    const masteryValue = Math.max(0, Math.min(Number(overall.mastery) || 0, 100));
+
+    if (mastery) {
+        mastery.innerText = `${masteryValue}%`;
+    }
+
+    if (masteryBar) {
+        masteryBar.style.width = `${masteryValue}%`;
+    }
+
+    if (accuracy) {
+        accuracy.innerText = `${overall.accuracy}% accuracy`;
+    }
+
+    if (attempts) {
+        attempts.innerText = overall.attempts;
+    }
+
+    if (streak) {
+        streak.innerText = `${overall.streak} best streak`;
+    }
+
+    if (unlockedLetters && Array.isArray(overall.unlocked_letters)) {
+        unlockedLetters.innerHTML = overall.unlocked_letters.map(letter => `<span>${letter}</span>`).join("");
+    }
+
+    if (nextUnlock && overall.next_unlock) {
+        const letters = overall.next_unlock.letters || [];
+        nextUnlock.innerText = letters.length
+            ? `Next unlock at Level ${overall.next_unlock.level}: ${letters.join(" ")}`
+            : overall.next_unlock.label;
     }
 }
 

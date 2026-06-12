@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from gpiozero import Button, LED
 from morse import text_to_morse, morse_to_text
-from practice_progress import all_mode_details, choose_next_letter, mode_score, progress_summary, record_attempt
+from practice_progress import all_mode_details, choose_next_letter, mode_score, overall_score, progress_summary, record_attempt
 from time import time, sleep
 import threading
 import wave
@@ -462,6 +462,7 @@ def practice():
         feedback=practice_feedback,
         progress=progress_summary(practice_letters, mode),
         score=mode_score(practice_letters, mode),
+        overall=overall_score(practice_letters, practice_modes.keys()),
         progress_label=practice_modes[mode]["progress_label"]
     )
 
@@ -484,7 +485,8 @@ def practice_next():
         "expected_morse": text_to_morse(practice_target),
         "read_choices": get_read_choices(practice_target),
         "progress": progress_summary(practice_letters, mode),
-        "score": mode_score(practice_letters, mode)
+        "score": mode_score(practice_letters, mode),
+        "overall": overall_score(practice_letters, practice_modes.keys())
     })
 
 
@@ -499,7 +501,8 @@ def practice_retry():
         "expected_morse": text_to_morse(practice_target),
         "read_choices": get_read_choices(practice_target),
         "progress": progress_summary(practice_letters, mode),
-        "score": mode_score(practice_letters, mode)
+        "score": mode_score(practice_letters, mode),
+        "overall": overall_score(practice_letters, practice_modes.keys())
     })
 
 
@@ -517,7 +520,8 @@ def practice_result():
         return jsonify({
             "status": "ignored",
             "progress": progress_summary(practice_letters, mode),
-            "score": mode_score(practice_letters, mode)
+            "score": mode_score(practice_letters, mode),
+            "overall": overall_score(practice_letters, practice_modes.keys())
         })
 
     record_attempt(letter, is_correct, practice_letters, mode)
@@ -525,7 +529,8 @@ def practice_result():
     return jsonify({
         "status": "recorded",
         "progress": progress_summary(practice_letters, mode),
-        "score": mode_score(practice_letters, mode)
+        "score": mode_score(practice_letters, mode),
+        "overall": overall_score(practice_letters, practice_modes.keys())
     })
 
 
@@ -537,6 +542,7 @@ def progress():
         "progress.html",
         mode=mode,
         modes=practice_modes,
+        overall=overall_score(practice_letters, practice_modes.keys()),
         details=all_mode_details(practice_letters, practice_modes.keys()),
         letter_morse=get_practice_letter_morse()
     )

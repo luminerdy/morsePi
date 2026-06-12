@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Practice Mode - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260611-1">
+    <link rel="stylesheet" href="/static/style.css?v=20260611-2">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -123,6 +123,52 @@
             <aside class="side-stack">
                 <section class="panel compact-panel">
                     <div class="section-heading">
+                        <h2>Operator Level {{ overall.level }}</h2>
+                        <span class="status-pill">{{ overall.rank }}</span>
+                    </div>
+
+                    <div class="score-card" id="overallScore">
+                        <div class="score-main">
+                            <div>
+                                <span class="score-label">Overall</span>
+                                <strong id="overallMastery">{{ overall.mastery }}%</strong>
+                            </div>
+                            <div>
+                                <span class="score-label">Tries</span>
+                                <strong id="overallAttempts">{{ overall.attempts }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="score-bar" aria-hidden="true">
+                            <span id="overallMasteryBar" style="width: {{ overall.mastery }}%"></span>
+                        </div>
+
+                        <div class="score-stats">
+                            <span id="overallAccuracy">{{ overall.accuracy }}% accuracy</span>
+                            <span id="overallStreak">{{ overall.streak }} best streak</span>
+                        </div>
+
+                        <div>
+                            <span class="score-label">Unlocked Letters</span>
+                            <div class="unlock-row" id="overallUnlockedLetters">
+                                {% for letter in overall.unlocked_letters %}
+                                    <span>{{ letter }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <p class="score-goal" id="overallNextUnlock">
+                            {% if overall.next_unlock.letters %}
+                                Next unlock at Level {{ overall.next_unlock.level }}: {{ overall.next_unlock.letters | join(" ") }}
+                            {% else %}
+                                {{ overall.next_unlock.label }}
+                            {% endif %}
+                        </p>
+                    </div>
+                </section>
+
+                <section class="panel compact-panel">
+                    <div class="section-heading">
                         <h2>{{ modes[mode].label }} Level {{ score.level }}</h2>
                         <span class="status-pill">{{ score.title }}</span>
                     </div>
@@ -157,6 +203,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260611-1"></script>
+<script src="/static/app.js?v=20260611-2"></script>
 </body>
 </html>

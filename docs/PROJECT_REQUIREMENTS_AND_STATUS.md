@@ -950,6 +950,8 @@ Each station should only publish and subscribe to approved topics.
 | Read practice mode | Complete |
 | Listen practice mode | Complete |
 | JSON progress tracking | Complete |
+| Overall Operator Level and rank | Complete |
+| Unlocked-letter progress display | Started |
 | Student score card | Complete |
 | Detailed Progress page | Complete |
 
@@ -966,6 +968,7 @@ Each station should only publish and subscribe to approved topics.
 | Progress dashboard | Started |
 | Listen progress tracking | Complete |
 | Learn progress tracking | Complete |
+| Enforced letter unlocking | Not started |
 | Better timing feedback | Not started |
 | Refactor hardware code | Not started |
 
@@ -982,6 +985,8 @@ Run Learn, Send, Read, and Listen in a real practice session.
 Confirm the browser audio is comfortable for beginners.
 Confirm Replay is easy to find and use.
 Confirm Progress details make sense after a few attempts.
+Confirm Operator Level and unlocked letters feel fun and encouraging.
+Tune rank names and unlock thresholds after student testing.
 Decide whether wrong Listen answers should reveal the letter immediately or invite one replay first.
 Decide whether Learn should score progress the same way as Send or be more forgiving.
 ```

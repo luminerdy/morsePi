@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Progress - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260611-1">
+    <link rel="stylesheet" href="/static/style.css?v=20260611-2">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -21,6 +21,53 @@
         </header>
 
         <main class="progress-page">
+            <section class="panel">
+                <div class="section-heading">
+                    <h2>Operator Level {{ overall.level }}</h2>
+                    <span class="status-pill">{{ overall.rank }}</span>
+                </div>
+
+                <div class="score-card score-card-wide">
+                    <div class="score-main">
+                        <div>
+                            <span class="score-label">Overall Mastery</span>
+                            <strong>{{ overall.mastery }}%</strong>
+                        </div>
+                        <div>
+                            <span class="score-label">Accuracy</span>
+                            <strong>{{ overall.accuracy }}%</strong>
+                        </div>
+                        <div>
+                            <span class="score-label">Practice Tries</span>
+                            <strong>{{ overall.attempts }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="score-bar" aria-hidden="true">
+                        <span style="width: {{ overall.mastery }}%"></span>
+                    </div>
+
+                    <div class="overall-unlock-grid">
+                        <div>
+                            <span class="score-label">Unlocked Letters</span>
+                            <div class="unlock-row">
+                                {% for letter in overall.unlocked_letters %}
+                                    <span>{{ letter }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <p class="score-goal">
+                            {% if overall.next_unlock.letters %}
+                                Next unlock at Level {{ overall.next_unlock.level }}: {{ overall.next_unlock.letters | join(" ") }}
+                            {% else %}
+                                {{ overall.next_unlock.label }}
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </section>
+
             <section class="panel">
                 <div class="mode-tabs" aria-label="Progress modes">
                     {% for mode_key, mode_config in modes.items() %}

@@ -114,6 +114,7 @@ Completed work:
 - Add Read mode: show Morse and have the student identify the letter
 - Add Listen mode: play Morse and have the student type/select the letter
 - Track Learn, Send, Read, and Listen progress separately
+- Add overall Operator Level, rank, mastery, and unlocked-letter display
 - Recommend next prompts using simple rule-based weighting
 
 Planned work:
@@ -121,6 +122,7 @@ Planned work:
 - Add dot/dash timing feedback
 - Add letter gap feedback
 - Add more beginner letters
+- Enforce unlocked letters in the active practice set
 - Add word practice
 - Add Mixed mode that rotates through weak skills
 - Add copy-rhythm activity
@@ -169,15 +171,17 @@ Recommended GitHub Project columns:
 Create or refine these GitHub issues next:
 
 1. Test Learn, Send, Read, and Listen modes with a real student session
-2. Tune Listen/Learn audio speed, replay behavior, and feedback wording
-3. Add Mixed mode that selects weak mode+letter combinations
-4. Add settings for active letter set and difficulty
-5. Capture raw key timing events for dot/dash and spacing feedback
-6. Add student/profile support
-7. Decide whether JSON progress should migrate to SQLite
-8. Add web app tutorial documentation
-9. Move hardware/audio code out of `app.py`
-10. Test Kindle Fire/Silk browser compatibility for Practice modes, audio playback, and touch layout
+2. Tune overall Operator Level thresholds, rank names, and unlock messaging
+3. Decide when to enforce unlocked letters in the active practice set
+4. Tune Listen/Learn audio speed, replay behavior, and feedback wording
+5. Add Mixed mode that selects weak mode+letter combinations
+6. Add settings for active letter set and difficulty
+7. Capture raw key timing events for dot/dash and spacing feedback
+8. Add student/profile support
+9. Decide whether JSON progress should migrate to SQLite
+10. Add web app tutorial documentation
+11. Move hardware/audio code out of `app.py`
+12. Test Kindle Fire/Silk browser compatibility for Practice modes, audio playback, and touch layout
 
 ## Progress Log
 
@@ -236,10 +240,16 @@ Create or refine these GitHub issues next:
 - Added Learn mode: show the letter, show the Morse pattern, play the browser tone, and let the student key along.
 - Added Learn-specific progress tracking and Progress detail support.
 - Verified Learn, Send, Read, Listen, and Learn Progress routes on the live Pi at `10.10.10.129`.
+- Added overall Operator Level with rank, mastery, accuracy, attempts, and best streak.
+- Added unlocked-letter display and next-unlock messaging to Practice and Progress.
+- Added live browser updates for the overall score after practice responses.
+- Verified the overall score card and JSON response on the live Pi at `10.10.10.129`.
 
 ### Ready Next
 
 - Test Learn, Send, Read, and Listen by hand in Chrome with the physical key and Spacebar Keyer.
+- Tune Operator Level thresholds, rank names, and unlock messaging after student testing.
+- Decide whether and when unlocked letters should control the active practice set.
 - Decide whether Learn should count progress the same way as Send or stay more forgiving.
 - Tune browser audio speed and replay behavior for Learn and Listen.
 - Test on Kindle Fire/Silk when a device is available.

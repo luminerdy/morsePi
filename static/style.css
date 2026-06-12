@@ -547,6 +547,33 @@ input[type="range"] + .button {
     margin-bottom: 0;
 }
 
+.unlock-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.unlock-row span {
+    min-width: 34px;
+    min-height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--signal-bg);
+    border: 1px solid #1f2933;
+    border-radius: 8px;
+    color: var(--signal);
+    font-size: 18px;
+    font-weight: 900;
+}
+
+.overall-unlock-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 0.8fr);
+    gap: 14px;
+    align-items: end;
+}
+
 .practice-readout {
     display: grid;
     grid-template-columns: 180px minmax(0, 1fr);
@@ -744,6 +771,7 @@ input[type="range"] + .button {
     .choice-grid,
     .read-type-row,
     .score-main,
+    .overall-unlock-grid,
     .score-card-wide .score-main {
         grid-template-columns: 1fr;
     }
