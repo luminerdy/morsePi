@@ -244,10 +244,12 @@ Create or refine these GitHub issues next:
 - Added unlocked-letter display and next-unlock messaging to Practice and Progress.
 - Added live browser updates for the overall score after practice responses.
 - Verified the overall score card and JSON response on the live Pi at `10.10.10.129`.
+- Reset Pi practice progress by deleting `/home/morse/morse-station/data/practice_progress.json` so the next test starts fresh.
+- Confirmed the live Progress page returned to Operator Level 1, 0% mastery, 0 tries, unlocked `E T`, and next unlock `A N`.
 
 ### Ready Next
 
-- Test Learn, Send, Read, and Listen by hand in Chrome with the physical key and Spacebar Keyer.
+- Start from a clean progress slate and test Learn, Send, Read, and Listen by hand in Chrome with the physical key and Spacebar Keyer.
 - Tune Operator Level thresholds, rank names, and unlock messaging after student testing.
 - Decide whether and when unlocked letters should control the active practice set.
 - Decide whether Learn should count progress the same way as Send or stay more forgiving.

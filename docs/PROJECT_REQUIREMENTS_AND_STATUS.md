@@ -981,6 +981,7 @@ Each station should only publish and subscribe to approved topics.
 Next testing milestone:
 
 ```text
+Start from reset practice progress.
 Run Learn, Send, Read, and Listen in a real practice session.
 Confirm the browser audio is comfortable for beginners.
 Confirm Replay is easy to find and use.
