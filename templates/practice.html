@@ -83,6 +83,7 @@
 
                     <button type="button" class="button secondary" id="practiceToggle">Stop Practice</button>
                     <button type="button" class="button secondary" id="keyboardKeyerToggle">Spacebar Keyer: Off</button>
+                    <button type="button" class="button secondary" data-test-sound>Test Sound</button>
                     <button type="button" class="button secondary" onclick="clearKeyInput()">Clear</button>
                 </div>
 
@@ -94,6 +95,8 @@
                     <form method="post" action="/practice/new?mode={{ mode }}" class="inline-form">
                         <button type="submit" class="button secondary">Try Another</button>
                     </form>
+
+                    <button type="button" class="button secondary" data-test-sound>Test Sound</button>
                 </div>
 
                 <section class="feedback-box inline-feedback" id="practiceFeedback" {% if not feedback %}hidden{% endif %}>
@@ -203,6 +206,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260611-2"></script>
+<script src="/static/app.js?v=20260614-1"></script>
 </body>
 </html>

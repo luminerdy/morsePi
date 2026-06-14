@@ -253,6 +253,11 @@ Create or refine these GitHub issues next:
 - Added a browser startup helper and desktop autostart entry so Chromium opens to `http://localhost:5000/`.
 - Updated the fresh Pi setup guide with the service and browser autostart steps.
 
+### 2026-06-14
+
+- Added a browser `Test Sound` button on Home and Practice screens to manually wake or verify browser audio.
+- Changed browser Morse playback to reuse a single audio context instead of creating a new context for every prompt.
+
 ### Ready Next
 
 - Start from a clean progress slate and test Learn, Send, Read, and Listen by hand in Chrome with the physical key and Spacebar Keyer.

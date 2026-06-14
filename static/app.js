@@ -14,6 +14,7 @@ let keyboardAudioCtx = null;
 let keyboardToneOscillator = null;
 let keyboardToneGain = null;
 let practiceAudioPlaying = false;
+let browserAudioCtx = null;
 
 const KEYBOARD_DASH_THRESHOLD_MS = 400;
 const MORSE_DECODE = {
@@ -55,7 +56,23 @@ const MORSE_DECODE = {
     "-----": "0"
 };
 
+function ensureBrowserAudioContext() {
+    if (!browserAudioCtx) {
+        browserAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    if (browserAudioCtx.state === "suspended") {
+        browserAudioCtx.resume();
+    }
+
+    return browserAudioCtx;
+}
+
 async function browserBeep(audioCtx, durationMs) {
+    if (audioCtx.state === "suspended") {
+        await audioCtx.resume();
+    }
+
     const oscillator = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
@@ -72,15 +89,14 @@ async function browserBeep(audioCtx, durationMs) {
 }
 
 function ensureKeyboardAudioContext() {
-    if (!keyboardAudioCtx) {
-        keyboardAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-
-    if (keyboardAudioCtx.state === "suspended") {
-        keyboardAudioCtx.resume();
-    }
-
+    keyboardAudioCtx = ensureBrowserAudioContext();
     return keyboardAudioCtx;
+}
+
+async function testBrowserSound() {
+    const audioCtx = ensureBrowserAudioContext();
+
+    await browserBeep(audioCtx, 120);
 }
 
 function startKeyboardTone() {
@@ -125,7 +141,7 @@ async function playMorseText(morseText) {
         return;
     }
 
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const audioCtx = ensureBrowserAudioContext();
 
     const dotMs = 250;
     const dashMs = dotMs * 3;
@@ -816,6 +832,10 @@ function initializePracticeMode() {
     if (listenReplay) {
         listenReplay.addEventListener("click", playPracticePromptInBrowser);
     }
+
+    document.querySelectorAll("[data-test-sound]").forEach(button => {
+        button.addEventListener("click", testBrowserSound);
+    });
 
     document.addEventListener("keydown", handleKeyboardKeyDown);
     document.addEventListener("keyup", handleKeyboardKeyUp);
