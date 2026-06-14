@@ -257,6 +257,7 @@ Create or refine these GitHub issues next:
 
 - Added a browser `Test Sound` button on Home and Practice screens to manually wake or verify browser audio.
 - Changed browser Morse playback to reuse a single audio context instead of creating a new context for every prompt.
+- Added Home playback stop controls for long phrases: `Stop Here` cancels browser playback and `Stop Station` cancels Pi speaker/LED playback.
 
 ### Ready Next
 

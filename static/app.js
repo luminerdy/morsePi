@@ -15,6 +15,7 @@ let keyboardToneOscillator = null;
 let keyboardToneGain = null;
 let practiceAudioPlaying = false;
 let browserAudioCtx = null;
+let browserPlayback = null;
 
 const KEYBOARD_DASH_THRESHOLD_MS = 400;
 const MORSE_DECODE = {
@@ -68,7 +69,7 @@ function ensureBrowserAudioContext() {
     return browserAudioCtx;
 }
 
-async function browserBeep(audioCtx, durationMs) {
+async function browserBeep(audioCtx, durationMs, playback = null) {
     if (audioCtx.state === "suspended") {
         await audioCtx.resume();
     }
@@ -83,9 +84,22 @@ async function browserBeep(audioCtx, durationMs) {
     oscillator.connect(gain);
     gain.connect(audioCtx.destination);
 
+    if (playback) {
+        playback.oscillator = oscillator;
+    }
+
     oscillator.start();
     await sleep(durationMs);
-    oscillator.stop();
+
+    try {
+        oscillator.stop();
+    } catch (error) {
+        // The stop button may have already stopped this oscillator.
+    }
+
+    if (playback && playback.oscillator === oscillator) {
+        playback.oscillator = null;
+    }
 }
 
 function ensureKeyboardAudioContext() {
@@ -97,6 +111,19 @@ async function testBrowserSound() {
     const audioCtx = ensureBrowserAudioContext();
 
     await browserBeep(audioCtx, 120);
+}
+
+function setHomePlaybackState(isPlaying) {
+    const playButton = document.getElementById("playHereButton");
+    const stopButton = document.getElementById("stopHereButton");
+
+    if (playButton) {
+        playButton.disabled = isPlaying;
+    }
+
+    if (stopButton) {
+        stopButton.disabled = !isPlaying;
+    }
 }
 
 function startKeyboardTone() {
@@ -136,7 +163,7 @@ function stopKeyboardTone() {
     keyboardToneGain = null;
 }
 
-async function playMorseText(morseText) {
+async function playMorseText(morseText, playback = null) {
     if (!morseText) {
         return;
     }
@@ -150,11 +177,15 @@ async function playMorseText(morseText) {
     const wordGapMs = dotMs * 7;
 
     for (const ch of morseText) {
+        if (playback && playback.cancelled) {
+            return;
+        }
+
         if (ch === ".") {
-            await browserBeep(audioCtx, dotMs);
+            await browserBeep(audioCtx, dotMs, playback);
             await sleep(symbolGapMs);
         } else if (ch === "-") {
-            await browserBeep(audioCtx, dashMs);
+            await browserBeep(audioCtx, dashMs, playback);
             await sleep(symbolGapMs);
         } else if (ch === " ") {
             await sleep(letterGapMs);
@@ -177,7 +208,44 @@ async function playInBrowser() {
         return;
     }
 
-    await playMorseText(morseText);
+    stopBrowserPlayback();
+
+    const playback = {
+        cancelled: false,
+        oscillator: null
+    };
+
+    browserPlayback = playback;
+    setHomePlaybackState(true);
+
+    try {
+        await playMorseText(morseText, playback);
+    } finally {
+        if (browserPlayback === playback) {
+            browserPlayback = null;
+            setHomePlaybackState(false);
+        }
+    }
+}
+
+function stopBrowserPlayback() {
+    if (!browserPlayback) {
+        setHomePlaybackState(false);
+        return;
+    }
+
+    browserPlayback.cancelled = true;
+
+    if (browserPlayback.oscillator) {
+        try {
+            browserPlayback.oscillator.stop();
+        } catch (error) {
+            // Already stopped.
+        }
+    }
+
+    browserPlayback = null;
+    setHomePlaybackState(false);
 }
 
 async function playPracticePromptInBrowser() {
@@ -836,6 +904,11 @@ function initializePracticeMode() {
     document.querySelectorAll("[data-test-sound]").forEach(button => {
         button.addEventListener("click", testBrowserSound);
     });
+
+    const stopHereButton = document.getElementById("stopHereButton");
+    if (stopHereButton) {
+        stopHereButton.addEventListener("click", stopBrowserPlayback);
+    }
 
     document.addEventListener("keydown", handleKeyboardKeyDown);
     document.addEventListener("keyup", handleKeyboardKeyUp);

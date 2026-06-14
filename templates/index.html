@@ -54,9 +54,17 @@
                 <div class="action-row">
                     <button type="button"
                             class="button secondary"
+                            id="playHereButton"
                             onclick="playInBrowser()"
                             {% if not morse %}disabled{% endif %}>
                         Play Here
+                    </button>
+
+                    <button type="button"
+                            class="button secondary"
+                            id="stopHereButton"
+                            disabled>
+                        Stop Here
                     </button>
 
                     <button type="button" class="button secondary" data-test-sound>
@@ -68,6 +76,12 @@
                                 class="button primary"
                                 {% if not morse %}disabled{% endif %}>
                             Play Station
+                        </button>
+                    </form>
+
+                    <form method="post" action="/stop-playback" class="inline-form">
+                        <button type="submit" class="button secondary">
+                            Stop Station
                         </button>
                     </form>
                 </div>
@@ -136,6 +150,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260614-1"></script>
+<script src="/static/app.js?v=20260614-2"></script>
 </body>
 </html>

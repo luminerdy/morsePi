@@ -87,6 +87,8 @@ practice_modes = {
 
 key_lock = threading.Lock()
 output_lock = threading.Lock()
+station_stop_event = threading.Event()
+station_audio_process = None
 
 
 # -----------------------------
@@ -200,6 +202,8 @@ def write_wav_file(path, samples):
 
 
 def play_morse_usb_speaker(morse: str, volume: float):
+    global station_audio_process
+
     samples = morse_to_audio_samples(morse, volume)
 
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
@@ -209,12 +213,22 @@ def play_morse_usb_speaker(morse: str, volume: float):
         write_wav_file(wav_path, samples)
 
         # Plays through the configured Raspberry Pi USB speaker.
-        subprocess.run(
+        station_audio_process = subprocess.Popen(
             ["aplay", "-D", AUDIO_DEVICE, wav_path],
-            check=False
         )
 
+        while station_audio_process.poll() is None:
+            if station_stop_event.is_set():
+                station_audio_process.terminate()
+                try:
+                    station_audio_process.wait(timeout=0.5)
+                except subprocess.TimeoutExpired:
+                    station_audio_process.kill()
+                break
+            sleep(0.05)
+
     finally:
+        station_audio_process = None
         try:
             os.remove(wav_path)
         except FileNotFoundError:
@@ -227,6 +241,9 @@ def play_morse_usb_speaker(morse: str, volume: float):
 def flash_morse_led(morse: str):
     try:
         for character in morse:
+            if station_stop_event.is_set():
+                return
+
             if character == ".":
                 led_on()
                 sleep(DOT_SECONDS)
@@ -256,6 +273,7 @@ def play_morse_on_station(morse: str):
     - LED for visual Morse flashing
     """
     with output_lock:
+        station_stop_event.clear()
         volume = station_volume
 
         led_thread = threading.Thread(target=flash_morse_led, args=(morse,))
@@ -269,9 +287,19 @@ def play_morse_on_station(morse: str):
 
 
 def play_in_background(morse: str):
+    stop_station_playback()
+
     thread = threading.Thread(target=play_morse_on_station, args=(morse,))
     thread.daemon = True
     thread.start()
+
+
+def stop_station_playback():
+    station_stop_event.set()
+    led_off()
+
+    if station_audio_process is not None and station_audio_process.poll() is None:
+        station_audio_process.terminate()
 
 
 # -----------------------------
@@ -409,6 +437,12 @@ def play():
     if last_morse:
         play_in_background(last_morse)
 
+    return redirect(url_for("index"))
+
+
+@app.route("/stop-playback", methods=["POST"])
+def stop_playback():
+    stop_station_playback()
     return redirect(url_for("index"))
 
 
