@@ -945,6 +945,8 @@ Each station should only publish and subscribe to approved topics.
 | USB speaker integration | Complete |
 | GitHub repo setup | Complete |
 | Fresh Pi setup guide | Complete |
+| Pi app autostart | Complete with user systemd service |
+| Pi browser autostart | Complete for Labwc desktop session |
 | Continuous Send practice loop | Complete |
 | Learn practice mode | Complete |
 | Read practice mode | Complete |
@@ -954,6 +956,8 @@ Each station should only publish and subscribe to approved topics.
 | Unlocked-letter progress display | Started |
 | Student score card | Complete |
 | Detailed Progress page | Complete |
+| Browser sound recovery control | Complete |
+| Home playback stop controls | Complete |
 
 ---
 
@@ -984,6 +988,9 @@ Next testing milestone:
 Start from reset practice progress.
 Run Learn, Send, Read, and Listen in a real practice session.
 Confirm the browser audio is comfortable for beginners.
+Confirm the browser Test Sound button wakes audio when sound stops.
+Confirm Stop Here cancels long browser playback from the Home page.
+Confirm Stop Station cancels long Pi speaker/LED playback from the Home page.
 Confirm Replay is easy to find and use.
 Confirm Progress details make sense after a few attempts.
 Confirm Operator Level and unlocked letters feel fun and encouraging.
@@ -1172,7 +1179,9 @@ The current stage is successful when:
 Student can open the web app.
 Student can type a message and see Morse.
 Student can play Morse in the browser.
+Student can stop browser playback when a phrase is longer than expected.
 Student can play Morse on the Pi LED + buzzer.
+Student can stop Pi playback when a phrase is longer than expected.
 Student can tap the telegraph key.
 The tapped Morse appears in the web app.
 Student can use Practice Mode.
