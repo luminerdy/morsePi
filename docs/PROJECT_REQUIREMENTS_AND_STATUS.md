@@ -996,6 +996,7 @@ Confirm Stop Station cancels long Pi speaker/LED playback from the Home page.
 Confirm Replay is easy to find and use.
 Confirm Progress details make sense after a few attempts.
 Confirm Operator Level and unlocked letters feel fun and encouraging.
+Confirm the 7-inch Raspberry Pi touchscreen layout avoids crowded controls and unreadable text.
 Tune rank names and unlock thresholds after student testing.
 Decide whether wrong Listen answers should reveal the letter immediately or invite one replay first.
 Decide whether Learn should score progress the same way as Send or be more forgiving.
@@ -1209,7 +1210,7 @@ The student can complete a short Read practice session from visible Morse.
 The student can complete a short Listen practice session from audio prompts.
 Feedback feels encouraging and does not make practice too easy.
 Progress details are understandable to a student or parent.
-The 7-inch Raspberry Pi touchscreen layout is readable and touch-friendly.
+The 7-inch Raspberry Pi touchscreen layout is readable, touch-friendly, and uses separate pages where needed instead of crowding everything into one screen.
 The next coding priority is selected from Mixed mode, more letters, or timing feedback.
 ```
 

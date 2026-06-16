@@ -264,14 +264,17 @@ Create or refine these GitHub issues next:
 - Moved active station testing to the replacement Pi at `10.10.10.141` with a 7-inch Raspberry Pi touchscreen.
 - Found the USB speaker moved from numeric ALSA device `plughw:3,0` to card 1 on the new Pi.
 - Changed the app default USB speaker device to named ALSA device `plughw:UACDemoV10,0` so it is less sensitive to USB port/card ordering.
+- Tested the current UI on the 7-inch Pi touchscreen and confirmed the existing screens are too crowded to fit comfortably.
+- Decided to preserve the current desktop/laptop layout while planning a smaller-screen layout with additional pages and smaller text.
 
 ### Ready Next
 
+- Design a 7-inch touchscreen layout pass: split crowded Home/Practice content into focused pages, reduce type size where appropriate, and keep touch targets large enough for students.
 - Start from a clean progress slate and test Learn, Send, Read, and Listen by hand in Chrome with the physical key and Spacebar Keyer.
 - Tune Operator Level thresholds, rank names, and unlock messaging after student testing.
 - Decide whether and when unlocked letters should control the active practice set.
 - Decide whether Learn should count progress the same way as Send or stay more forgiving.
 - Tune browser audio speed and replay behavior for Learn and Listen.
-- Test touch layout on the 7-inch Raspberry Pi touchscreen.
+- Implement and test touch layout changes on the 7-inch Raspberry Pi touchscreen.
 - Test on Kindle Fire/Silk when a device is available.
 - Choose next build: Mixed mode, more letters, or timing feedback.
