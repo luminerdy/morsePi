@@ -272,6 +272,86 @@
     font-size: 28px;
 }
 
+.touch-progress-layout {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 290px minmax(0, 1fr);
+    gap: 8px;
+}
+
+.touch-progress-hero,
+.touch-progress-card {
+    min-height: 0;
+    padding: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(23, 33, 43, 0.08);
+}
+
+.touch-progress-hero {
+    display: grid;
+    align-content: center;
+    gap: 10px;
+}
+
+.touch-progress-hero span,
+.touch-progress-card span,
+.touch-progress-card em {
+    color: var(--muted);
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 900;
+}
+
+.touch-progress-hero strong {
+    color: var(--primary);
+    font-size: 36px;
+    line-height: 1;
+}
+
+.touch-progress-hero p {
+    margin: 0;
+    color: var(--text);
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.touch-progress-meter {
+    height: 14px;
+    overflow: hidden;
+    background: #dfe7ef;
+    border-radius: 999px;
+}
+
+.touch-progress-meter span {
+    display: block;
+    height: 100%;
+    background: var(--primary);
+}
+
+.touch-progress-modes {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.touch-progress-card {
+    display: grid;
+    align-content: center;
+    gap: 6px;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.touch-progress-card strong {
+    color: var(--primary);
+    font-size: 42px;
+    line-height: 1;
+}
+
 .practice-modes .touch-menu-card strong {
     font-size: 32px;
 }

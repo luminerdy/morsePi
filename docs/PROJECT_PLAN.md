@@ -276,18 +276,20 @@ Create or refine these GitHub issues next:
 ### 2026-06-16
 
 - Reworked the optional touch UI into a no-scroll `800x480` menu flow.
-- Split touch screens into focused routes: `/touch`, `/touch/message`, `/touch/key`, `/touch/timing`, `/touch/practice`, and `/touch/practice/run`.
+- Split touch screens into focused routes: `/touch`, `/touch/progress`, `/touch/key`, `/touch/timing`, `/touch/practice`, and `/touch/practice/run`; `/touch/message` remains available as a hidden utility.
 - Kept the desktop/laptop pages unchanged while iterating on touch-specific templates and CSS.
 - Verified the touch menu, message, timing, and active practice screens with Chromium screenshots at `800x480` on the Pi.
 - Fixed Pi browser startup to open `/touch` in Chromium kiosk mode instead of the desktop Home page.
 - Removed the duplicate XDG browser autostart path on the Pi; Labwc autostart is now the single browser launch path.
 - Confirmed after reboot there is one Flask app process running from `morse-station.service`.
 - Removed Spacebar Keyer from the touch screens so the 7-inch station stays focused on the physical telegraph key; desktop/laptop pages still keep Spacebar Keyer for testing.
+- Replaced the student-facing touch Message menu item with touch Progress because typing longer phrases on the 7-inch display is awkward and less central to the learning flow.
 
 ### Ready Next
 
 - Test the no-scroll touch menu flow directly on the physical 7-inch touchscreen.
 - Tune any touch screen labels, button sizes, or spacing after physical testing.
+- Decide whether `/touch/message` should stay as a hidden utility or be removed entirely from the touch experience.
 - Test whether the 15/7 WPM Farnsworth-style beginner timing feels easier than the old slow 4.8 WPM character timing.
 - Start from a clean progress slate and test Learn, Send, Read, and Listen by hand with the physical key on touch, plus Spacebar Keyer on desktop/laptop.
 - Tune Operator Level thresholds, rank names, and unlock messaging after student testing.

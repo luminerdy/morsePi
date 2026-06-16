@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+    <title>Touch Progress - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260611-2">
+    <link rel="stylesheet" href="/static/touch.css?v=20260616-3">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="touch-ui">
+    <div class="touch-screen">
+        <header class="touch-titlebar">
+            <div>
+                <p class="eyebrow">Touch</p>
+                <h1>Progress</h1>
+            </div>
+            <a class="touch-top-link" href="/touch">Menu</a>
+        </header>
+
+        <main class="touch-progress-layout">
+            <section class="touch-progress-hero">
+                <span>Operator Level {{ overall.level }}</span>
+                <strong>{{ overall.rank }}</strong>
+                <div class="touch-progress-meter" aria-hidden="true">
+                    <span style="width: {{ overall.mastery }}%"></span>
+                </div>
+                <p>{{ overall.mastery }}% overall · {{ overall.accuracy }}% accuracy</p>
+                <p>{{ overall.next_goal }}</p>
+            </section>
+
+            <section class="touch-progress-modes">
+                {% for mode_key, mode_config in modes.items() %}
+                    {% set mode_score = details[mode_key].score %}
+                    <a class="touch-progress-card" href="/touch/practice/run?mode={{ mode_key }}">
+                        <span>{{ mode_config.label }}</span>
+                        <strong>{{ mode_score.mastery }}%</strong>
+                        <em>{{ mode_score.streak }} streak</em>
+                    </a>
+                {% endfor %}
+            </section>
+        </main>
+
+        <footer class="touch-footer">
+            <span>{{ overall.attempts }} practice tries</span>
+            <span>
+                {% if overall.next_unlock.letters %}
+                    Next unlock: {{ overall.next_unlock.letters | join(" ") }}
+                {% else %}
+                    {{ overall.next_unlock.label }}
+                {% endif %}
+            </span>
+        </footer>
+    </div>
+</body>
+</html>

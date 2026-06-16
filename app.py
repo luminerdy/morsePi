@@ -552,6 +552,16 @@ def touch_message():
     return render_home_template("touch_message.html")
 
 
+@app.route("/touch/progress")
+def touch_progress():
+    return render_template(
+        "touch_progress.html",
+        modes=practice_modes,
+        overall=overall_score(practice_letters, practice_modes.keys()),
+        details=all_mode_details(practice_letters, practice_modes.keys())
+    )
+
+
 @app.route("/touch/key")
 def touch_key():
     return render_home_template("touch_key.html")

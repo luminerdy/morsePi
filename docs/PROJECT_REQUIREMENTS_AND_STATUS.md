@@ -959,9 +959,11 @@ Each station should only publish and subscribe to approved topics.
 | Unlocked-letter progress display | Started |
 | Student score card | Complete |
 | Detailed Progress page | Complete |
+| Touch Progress page | Started as the student-facing replacement for touch Message |
 | Browser sound recovery control | Complete |
 | Home playback stop controls | Complete |
 | Separate 7-inch touchscreen option | Started with no-scroll menu flow |
+| Touch message entry | Hidden from student-facing touch menu; desktop Home still supports typed message encoding |
 | Farnsworth-style Morse timing settings | Started |
 
 ---
@@ -1198,7 +1200,7 @@ Student can tap the telegraph key.
 The tapped Morse appears in the web app.
 Student can use Practice Mode.
 Student can check whether a tapped letter matches the prompt.
-On the 7-inch touch station, practice flow prioritizes the physical telegraph key; Spacebar Keyer remains available on desktop/laptop pages for testing.
+On the 7-inch touch station, practice flow prioritizes the physical telegraph key and progress feedback; typed message encoding and Spacebar Keyer remain available on desktop/laptop pages for testing.
 ```
 
 Current status:
