@@ -69,6 +69,23 @@ function ensureBrowserAudioContext() {
     return browserAudioCtx;
 }
 
+function getMorseTiming() {
+    const source = document.body ? document.body.dataset : {};
+    const numberFromData = (name, fallback) => {
+        const parsed = Number(source[name]);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+    };
+
+    return {
+        toneHz: numberFromData("toneHz", 700),
+        dotMs: numberFromData("dotMs", 80),
+        dashMs: numberFromData("dashMs", 240),
+        symbolGapMs: numberFromData("symbolGapMs", 80),
+        letterGapMs: numberFromData("letterGapMs", 514),
+        wordGapMs: numberFromData("wordGapMs", 1200)
+    };
+}
+
 async function browserBeep(audioCtx, durationMs, playback = null) {
     if (audioCtx.state === "suspended") {
         await audioCtx.resume();
@@ -77,7 +94,7 @@ async function browserBeep(audioCtx, durationMs, playback = null) {
     const oscillator = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
-    oscillator.frequency.value = 700;
+    oscillator.frequency.value = getMorseTiming().toneHz;
     oscillator.type = "sine";
     gain.gain.value = 0.2;
 
@@ -135,7 +152,7 @@ function startKeyboardTone() {
     const oscillator = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
-    oscillator.frequency.value = 700;
+    oscillator.frequency.value = getMorseTiming().toneHz;
     oscillator.type = "sine";
     gain.gain.value = 0.2;
 
@@ -169,12 +186,7 @@ async function playMorseText(morseText, playback = null) {
     }
 
     const audioCtx = ensureBrowserAudioContext();
-
-    const dotMs = 250;
-    const dashMs = dotMs * 3;
-    const symbolGapMs = dotMs;
-    const letterGapMs = dotMs * 3;
-    const wordGapMs = dotMs * 7;
+    const timing = getMorseTiming();
 
     for (const ch of morseText) {
         if (playback && playback.cancelled) {
@@ -182,15 +194,15 @@ async function playMorseText(morseText, playback = null) {
         }
 
         if (ch === ".") {
-            await browserBeep(audioCtx, dotMs, playback);
-            await sleep(symbolGapMs);
+            await browserBeep(audioCtx, timing.dotMs, playback);
+            await sleep(timing.symbolGapMs);
         } else if (ch === "-") {
-            await browserBeep(audioCtx, dashMs, playback);
-            await sleep(symbolGapMs);
+            await browserBeep(audioCtx, timing.dashMs, playback);
+            await sleep(timing.symbolGapMs);
         } else if (ch === " ") {
-            await sleep(letterGapMs);
+            await sleep(timing.letterGapMs);
         } else if (ch === "/") {
-            await sleep(wordGapMs);
+            await sleep(timing.wordGapMs);
         }
     }
 }

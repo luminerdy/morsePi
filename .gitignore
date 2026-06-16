@@ -4,3 +4,4 @@ __pycache__/
 .venv/
 .env
 data/practice_progress.json
+data/timing_settings.json

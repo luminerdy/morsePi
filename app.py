@@ -10,6 +10,8 @@ import tempfile
 import subprocess
 import os
 import random
+import json
+from pathlib import Path
 
 app = Flask(__name__)
 
@@ -25,13 +27,10 @@ led = LED(LED_GPIO)
 # -----------------------------
 # Morse timing
 # -----------------------------
-TONE_HZ = 700
-
-DOT_SECONDS = 0.25
-DASH_SECONDS = DOT_SECONDS * 3
-SYMBOL_GAP_SECONDS = DOT_SECONDS
-LETTER_GAP_SECONDS = DOT_SECONDS * 3
-WORD_GAP_SECONDS = DOT_SECONDS * 7
+DEFAULT_CHARACTER_WPM = 15
+DEFAULT_EFFECTIVE_WPM = 7
+DEFAULT_TONE_HZ = 700
+TIMING_SETTINGS_PATH = Path("data/timing_settings.json")
 
 DOT_DASH_THRESHOLD_SECONDS = 0.40
 LETTER_GAP_THRESHOLD_SECONDS = 0.80
@@ -54,6 +53,7 @@ last_message = ""
 last_morse = ""
 
 station_volume = DEFAULT_STATION_VOLUME
+morse_timing = {}
 
 press_started_at = None
 last_release_at = None
@@ -119,7 +119,7 @@ def start_key_tone():
             "speaker-test",
             "-D", AUDIO_DEVICE,
             "-t", "sine",
-            "-f", str(TONE_HZ)
+            "-f", str(morse_timing["tone_hz"])
         ],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL
@@ -148,6 +148,85 @@ def stop_key_tone():
 # -----------------------------
 # USB speaker audio helpers
 # -----------------------------
+def clamp_int(value, default, minimum, maximum):
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        parsed = default
+
+    return max(minimum, min(parsed, maximum))
+
+
+def default_morse_timing_settings():
+    return {
+        "character_wpm": DEFAULT_CHARACTER_WPM,
+        "effective_wpm": DEFAULT_EFFECTIVE_WPM,
+        "tone_hz": DEFAULT_TONE_HZ
+    }
+
+
+def normalize_morse_timing(settings):
+    defaults = default_morse_timing_settings()
+    character_wpm = clamp_int(settings.get("character_wpm"), defaults["character_wpm"], 5, 35)
+    effective_wpm = clamp_int(settings.get("effective_wpm"), defaults["effective_wpm"], 3, character_wpm)
+    tone_hz = clamp_int(settings.get("tone_hz"), defaults["tone_hz"], 400, 1000)
+
+    return {
+        "character_wpm": character_wpm,
+        "effective_wpm": effective_wpm,
+        "tone_hz": tone_hz
+    }
+
+
+def load_morse_timing_settings():
+    if TIMING_SETTINGS_PATH.exists():
+        try:
+            loaded = json.loads(TIMING_SETTINGS_PATH.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            loaded = {}
+    else:
+        loaded = {}
+
+    return normalize_morse_timing(loaded)
+
+
+def save_morse_timing_settings():
+    TIMING_SETTINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    TIMING_SETTINGS_PATH.write_text(
+        json.dumps(normalize_morse_timing(morse_timing), indent=2, sort_keys=True),
+        encoding="utf-8"
+    )
+
+
+def get_morse_timing():
+    settings = normalize_morse_timing(morse_timing)
+    character_wpm = settings["character_wpm"]
+    effective_wpm = settings["effective_wpm"]
+    tone_hz = settings["tone_hz"]
+
+    character_dot_seconds = 1.2 / character_wpm
+    spacing_dot_seconds = 1.2 / effective_wpm
+
+    return {
+        "character_wpm": character_wpm,
+        "effective_wpm": effective_wpm,
+        "tone_hz": tone_hz,
+        "dot_seconds": character_dot_seconds,
+        "dash_seconds": character_dot_seconds * 3,
+        "symbol_gap_seconds": character_dot_seconds,
+        "letter_gap_seconds": spacing_dot_seconds * 3,
+        "word_gap_seconds": spacing_dot_seconds * 7,
+        "dot_ms": round(character_dot_seconds * 1000),
+        "dash_ms": round(character_dot_seconds * 3000),
+        "symbol_gap_ms": round(character_dot_seconds * 1000),
+        "letter_gap_ms": round(spacing_dot_seconds * 3000),
+        "word_gap_ms": round(spacing_dot_seconds * 7000)
+    }
+
+
+morse_timing = load_morse_timing_settings()
+
+
 def add_tone(samples, frequency_hz, duration_seconds, volume):
     total_samples = int(SAMPLE_RATE * duration_seconds)
 
@@ -167,23 +246,23 @@ def add_silence(samples, duration_seconds):
         samples.append(0)
 
 
-def morse_to_audio_samples(morse: str, volume: float):
+def morse_to_audio_samples(morse: str, volume: float, timing):
     samples = []
 
     for character in morse:
         if character == ".":
-            add_tone(samples, TONE_HZ, DOT_SECONDS, volume)
-            add_silence(samples, SYMBOL_GAP_SECONDS)
+            add_tone(samples, timing["tone_hz"], timing["dot_seconds"], volume)
+            add_silence(samples, timing["symbol_gap_seconds"])
 
         elif character == "-":
-            add_tone(samples, TONE_HZ, DASH_SECONDS, volume)
-            add_silence(samples, SYMBOL_GAP_SECONDS)
+            add_tone(samples, timing["tone_hz"], timing["dash_seconds"], volume)
+            add_silence(samples, timing["symbol_gap_seconds"])
 
         elif character == " ":
-            add_silence(samples, LETTER_GAP_SECONDS)
+            add_silence(samples, timing["letter_gap_seconds"])
 
         elif character == "/":
-            add_silence(samples, WORD_GAP_SECONDS)
+            add_silence(samples, timing["word_gap_seconds"])
 
     return samples
 
@@ -204,7 +283,7 @@ def write_wav_file(path, samples):
 def play_morse_usb_speaker(morse: str, volume: float):
     global station_audio_process
 
-    samples = morse_to_audio_samples(morse, volume)
+    samples = morse_to_audio_samples(morse, volume, get_morse_timing())
 
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
         wav_path = temp_file.name
@@ -239,6 +318,8 @@ def play_morse_usb_speaker(morse: str, volume: float):
 # Station output helpers
 # -----------------------------
 def flash_morse_led(morse: str):
+    timing = get_morse_timing()
+
     try:
         for character in morse:
             if station_stop_event.is_set():
@@ -246,21 +327,21 @@ def flash_morse_led(morse: str):
 
             if character == ".":
                 led_on()
-                sleep(DOT_SECONDS)
+                sleep(timing["dot_seconds"])
                 led_off()
-                sleep(SYMBOL_GAP_SECONDS)
+                sleep(timing["symbol_gap_seconds"])
 
             elif character == "-":
                 led_on()
-                sleep(DASH_SECONDS)
+                sleep(timing["dash_seconds"])
                 led_off()
-                sleep(SYMBOL_GAP_SECONDS)
+                sleep(timing["symbol_gap_seconds"])
 
             elif character == " ":
-                sleep(LETTER_GAP_SECONDS)
+                sleep(timing["letter_gap_seconds"])
 
             elif character == "/":
-                sleep(WORD_GAP_SECONDS)
+                sleep(timing["word_gap_seconds"])
 
     finally:
         led_off()
@@ -428,7 +509,8 @@ def render_home_template(template_name):
         template_name,
         message=last_message,
         morse=last_morse,
-        station_volume_percent=station_volume_percent()
+        station_volume_percent=station_volume_percent(),
+        timing=get_morse_timing()
     )
 
 
@@ -447,7 +529,8 @@ def render_practice_template(template_name):
         progress=progress_summary(practice_letters, mode),
         score=mode_score(practice_letters, mode),
         overall=overall_score(practice_letters, practice_modes.keys()),
-        progress_label=practice_modes[mode]["progress_label"]
+        progress_label=practice_modes[mode]["progress_label"],
+        timing=get_morse_timing()
     )
 
 
@@ -489,6 +572,18 @@ def set_station_volume():
 
     volume_percent = max(0, min(volume_percent, 100))
     station_volume = volume_percent / 100.0
+
+    return redirect(request.form.get("next") or url_for("index"))
+
+
+@app.route("/timing-settings", methods=["POST"])
+def set_timing_settings():
+    morse_timing.update(normalize_morse_timing({
+        "character_wpm": request.form.get("character_wpm"),
+        "effective_wpm": request.form.get("effective_wpm"),
+        "tone_hz": request.form.get("tone_hz")
+    }))
+    save_morse_timing_settings()
 
     return redirect(request.form.get("next") or url_for("index"))
 

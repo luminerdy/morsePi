@@ -129,6 +129,20 @@ If a fresh Pi assigns a different card/device number, start the app with a diffe
 MORSE_AUDIO_DEVICE=plughw:<card>,<device> python3 app.py
 ```
 
+## 5A. Configure Morse Learning Timing
+
+The web app defaults to beginner Farnsworth-style timing:
+
+```text
+Character speed: 15 WPM
+Effective spacing: 7 WPM
+Tone: 700 Hz
+```
+
+This makes each letter sound more like real Morse while keeping longer pauses between letters and words for beginners. The Home page includes Morse Timing controls. The same timing is used by browser playback and Raspberry Pi speaker playback.
+
+Saved timing changes are stored locally in `data/timing_settings.json` on the Pi. This file is intentionally not committed because it is station-specific.
+
 ## 6. Wire the Hardware
 
 GPIO layout:

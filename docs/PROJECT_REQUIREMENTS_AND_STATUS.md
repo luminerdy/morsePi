@@ -527,13 +527,15 @@ Good try. Listen again and try holding the dash longer.
 
 The system should eventually adapt to each student.
 
-Initial timing modes:
+Current playback timing model:
 
-| Mode | Dot Length | Dash Length | Best For |
-|---|---:|---:|---|
-| Slow Learner | 250 ms | 750 ms | Starting out |
-| Normal Practice | 180 ms | 540 ms | Getting comfortable |
-| Challenge | 120 ms | 360 ms | More realistic |
+| Setting | Beginner Default | Purpose |
+|---|---:|---|
+| Character speed | 15 WPM | Keeps each letter sounding like a recognizable Morse rhythm |
+| Effective spacing | 7 WPM | Adds extra thinking time between letters and words |
+| Tone | 700 Hz | Comfortable default pitch for browser and Pi speaker playback |
+
+Future timing presets can adjust these values rather than directly editing dot/dash constants.
 
 ### ADAPT-001: Separate playback and input timing
 
@@ -960,6 +962,7 @@ Each station should only publish and subscribe to approved topics.
 | Browser sound recovery control | Complete |
 | Home playback stop controls | Complete |
 | Separate 7-inch touchscreen option | Started |
+| Farnsworth-style Morse timing settings | Started |
 
 ---
 
@@ -995,6 +998,7 @@ Confirm the browser Test Sound button wakes audio when sound stops.
 Confirm Stop Here cancels long browser playback from the Home page.
 Confirm Stop Station cancels long Pi speaker/LED playback from the Home page.
 Confirm `/touch` and `/touch/practice` are usable on the 7-inch Raspberry Pi touchscreen before changing the default desktop pages.
+Confirm beginner timing at 15 WPM character speed and 7 WPM effective spacing feels learnable.
 Confirm Replay is easy to find and use.
 Confirm Progress details make sense after a few attempts.
 Confirm Operator Level and unlocked letters feel fun and encouraging.

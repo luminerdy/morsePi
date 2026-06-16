@@ -267,10 +267,13 @@ Create or refine these GitHub issues next:
 - Tested the current UI on the 7-inch Pi touchscreen and confirmed the existing screens are too crowded to fit comfortably.
 - Decided to preserve the current desktop/laptop layout while planning a smaller-screen layout with additional pages and smaller text.
 - Added a separate 7-inch touchscreen option under `/touch` and `/touch/practice` so the current desktop/laptop UI can remain unchanged while the touchscreen flow is tested.
+- Added Morse timing settings using beginner Farnsworth-style defaults: 15 WPM character speed, 7 WPM effective spacing, and 700 Hz tone.
+- Updated browser and Pi speaker playback to share the same timing settings.
 
 ### Ready Next
 
 - Test the first `/touch` and `/touch/practice` pages directly on the 7-inch Raspberry Pi touchscreen.
+- Test whether the 15/7 WPM Farnsworth-style beginner timing feels easier than the old slow 4.8 WPM character timing.
 - Start from a clean progress slate and test Learn, Send, Read, and Listen by hand in Chrome with the physical key and Spacebar Keyer.
 - Tune Operator Level thresholds, rank names, and unlock messaging after student testing.
 - Decide whether and when unlocked letters should control the active practice set.

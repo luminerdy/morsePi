@@ -6,7 +6,13 @@
     <link rel="stylesheet" href="/static/touch.css?v=20260615-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
-<body class="touch-ui">
+<body class="touch-ui"
+      data-tone-hz="{{ timing.tone_hz }}"
+      data-dot-ms="{{ timing.dot_ms }}"
+      data-dash-ms="{{ timing.dash_ms }}"
+      data-symbol-gap-ms="{{ timing.symbol_gap_ms }}"
+      data-letter-gap-ms="{{ timing.letter_gap_ms }}"
+      data-word-gap-ms="{{ timing.word_gap_ms }}">
     <div class="touch-shell">
         <header class="touch-header">
             <div>
@@ -168,6 +174,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260614-2"></script>
+<script src="/static/app.js?v=20260615-3"></script>
 </body>
 </html>

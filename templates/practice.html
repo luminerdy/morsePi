@@ -5,7 +5,12 @@
     <link rel="stylesheet" href="/static/style.css?v=20260611-2">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
-<body>
+<body data-tone-hz="{{ timing.tone_hz }}"
+      data-dot-ms="{{ timing.dot_ms }}"
+      data-dash-ms="{{ timing.dash_ms }}"
+      data-symbol-gap-ms="{{ timing.symbol_gap_ms }}"
+      data-letter-gap-ms="{{ timing.letter_gap_ms }}"
+      data-word-gap-ms="{{ timing.word_gap_ms }}">
     <div class="app-shell">
         <header class="app-header">
             <div>
@@ -206,6 +211,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260614-1"></script>
+<script src="/static/app.js?v=20260615-3"></script>
 </body>
 </html>

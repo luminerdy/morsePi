@@ -5,7 +5,12 @@
     <link rel="stylesheet" href="/static/style.css?v=20260611-2">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
-<body>
+<body data-tone-hz="{{ timing.tone_hz }}"
+      data-dot-ms="{{ timing.dot_ms }}"
+      data-dash-ms="{{ timing.dash_ms }}"
+      data-symbol-gap-ms="{{ timing.symbol_gap_ms }}"
+      data-letter-gap-ms="{{ timing.letter_gap_ms }}"
+      data-word-gap-ms="{{ timing.word_gap_ms }}">
     <div class="app-shell">
         <header class="app-header">
             <div>
@@ -136,6 +141,54 @@
 
                 <section class="panel compact-panel">
                     <div class="section-heading">
+                        <h2>Morse Timing</h2>
+                        <span class="panel-meta">{{ timing.character_wpm }}/{{ timing.effective_wpm }} WPM</span>
+                    </div>
+
+                    <form method="post" action="/timing-settings">
+                        <label for="character_wpm">Character speed</label>
+                        <input
+                            type="range"
+                            id="character_wpm"
+                            name="character_wpm"
+                            min="5"
+                            max="35"
+                            value="{{ timing.character_wpm }}"
+                            oninput="document.getElementById('characterWpmValue').innerText = this.value + ' WPM'"
+                        >
+                        <span class="volume-value" id="characterWpmValue">{{ timing.character_wpm }} WPM</span>
+
+                        <label for="effective_wpm">Learning spacing</label>
+                        <input
+                            type="range"
+                            id="effective_wpm"
+                            name="effective_wpm"
+                            min="3"
+                            max="{{ timing.character_wpm }}"
+                            value="{{ timing.effective_wpm }}"
+                            oninput="document.getElementById('effectiveWpmValue').innerText = this.value + ' WPM'"
+                        >
+                        <span class="volume-value" id="effectiveWpmValue">{{ timing.effective_wpm }} WPM</span>
+
+                        <label for="tone_hz">Tone</label>
+                        <input
+                            type="range"
+                            id="tone_hz"
+                            name="tone_hz"
+                            min="400"
+                            max="1000"
+                            step="25"
+                            value="{{ timing.tone_hz }}"
+                            oninput="document.getElementById('toneHzValue').innerText = this.value + ' Hz'"
+                        >
+                        <span class="volume-value" id="toneHzValue">{{ timing.tone_hz }} Hz</span>
+
+                        <button type="submit" class="button secondary full-width">Save Timing</button>
+                    </form>
+                </section>
+
+                <section class="panel compact-panel">
+                    <div class="section-heading">
                         <h2>Samples</h2>
                     </div>
 
@@ -150,6 +203,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260614-2"></script>
+<script src="/static/app.js?v=20260615-3"></script>
 </body>
 </html>
