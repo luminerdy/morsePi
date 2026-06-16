@@ -66,7 +66,13 @@ current_key_events = []
 key_tone_process = None
 
 starter_practice_letters = ["E", "T", "A", "N", "I", "M"]
-all_practice_letters = ["E", "T", "A", "N", "I", "M", "S", "O", "R", "K", "D", "U"]
+all_practice_letters = [
+    "E", "T", "A", "N", "I", "M",
+    "S", "O", "R", "K", "D", "U",
+    "C", "W", "H", "L", "P", "F", "Y", "G",
+    "B", "V", "J", "X", "Q", "Z",
+    "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"
+]
 letter_unlock_steps = [
     {
         "threshold": 50,
@@ -82,6 +88,36 @@ letter_unlock_steps = [
         "threshold": 80,
         "letters": ["D", "U"],
         "label": "Relay Builder"
+    },
+    {
+        "threshold": 80,
+        "letters": ["C", "W", "H", "L"],
+        "label": "Word Builder"
+    },
+    {
+        "threshold": 82,
+        "letters": ["P", "F", "Y", "G"],
+        "label": "Pattern Builder"
+    },
+    {
+        "threshold": 85,
+        "letters": ["B", "V", "J", "X"],
+        "label": "Code Builder"
+    },
+    {
+        "threshold": 85,
+        "letters": ["Q", "Z"],
+        "label": "Alphabet Builder"
+    },
+    {
+        "threshold": 88,
+        "letters": ["1", "2", "3", "4", "5"],
+        "label": "Number Builder"
+    },
+    {
+        "threshold": 88,
+        "letters": ["6", "7", "8", "9", "0"],
+        "label": "Full Station Operator"
     }
 ]
 practice_target = "E"

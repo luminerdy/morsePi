@@ -996,6 +996,21 @@ Each station should only publish and subscribe to approved topics.
 | Better timing feedback | Not started |
 | Refactor hardware code | Not started |
 
+Current active practice unlock ladder:
+
+```text
+Starter: E T A N I M
+50% in all modes: S O
+65% in all modes: R K
+80% in all modes: D U
+80% in all modes: C W H L
+82% in all modes: P F Y G
+85% in all modes: B V J X
+85% in all modes: Q Z
+88% in all modes: 1 2 3 4 5
+88% in all modes: 6 7 8 9 0
+```
+
 ---
 
 ## 16. Recommended Next Steps
@@ -1024,6 +1039,7 @@ Confirm the 7-inch Raspberry Pi touchscreen layout avoids crowded controls and u
 Confirm `data/practice_attempts.jsonl` captures useful timing summaries after Send/Learn attempts.
 Confirm adaptive Listen playback feels easier early without becoming too slow.
 Confirm `S` and `O` appear after all four modes reach at least 50% mastery.
+Confirm later A-Z and number unlocks feel motivating rather than overwhelming.
 Tune rank names and unlock thresholds after student testing.
 Decide whether wrong Listen answers should reveal the letter immediately or invite one replay first.
 Decide whether Learn should score progress the same way as Send or be more forgiving.
