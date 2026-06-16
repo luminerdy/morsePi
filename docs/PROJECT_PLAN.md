@@ -290,6 +290,8 @@ Create or refine these GitHub issues next:
 - Added browser-side touch UI selection for small/coarse-pointer screens, with `?view=desktop` preserving the desktop view for the current browser session.
 - Added standalone Morse learning best-practices research notes covering Farnsworth timing, Koch-style progression, practice modes, feedback, progress, and timing feedback goals.
 - Tuned beginner timing and key decoding after testing showed Listen prompts were too fast and a correctly imitated `M` could decode as `I`; dash detection now follows the configured Morse timing instead of a fixed 400 ms threshold.
+- Added JSONL practice attempt logging with expected/actual Morse, selected answers, correctness, timing settings, and raw key timing summaries for future coaching and adaptive training.
+- Added a first adaptive Listen rule: early, overall-struggling, or letter-specific struggling Listen practice plays one step slower than the station default, then returns to normal timing after accuracy improves.
 
 ### Ready Next
 
@@ -303,6 +305,6 @@ Create or refine these GitHub issues next:
 - Decide whether and when unlocked letters should control the active practice set.
 - Decide whether Learn should count progress the same way as Send or stay more forgiving.
 - Tune browser audio speed and replay behavior for Learn and Listen.
-- Implement and test touch layout changes on the 7-inch Raspberry Pi touchscreen.
+- Review logged attempt timing after hands-on testing and choose the first student-facing timing feedback message.
 - Test on Kindle Fire/Silk when a device is available.
 - Choose next build: Mixed mode, more letters, or timing feedback.

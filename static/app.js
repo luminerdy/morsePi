@@ -9,7 +9,9 @@ let practiceActive = true;
 let practiceBusy = false;
 let keyboardKeyerActive = false;
 let keyboardPressStartedAt = null;
+let keyboardLastReleasedAt = null;
 let keyboardMorse = "";
+let keyboardTimingEvents = [];
 let keyboardAudioCtx = null;
 let keyboardToneOscillator = null;
 let keyboardToneGain = null;
@@ -91,6 +93,28 @@ function getMorseTiming() {
 function getKeyboardDashThresholdMs() {
     const timing = getMorseTiming();
     return timing.inputDashThresholdMs || Math.round(timing.dotMs * KEYBOARD_DASH_THRESHOLD_UNITS);
+}
+
+function updateMorseTimingData(timing) {
+    if (!timing || !document.body) {
+        return;
+    }
+
+    const fields = {
+        toneHz: "tone_hz",
+        dotMs: "dot_ms",
+        dashMs: "dash_ms",
+        symbolGapMs: "symbol_gap_ms",
+        letterGapMs: "letter_gap_ms",
+        wordGapMs: "word_gap_ms",
+        inputDashThresholdMs: "input_dash_threshold_ms"
+    };
+
+    for (const [dataKey, timingKey] of Object.entries(fields)) {
+        if (timing[timingKey] !== undefined) {
+            document.body.dataset[dataKey] = timing[timingKey];
+        }
+    }
 }
 
 async function browserBeep(audioCtx, durationMs, playback = null) {
@@ -442,16 +466,32 @@ function checkPracticeAnswer(actualMorse, expectedMorse, target) {
     }
 }
 
-async function recordPracticeResult(target, correct) {
+async function recordPracticeResult(target, correct, answer = "") {
+    const panel = getPracticePanel();
+    const liveMorse = document.getElementById("liveMorse");
+    const mode = getPracticeMode();
+    const actualMorse = ["read", "listen"].includes(mode)
+        ? ""
+        : normalizeMorse(keyboardKeyerActive ? keyboardMorse : (liveMorse ? liveMorse.innerText : ""));
+
     try {
         const response = await fetch("/practice/result", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ target, correct, mode: getPracticeMode() })
+            body: JSON.stringify({
+                target,
+                correct,
+                answer,
+                mode,
+                expected_morse: panel ? (panel.dataset.expectedMorse || "") : "",
+                actual_morse: actualMorse,
+                timing_events: keyboardKeyerActive ? keyboardTimingEvents : []
+            })
         });
         const data = await response.json();
+        updateMorseTimingData(data.timing || null);
         updateProgressPanel(data.progress || []);
         updateScoreCard(data.score || null);
         updateOverallScoreCard(data.overall || null);
@@ -468,6 +508,7 @@ async function loadNextPracticePrompt() {
         const data = await response.json();
 
         updatePracticePrompt(data.target, data.expected_morse, data.read_choices || []);
+        updateMorseTimingData(data.timing || null);
         updateProgressPanel(data.progress || []);
         updateScoreCard(data.score || null);
         updateOverallScoreCard(data.overall || null);
@@ -498,6 +539,7 @@ async function retryPracticePrompt() {
         const data = await response.json();
 
         updatePracticePrompt(data.target, data.expected_morse, data.read_choices || []);
+        updateMorseTimingData(data.timing || null);
         updateProgressPanel(data.progress || []);
         updateScoreCard(data.score || null);
         updateOverallScoreCard(data.overall || null);
@@ -728,7 +770,7 @@ function submitReadAnswer(answer) {
 
     if (normalizedAnswer === target) {
         setPracticeFeedback(`Correct: ${target}. Next letter coming up.`);
-        recordPracticeResult(target, true).finally(() => {
+        recordPracticeResult(target, true, normalizedAnswer).finally(() => {
             setTimeout(loadNextPracticePrompt, 850);
         });
     } else {
@@ -736,7 +778,7 @@ function submitReadAnswer(answer) {
             ? `Try again. That was ${target}, not ${normalizedAnswer}.`
             : `Try again. ${expectedMorse} is ${target}, not ${normalizedAnswer}.`;
         setPracticeFeedback(feedback);
-        recordPracticeResult(target, false).finally(() => {
+        recordPracticeResult(target, false, normalizedAnswer).finally(() => {
             setTimeout(retryPracticePrompt, 1200);
         });
     }
@@ -767,7 +809,9 @@ function resetInputDisplay() {
 function resetVirtualKeyer() {
     stopKeyboardTone();
     keyboardPressStartedAt = null;
+    keyboardLastReleasedAt = null;
     keyboardMorse = "";
+    keyboardTimingEvents = [];
     resetLiveKeyDisplay();
     lastCheckedPracticeMorse = "";
     pendingPracticeMorse = "";
@@ -836,6 +880,13 @@ function handleKeyboardKeyDown(event) {
     event.preventDefault();
 
     if (keyboardPressStartedAt === null) {
+        if (keyboardLastReleasedAt !== null) {
+            keyboardTimingEvents.push({
+                type: "gap",
+                gap_type: "symbol",
+                duration_ms: Math.round(performance.now() - keyboardLastReleasedAt)
+            });
+        }
         keyboardPressStartedAt = performance.now();
         startKeyboardTone();
     }
@@ -855,7 +906,14 @@ function handleKeyboardKeyUp(event) {
     const durationMs = performance.now() - keyboardPressStartedAt;
     keyboardPressStartedAt = null;
     stopKeyboardTone();
-    keyboardMorse += durationMs >= getKeyboardDashThresholdMs() ? "-" : ".";
+    const symbol = durationMs >= getKeyboardDashThresholdMs() ? "-" : ".";
+    keyboardMorse += symbol;
+    keyboardTimingEvents.push({
+        type: "symbol",
+        symbol,
+        duration_ms: Math.round(durationMs)
+    });
+    keyboardLastReleasedAt = performance.now();
     updateVirtualKeyerDisplay();
 }
 

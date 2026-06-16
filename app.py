@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from gpiozero import Button, LED
 from morse import text_to_morse, morse_to_text
+from practice_attempts import append_practice_attempt, rounded_ms
 from practice_progress import all_mode_details, choose_next_letter, mode_score, overall_score, progress_summary, record_attempt
 from time import time, sleep
 import threading
@@ -60,6 +61,7 @@ last_release_at = None
 
 current_letter = ""
 current_morse = ""
+current_key_events = []
 
 key_tone_process = None
 
@@ -227,6 +229,54 @@ def get_morse_timing():
 
 def get_dot_dash_threshold_seconds():
     return get_morse_timing()["input_dash_threshold_ms"] / 1000
+
+
+def get_practice_timing(mode, target=None):
+    timing = dict(get_morse_timing())
+
+    if mode != "listen":
+        timing["adapted"] = False
+        timing["adapted_reason"] = ""
+        return timing
+
+    listen_score = mode_score(practice_letters, "listen")
+    target_summary = next(
+        (item for item in progress_summary(practice_letters, "listen") if item["letter"] == (target or practice_target)),
+        None
+    )
+    target_needs_help = bool(
+        target_summary
+        and (target_summary["attempts"] < 3 or target_summary["accuracy"] < 70)
+    )
+
+    if listen_score["attempts"] < 10 or listen_score["accuracy"] < 70 or target_needs_help:
+        character_wpm = max(8, timing["character_wpm"] - 2)
+        effective_wpm = max(4, min(character_wpm, timing["effective_wpm"] - 1))
+        character_dot_seconds = 1.2 / character_wpm
+        spacing_dot_seconds = 1.2 / effective_wpm
+
+        timing.update({
+            "character_wpm": character_wpm,
+            "effective_wpm": effective_wpm,
+            "dot_seconds": character_dot_seconds,
+            "dash_seconds": character_dot_seconds * 3,
+            "symbol_gap_seconds": character_dot_seconds,
+            "letter_gap_seconds": spacing_dot_seconds * 3,
+            "word_gap_seconds": spacing_dot_seconds * 7,
+            "dot_ms": round(character_dot_seconds * 1000),
+            "dash_ms": round(character_dot_seconds * 3000),
+            "symbol_gap_ms": round(character_dot_seconds * 1000),
+            "letter_gap_ms": round(spacing_dot_seconds * 3000),
+            "word_gap_ms": round(spacing_dot_seconds * 7000),
+            "input_dash_threshold_ms": round(character_dot_seconds * DOT_DASH_THRESHOLD_UNITS * 1000),
+            "adapted": True,
+            "adapted_reason": "Slower Listen practice until accuracy improves"
+        })
+    else:
+        timing["adapted"] = False
+        timing["adapted_reason"] = ""
+
+    return timing
 
 
 morse_timing = load_morse_timing_settings()
@@ -400,7 +450,7 @@ def classify_gap(gap_seconds):
 
 
 def on_key_down():
-    global press_started_at, last_release_at, current_letter, current_morse
+    global press_started_at, last_release_at, current_letter, current_morse, current_key_events
 
     now = time()
 
@@ -408,6 +458,11 @@ def on_key_down():
         if last_release_at is not None:
             gap = now - last_release_at
             gap_type = classify_gap(gap)
+            current_key_events.append({
+                "type": "gap",
+                "gap_type": gap_type,
+                "duration_ms": rounded_ms(gap)
+            })
 
             if gap_type == "letter":
                 if current_letter:
@@ -428,7 +483,7 @@ def on_key_down():
 
 
 def on_key_up():
-    global press_started_at, last_release_at, current_letter
+    global press_started_at, last_release_at, current_letter, current_key_events
 
     now = time()
 
@@ -443,6 +498,11 @@ def on_key_up():
         symbol = "." if duration < get_dot_dash_threshold_seconds() else "-"
 
         current_letter += symbol
+        current_key_events.append({
+            "type": "symbol",
+            "symbol": symbol,
+            "duration_ms": rounded_ms(duration)
+        })
         press_started_at = None
         last_release_at = now
 
@@ -456,14 +516,20 @@ def get_current_key_morse():
         return (current_morse + current_letter).strip()
 
 
+def get_current_key_events():
+    with key_lock:
+        return list(current_key_events)
+
+
 def clear_key_state():
-    global current_letter, current_morse, last_release_at, press_started_at
+    global current_letter, current_morse, last_release_at, press_started_at, current_key_events
 
     with key_lock:
         current_letter = ""
         current_morse = ""
         last_release_at = None
         press_started_at = None
+        current_key_events = []
 
 
 def get_practice_mode():
@@ -535,7 +601,7 @@ def render_practice_template(template_name):
         score=mode_score(practice_letters, mode),
         overall=overall_score(practice_letters, practice_modes.keys()),
         progress_label=practice_modes[mode]["progress_label"],
-        timing=get_morse_timing()
+        timing=get_practice_timing(mode, practice_target)
     )
 
 
@@ -670,6 +736,7 @@ def practice_next():
         "target": practice_target,
         "expected_morse": text_to_morse(practice_target),
         "read_choices": get_read_choices(practice_target),
+        "timing": get_practice_timing(mode, practice_target),
         "progress": progress_summary(practice_letters, mode),
         "score": mode_score(practice_letters, mode),
         "overall": overall_score(practice_letters, practice_modes.keys())
@@ -686,6 +753,7 @@ def practice_retry():
         "target": practice_target,
         "expected_morse": text_to_morse(practice_target),
         "read_choices": get_read_choices(practice_target),
+        "timing": get_practice_timing(mode, practice_target),
         "progress": progress_summary(practice_letters, mode),
         "score": mode_score(practice_letters, mode),
         "overall": overall_score(practice_letters, practice_modes.keys())
@@ -698,6 +766,10 @@ def practice_result():
     letter = data.get("target", practice_target)
     is_correct = bool(data.get("correct", False))
     mode = data.get("mode", "send")
+    expected_morse = data.get("expected_morse") or text_to_morse(letter)
+    actual_morse = data.get("actual_morse") or get_current_key_morse().strip()
+    answer = data.get("answer", "")
+    timing_events = data.get("timing_events") or get_current_key_events()
 
     if mode not in practice_modes:
         mode = "send"
@@ -705,15 +777,28 @@ def practice_result():
     if letter not in practice_letters:
         return jsonify({
             "status": "ignored",
+            "timing": get_practice_timing(mode, letter),
             "progress": progress_summary(practice_letters, mode),
             "score": mode_score(practice_letters, mode),
             "overall": overall_score(practice_letters, practice_modes.keys())
         })
 
     record_attempt(letter, is_correct, practice_letters, mode)
+    attempt_record = append_practice_attempt({
+        "mode": mode,
+        "target": letter,
+        "expected_morse": expected_morse,
+        "actual_morse": actual_morse,
+        "answer": answer,
+        "correct": is_correct,
+        "timing": get_practice_timing(mode, letter),
+        "timing_events": timing_events
+    })
 
     return jsonify({
         "status": "recorded",
+        "attempt": attempt_record,
+        "timing": get_practice_timing(mode, letter),
         "progress": progress_summary(practice_letters, mode),
         "score": mode_score(practice_letters, mode),
         "overall": overall_score(practice_letters, practice_modes.keys())

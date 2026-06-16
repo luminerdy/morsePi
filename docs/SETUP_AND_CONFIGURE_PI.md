@@ -150,6 +150,8 @@ This makes each letter sound more like real Morse while keeping longer pauses be
 
 Saved timing changes are stored locally in `data/timing_settings.json` on the Pi. This file is intentionally not committed because it is station-specific.
 
+Practice attempt timing logs are stored locally in `data/practice_attempts.jsonl`. This file is intentionally not committed because it contains station/student practice history.
+
 ## 6. Wire the Hardware
 
 GPIO layout:

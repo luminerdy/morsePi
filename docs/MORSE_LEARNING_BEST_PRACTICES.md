@@ -122,7 +122,7 @@ Useful feedback targets:
 
 Suggested implementation path:
 
-1. Capture raw key down/up timestamps.
+1. Capture raw key down/up timestamps. Started with `data/practice_attempts.jsonl`.
 2. Compare student timing to current dot/dash/gap settings.
 3. Show simple coaching messages first.
 4. Add detailed timing charts only after the basic feedback is useful.
@@ -151,6 +151,21 @@ Recommended progress model:
 Open decision:
 
 - Should unlocked letters control the active practice set immediately, or should the current beginner set remain manually controlled until more testing?
+
+## Adaptive Listening
+
+Listen practice can adapt before the rest of the station timing changes.
+
+Current first rule:
+
+- If Listen has fewer than 10 attempts, overall Listen accuracy is below 70%, or the current letter's Listen accuracy is below 70%, Listen prompts play one step slower than the saved station timing.
+- Once Listen accuracy improves, prompts return to the saved station timing.
+
+Design cautions:
+
+- Do not change speed on every single attempt.
+- Keep the change subtle so students still learn real Morse rhythm.
+- Show adaptive timing as help, not failure, if it becomes visible in the UI.
 
 ## Touch Station Design Notes
 
