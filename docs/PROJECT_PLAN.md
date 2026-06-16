@@ -284,12 +284,14 @@ Create or refine these GitHub issues next:
 - Confirmed after reboot there is one Flask app process running from `morse-station.service`.
 - Removed Spacebar Keyer from the touch screens so the 7-inch station stays focused on the physical telegraph key; desktop/laptop pages still keep Spacebar Keyer for testing.
 - Replaced the student-facing touch Message menu item with touch Progress because typing longer phrases on the 7-inch display is awkward and less central to the learning flow.
+- Added a `Touch` navigation link to desktop Home, Practice, and Progress so users can return to the touch menu after tapping `Desktop`.
 
 ### Ready Next
 
 - Test the no-scroll touch menu flow directly on the physical 7-inch touchscreen.
 - Tune any touch screen labels, button sizes, or spacing after physical testing.
 - Decide whether `/touch/message` should stay as a hidden utility or be removed entirely from the touch experience.
+- Decide whether touch-capable devices should receive an automatic `/touch` redirect or a softer prompt based on browser pointer/touch detection.
 - Test whether the 15/7 WPM Farnsworth-style beginner timing feels easier than the old slow 4.8 WPM character timing.
 - Start from a clean progress slate and test Learn, Send, Read, and Listen by hand with the physical key on touch, plus Spacebar Keyer on desktop/laptop.
 - Tune Operator Level thresholds, rank names, and unlock messaging after student testing.
