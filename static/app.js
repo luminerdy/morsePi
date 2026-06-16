@@ -18,7 +18,7 @@ let browserAudioCtx = null;
 let browserPlayback = null;
 
 const DESKTOP_VIEW_SESSION_KEY = "morseDesktopView";
-const KEYBOARD_DASH_THRESHOLD_MS = 400;
+const KEYBOARD_DASH_THRESHOLD_UNITS = 2.5;
 const MORSE_DECODE = {
     ".": "E",
     "-": "T",
@@ -83,8 +83,14 @@ function getMorseTiming() {
         dashMs: numberFromData("dashMs", 240),
         symbolGapMs: numberFromData("symbolGapMs", 80),
         letterGapMs: numberFromData("letterGapMs", 514),
-        wordGapMs: numberFromData("wordGapMs", 1200)
+        wordGapMs: numberFromData("wordGapMs", 1200),
+        inputDashThresholdMs: numberFromData("inputDashThresholdMs", 200)
     };
+}
+
+function getKeyboardDashThresholdMs() {
+    const timing = getMorseTiming();
+    return timing.inputDashThresholdMs || Math.round(timing.dotMs * KEYBOARD_DASH_THRESHOLD_UNITS);
 }
 
 async function browserBeep(audioCtx, durationMs, playback = null) {
@@ -849,7 +855,7 @@ function handleKeyboardKeyUp(event) {
     const durationMs = performance.now() - keyboardPressStartedAt;
     keyboardPressStartedAt = null;
     stopKeyboardTone();
-    keyboardMorse += durationMs >= KEYBOARD_DASH_THRESHOLD_MS ? "-" : ".";
+    keyboardMorse += durationMs >= getKeyboardDashThresholdMs() ? "-" : ".";
     updateVirtualKeyerDisplay();
 }
 

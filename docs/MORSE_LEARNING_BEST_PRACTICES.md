@@ -31,8 +31,8 @@ For this project, the current beginner default is:
 
 | Setting | Current default | Reason |
 |---|---:|---|
-| Character speed | 15 WPM | Keeps each letter's sound pattern recognizable |
-| Effective spacing | 7 WPM | Gives beginners time to think between letters |
+| Character speed | 12 WPM | Keeps each letter's sound pattern recognizable while making dashes easier to hear |
+| Effective spacing | 6 WPM | Gives beginners time to think between letters |
 | Tone | 700 Hz | Clear browser/Pi speaker tone |
 
 Design implication:
@@ -40,7 +40,7 @@ Design implication:
 - Keep dot/dash timing crisp.
 - Make inter-letter and inter-word gaps adjustable.
 - Let students replay audio prompts.
-- Test whether 15/7 WPM feels good on the real 7-inch station.
+- Test whether 12/6 WPM feels good on the real 7-inch station.
 
 ### Koch-Style Progression
 
@@ -172,7 +172,8 @@ Current direction:
 
 ## Project Decisions From This Research
 
-- Keep the current 15/7 WPM beginner timing until tested with students.
+- Start with 12/6 WPM beginner timing after hands-on testing showed 15/7 was too fast for Listen practice.
+- Keep the input dash threshold tied to playback timing so a correctly imitated dash decodes as a dash.
 - Build for short practice loops with no mouse/touch required during Send mode.
 - Continue separating Learn, Send, Read, and Listen.
 - Prioritize timing feedback before adding too many new features.

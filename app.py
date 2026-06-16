@@ -27,14 +27,14 @@ led = LED(LED_GPIO)
 # -----------------------------
 # Morse timing
 # -----------------------------
-DEFAULT_CHARACTER_WPM = 15
-DEFAULT_EFFECTIVE_WPM = 7
+DEFAULT_CHARACTER_WPM = 12
+DEFAULT_EFFECTIVE_WPM = 6
 DEFAULT_TONE_HZ = 700
 TIMING_SETTINGS_PATH = Path("data/timing_settings.json")
 
-DOT_DASH_THRESHOLD_SECONDS = 0.40
 LETTER_GAP_THRESHOLD_SECONDS = 0.80
 WORD_GAP_THRESHOLD_SECONDS = 1.50
+DOT_DASH_THRESHOLD_UNITS = 2.5
 
 # -----------------------------
 # USB speaker audio settings
@@ -220,8 +220,13 @@ def get_morse_timing():
         "dash_ms": round(character_dot_seconds * 3000),
         "symbol_gap_ms": round(character_dot_seconds * 1000),
         "letter_gap_ms": round(spacing_dot_seconds * 3000),
-        "word_gap_ms": round(spacing_dot_seconds * 7000)
+        "word_gap_ms": round(spacing_dot_seconds * 7000),
+        "input_dash_threshold_ms": round(character_dot_seconds * DOT_DASH_THRESHOLD_UNITS * 1000)
     }
+
+
+def get_dot_dash_threshold_seconds():
+    return get_morse_timing()["input_dash_threshold_ms"] / 1000
 
 
 morse_timing = load_morse_timing_settings()
@@ -435,7 +440,7 @@ def on_key_up():
             return
 
         duration = now - press_started_at
-        symbol = "." if duration < DOT_DASH_THRESHOLD_SECONDS else "-"
+        symbol = "." if duration < get_dot_dash_threshold_seconds() else "-"
 
         current_letter += symbol
         press_started_at = None

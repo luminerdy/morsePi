@@ -533,8 +533,8 @@ Current playback timing model:
 
 | Setting | Beginner Default | Purpose |
 |---|---:|---|
-| Character speed | 15 WPM | Keeps each letter sounding like a recognizable Morse rhythm |
-| Effective spacing | 7 WPM | Adds extra thinking time between letters and words |
+| Character speed | 12 WPM | Keeps each letter sounding like a recognizable Morse rhythm while making beginner dashes easier to hear |
+| Effective spacing | 6 WPM | Adds extra thinking time between letters and words |
 | Tone | 700 Hz | Comfortable default pitch for browser and Pi speaker playback |
 
 Future timing presets can adjust these values rather than directly editing dot/dash constants.
@@ -1005,7 +1005,7 @@ Confirm the browser Test Sound button wakes audio when sound stops.
 Confirm Stop Here cancels long browser playback from the Home page.
 Confirm Stop Station cancels long Pi speaker/LED playback from the Home page.
 Confirm `/touch` and `/touch/practice` are usable on the 7-inch Raspberry Pi touchscreen before changing the default desktop pages.
-Confirm beginner timing at 15 WPM character speed and 7 WPM effective spacing feels learnable.
+Confirm beginner timing at 12 WPM character speed and 6 WPM effective spacing feels learnable.
 Confirm the touch UI fits the actual `800x480` 7-inch Pi display without scrolling.
 Confirm the split touch routes are understandable: menu, message, key, timing, practice modes, active practice.
 Confirm reboot starts exactly one Flask app process and one Chromium kiosk window at `/touch`.

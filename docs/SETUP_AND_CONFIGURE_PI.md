@@ -141,8 +141,8 @@ MORSE_AUDIO_DEVICE=plughw:<card>,<device> python3 app.py
 The web app defaults to beginner Farnsworth-style timing:
 
 ```text
-Character speed: 15 WPM
-Effective spacing: 7 WPM
+Character speed: 12 WPM
+Effective spacing: 6 WPM
 Tone: 700 Hz
 ```
 

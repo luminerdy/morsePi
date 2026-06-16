@@ -269,7 +269,7 @@ Create or refine these GitHub issues next:
 - Tested the current UI on the 7-inch Pi touchscreen and confirmed the existing screens are too crowded to fit comfortably.
 - Decided to preserve the current desktop/laptop layout while planning a smaller-screen layout with additional pages and smaller text.
 - Added a separate 7-inch touchscreen option under `/touch` and `/touch/practice` so the current desktop/laptop UI can remain unchanged while the touchscreen flow is tested.
-- Added Morse timing settings using beginner Farnsworth-style defaults: 15 WPM character speed, 7 WPM effective spacing, and 700 Hz tone.
+- Added Morse timing settings using beginner Farnsworth-style defaults, now tuned to 12 WPM character speed, 6 WPM effective spacing, and 700 Hz tone after hands-on Listen testing.
 - Updated browser and Pi speaker playback to share the same timing settings.
 - User liked the Morse timing addition; next step is hands-on testing tomorrow.
 - Confirmed the 7-inch Pi touchscreen resolution is `800x480` at 60 Hz with no scaling.
@@ -289,6 +289,7 @@ Create or refine these GitHub issues next:
 - Added a `Touch` navigation link to desktop Home, Practice, and Progress so users can return to the touch menu after tapping `Desktop`.
 - Added browser-side touch UI selection for small/coarse-pointer screens, with `?view=desktop` preserving the desktop view for the current browser session.
 - Added standalone Morse learning best-practices research notes covering Farnsworth timing, Koch-style progression, practice modes, feedback, progress, and timing feedback goals.
+- Tuned beginner timing and key decoding after testing showed Listen prompts were too fast and a correctly imitated `M` could decode as `I`; dash detection now follows the configured Morse timing instead of a fixed 400 ms threshold.
 
 ### Ready Next
 
@@ -296,7 +297,7 @@ Create or refine these GitHub issues next:
 - Tune any touch screen labels, button sizes, or spacing after physical testing.
 - Decide whether `/touch/message` should stay as a hidden utility or be removed entirely from the touch experience.
 - Test automatic touch UI selection on the Pi touchscreen, a laptop browser, and Kindle Fire/Silk when available.
-- Test whether the 15/7 WPM Farnsworth-style beginner timing feels easier than the old slow 4.8 WPM character timing.
+- Test whether the 12/6 WPM Farnsworth-style beginner timing is easier to hear and imitate than 15/7.
 - Start from a clean progress slate and test Learn, Send, Read, and Listen by hand with the physical key on touch, plus Spacebar Keyer on desktop/laptop.
 - Tune Operator Level thresholds, rank names, and unlock messaging after student testing.
 - Decide whether and when unlocked letters should control the active practice set.
