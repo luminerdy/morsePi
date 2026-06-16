@@ -321,14 +321,7 @@ mkdir -p /home/morse/bin
 install -m 0755 /home/morse/morse-station/systemd/start-morse-browser.sh /home/morse/bin/start-morse-browser.sh
 ```
 
-Install the desktop autostart entry:
-
-```bash
-mkdir -p /home/morse/.config/autostart
-install -m 0644 /home/morse/morse-station/systemd/morse-station-browser.desktop /home/morse/.config/autostart/morse-station-browser.desktop
-```
-
-On Raspberry Pi OS Bookworm with Labwc, also add the helper to the Labwc autostart file:
+On Raspberry Pi OS Bookworm with Labwc, add the helper to the Labwc autostart file:
 
 ```bash
 mkdir -p /home/morse/.config/labwc
@@ -336,7 +329,14 @@ grep -qxF '/home/morse/bin/start-morse-browser.sh &' /home/morse/.config/labwc/a
   printf '\n/home/morse/bin/start-morse-browser.sh &\n' >> /home/morse/.config/labwc/autostart
 ```
 
-The helper waits for `http://localhost:5000/` to answer before launching Chromium. If graphical auto-login is disabled, Chromium opens after the `morse` user signs in to the desktop.
+Do not also install the XDG desktop autostart entry on the same Pi, because Raspberry Pi OS may generate a second browser autostart service from it. The helper waits for `http://localhost:5000/touch` to answer before launching Chromium in kiosk mode. If graphical auto-login is disabled, Chromium opens after the `morse` user signs in to the desktop.
+
+For a non-Labwc desktop environment only, use the fallback desktop autostart entry instead of the Labwc line:
+
+```bash
+mkdir -p /home/morse/.config/autostart
+install -m 0644 /home/morse/morse-station/systemd/morse-station-browser.desktop /home/morse/.config/autostart/morse-station-browser.desktop
+```
 
 ## 12. Troubleshooting
 

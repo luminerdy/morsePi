@@ -279,6 +279,9 @@ Create or refine these GitHub issues next:
 - Split touch screens into focused routes: `/touch`, `/touch/message`, `/touch/key`, `/touch/timing`, `/touch/practice`, and `/touch/practice/run`.
 - Kept the desktop/laptop pages unchanged while iterating on touch-specific templates and CSS.
 - Verified the touch menu, message, timing, and active practice screens with Chromium screenshots at `800x480` on the Pi.
+- Fixed Pi browser startup to open `/touch` in Chromium kiosk mode instead of the desktop Home page.
+- Removed the duplicate XDG browser autostart path on the Pi; Labwc autostart is now the single browser launch path.
+- Confirmed after reboot there is one Flask app process running from `morse-station.service`.
 
 ### Ready Next
 

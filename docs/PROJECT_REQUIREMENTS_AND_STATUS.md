@@ -949,7 +949,7 @@ Each station should only publish and subscribe to approved topics.
 | GitHub repo setup | Complete |
 | Fresh Pi setup guide | Complete |
 | Pi app autostart | Complete with user systemd service |
-| Pi browser autostart | Complete for Labwc desktop session |
+| Pi browser autostart | Complete for Labwc desktop session, opens `/touch` in kiosk mode |
 | Continuous Send practice loop | Complete |
 | Learn practice mode | Complete |
 | Read practice mode | Complete |
@@ -1001,6 +1001,7 @@ Confirm `/touch` and `/touch/practice` are usable on the 7-inch Raspberry Pi tou
 Confirm beginner timing at 15 WPM character speed and 7 WPM effective spacing feels learnable.
 Confirm the touch UI fits the actual `800x480` 7-inch Pi display without scrolling.
 Confirm the split touch routes are understandable: menu, message, key, timing, practice modes, active practice.
+Confirm reboot starts exactly one Flask app process and one Chromium kiosk window at `/touch`.
 Confirm Replay is easy to find and use.
 Confirm Progress details make sense after a few attempts.
 Confirm Operator Level and unlocked letters feel fun and encouraging.
