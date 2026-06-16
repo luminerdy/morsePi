@@ -959,6 +959,7 @@ Each station should only publish and subscribe to approved topics.
 | Detailed Progress page | Complete |
 | Browser sound recovery control | Complete |
 | Home playback stop controls | Complete |
+| Separate 7-inch touchscreen option | Started |
 
 ---
 
@@ -993,6 +994,7 @@ Confirm Pi speaker playback works on active station `10.10.10.141` using `plughw
 Confirm the browser Test Sound button wakes audio when sound stops.
 Confirm Stop Here cancels long browser playback from the Home page.
 Confirm Stop Station cancels long Pi speaker/LED playback from the Home page.
+Confirm `/touch` and `/touch/practice` are usable on the 7-inch Raspberry Pi touchscreen before changing the default desktop pages.
 Confirm Replay is easy to find and use.
 Confirm Progress details make sense after a few attempts.
 Confirm Operator Level and unlocked letters feel fun and encouraging.

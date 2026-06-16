@@ -413,23 +413,55 @@ def station_volume_percent():
     return int(station_volume * 100)
 
 
-# -----------------------------
-# Main routes
-# -----------------------------
-@app.route("/", methods=["GET", "POST"])
-def index():
+def update_message_from_request():
     global last_message, last_morse
 
     if request.method == "POST":
         last_message = request.form.get("message", "")
         last_morse = text_to_morse(last_message)
 
+
+def render_home_template(template_name):
+    update_message_from_request()
+
     return render_template(
-        "index.html",
+        template_name,
         message=last_message,
         morse=last_morse,
         station_volume_percent=station_volume_percent()
     )
+
+
+def render_practice_template(template_name):
+    mode = get_practice_mode()
+    expected_morse = text_to_morse(practice_target)
+
+    return render_template(
+        template_name,
+        mode=mode,
+        modes=practice_modes,
+        target=practice_target,
+        expected_morse=expected_morse,
+        read_choices=get_read_choices(practice_target),
+        feedback=practice_feedback,
+        progress=progress_summary(practice_letters, mode),
+        score=mode_score(practice_letters, mode),
+        overall=overall_score(practice_letters, practice_modes.keys()),
+        progress_label=practice_modes[mode]["progress_label"]
+    )
+
+
+# -----------------------------
+# Main routes
+# -----------------------------
+@app.route("/", methods=["GET", "POST"])
+def index():
+    return render_home_template("index.html")
+
+
+@app.route("/touch", methods=["GET", "POST"])
+def touch_index():
+    return render_home_template("touch_index.html")
 
 
 @app.route("/play", methods=["POST"])
@@ -437,13 +469,13 @@ def play():
     if last_morse:
         play_in_background(last_morse)
 
-    return redirect(url_for("index"))
+    return redirect(request.form.get("next") or url_for("index"))
 
 
 @app.route("/stop-playback", methods=["POST"])
 def stop_playback():
     stop_station_playback()
-    return redirect(url_for("index"))
+    return redirect(request.form.get("next") or url_for("index"))
 
 
 @app.route("/station-volume", methods=["POST"])
@@ -458,7 +490,7 @@ def set_station_volume():
     volume_percent = max(0, min(volume_percent, 100))
     station_volume = volume_percent / 100.0
 
-    return redirect(url_for("index"))
+    return redirect(request.form.get("next") or url_for("index"))
 
 
 @app.route("/live-key")
@@ -483,29 +515,19 @@ def clear_key():
 # -----------------------------
 @app.route("/practice")
 def practice():
-    mode = get_practice_mode()
-    expected_morse = text_to_morse(practice_target)
+    return render_practice_template("practice.html")
 
-    return render_template(
-        "practice.html",
-        mode=mode,
-        modes=practice_modes,
-        target=practice_target,
-        expected_morse=expected_morse,
-        read_choices=get_read_choices(practice_target),
-        feedback=practice_feedback,
-        progress=progress_summary(practice_letters, mode),
-        score=mode_score(practice_letters, mode),
-        overall=overall_score(practice_letters, practice_modes.keys()),
-        progress_label=practice_modes[mode]["progress_label"]
-    )
+
+@app.route("/touch/practice")
+def touch_practice():
+    return render_practice_template("touch_practice.html")
 
 
 @app.route("/practice/new", methods=["POST"])
 def practice_new():
     mode = get_practice_mode()
     choose_new_practice_target(mode)
-    return redirect(url_for("practice", mode=mode))
+    return redirect(request.form.get("next") or url_for("practice", mode=mode))
 
 
 @app.route("/practice/next", methods=["POST"])
@@ -587,7 +609,7 @@ def practice_play():
     mode = get_practice_mode()
     expected_morse = text_to_morse(practice_target)
     play_in_background(expected_morse)
-    return redirect(url_for("practice", mode=mode))
+    return redirect(request.form.get("next") or url_for("practice", mode=mode))
 
 
 @app.route("/practice/check", methods=["POST"])

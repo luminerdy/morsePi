@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+<head>
+    <title>Touch Station - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260611-2">
+    <link rel="stylesheet" href="/static/touch.css?v=20260615-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="touch-ui">
+    <div class="touch-shell">
+        <header class="touch-header">
+            <div>
+                <p class="eyebrow">Morse Station</p>
+                <h1>Touch Home</h1>
+            </div>
+
+            <nav class="touch-nav" aria-label="Touch navigation">
+                <a class="active" href="/touch">Home</a>
+                <a href="/touch/practice">Practice</a>
+                <a href="/progress">Progress</a>
+                <a href="/">Desktop</a>
+            </nav>
+        </header>
+
+        <main class="touch-stack">
+            <section class="panel touch-panel">
+                <div class="section-heading">
+                    <h2>Message</h2>
+                    <span class="panel-meta">Text to Morse</span>
+                </div>
+
+                <form method="post" action="/touch">
+                    <label class="sr-only" for="message">Message</label>
+                    <textarea id="message" name="message" autofocus placeholder="Type a message">{{ message }}</textarea>
+                    <button type="submit" class="button primary full-width">Convert</button>
+                </form>
+            </section>
+
+            <section class="panel touch-panel">
+                <div class="section-heading">
+                    <h2>Morse</h2>
+                    <span class="panel-meta">Preview</span>
+                </div>
+
+                <div class="morse-box touch-morse-box" id="morseBox">
+                    {% if morse %}
+                        {{ morse }}
+                    {% else %}
+                        Type a message above.
+                    {% endif %}
+                </div>
+
+                <div class="touch-button-grid">
+                    <button type="button"
+                            class="button secondary"
+                            id="playHereButton"
+                            onclick="playInBrowser()"
+                            {% if not morse %}disabled{% endif %}>
+                        Play Here
+                    </button>
+
+                    <button type="button"
+                            class="button secondary"
+                            id="stopHereButton"
+                            disabled>
+                        Stop Here
+                    </button>
+
+                    <button type="button" class="button secondary" data-test-sound>
+                        Test Sound
+                    </button>
+
+                    <form method="post" action="/play" class="inline-form">
+                        <input type="hidden" name="next" value="/touch">
+                        <button type="submit"
+                                class="button primary"
+                                {% if not morse %}disabled{% endif %}>
+                            Play Station
+                        </button>
+                    </form>
+
+                    <form method="post" action="/stop-playback" class="inline-form">
+                        <input type="hidden" name="next" value="/touch">
+                        <button type="submit" class="button secondary">Stop Station</button>
+                    </form>
+                </div>
+            </section>
+
+            <section class="panel touch-panel">
+                <div class="section-heading">
+                    <h2>Key Input</h2>
+                    <span class="status-pill" id="keyerStatus">Live</span>
+                </div>
+
+                <div class="touch-readout-grid">
+                    <div>
+                        <div class="field-label">Tapped Morse</div>
+                        <div class="live-morse" id="liveMorse">Waiting for key...</div>
+                    </div>
+
+                    <div>
+                        <div class="field-label">Decoded</div>
+                        <div class="live-decoded" id="liveDecoded">---</div>
+                    </div>
+                </div>
+
+                <div class="touch-button-grid two-col">
+                    <button type="button" class="button secondary" id="keyboardKeyerToggle">Spacebar Keyer: Off</button>
+                    <button type="button" class="button secondary" onclick="clearKeyInput()">Clear Key</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+<script src="/static/app.js?v=20260614-2"></script>
+</body>
+</html>

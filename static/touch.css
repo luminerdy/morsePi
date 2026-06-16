@@ -1,0 +1,231 @@
+.touch-ui {
+    background: #edf1f4;
+}
+
+.touch-shell {
+    width: min(100% - 14px, 800px);
+    margin: 0 auto;
+    padding: 8px 0 16px;
+}
+
+.touch-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.touch-header h1 {
+    font-size: 24px;
+}
+
+.touch-header .eyebrow {
+    margin-bottom: 2px;
+    font-size: 11px;
+}
+
+.touch-nav {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.touch-nav a {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.touch-nav a.active {
+    background: var(--primary);
+    color: #ffffff;
+}
+
+.touch-stack {
+    display: grid;
+    gap: 8px;
+}
+
+.touch-panel {
+    padding: 10px;
+    box-shadow: 0 6px 18px rgba(23, 33, 43, 0.08);
+}
+
+.touch-panel .section-heading {
+    margin-bottom: 8px;
+}
+
+.touch-panel h2 {
+    font-size: 17px;
+}
+
+.touch-ui label,
+.touch-ui .field-label {
+    margin-bottom: 5px;
+    font-size: 11px;
+}
+
+.touch-ui textarea {
+    min-height: 78px;
+    margin-bottom: 8px;
+    padding: 10px;
+    font-size: 18px;
+    line-height: 1.25;
+}
+
+.touch-ui .button {
+    min-height: 42px;
+    padding: 0 10px;
+    font-size: 14px;
+}
+
+.touch-button-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+    margin-top: 8px;
+}
+
+.touch-button-grid.two-col {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.touch-button-grid .inline-form,
+.touch-button-grid .button {
+    width: 100%;
+}
+
+.touch-morse-box,
+.touch-ui .morse-box,
+.touch-ui .live-morse {
+    min-height: 58px;
+    padding: 10px;
+    font-size: 20px;
+    line-height: 1.35;
+}
+
+.touch-ui .live-decoded {
+    min-height: 58px;
+    padding: 10px;
+    font-size: 30px;
+}
+
+.touch-readout-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr);
+    gap: 8px;
+}
+
+.touch-mode-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    margin-bottom: 8px;
+    padding: 0;
+    background: transparent;
+    border: 0;
+}
+
+.touch-mode-tabs a {
+    min-height: 38px;
+    justify-content: center;
+    padding: 0 4px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface-muted);
+    font-size: 13px;
+}
+
+.touch-practice-readout {
+    display: grid;
+    grid-template-columns: 118px minmax(0, 1fr);
+    gap: 8px;
+}
+
+.touch-ui .target-letter,
+.touch-ui .expected-morse {
+    min-height: 96px;
+    padding: 8px;
+}
+
+.touch-ui .target-letter {
+    font-size: 66px;
+}
+
+.touch-ui .expected-morse {
+    font-size: 38px;
+}
+
+.touch-ui .expected-morse.prompt-placeholder {
+    font-size: 28px;
+}
+
+.touch-choice-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 7px;
+}
+
+.touch-ui .read-choice {
+    min-height: 48px;
+    font-size: 22px;
+}
+
+.touch-type-row {
+    grid-template-columns: minmax(0, 1fr) minmax(100px, 0.7fr);
+}
+
+.touch-ui .letter-answer-input {
+    min-height: 46px;
+    font-size: 24px;
+}
+
+.touch-ui .inline-feedback {
+    margin-top: 8px;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.touch-score-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.touch-score-row div {
+    padding: 8px;
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.touch-score-row strong {
+    display: block;
+    font-size: 24px;
+}
+
+@media (max-width: 520px) {
+    .touch-nav,
+    .touch-mode-tabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .touch-button-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .touch-practice-readout,
+    .touch-readout-grid,
+    .touch-score-row {
+        grid-template-columns: 1fr;
+    }
+}

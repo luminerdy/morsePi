@@ -266,10 +266,11 @@ Create or refine these GitHub issues next:
 - Changed the app default USB speaker device to named ALSA device `plughw:UACDemoV10,0` so it is less sensitive to USB port/card ordering.
 - Tested the current UI on the 7-inch Pi touchscreen and confirmed the existing screens are too crowded to fit comfortably.
 - Decided to preserve the current desktop/laptop layout while planning a smaller-screen layout with additional pages and smaller text.
+- Added a separate 7-inch touchscreen option under `/touch` and `/touch/practice` so the current desktop/laptop UI can remain unchanged while the touchscreen flow is tested.
 
 ### Ready Next
 
-- Design a 7-inch touchscreen layout pass: split crowded Home/Practice content into focused pages, reduce type size where appropriate, and keep touch targets large enough for students.
+- Test the first `/touch` and `/touch/practice` pages directly on the 7-inch Raspberry Pi touchscreen.
 - Start from a clean progress slate and test Learn, Send, Read, and Listen by hand in Chrome with the physical key and Spacebar Keyer.
 - Tune Operator Level thresholds, rank names, and unlock messaging after student testing.
 - Decide whether and when unlocked letters should control the active practice set.
