@@ -17,6 +17,7 @@ let practiceAudioPlaying = false;
 let browserAudioCtx = null;
 let browserPlayback = null;
 
+const DESKTOP_VIEW_SESSION_KEY = "morseDesktopView";
 const KEYBOARD_DASH_THRESHOLD_MS = 400;
 const MORSE_DECODE = {
     ".": "E",
@@ -934,7 +935,38 @@ function initializePracticeMode() {
     focusReadInput();
 }
 
+function initializeTouchRedirect() {
+    if (!document.body || document.body.classList.contains("touch-ui")) {
+        return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get("view") === "desktop") {
+        sessionStorage.setItem(DESKTOP_VIEW_SESSION_KEY, "1");
+        params.delete("view");
+
+        const query = params.toString();
+        const cleanUrl = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
+        window.history.replaceState({}, "", cleanUrl);
+        return;
+    }
+
+    if (sessionStorage.getItem(DESKTOP_VIEW_SESSION_KEY) === "1") {
+        return;
+    }
+
+    const touchCapable = navigator.maxTouchPoints > 0
+        || window.matchMedia("(pointer: coarse)").matches;
+    const touchSized = window.matchMedia("(max-width: 900px), (max-height: 540px)").matches;
+
+    if (touchCapable || touchSized) {
+        window.location.replace("/touch");
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+    initializeTouchRedirect();
     initializePracticeMode();
     updateLiveKey();
     setInterval(updateLiveKey, 300);

@@ -965,6 +965,7 @@ Each station should only publish and subscribe to approved topics.
 | Separate 7-inch touchscreen option | Started with no-scroll menu flow |
 | Touch message entry | Hidden from student-facing touch menu; desktop Home still supports typed message encoding |
 | Desktop-to-touch navigation | Complete with `Touch` link on desktop Home, Practice, and Progress |
+| Touch UI auto-selection | Started with browser-side small-screen/coarse-pointer redirect and desktop-view session opt-out |
 | Farnsworth-style Morse timing settings | Started |
 
 ---
