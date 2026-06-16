@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head>
+    <title>Touch Message - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260611-2">
+    <link rel="stylesheet" href="/static/touch.css?v=20260616-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="touch-ui"
+      data-tone-hz="{{ timing.tone_hz }}"
+      data-dot-ms="{{ timing.dot_ms }}"
+      data-dash-ms="{{ timing.dash_ms }}"
+      data-symbol-gap-ms="{{ timing.symbol_gap_ms }}"
+      data-letter-gap-ms="{{ timing.letter_gap_ms }}"
+      data-word-gap-ms="{{ timing.word_gap_ms }}">
+    <div class="touch-screen">
+        <header class="touch-titlebar">
+            <div>
+                <p class="eyebrow">Touch</p>
+                <h1>Message</h1>
+            </div>
+            <a class="touch-top-link" href="/touch">Menu</a>
+        </header>
+
+        <main class="touch-message-layout">
+            <section class="panel touch-panel">
+                <form method="post" action="/touch/message">
+                    <label class="field-label" for="message">Text</label>
+                    <textarea id="message" name="message" autofocus placeholder="Type a message">{{ message }}</textarea>
+                    <button type="submit" class="button primary full-width">Convert</button>
+                </form>
+            </section>
+
+            <section class="panel touch-panel">
+                <div class="section-heading">
+                    <h2>Morse</h2>
+                    <span class="panel-meta">{{ timing.character_wpm }}/{{ timing.effective_wpm }} WPM</span>
+                </div>
+
+                <div class="morse-box touch-morse-box" id="morseBox">
+                    {% if morse %}{{ morse }}{% else %}Type a message.{% endif %}
+                </div>
+
+                <div class="touch-button-grid compact">
+                    <button type="button" class="button secondary" id="playHereButton" onclick="playInBrowser()" {% if not morse %}disabled{% endif %}>Play Here</button>
+                    <button type="button" class="button secondary" id="stopHereButton" disabled>Stop</button>
+                    <button type="button" class="button secondary" data-test-sound>Sound</button>
+                    <form method="post" action="/play" class="inline-form">
+                        <input type="hidden" name="next" value="/touch/message">
+                        <button type="submit" class="button primary" {% if not morse %}disabled{% endif %}>Station</button>
+                    </form>
+                    <form method="post" action="/stop-playback" class="inline-form">
+                        <input type="hidden" name="next" value="/touch/message">
+                        <button type="submit" class="button secondary">Stop Pi</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+<script src="/static/app.js?v=20260615-3"></script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <title>Touch Practice - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260611-2">
-    <link rel="stylesheet" href="/static/touch.css?v=20260615-1">
+    <link rel="stylesheet" href="/static/touch.css?v=20260616-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body class="touch-ui"
@@ -13,161 +13,101 @@
       data-symbol-gap-ms="{{ timing.symbol_gap_ms }}"
       data-letter-gap-ms="{{ timing.letter_gap_ms }}"
       data-word-gap-ms="{{ timing.word_gap_ms }}">
-    <div class="touch-shell">
-        <header class="touch-header">
+    <div class="touch-screen">
+        <header class="touch-titlebar compact">
             <div>
-                <p class="eyebrow">Morse Station</p>
-                <h1>Touch Practice</h1>
+                <p class="eyebrow">{{ modes[mode].label }} Practice</p>
+                <h1>{{ target if mode in ['send', 'learn'] else '?' }}</h1>
             </div>
-
-            <nav class="touch-nav" aria-label="Touch navigation">
-                <a href="/touch">Home</a>
-                <a class="active" href="/touch/practice?mode={{ mode }}">Practice</a>
-                <a href="/progress?mode={{ mode }}">Progress</a>
-                <a href="/practice?mode={{ mode }}">Desktop</a>
-            </nav>
+            <a class="touch-top-link" href="/touch/practice">Modes</a>
         </header>
 
-        <main class="touch-stack">
-            <section class="panel touch-panel"
-                     data-practice-mode="{{ mode }}"
-                     data-practice-target="{{ target }}"
-                     data-expected-morse="{{ expected_morse }}">
-                <div class="section-heading">
-                    <h2>Prompt</h2>
-                    <span class="status-pill" id="practiceStatus">Auto practice on</span>
+        <main class="touch-drill"
+              data-practice-mode="{{ mode }}"
+              data-practice-target="{{ target }}"
+              data-expected-morse="{{ expected_morse }}">
+            <section class="touch-drill-prompt">
+                <div>
+                    <div class="field-label">{% if mode in ['send', 'learn'] %}Letter{% else %}Answer{% endif %}</div>
+                    <div class="target-letter" id="targetLetter">{% if mode in ['read', 'listen'] %}?{% else %}{{ target }}{% endif %}</div>
                 </div>
+                <div>
+                    <div class="field-label">{% if mode == 'listen' %}Audio{% else %}Morse{% endif %}</div>
+                    <div class="expected-morse {% if mode in ['send', 'listen'] %}prompt-placeholder{% endif %}" id="expectedMorse">
+                        {% if mode in ['read', 'learn'] %}{{ expected_morse }}{% elif mode == 'listen' %}Play{% else %}?{% endif %}
+                    </div>
+                </div>
+            </section>
 
-                <div class="mode-tabs touch-mode-tabs" aria-label="Practice modes">
-                    {% for mode_key, mode_config in modes.items() %}
-                        <a class="{% if mode == mode_key %}active{% endif %}" href="/touch/practice?mode={{ mode_key }}">
-                            {{ mode_config.label }}
-                        </a>
+            <section class="touch-drill-answer" id="readAnswerArea" {% if mode not in ['read', 'listen'] %}hidden{% endif %}>
+                <div class="choice-grid touch-choice-grid" id="readChoices">
+                    {% for choice in read_choices %}
+                        <button type="button" class="button secondary read-choice" data-read-choice="{{ choice }}">{{ choice }}</button>
                     {% endfor %}
                 </div>
-
-                <div class="touch-practice-readout">
-                    <div class="{% if mode in ['read', 'listen'] %}read-answer-card{% endif %}">
-                        <div class="field-label">{% if mode in ['send', 'learn'] %}Letter{% else %}Answer{% endif %}</div>
-                        <div class="target-letter" id="targetLetter">{% if mode in ['read', 'listen'] %}?{% else %}{{ target }}{% endif %}</div>
-                    </div>
-
-                    <div>
-                        <div class="field-label">{% if mode == 'listen' %}Audio{% else %}Morse{% endif %}</div>
-                        <div class="expected-morse {% if mode in ['send', 'listen'] %}prompt-placeholder{% endif %}" id="expectedMorse">
-                            {% if mode in ['read', 'learn'] %}{{ expected_morse }}{% elif mode == 'listen' %}Play Code{% else %}?{% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="read-answer-area" id="readAnswerArea" {% if mode not in ['read', 'listen'] %}hidden{% endif %}>
-                    <div class="choice-grid touch-choice-grid" id="readChoices">
-                        {% for choice in read_choices %}
-                            <button type="button" class="button secondary read-choice" data-read-choice="{{ choice }}">
-                                {{ choice }}
-                            </button>
-                        {% endfor %}
-                    </div>
-
-                    <div class="read-type-row touch-type-row">
-                        <label class="sr-only" for="readAnswerInput">Letter answer</label>
-                        <input id="readAnswerInput" class="letter-answer-input" type="text" maxlength="1" autocomplete="off" inputmode="text">
-                        <button type="button" class="button primary" id="readSubmit">Answer</button>
-                    </div>
-                </div>
-
-                <div class="touch-button-grid" {% if mode not in ['send', 'learn'] %}hidden{% endif %}>
-                    {% if mode == 'learn' %}
-                        <button type="button" class="button primary" id="listenReplay">Play Code</button>
-                    {% else %}
-                        <form method="post" action="/practice/play?mode={{ mode }}" class="inline-form">
-                            <input type="hidden" name="next" value="/touch/practice?mode={{ mode }}">
-                            <button type="submit" class="button secondary">Play Letter</button>
-                        </form>
-                    {% endif %}
-
-                    <form method="post" action="/practice/new?mode={{ mode }}" class="inline-form">
-                        <input type="hidden" name="next" value="/touch/practice?mode={{ mode }}">
-                        <button type="submit" class="button secondary">Try Another</button>
-                    </form>
-
-                    <button type="button" class="button secondary" id="practiceToggle">Stop Practice</button>
-                    <button type="button" class="button secondary" id="keyboardKeyerToggle">Spacebar Keyer: Off</button>
-                    <button type="button" class="button secondary" data-test-sound>Test Sound</button>
-                    <button type="button" class="button secondary" onclick="clearKeyInput()">Clear</button>
-                </div>
-
-                <div class="touch-button-grid" {% if mode not in ['read', 'listen'] %}hidden{% endif %}>
-                    {% if mode == 'listen' %}
-                        <button type="button" class="button primary" id="listenReplay">Play Code</button>
-                    {% endif %}
-
-                    <form method="post" action="/practice/new?mode={{ mode }}" class="inline-form">
-                        <input type="hidden" name="next" value="/touch/practice?mode={{ mode }}">
-                        <button type="submit" class="button secondary">Try Another</button>
-                    </form>
-
-                    <button type="button" class="button secondary" data-test-sound>Test Sound</button>
-                </div>
-
-                <section class="feedback-box inline-feedback" id="practiceFeedback" {% if not feedback %}hidden{% endif %}>
-                    {{ feedback }}
-                </section>
-            </section>
-
-            <section class="panel touch-panel" id="practiceScore">
-                <div class="section-heading">
-                    <h2>Key Input</h2>
-                    <span class="status-pill" id="keyerStatus">Live</span>
-                </div>
-
-                <div class="touch-readout-grid">
-                    <div>
-                        <div class="field-label">Tapped Morse</div>
-                        <div class="live-morse" id="liveMorse">Waiting for key...</div>
-                    </div>
-
-                    <div>
-                        <div class="field-label">Decoded</div>
-                        <div class="live-decoded" id="liveDecoded">---</div>
-                    </div>
+                <div class="read-type-row touch-type-row">
+                    <input id="readAnswerInput" class="letter-answer-input" type="text" maxlength="1" autocomplete="off" inputmode="text">
+                    <button type="button" class="button primary" id="readSubmit">Answer</button>
                 </div>
             </section>
 
-            <section class="panel touch-panel">
-                <div class="section-heading">
-                    <h2>Level {{ overall.level }}</h2>
-                    <span class="status-pill">{{ overall.rank }}</span>
+            <section class="touch-drill-key">
+                <div>
+                    <div class="field-label">Tapped</div>
+                    <div class="live-morse" id="liveMorse">Waiting...</div>
                 </div>
-
-                <div class="touch-score-row">
-                    <div>
-                        <span class="score-label">Overall</span>
-                        <strong id="overallMastery">{{ overall.mastery }}%</strong>
-                    </div>
-                    <div>
-                        <span class="score-label">{{ modes[mode].label }}</span>
-                        <strong id="scoreMastery">{{ score.mastery }}%</strong>
-                    </div>
-                    <div>
-                        <span class="score-label">Streak</span>
-                        <strong id="scoreStreak">{{ score.streak }}</strong>
-                    </div>
+                <div>
+                    <div class="field-label">Decoded</div>
+                    <div class="live-decoded" id="liveDecoded">---</div>
                 </div>
+            </section>
 
-                <div class="score-bar" aria-hidden="true">
-                    <span id="scoreMasteryBar" style="width: {{ score.mastery }}%"></span>
-                </div>
+            <section class="touch-drill-actions" {% if mode not in ['send', 'learn'] %}hidden{% endif %}>
+                {% if mode == 'learn' %}
+                    <button type="button" class="button primary" id="listenReplay">Play</button>
+                {% else %}
+                    <form method="post" action="/practice/play?mode={{ mode }}" class="inline-form">
+                        <input type="hidden" name="next" value="/touch/practice/run?mode={{ mode }}">
+                        <button type="submit" class="button secondary">Play</button>
+                    </form>
+                {% endif %}
+                <form method="post" action="/practice/new?mode={{ mode }}" class="inline-form">
+                    <input type="hidden" name="next" value="/touch/practice/run?mode={{ mode }}">
+                    <button type="submit" class="button secondary">Next</button>
+                </form>
+                <button type="button" class="button secondary" id="practiceToggle">Stop</button>
+                <button type="button" class="button secondary" id="keyboardKeyerToggle">Spacebar</button>
+                <button type="button" class="button secondary" onclick="clearKeyInput()">Clear</button>
+            </section>
 
-                <p class="score-goal" id="scoreGoal">{{ score.next_goal }}</p>
-                <a class="button secondary full-width" href="/progress?mode={{ mode }}">Details</a>
+            <section class="touch-drill-actions" {% if mode not in ['read', 'listen'] %}hidden{% endif %}>
+                {% if mode == 'listen' %}
+                    <button type="button" class="button primary" id="listenReplay">Play</button>
+                {% endif %}
+                <form method="post" action="/practice/new?mode={{ mode }}" class="inline-form">
+                    <input type="hidden" name="next" value="/touch/practice/run?mode={{ mode }}">
+                    <button type="submit" class="button secondary">Next</button>
+                </form>
+                <button type="button" class="button secondary" data-test-sound>Sound</button>
+            </section>
 
+            <section class="feedback-box inline-feedback touch-feedback" id="practiceFeedback" {% if not feedback %}hidden{% endif %}>
+                {{ feedback }}
+            </section>
+
+            <section class="touch-score-mini" id="practiceScore">
+                <span>{{ modes[mode].label }}</span>
+                <strong id="scoreMastery">{{ score.mastery }}%</strong>
+                <span id="scoreStreak">{{ score.streak }} streak</span>
+                <span id="scoreGoal">{{ score.next_goal }}</span>
+                <span id="overallMastery" hidden>{{ overall.mastery }}%</span>
                 <span id="overallMasteryBar" hidden></span>
                 <span id="overallAccuracy" hidden>{{ overall.accuracy }}% accuracy</span>
                 <span id="overallAttempts" hidden>{{ overall.attempts }}</span>
                 <span id="overallStreak" hidden>{{ overall.streak }} best streak</span>
                 <span id="overallUnlockedLetters" hidden></span>
                 <span id="overallNextUnlock" hidden></span>
+                <span id="scoreMasteryBar" hidden></span>
                 <span id="scoreAccuracy" hidden>{{ score.accuracy }}% accuracy</span>
                 <span id="scoreAttempts" hidden>{{ score.attempts }} tries</span>
             </section>

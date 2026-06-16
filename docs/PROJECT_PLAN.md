@@ -273,12 +273,17 @@ Create or refine these GitHub issues next:
 - Confirmed the 7-inch Pi touchscreen resolution is `800x480` at 60 Hz with no scaling.
 - Decided the touchscreen option should become a no-scroll experience sized for `800x480`, likely with a menu/dashboard and more focused pages.
 
+### 2026-06-16
+
+- Reworked the optional touch UI into a no-scroll `800x480` menu flow.
+- Split touch screens into focused routes: `/touch`, `/touch/message`, `/touch/key`, `/touch/timing`, `/touch/practice`, and `/touch/practice/run`.
+- Kept the desktop/laptop pages unchanged while iterating on touch-specific templates and CSS.
+- Verified the touch menu, message, timing, and active practice screens with Chromium screenshots at `800x480` on the Pi.
+
 ### Ready Next
 
-- Redesign `/touch` for the `800x480` touchscreen as a no-scroll menu/dashboard flow.
-- Split touch functions into focused pages that fit one screen: menu, message/playback, key input, practice mode selection, active practice, timing/settings.
-- Keep the desktop/laptop pages unchanged while iterating on the touch UI.
-- Test the first `/touch` and `/touch/practice` pages directly on the 7-inch Raspberry Pi touchscreen.
+- Test the no-scroll touch menu flow directly on the physical 7-inch touchscreen.
+- Tune any touch screen labels, button sizes, or spacing after physical testing.
 - Test whether the 15/7 WPM Farnsworth-style beginner timing feels easier than the old slow 4.8 WPM character timing.
 - Start from a clean progress slate and test Learn, Send, Read, and Listen by hand in Chrome with the physical key and Spacebar Keyer.
 - Tune Operator Level thresholds, rank names, and unlock messaging after student testing.

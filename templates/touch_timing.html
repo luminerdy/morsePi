@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+    <title>Touch Timing - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260611-2">
+    <link rel="stylesheet" href="/static/touch.css?v=20260616-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="touch-ui">
+    <div class="touch-screen">
+        <header class="touch-titlebar">
+            <div>
+                <p class="eyebrow">Touch</p>
+                <h1>Timing</h1>
+            </div>
+            <a class="touch-top-link" href="/touch">Menu</a>
+        </header>
+
+        <main class="touch-settings-layout">
+            <form class="panel touch-panel touch-settings-form" method="post" action="/timing-settings">
+                <input type="hidden" name="next" value="/touch/timing">
+
+                <label for="character_wpm">Character speed <span>{{ timing.character_wpm }} WPM</span></label>
+                <input type="range" id="character_wpm" name="character_wpm" min="5" max="35" value="{{ timing.character_wpm }}">
+
+                <label for="effective_wpm">Learning spacing <span>{{ timing.effective_wpm }} WPM</span></label>
+                <input type="range" id="effective_wpm" name="effective_wpm" min="3" max="{{ timing.character_wpm }}" value="{{ timing.effective_wpm }}">
+
+                <label for="tone_hz">Tone <span>{{ timing.tone_hz }} Hz</span></label>
+                <input type="range" id="tone_hz" name="tone_hz" min="400" max="1000" step="25" value="{{ timing.tone_hz }}">
+
+                <button type="submit" class="button primary full-width">Save Timing</button>
+            </form>
+
+            <section class="touch-timing-note">
+                <strong>Beginner</strong>
+                <span>15 / 7 WPM</span>
+                <span>700 Hz</span>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

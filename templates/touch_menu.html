@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+    <title>Touch Menu - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260611-2">
+    <link rel="stylesheet" href="/static/touch.css?v=20260616-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="touch-ui">
+    <div class="touch-screen">
+        <header class="touch-titlebar">
+            <div>
+                <p class="eyebrow">Morse Station</p>
+                <h1>Touch Menu</h1>
+            </div>
+            <a class="touch-top-link" href="/">Desktop</a>
+        </header>
+
+        <main class="touch-menu-grid">
+            <a class="touch-menu-card primary" href="/touch/message">
+                <strong>Message</strong>
+                <span>Type and play Morse</span>
+            </a>
+            <a class="touch-menu-card primary" href="/touch/practice">
+                <strong>Practice</strong>
+                <span>Learn, send, read, listen</span>
+            </a>
+            <a class="touch-menu-card" href="/touch/key">
+                <strong>Key</strong>
+                <span>Watch tapped code</span>
+            </a>
+            <a class="touch-menu-card" href="/touch/timing">
+                <strong>Timing</strong>
+                <span>{{ timing.character_wpm }}/{{ timing.effective_wpm }} WPM</span>
+            </a>
+        </main>
+
+        <footer class="touch-footer">
+            <span>Level {{ overall.level }} · {{ overall.rank }}</span>
+            <span>{{ overall.mastery }}% overall</span>
+        </footer>
+    </div>
+</body>
+</html>

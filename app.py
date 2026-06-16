@@ -544,7 +544,22 @@ def index():
 
 @app.route("/touch", methods=["GET", "POST"])
 def touch_index():
-    return render_home_template("touch_index.html")
+    return render_practice_template("touch_menu.html")
+
+
+@app.route("/touch/message", methods=["GET", "POST"])
+def touch_message():
+    return render_home_template("touch_message.html")
+
+
+@app.route("/touch/key")
+def touch_key():
+    return render_home_template("touch_key.html")
+
+
+@app.route("/touch/timing")
+def touch_timing():
+    return render_home_template("touch_timing.html")
 
 
 @app.route("/play", methods=["POST"])
@@ -615,6 +630,11 @@ def practice():
 
 @app.route("/touch/practice")
 def touch_practice():
+    return render_practice_template("touch_practice_menu.html")
+
+
+@app.route("/touch/practice/run")
+def touch_practice_run():
     return render_practice_template("touch_practice.html")
 
 

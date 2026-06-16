@@ -961,7 +961,7 @@ Each station should only publish and subscribe to approved topics.
 | Detailed Progress page | Complete |
 | Browser sound recovery control | Complete |
 | Home playback stop controls | Complete |
-| Separate 7-inch touchscreen option | Started |
+| Separate 7-inch touchscreen option | Started with no-scroll menu flow |
 | Farnsworth-style Morse timing settings | Started |
 
 ---
@@ -1000,6 +1000,7 @@ Confirm Stop Station cancels long Pi speaker/LED playback from the Home page.
 Confirm `/touch` and `/touch/practice` are usable on the 7-inch Raspberry Pi touchscreen before changing the default desktop pages.
 Confirm beginner timing at 15 WPM character speed and 7 WPM effective spacing feels learnable.
 Confirm the touch UI fits the actual `800x480` 7-inch Pi display without scrolling.
+Confirm the split touch routes are understandable: menu, message, key, timing, practice modes, active practice.
 Confirm Replay is easy to find and use.
 Confirm Progress details make sense after a few attempts.
 Confirm Operator Level and unlocked letters feel fun and encouraging.
