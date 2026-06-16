@@ -282,13 +282,14 @@ Create or refine these GitHub issues next:
 - Fixed Pi browser startup to open `/touch` in Chromium kiosk mode instead of the desktop Home page.
 - Removed the duplicate XDG browser autostart path on the Pi; Labwc autostart is now the single browser launch path.
 - Confirmed after reboot there is one Flask app process running from `morse-station.service`.
+- Removed Spacebar Keyer from the touch screens so the 7-inch station stays focused on the physical telegraph key; desktop/laptop pages still keep Spacebar Keyer for testing.
 
 ### Ready Next
 
 - Test the no-scroll touch menu flow directly on the physical 7-inch touchscreen.
 - Tune any touch screen labels, button sizes, or spacing after physical testing.
 - Test whether the 15/7 WPM Farnsworth-style beginner timing feels easier than the old slow 4.8 WPM character timing.
-- Start from a clean progress slate and test Learn, Send, Read, and Listen by hand in Chrome with the physical key and Spacebar Keyer.
+- Start from a clean progress slate and test Learn, Send, Read, and Listen by hand with the physical key on touch, plus Spacebar Keyer on desktop/laptop.
 - Tune Operator Level thresholds, rank names, and unlock messaging after student testing.
 - Decide whether and when unlocked letters should control the active practice set.
 - Decide whether Learn should count progress the same way as Send or stay more forgiving.

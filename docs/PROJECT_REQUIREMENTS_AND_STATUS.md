@@ -1198,6 +1198,7 @@ Student can tap the telegraph key.
 The tapped Morse appears in the web app.
 Student can use Practice Mode.
 Student can check whether a tapped letter matches the prompt.
+On the 7-inch touch station, practice flow prioritizes the physical telegraph key; Spacebar Keyer remains available on desktop/laptop pages for testing.
 ```
 
 Current status:
