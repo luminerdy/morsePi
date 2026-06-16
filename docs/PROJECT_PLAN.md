@@ -269,9 +269,15 @@ Create or refine these GitHub issues next:
 - Added a separate 7-inch touchscreen option under `/touch` and `/touch/practice` so the current desktop/laptop UI can remain unchanged while the touchscreen flow is tested.
 - Added Morse timing settings using beginner Farnsworth-style defaults: 15 WPM character speed, 7 WPM effective spacing, and 700 Hz tone.
 - Updated browser and Pi speaker playback to share the same timing settings.
+- User liked the Morse timing addition; next step is hands-on testing tomorrow.
+- Confirmed the 7-inch Pi touchscreen resolution is `800x480` at 60 Hz with no scaling.
+- Decided the touchscreen option should become a no-scroll experience sized for `800x480`, likely with a menu/dashboard and more focused pages.
 
 ### Ready Next
 
+- Redesign `/touch` for the `800x480` touchscreen as a no-scroll menu/dashboard flow.
+- Split touch functions into focused pages that fit one screen: menu, message/playback, key input, practice mode selection, active practice, timing/settings.
+- Keep the desktop/laptop pages unchanged while iterating on the touch UI.
 - Test the first `/touch` and `/touch/practice` pages directly on the 7-inch Raspberry Pi touchscreen.
 - Test whether the 15/7 WPM Farnsworth-style beginner timing feels easier than the old slow 4.8 WPM character timing.
 - Start from a clean progress slate and test Learn, Send, Read, and Listen by hand in Chrome with the physical key and Spacebar Keyer.

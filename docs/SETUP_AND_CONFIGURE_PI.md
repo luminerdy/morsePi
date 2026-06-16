@@ -13,6 +13,13 @@ Web app URL: http://<pi-ip-address>:5000
 GitHub repo: https://github.com/luminerdy/morsePi
 ```
 
+Current test station notes:
+
+```text
+Active IP as of 2026-06-15: 10.10.10.141
+7-inch Pi touchscreen resolution: 800x480, no scaling
+```
+
 ## 1. Install Raspberry Pi OS
 
 Use Raspberry Pi Imager.

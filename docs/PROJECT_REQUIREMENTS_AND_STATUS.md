@@ -999,6 +999,7 @@ Confirm Stop Here cancels long browser playback from the Home page.
 Confirm Stop Station cancels long Pi speaker/LED playback from the Home page.
 Confirm `/touch` and `/touch/practice` are usable on the 7-inch Raspberry Pi touchscreen before changing the default desktop pages.
 Confirm beginner timing at 15 WPM character speed and 7 WPM effective spacing feels learnable.
+Confirm the touch UI fits the actual `800x480` 7-inch Pi display without scrolling.
 Confirm Replay is easy to find and use.
 Confirm Progress details make sense after a few attempts.
 Confirm Operator Level and unlocked letters feel fun and encouraging.
@@ -1216,7 +1217,7 @@ The student can complete a short Read practice session from visible Morse.
 The student can complete a short Listen practice session from audio prompts.
 Feedback feels encouraging and does not make practice too easy.
 Progress details are understandable to a student or parent.
-The 7-inch Raspberry Pi touchscreen layout is readable, touch-friendly, and uses separate pages where needed instead of crowding everything into one screen.
+The 7-inch Raspberry Pi touchscreen layout is readable, touch-friendly, fits `800x480` without scrolling, and uses a menu plus separate focused pages instead of crowding everything into one screen.
 The next coding priority is selected from Mixed mode, more letters, or timing feedback.
 ```
 
