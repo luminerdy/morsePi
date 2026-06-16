@@ -106,8 +106,10 @@ git pull
 The current station app defaults to:
 
 ```text
-MORSE_AUDIO_DEVICE=plughw:3,0
+MORSE_AUDIO_DEVICE=plughw:UACDemoV10,0
 ```
+
+Using the ALSA card name is preferred over a numeric card index because the card number can change when the SD card moves to another Pi or the USB speaker is plugged into a different port.
 
 To inspect available audio devices:
 
@@ -118,7 +120,7 @@ aplay -l
 To test the known USB speaker device:
 
 ```bash
-speaker-test -D plughw:3,0 -t sine -f 700 -l 1
+speaker-test -D plughw:UACDemoV10,0 -t sine -f 700 -l 1
 ```
 
 If a fresh Pi assigns a different card/device number, start the app with a different device:
@@ -205,7 +207,7 @@ http://<pi-ip-address>:5000
 Example:
 
 ```text
-http://10.10.10.129:5000
+http://10.10.10.141:5000
 ```
 
 Important: run the app with `debug=False` and `use_reloader=False`. The current `app.py` already does this. The Flask debug reloader can start multiple processes and claim the GPIO pins twice.
@@ -248,7 +250,7 @@ Copy the service file from the repo:
 sudo install -m 0644 /home/morse/morse-station/systemd/morse-station.service /etc/systemd/system/morse-station.service
 ```
 
-If your USB speaker is not `plughw:3,0`, edit the service and add an environment line under `[Service]`:
+If your USB speaker is not `plughw:UACDemoV10,0`, edit the service and add an environment line under `[Service]`:
 
 ```bash
 sudo systemctl edit morse-station
@@ -368,7 +370,7 @@ aplay -l
 Test the configured device:
 
 ```bash
-speaker-test -D plughw:3,0 -t sine -f 700 -l 1
+speaker-test -D plughw:UACDemoV10,0 -t sine -f 700 -l 1
 ```
 
 ### App is not reachable in the browser

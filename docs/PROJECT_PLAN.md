@@ -259,6 +259,12 @@ Create or refine these GitHub issues next:
 - Changed browser Morse playback to reuse a single audio context instead of creating a new context for every prompt.
 - Added Home playback stop controls for long phrases: `Stop Here` cancels browser playback and `Stop Station` cancels Pi speaker/LED playback.
 
+### 2026-06-15
+
+- Moved active station testing to the replacement Pi at `10.10.10.141` with a 7-inch Raspberry Pi touchscreen.
+- Found the USB speaker moved from numeric ALSA device `plughw:3,0` to card 1 on the new Pi.
+- Changed the app default USB speaker device to named ALSA device `plughw:UACDemoV10,0` so it is less sensitive to USB port/card ordering.
+
 ### Ready Next
 
 - Start from a clean progress slate and test Learn, Send, Read, and Listen by hand in Chrome with the physical key and Spacebar Keyer.
@@ -266,5 +272,6 @@ Create or refine these GitHub issues next:
 - Decide whether and when unlocked letters should control the active practice set.
 - Decide whether Learn should count progress the same way as Send or stay more forgiving.
 - Tune browser audio speed and replay behavior for Learn and Listen.
+- Test touch layout on the 7-inch Raspberry Pi touchscreen.
 - Test on Kindle Fire/Silk when a device is available.
 - Choose next build: Mixed mode, more letters, or timing feedback.

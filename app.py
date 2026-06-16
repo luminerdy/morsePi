@@ -43,9 +43,9 @@ WORD_GAP_THRESHOLD_SECONDS = 1.50
 SAMPLE_RATE = 44100
 DEFAULT_STATION_VOLUME = 0.35
 
-# Your USB speaker showed up as:
-# card 3: UACDemoV10 [UACDemoV1.0], device 0: USB Audio
-AUDIO_DEVICE = os.environ.get("MORSE_AUDIO_DEVICE", "plughw:3,0")
+# Prefer the ALSA card name instead of a numeric card index so the USB speaker
+# keeps working when the SD card moves to another Pi or USB port.
+AUDIO_DEVICE = os.environ.get("MORSE_AUDIO_DEVICE", "plughw:UACDemoV10,0")
 
 # -----------------------------
 # App state

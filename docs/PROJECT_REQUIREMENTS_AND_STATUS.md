@@ -943,6 +943,7 @@ Each station should only publish and subscribe to approved topics.
 | Live key display in web app | Complete |
 | Basic Practice Mode | Complete |
 | USB speaker integration | Complete |
+| Stable named USB speaker device | Complete |
 | GitHub repo setup | Complete |
 | Fresh Pi setup guide | Complete |
 | Pi app autostart | Complete with user systemd service |
@@ -988,6 +989,7 @@ Next testing milestone:
 Start from reset practice progress.
 Run Learn, Send, Read, and Listen in a real practice session.
 Confirm the browser audio is comfortable for beginners.
+Confirm Pi speaker playback works on active station `10.10.10.141` using `plughw:UACDemoV10,0`.
 Confirm the browser Test Sound button wakes audio when sound stops.
 Confirm Stop Here cancels long browser playback from the Home page.
 Confirm Stop Station cancels long Pi speaker/LED playback from the Home page.
@@ -1207,6 +1209,7 @@ The student can complete a short Read practice session from visible Morse.
 The student can complete a short Listen practice session from audio prompts.
 Feedback feels encouraging and does not make practice too easy.
 Progress details are understandable to a student or parent.
+The 7-inch Raspberry Pi touchscreen layout is readable and touch-friendly.
 The next coding priority is selected from Mixed mode, more letters, or timing feedback.
 ```
 
