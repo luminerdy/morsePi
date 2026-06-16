@@ -724,7 +724,7 @@ function updateOverallScoreCard(overall) {
     if (nextUnlock && overall.next_unlock) {
         const letters = overall.next_unlock.letters || [];
         nextUnlock.innerText = letters.length
-            ? `Next unlock at Level ${overall.next_unlock.level}: ${letters.join(" ")}`
+            ? `Next unlock at ${overall.next_unlock.threshold}% in all modes: ${letters.join(" ")}`
             : overall.next_unlock.label;
     }
 }

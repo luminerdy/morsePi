@@ -292,6 +292,7 @@ Create or refine these GitHub issues next:
 - Tuned beginner timing and key decoding after testing showed Listen prompts were too fast and a correctly imitated `M` could decode as `I`; dash detection now follows the configured Morse timing instead of a fixed 400 ms threshold.
 - Added JSONL practice attempt logging with expected/actual Morse, selected answers, correctness, timing settings, and raw key timing summaries for future coaching and adaptive training.
 - Added a first adaptive Listen rule: early, overall-struggling, or letter-specific struggling Listen practice plays one step slower than the station default, then returns to normal timing after accuracy improves.
+- Enforced letter unlocking in practice: `E T A N I M` are the starter set, `S O` unlock at 50% mastery in all modes, `R K` at 65%, and `D U` at 80%.
 
 ### Ready Next
 
@@ -302,7 +303,7 @@ Create or refine these GitHub issues next:
 - Test whether the 12/6 WPM Farnsworth-style beginner timing is easier to hear and imitate than 15/7.
 - Start from a clean progress slate and test Learn, Send, Read, and Listen by hand with the physical key on touch, plus Spacebar Keyer on desktop/laptop.
 - Tune Operator Level thresholds, rank names, and unlock messaging after student testing.
-- Decide whether and when unlocked letters should control the active practice set.
+- Watch whether adding `S O` at 50% in all modes feels motivating or too early.
 - Decide whether Learn should count progress the same way as Send or stay more forgiving.
 - Tune browser audio speed and replay behavior for Learn and Listen.
 - Review logged attempt timing after hands-on testing and choose the first student-facing timing feedback message.

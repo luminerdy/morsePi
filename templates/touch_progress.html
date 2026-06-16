@@ -43,7 +43,7 @@
             <span>{{ overall.attempts }} practice tries</span>
             <span>
                 {% if overall.next_unlock.letters %}
-                    Next unlock: {{ overall.next_unlock.letters | join(" ") }}
+                    Next: {{ overall.next_unlock.letters | join(" ") }} at {{ overall.next_unlock.threshold }}%
                 {% else %}
                     {{ overall.next_unlock.label }}
                 {% endif %}

@@ -992,7 +992,7 @@ Each station should only publish and subscribe to approved topics.
 | Progress dashboard | Started |
 | Listen progress tracking | Complete |
 | Learn progress tracking | Complete |
-| Enforced letter unlocking | Not started |
+| Enforced letter unlocking | Started with threshold-based active practice set |
 | Better timing feedback | Not started |
 | Refactor hardware code | Not started |
 
@@ -1023,6 +1023,7 @@ Confirm Operator Level and unlocked letters feel fun and encouraging.
 Confirm the 7-inch Raspberry Pi touchscreen layout avoids crowded controls and unreadable text.
 Confirm `data/practice_attempts.jsonl` captures useful timing summaries after Send/Learn attempts.
 Confirm adaptive Listen playback feels easier early without becoming too slow.
+Confirm `S` and `O` appear after all four modes reach at least 50% mastery.
 Tune rank names and unlock thresholds after student testing.
 Decide whether wrong Listen answers should reveal the letter immediately or invite one replay first.
 Decide whether Learn should score progress the same way as Send or be more forgiving.

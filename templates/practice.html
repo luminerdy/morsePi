@@ -169,7 +169,7 @@
 
                         <p class="score-goal" id="overallNextUnlock">
                             {% if overall.next_unlock.letters %}
-                                Next unlock at Level {{ overall.next_unlock.level }}: {{ overall.next_unlock.letters | join(" ") }}
+                                Next unlock at {{ overall.next_unlock.threshold }}% in all modes: {{ overall.next_unlock.letters | join(" ") }}
                             {% else %}
                                 {{ overall.next_unlock.label }}
                             {% endif %}
@@ -213,6 +213,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260616-7"></script>
+<script src="/static/app.js?v=20260616-8"></script>
 </body>
 </html>
