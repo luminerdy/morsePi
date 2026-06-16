@@ -293,6 +293,7 @@ Create or refine these GitHub issues next:
 - Added JSONL practice attempt logging with expected/actual Morse, selected answers, correctness, timing settings, and raw key timing summaries for future coaching and adaptive training.
 - Added a first adaptive Listen rule: early, overall-struggling, or letter-specific struggling Listen practice plays one step slower than the station default, then returns to normal timing after accuracy improves.
 - Enforced letter unlocking in practice: `E T A N I M` are the starter set, then `S O` at 50%, `R K` at 65%, `D U` at 80%, `C W H L` at 80%, `P F Y G` at 82%, `B V J X` at 85%, `Q Z` at 85%, and numbers at 88%.
+- Added Learn-first unlock gating: a newly unlocked group appears in Learn only, blocks later unlocks, and joins Send/Read/Listen after each new letter has at least 3 correct Learn attempts and 60% Learn strength.
 
 ### Ready Next
 
@@ -304,6 +305,7 @@ Create or refine these GitHub issues next:
 - Start from a clean progress slate and test Learn, Send, Read, and Listen by hand with the physical key on touch, plus Spacebar Keyer on desktop/laptop.
 - Tune Operator Level thresholds, rank names, and unlock messaging after student testing.
 - Watch whether adding `S O` at 50% in all modes feels motivating or too early, then tune the later A-Z and number unlock thresholds after student testing.
+- Test whether 3 correct Learn attempts and 60% Learn strength is enough before new letters join Send, Read, and Listen.
 - Decide whether Learn should count progress the same way as Send or stay more forgiving.
 - Tune browser audio speed and replay behavior for Learn and Listen.
 - Review logged attempt timing after hands-on testing and choose the first student-facing timing feedback message.

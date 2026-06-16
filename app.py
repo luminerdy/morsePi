@@ -66,6 +66,8 @@ current_key_events = []
 key_tone_process = None
 
 starter_practice_letters = ["E", "T", "A", "N", "I", "M"]
+learn_ready_attempts = 3
+learn_ready_strength = 60
 all_practice_letters = [
     "E", "T", "A", "N", "I", "M",
     "S", "O", "R", "K", "D", "U",
@@ -597,18 +599,59 @@ def get_practice_mode():
     return mode if mode in practice_modes else "send"
 
 
-def get_unlocked_practice_letters():
-    unlocked = list(starter_practice_letters)
+def learning_step_ready(step):
+    progress = progress_summary(step["letters"], "learn")
+
+    return all(
+        item["correct"] >= learn_ready_attempts and item["strength_percent"] >= learn_ready_strength
+        for item in progress
+    )
+
+
+def get_practice_letter_state():
+    active = list(starter_practice_letters)
+    learning_step = None
+    next_step = None
 
     for step in letter_unlock_steps:
-        scores = [mode_score(unlocked, mode) for mode in practice_modes]
+        scores = [mode_score(active, mode) for mode in practice_modes]
 
         if all(score["mastery"] >= step["threshold"] for score in scores):
-            unlocked.extend(letter for letter in step["letters"] if letter not in unlocked)
+            if learning_step_ready(step):
+                active.extend(letter for letter in step["letters"] if letter not in active)
+            else:
+                learning_step = step
+                break
         else:
+            next_step = step
             break
 
-    return [letter for letter in all_practice_letters if letter in unlocked]
+    if learning_step is None and next_step is None:
+        next_step = get_next_letter_unlock(active)
+
+    learning_letters = learning_step["letters"] if learning_step else []
+
+    return {
+        "active_letters": [letter for letter in all_practice_letters if letter in active],
+        "learning_letters": [letter for letter in all_practice_letters if letter in learning_letters],
+        "learning_step": learning_step,
+        "next_step": next_step,
+        "learn_ready_attempts": learn_ready_attempts,
+        "learn_ready_strength": learn_ready_strength
+    }
+
+
+def get_unlocked_practice_letters():
+    return get_practice_letter_state()["active_letters"]
+
+
+def get_practice_letters_for_mode(mode):
+    state = get_practice_letter_state()
+
+    if mode == "learn" and state["learning_letters"]:
+        return state["active_letters"] + state["learning_letters"]
+
+    return state["active_letters"]
 
 
 def get_next_letter_unlock(unlocked_letters):
@@ -624,13 +667,21 @@ def get_next_letter_unlock(unlocked_letters):
 
 
 def get_learning_overall(letters):
-    overall = overall_score(letters, practice_modes.keys())
-    overall["unlocked_letters"] = letters
-    overall["next_unlock"] = get_next_letter_unlock(letters)
+    state = get_practice_letter_state()
+    overall = overall_score(state["active_letters"], practice_modes.keys())
+    overall["unlocked_letters"] = state["active_letters"]
+    overall["active_letters"] = state["active_letters"]
+    overall["learning_letters"] = state["learning_letters"]
+    overall["learn_ready_attempts"] = state["learn_ready_attempts"]
+    overall["learn_ready_strength"] = state["learn_ready_strength"]
+    overall["learning_step"] = state["learning_step"]
+    overall["next_unlock"] = state["learning_step"] or state["next_step"] or get_next_letter_unlock(state["active_letters"])
 
-    if overall["next_unlock"]["letters"]:
+    if state["learning_step"]:
+        overall["next_goal"] = f"Learn {' '.join(state['learning_letters'])} before they join practice"
+    elif overall["next_unlock"]["letters"]:
         threshold = overall["next_unlock"]["threshold"]
-        mode_masteries = [mode_score(letters, mode)["mastery"] for mode in practice_modes]
+        mode_masteries = [mode_score(state["active_letters"], mode)["mastery"] for mode in practice_modes]
         points_to_unlock = max(0, threshold - min(mode_masteries))
         overall["next_goal"] = f"{points_to_unlock} mastery points to unlock {' '.join(overall['next_unlock']['letters'])}"
     else:
@@ -641,20 +692,22 @@ def get_learning_overall(letters):
 
 def get_read_choices(target):
     choices = [target]
-    practice_letters = get_unlocked_practice_letters()
+    practice_letters = get_practice_letters_for_mode(get_practice_mode())
     others = [letter for letter in practice_letters if letter != target]
     choices.extend(random.sample(others, min(3, len(others))))
     return random.sample(choices, len(choices))
 
 
 def get_practice_letter_morse():
-    return {letter: text_to_morse(letter) for letter in get_unlocked_practice_letters()}
+    state = get_practice_letter_state()
+    letters = state["active_letters"] + state["learning_letters"]
+    return {letter: text_to_morse(letter) for letter in letters}
 
 
 def choose_new_practice_target(mode="send"):
     global practice_target, practice_feedback
 
-    practice_letters = get_unlocked_practice_letters()
+    practice_letters = get_practice_letters_for_mode(mode)
     practice_target = choose_next_letter(practice_letters, practice_target, mode)
     practice_feedback = ""
     clear_key_state()
@@ -685,9 +738,24 @@ def render_home_template(template_name):
 
 
 def render_practice_template(template_name):
+    global practice_target
+
     mode = get_practice_mode()
-    practice_letters = get_unlocked_practice_letters()
+    practice_letters = get_practice_letters_for_mode(mode)
+    overall = get_learning_overall(practice_letters)
+
+    if practice_target not in practice_letters:
+        choose_new_practice_target(mode)
+
     expected_morse = text_to_morse(practice_target)
+    feedback = practice_feedback
+
+    if not feedback and overall["learning_letters"]:
+        learning = " ".join(overall["learning_letters"])
+        if mode == "learn":
+            feedback = f"New letters unlocked: {learning}. Learn them here first."
+        else:
+            feedback = f"New letters unlocked: {learning}. Use Learn mode first; they are not in this practice mode yet."
 
     return render_template(
         template_name,
@@ -696,10 +764,11 @@ def render_practice_template(template_name):
         target=practice_target,
         expected_morse=expected_morse,
         read_choices=get_read_choices(practice_target),
-        feedback=practice_feedback,
+        feedback=feedback,
         progress=progress_summary(practice_letters, mode),
         score=mode_score(practice_letters, mode),
-        overall=get_learning_overall(practice_letters),
+        overall=overall,
+        letter_morse=get_practice_letter_morse(),
         progress_label=practice_modes[mode]["progress_label"],
         timing=get_practice_timing(mode, practice_target)
     )
@@ -831,7 +900,7 @@ def practice_new():
 def practice_next():
     mode = get_practice_mode()
     choose_new_practice_target(mode)
-    practice_letters = get_unlocked_practice_letters()
+    practice_letters = get_practice_letters_for_mode(mode)
 
     return jsonify({
         "mode": mode,
@@ -848,7 +917,11 @@ def practice_next():
 @app.route("/practice/retry", methods=["POST"])
 def practice_retry():
     mode = get_practice_mode()
-    practice_letters = get_unlocked_practice_letters()
+    practice_letters = get_practice_letters_for_mode(mode)
+
+    if practice_target not in practice_letters:
+        choose_new_practice_target(mode)
+
     clear_key_state()
 
     return jsonify({
@@ -877,7 +950,7 @@ def practice_result():
     if mode not in practice_modes:
         mode = "send"
 
-    practice_letters = get_unlocked_practice_letters()
+    practice_letters = get_practice_letters_for_mode(mode)
 
     if letter not in practice_letters:
         return jsonify({

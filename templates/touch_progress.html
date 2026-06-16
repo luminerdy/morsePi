@@ -42,7 +42,9 @@
         <footer class="touch-footer">
             <span>{{ overall.attempts }} practice tries</span>
             <span>
-                {% if overall.next_unlock.letters %}
+                {% if overall.learning_letters %}
+                    Learn: {{ overall.learning_letters | join(" ") }}
+                {% elif overall.next_unlock.letters %}
                     Next: {{ overall.next_unlock.letters | join(" ") }} at {{ overall.next_unlock.threshold }}%
                 {% else %}
                     {{ overall.next_unlock.label }}

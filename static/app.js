@@ -694,6 +694,7 @@ function updateOverallScoreCard(overall) {
     const attempts = document.getElementById("overallAttempts");
     const streak = document.getElementById("overallStreak");
     const unlockedLetters = document.getElementById("overallUnlockedLetters");
+    const learningLetters = document.getElementById("overallLearningLetters");
     const nextUnlock = document.getElementById("overallNextUnlock");
     const masteryValue = Math.max(0, Math.min(Number(overall.mastery) || 0, 100));
 
@@ -717,13 +718,24 @@ function updateOverallScoreCard(overall) {
         streak.innerText = `${overall.streak} best streak`;
     }
 
-    if (unlockedLetters && Array.isArray(overall.unlocked_letters)) {
+    if (unlockedLetters && Array.isArray(overall.active_letters)) {
+        unlockedLetters.innerHTML = overall.active_letters.map(letter => `<span>${letter}</span>`).join("");
+    } else if (unlockedLetters && Array.isArray(overall.unlocked_letters)) {
         unlockedLetters.innerHTML = overall.unlocked_letters.map(letter => `<span>${letter}</span>`).join("");
+    }
+
+    if (learningLetters && Array.isArray(overall.learning_letters)) {
+        learningLetters.innerHTML = overall.learning_letters.length
+            ? overall.learning_letters.map(letter => `<span>${letter}</span>`).join("")
+            : "<span>None</span>";
     }
 
     if (nextUnlock && overall.next_unlock) {
         const letters = overall.next_unlock.letters || [];
-        nextUnlock.innerText = letters.length
+        const learning = overall.learning_letters || [];
+        nextUnlock.innerText = learning.length
+            ? `Learn ${learning.join(" ")} first. Each new letter needs ${overall.learn_ready_attempts} correct Learn tries and ${overall.learn_ready_strength}% Learn strength.`
+            : letters.length
             ? `Next unlock at ${overall.next_unlock.threshold}% in all modes: ${letters.join(" ")}`
             : overall.next_unlock.label;
     }

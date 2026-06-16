@@ -1011,6 +1011,14 @@ Starter: E T A N I M
 88% in all modes: 6 7 8 9 0
 ```
 
+Unlock behavior:
+
+- Only one new group can be in progress at a time.
+- A newly unlocked group appears in Learn first as `Learning Now`.
+- Send, Read, and Listen continue using only active practice letters.
+- The learning group joins active practice after each new letter has at least 3 correct Learn attempts and 60% Learn strength.
+- Later groups cannot unlock until the current learning group has joined active practice.
+
 ---
 
 ## 16. Recommended Next Steps
@@ -1039,6 +1047,8 @@ Confirm the 7-inch Raspberry Pi touchscreen layout avoids crowded controls and u
 Confirm `data/practice_attempts.jsonl` captures useful timing summaries after Send/Learn attempts.
 Confirm adaptive Listen playback feels easier early without becoming too slow.
 Confirm `S` and `O` appear after all four modes reach at least 50% mastery.
+Confirm newly unlocked letters appear in Learn before Send, Read, and Listen.
+Confirm the Learning Now announcement is clear on desktop and touch.
 Confirm later A-Z and number unlocks feel motivating rather than overwhelming.
 Tune rank names and unlock thresholds after student testing.
 Decide whether wrong Listen answers should reveal the letter immediately or invite one replay first.
