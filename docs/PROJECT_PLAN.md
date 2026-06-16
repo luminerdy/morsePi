@@ -4,6 +4,8 @@
 
 Build a Raspberry Pi Morse code learning station where students can see, hear, tap, decode, and eventually send Morse messages. The project should stay hands-on, encouraging, and easy to grow in small tested steps.
 
+Learning-method research is captured in [Morse Learning Best Practices](MORSE_LEARNING_BEST_PRACTICES.md).
+
 Core learning loop:
 
 ```text
@@ -286,6 +288,7 @@ Create or refine these GitHub issues next:
 - Replaced the student-facing touch Message menu item with touch Progress because typing longer phrases on the 7-inch display is awkward and less central to the learning flow.
 - Added a `Touch` navigation link to desktop Home, Practice, and Progress so users can return to the touch menu after tapping `Desktop`.
 - Added browser-side touch UI selection for small/coarse-pointer screens, with `?view=desktop` preserving the desktop view for the current browser session.
+- Added standalone Morse learning best-practices research notes covering Farnsworth timing, Koch-style progression, practice modes, feedback, progress, and timing feedback goals.
 
 ### Ready Next
 

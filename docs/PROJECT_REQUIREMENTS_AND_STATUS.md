@@ -8,6 +8,8 @@ The goal is to help students learn Morse code by using a real telegraph key, vis
 
 The project is intentionally being built in **baby steps** so students can understand each part before everything is combined into a web application.
 
+Learning-method research and teaching recommendations are tracked in [`MORSE_LEARNING_BEST_PRACTICES.md`](MORSE_LEARNING_BEST_PRACTICES.md).
+
 Core learning idea:
 
 ```text
@@ -967,6 +969,7 @@ Each station should only publish and subscribe to approved topics.
 | Desktop-to-touch navigation | Complete with `Touch` link on desktop Home, Practice, and Progress |
 | Touch UI auto-selection | Started with browser-side small-screen/coarse-pointer redirect and desktop-view session opt-out |
 | Farnsworth-style Morse timing settings | Started |
+| Morse learning best-practices notes | Started |
 
 ---
 
