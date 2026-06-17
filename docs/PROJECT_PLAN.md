@@ -310,9 +310,13 @@ Create or refine these GitHub issues next:
 - Made the older `/practice/check` fallback route mode-aware so it records against the current mode and respects Learn-first practice sets if used.
 - Confirmed hands-on testing reached the next active letter set; `S` is strong across modes, while `O` needs more Learn/Send/Listen reinforcement.
 - Added Pi/browser sound reset behavior behind the existing Sound/Test Sound buttons: it clears stale key-tone and station playback processes, closes the browser audio context, then plays a fresh browser test beep.
+- End-of-day decisions: keep the Learn-first unlock model, keep the active set progression moving after `S O`, use the Sound/Test Sound button as the audio recovery control, and use recent `O` timing misses as the first real timing-feedback candidate.
+- End-of-day GitHub housekeeping: added MIT licensing to `morsePi` and confirmed the other accessible repos (`PathfinderV2`, `RCubed`, and `IoT`) now have MIT licenses too.
 
 ### Ready Next
 
+- Test the Sound/Test Sound reset during a real session when key speaker feedback stops.
+- Continue practicing `O` in Learn, Send, and Listen; watch whether timing feedback should focus first on long gaps between dashes.
 - Test the no-scroll touch menu flow directly on the physical 7-inch touchscreen.
 - Tune any touch screen labels, button sizes, or spacing after physical testing.
 - Decide whether `/touch/message` should stay as a hidden utility or be removed entirely from the touch experience.
@@ -324,7 +328,6 @@ Create or refine these GitHub issues next:
 - Test whether 3 correct Learn attempts and 60% Learn strength is enough before new letters join Send, Read, and Listen.
 - Decide whether Learn should count progress the same way as Send or stay more forgiving.
 - Tune browser audio speed and replay behavior for Learn and Listen.
-- Test whether the Sound/Test Sound button reliably recovers missing key speaker feedback during Listen/Learn practice.
 - Use the recent `O` practice timing logs as the first candidate for dot/dash/gap feedback.
 - Review logged attempt timing after hands-on testing and choose the first student-facing timing feedback message.
 - Test on Kindle Fire/Silk when a device is available.

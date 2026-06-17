@@ -1050,6 +1050,8 @@ Confirm `S` and `O` appear after all four modes reach at least 50% mastery.
 Confirm newly unlocked letters appear in Learn before Send, Read, and Listen.
 Confirm the Learning Now announcement is clear on desktop and touch.
 Confirm later A-Z and number unlocks feel motivating rather than overwhelming.
+Confirm the Sound/Test Sound reset recovers missing key speaker feedback without rebooting the Pi.
+Use recent `O` timing misses to choose the first student-facing timing coaching message.
 Tune rank names and unlock thresholds after student testing.
 Decide whether wrong Listen answers should reveal the letter immediately or invite one replay first.
 Decide whether Learn should score progress the same way as Send or be more forgiving.
