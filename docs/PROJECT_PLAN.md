@@ -315,11 +315,13 @@ Create or refine these GitHub issues next:
 - End-of-day GitHub housekeeping: added MIT licensing to `morsePi` and confirmed the other accessible repos (`PathfinderV2`, `RCubed`, and `IoT`) now have MIT licenses too.
 - Added an optional Raspberry Pi auto-update plan for deployed grandkid stations: a user systemd timer can periodically fast-forward from GitHub, preserve local practice/timing data, compile-check the app, and restart the station service.
 - Captured AWS Systems Manager as the preferred future way to trigger an update on demand once remote stations are connected to AWS; the local updater script can be the command SSM runs.
+- Tuned the Listen/Learn audio handoff after testing showed browser Play could temporarily hold the USB speaker before physical keyer feedback; prompt playback now releases the browser audio context and the Pi key tone retries once without blocking key timing.
 
 ### Ready Next
 
 - Decide whether to enable the optional auto-update timer on the current test Pi, then test one manual update run before using it at remote locations.
 - When AWS planning starts, compare periodic timer updates with AWS Systems Manager triggered updates for remote grandkid stations.
+- Retest Listen: press Play, key the code immediately, and confirm the keyer speaker feedback starts without waiting.
 - Test the Sound/Test Sound reset during a real session when key speaker feedback stops.
 - Continue practicing `O` in Learn, Send, and Listen; watch whether timing feedback should focus first on long gaps between dashes.
 - Test the no-scroll touch menu flow directly on the physical 7-inch touchscreen.

@@ -186,6 +186,36 @@ def start_key_tone():
         stderr=subprocess.DEVNULL
     )
 
+    threading.Thread(target=retry_key_tone_if_needed, args=(key_tone_process,), daemon=True).start()
+
+
+def retry_key_tone_if_needed(process):
+    global key_tone_process
+
+    sleep(0.05)
+
+    if process.poll() is None:
+        return
+
+    sleep(0.15)
+
+    with key_lock:
+        key_is_still_down = press_started_at is not None
+
+    if not key_is_still_down or key_tone_process is not process:
+        return
+
+    key_tone_process = subprocess.Popen(
+        [
+            "speaker-test",
+            "-D", AUDIO_DEVICE,
+            "-t", "sine",
+            "-f", str(morse_timing["tone_hz"])
+        ],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
+
 
 def stop_key_tone():
     """

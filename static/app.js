@@ -159,7 +159,11 @@ async function testBrowserSound() {
 
     const audioCtx = ensureBrowserAudioContext();
 
-    await browserBeep(audioCtx, 120);
+    try {
+        await browserBeep(audioCtx, 120);
+    } finally {
+        await releaseBrowserAudioContext();
+    }
 }
 
 async function resetSoundState() {
@@ -167,6 +171,18 @@ async function resetSoundState() {
     stopKeyboardTone();
     practiceAudioPlaying = false;
 
+    await releaseBrowserAudioContext();
+
+    try {
+        await fetch("/audio-reset", {
+            method: "POST"
+        });
+    } catch (error) {
+        console.log("Unable to reset Pi audio state", error);
+    }
+}
+
+async function releaseBrowserAudioContext() {
     if (browserAudioCtx && browserAudioCtx.state !== "closed") {
         try {
             await browserAudioCtx.close();
@@ -177,14 +193,6 @@ async function resetSoundState() {
 
     browserAudioCtx = null;
     keyboardAudioCtx = null;
-
-    try {
-        await fetch("/audio-reset", {
-            method: "POST"
-        });
-    } catch (error) {
-        console.log("Unable to reset Pi audio state", error);
-    }
 }
 
 function setHomePlaybackState(isPlaying) {
@@ -330,6 +338,7 @@ async function playPracticePromptInBrowser() {
         await playMorseText(panel.dataset.expectedMorse || "");
     } finally {
         practiceAudioPlaying = false;
+        await releaseBrowserAudioContext();
     }
 }
 
