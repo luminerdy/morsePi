@@ -78,3 +78,7 @@ systemd/                Optional Linux service file
 See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) for milestones and next steps.
 
 Current next focus: test Learn-first letter unlocking and the 7-inch touch flow with a student session, then refine feedback, timing, and device compatibility.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
