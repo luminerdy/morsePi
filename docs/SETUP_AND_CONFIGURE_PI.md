@@ -292,6 +292,8 @@ systemctl --user disable --now morse-station-update.timer
 
 Recommended rollout: keep automatic updates disabled on brand-new stations until the app is tested locally, then enable it once the Pi is physically deployed.
 
+Future remote rollout: once stations are connected to AWS, AWS Systems Manager could trigger `/home/morse/bin/update-morse-station.sh` on demand. That would let Pappy push an update to one or more remote stations without waiting for the periodic timer.
+
 ## 10. Run the App at Boot with systemd
 
 The station should run as a system service so it starts automatically after the Pi boots.

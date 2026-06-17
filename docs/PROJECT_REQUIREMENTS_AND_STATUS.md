@@ -936,6 +936,27 @@ Each station should only publish and subscribe to approved topics.
 
 ---
 
+### OPS-001: Remote update trigger
+
+The system should eventually support remote station operations for deployed family stations.
+
+Candidate approach:
+
+```text
+AWS Systems Manager can trigger the station's local update script on demand.
+The local systemd timer remains a fallback for periodic self-update.
+AWS IoT Core remains focused on secure station messaging.
+```
+
+Remote update operations should:
+
+- Preserve local student progress and timing settings.
+- Pull only approved GitHub updates.
+- Run a compile or health check before restarting the app.
+- Report update success or failure for each station.
+
+---
+
 ## 15. Current MVP Status
 
 ### Completed MVP items
