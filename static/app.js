@@ -1058,8 +1058,10 @@ function initializePracticeMode() {
     if (keyboardToggle || panel) {
         clearKeyInput();
     }
-    if (panel && getPracticeMode() === "listen") {
-        setPracticeFeedback("Listen and choose the letter.");
+    if (panel && ["listen", "learn"].includes(getPracticeMode())) {
+        setPracticeFeedback(getPracticeMode() === "learn"
+            ? `Follow ${panel.dataset.practiceTarget}: ${panel.dataset.expectedMorse}.`
+            : "Listen and choose the letter.");
         setTimeout(playPracticePromptInBrowser, 350);
     }
     focusReadInput();

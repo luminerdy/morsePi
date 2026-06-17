@@ -317,6 +317,7 @@ Create or refine these GitHub issues next:
 - Captured AWS Systems Manager as the preferred future way to trigger an update on demand once remote stations are connected to AWS; the local updater script can be the command SSM runs.
 - Tuned the Listen/Learn audio handoff after testing showed browser Play could temporarily hold the USB speaker before physical keyer feedback; prompt playback now releases the browser audio context and the Pi key tone retries once without blocking key timing.
 - Updated Listen practice to auto-play prompts, relabeled replay to `Play Again`, and added Pi LED flashing with Listen/Learn prompt playback to reinforce the visible Morse rhythm.
+- Updated Learn practice to also auto-play the code and flash the LED when the screen opens, with `Play Again` as the replay control.
 
 ### Ready Next
 
@@ -324,6 +325,7 @@ Create or refine these GitHub issues next:
 - When AWS planning starts, compare periodic timer updates with AWS Systems Manager triggered updates for remote grandkid stations.
 - Retest Listen: press Play, key the code immediately, and confirm the keyer speaker feedback starts without waiting.
 - Confirm Listen auto-plays on entry and the LED flash stays in sync well enough to reinforce the code without distracting from hearing it.
+- Confirm Learn auto-plays on entry and the LED flash helps students connect letter, sound, and keying motion.
 - Test the Sound/Test Sound reset during a real session when key speaker feedback stops.
 - Continue practicing `O` in Learn, Send, and Listen; watch whether timing feedback should focus first on long gaps between dashes.
 - Test the no-scroll touch menu flow directly on the physical 7-inch touchscreen.
