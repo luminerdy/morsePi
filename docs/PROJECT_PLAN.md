@@ -319,13 +319,14 @@ Create or refine these GitHub issues next:
 - Updated Listen practice to auto-play prompts, relabeled replay to `Play Again`, and added Pi LED flashing with Listen/Learn prompt playback to reinforce the visible Morse rhythm.
 - Updated Learn practice to also auto-play the code and flash the LED when the screen opens, with `Play Again` as the replay control.
 - Removed the keyer panel from Listen practice so Listen stays focused on hearing the code and identifying the letter; a future Echo/Copy mode can handle hear-and-key-back practice separately.
+- Tightened Listen/Learn LED synchronization by flashing with the same practice timing as browser audio and scheduling the LED start just after the browser's request is accepted.
 
 ### Ready Next
 
 - Decide whether to enable the optional auto-update timer on the current test Pi, then test one manual update run before using it at remote locations.
 - When AWS planning starts, compare periodic timer updates with AWS Systems Manager triggered updates for remote grandkid stations.
 - Retest Listen as recognition-only: confirm it auto-plays, shows `Play Again`, flashes the LED, and asks for the letter without showing keyer input.
-- Confirm Listen auto-plays on entry and the LED flash stays in sync well enough to reinforce the code without distracting from hearing it.
+- Confirm Listen and Learn LED flashes stay in sync well enough to reinforce the code without distracting from hearing it.
 - Confirm Learn auto-plays on entry and the LED flash helps students connect letter, sound, and keying motion.
 - Test the Sound/Test Sound reset during a real session when key speaker feedback stops.
 - Continue practicing `O` in Learn, Send, and Listen; watch whether timing feedback should focus first on long gaps between dashes.

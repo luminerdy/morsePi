@@ -506,13 +506,22 @@ def flash_morse_led(morse: str):
         led_off()
 
 
-def flash_prompt_led(morse: str):
-    timing = get_morse_timing()
+def flash_prompt_led(morse: str, timing=None, start_delay_seconds: float = 0):
+    timing = timing or get_morse_timing()
 
     with prompt_led_lock:
         prompt_led_stop_event.clear()
 
         try:
+            delay_remaining = max(0, start_delay_seconds)
+            while delay_remaining > 0:
+                if prompt_led_stop_event.is_set():
+                    return
+
+                sleep_for = min(0.02, delay_remaining)
+                sleep(sleep_for)
+                delay_remaining -= sleep_for
+
             for character in morse:
                 if prompt_led_stop_event.is_set():
                     return
@@ -539,10 +548,10 @@ def flash_prompt_led(morse: str):
             led_off()
 
 
-def flash_prompt_led_in_background(morse: str):
+def flash_prompt_led_in_background(morse: str, timing=None, start_delay_seconds: float = 0):
     prompt_led_stop_event.set()
 
-    thread = threading.Thread(target=flash_prompt_led, args=(morse,))
+    thread = threading.Thread(target=flash_prompt_led, args=(morse, timing, start_delay_seconds))
     thread.daemon = True
     thread.start()
 
@@ -1038,8 +1047,13 @@ def practice_prompt_led():
     if mode not in ("listen", "learn"):
         return jsonify({"status": "ignored"})
 
-    flash_prompt_led_in_background(text_to_morse(practice_target))
-    return jsonify({"status": "flashing"})
+    delay_ms = clamp_int(request.args.get("delay_ms"), 100, 0, 500)
+    flash_prompt_led_in_background(
+        text_to_morse(practice_target),
+        get_practice_timing(mode, practice_target),
+        delay_ms / 1000
+    )
+    return jsonify({"status": "flashing", "delay_ms": delay_ms})
 
 
 @app.route("/practice/result", methods=["POST"])

@@ -335,7 +335,7 @@ async function playPracticePromptInBrowser() {
     practiceAudioPlaying = true;
 
     try {
-        triggerPracticePromptLed();
+        await triggerPracticePromptLed();
         await playMorseText(panel.dataset.expectedMorse || "");
     } finally {
         practiceAudioPlaying = false;
@@ -347,10 +347,10 @@ function triggerPracticePromptLed() {
     const mode = getPracticeMode();
 
     if (!["listen", "learn"].includes(mode)) {
-        return;
+        return Promise.resolve();
     }
 
-    fetch(`/practice/prompt-led?mode=${encodeURIComponent(mode)}`, {
+    return fetch(`/practice/prompt-led?mode=${encodeURIComponent(mode)}&delay_ms=100`, {
         method: "POST"
     }).catch(error => {
         console.log("Unable to flash prompt LED", error);
