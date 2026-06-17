@@ -145,7 +145,9 @@ practice_modes = {
 
 key_lock = threading.Lock()
 output_lock = threading.Lock()
+prompt_led_lock = threading.Lock()
 station_stop_event = threading.Event()
+prompt_led_stop_event = threading.Event()
 station_audio_process = None
 
 
@@ -504,6 +506,47 @@ def flash_morse_led(morse: str):
         led_off()
 
 
+def flash_prompt_led(morse: str):
+    timing = get_morse_timing()
+
+    with prompt_led_lock:
+        prompt_led_stop_event.clear()
+
+        try:
+            for character in morse:
+                if prompt_led_stop_event.is_set():
+                    return
+
+                if character == ".":
+                    led_on()
+                    sleep(timing["dot_seconds"])
+                    led_off()
+                    sleep(timing["symbol_gap_seconds"])
+
+                elif character == "-":
+                    led_on()
+                    sleep(timing["dash_seconds"])
+                    led_off()
+                    sleep(timing["symbol_gap_seconds"])
+
+                elif character == " ":
+                    sleep(timing["letter_gap_seconds"])
+
+                elif character == "/":
+                    sleep(timing["word_gap_seconds"])
+
+        finally:
+            led_off()
+
+
+def flash_prompt_led_in_background(morse: str):
+    prompt_led_stop_event.set()
+
+    thread = threading.Thread(target=flash_prompt_led, args=(morse,))
+    thread.daemon = True
+    thread.start()
+
+
 def play_morse_on_station(morse: str):
     """
     Plays Morse on the Raspberry Pi station:
@@ -534,6 +577,7 @@ def play_in_background(morse: str):
 
 def stop_station_playback():
     station_stop_event.set()
+    prompt_led_stop_event.set()
     led_off()
 
     if station_audio_process is not None and station_audio_process.poll() is None:
@@ -985,6 +1029,17 @@ def practice_retry():
         "score": mode_score(practice_letters, mode),
         "overall": get_learning_overall(practice_letters)
     })
+
+
+@app.route("/practice/prompt-led", methods=["POST"])
+def practice_prompt_led():
+    mode = get_practice_mode()
+
+    if mode not in ("listen", "learn"):
+        return jsonify({"status": "ignored"})
+
+    flash_prompt_led_in_background(text_to_morse(practice_target))
+    return jsonify({"status": "flashing"})
 
 
 @app.route("/practice/result", methods=["POST"])

@@ -335,11 +335,26 @@ async function playPracticePromptInBrowser() {
     practiceAudioPlaying = true;
 
     try {
+        triggerPracticePromptLed();
         await playMorseText(panel.dataset.expectedMorse || "");
     } finally {
         practiceAudioPlaying = false;
         await releaseBrowserAudioContext();
     }
+}
+
+function triggerPracticePromptLed() {
+    const mode = getPracticeMode();
+
+    if (!["listen", "learn"].includes(mode)) {
+        return;
+    }
+
+    fetch(`/practice/prompt-led?mode=${encodeURIComponent(mode)}`, {
+        method: "POST"
+    }).catch(error => {
+        console.log("Unable to flash prompt LED", error);
+    });
 }
 
 async function updateLiveKey() {
@@ -1042,6 +1057,10 @@ function initializePracticeMode() {
     updateKeyboardKeyerToggle();
     if (keyboardToggle || panel) {
         clearKeyInput();
+    }
+    if (panel && getPracticeMode() === "listen") {
+        setPracticeFeedback("Listen and choose the letter.");
+        setTimeout(playPracticePromptInBrowser, 350);
     }
     focusReadInput();
 }

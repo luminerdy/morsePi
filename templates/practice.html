@@ -96,7 +96,7 @@
 
                 <div class="action-row read-actions" {% if mode not in ['read', 'listen'] %}hidden{% endif %}>
                     {% if mode == 'listen' %}
-                        <button type="button" class="button primary" id="listenReplay">Play Code</button>
+                        <button type="button" class="button primary" id="listenReplay">Play Again</button>
                     {% endif %}
 
                     <form method="post" action="/practice/new?mode={{ mode }}" class="inline-form">
@@ -228,6 +228,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260617-2"></script>
+<script src="/static/app.js?v=20260617-3"></script>
 </body>
 </html>
