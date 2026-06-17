@@ -970,7 +970,7 @@ Each station should only publish and subscribe to approved topics.
 | Student score card | Complete |
 | Detailed Progress page | Complete |
 | Touch Progress page | Started as the student-facing replacement for touch Message |
-| Browser sound recovery control | Complete |
+| Browser and Pi sound recovery control | Complete |
 | Home playback stop controls | Complete |
 | Separate 7-inch touchscreen option | Started with no-scroll menu flow |
 | Touch message entry | Hidden from student-facing touch menu; desktop Home still supports typed message encoding |
@@ -1032,7 +1032,7 @@ Start from reset practice progress.
 Run Learn, Send, Read, and Listen in a real practice session.
 Confirm the browser audio is comfortable for beginners.
 Confirm Pi speaker playback works on active station `10.10.10.141` using `plughw:UACDemoV10,0`.
-Confirm the browser Test Sound button wakes audio when sound stops.
+Confirm the browser Sound/Test Sound button wakes browser audio and resets Pi key speaker feedback when sound stops.
 Confirm Stop Here cancels long browser playback from the Home page.
 Confirm Stop Station cancels long Pi speaker/LED playback from the Home page.
 Confirm `/touch` and `/touch/practice` are usable on the 7-inch Raspberry Pi touchscreen before changing the default desktop pages.

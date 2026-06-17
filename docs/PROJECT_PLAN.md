@@ -308,6 +308,8 @@ Create or refine these GitHub issues next:
 - Updated the main README date and current feature summary to include Learn-first unlock gating, attempt logging, touchscreen flow, and timing controls.
 - Reviewed repo docs after the Learn-first unlock work and aligned the README, project plan, requirements/status, and learning best-practices notes with the current Active Practice/Learning Now model.
 - Made the older `/practice/check` fallback route mode-aware so it records against the current mode and respects Learn-first practice sets if used.
+- Confirmed hands-on testing reached the next active letter set; `S` is strong across modes, while `O` needs more Learn/Send/Listen reinforcement.
+- Added Pi/browser sound reset behavior behind the existing Sound/Test Sound buttons: it clears stale key-tone and station playback processes, closes the browser audio context, then plays a fresh browser test beep.
 
 ### Ready Next
 
@@ -322,6 +324,8 @@ Create or refine these GitHub issues next:
 - Test whether 3 correct Learn attempts and 60% Learn strength is enough before new letters join Send, Read, and Listen.
 - Decide whether Learn should count progress the same way as Send or stay more forgiving.
 - Tune browser audio speed and replay behavior for Learn and Listen.
+- Test whether the Sound/Test Sound button reliably recovers missing key speaker feedback during Listen/Learn practice.
+- Use the recent `O` practice timing logs as the first candidate for dot/dash/gap feedback.
 - Review logged attempt timing after hands-on testing and choose the first student-facing timing feedback message.
 - Test on Kindle Fire/Silk when a device is available.
 - Choose next build: Mixed mode, more letters, or timing feedback.

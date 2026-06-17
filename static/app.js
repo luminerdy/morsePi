@@ -155,9 +155,36 @@ function ensureKeyboardAudioContext() {
 }
 
 async function testBrowserSound() {
+    await resetSoundState();
+
     const audioCtx = ensureBrowserAudioContext();
 
     await browserBeep(audioCtx, 120);
+}
+
+async function resetSoundState() {
+    stopBrowserPlayback();
+    stopKeyboardTone();
+    practiceAudioPlaying = false;
+
+    if (browserAudioCtx && browserAudioCtx.state !== "closed") {
+        try {
+            await browserAudioCtx.close();
+        } catch (error) {
+            console.log("Unable to close browser audio context", error);
+        }
+    }
+
+    browserAudioCtx = null;
+    keyboardAudioCtx = null;
+
+    try {
+        await fetch("/audio-reset", {
+            method: "POST"
+        });
+    } catch (error) {
+        console.log("Unable to reset Pi audio state", error);
+    }
 }
 
 function setHomePlaybackState(isPlaying) {

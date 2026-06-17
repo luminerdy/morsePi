@@ -170,7 +170,10 @@ def start_key_tone():
     global key_tone_process
 
     if key_tone_process is not None:
-        return
+        if key_tone_process.poll() is None:
+            return
+
+        key_tone_process = None
 
     key_tone_process = subprocess.Popen(
         [
@@ -199,8 +202,20 @@ def stop_key_tone():
         key_tone_process.wait(timeout=0.2)
     except subprocess.TimeoutExpired:
         key_tone_process.kill()
+        try:
+            key_tone_process.wait(timeout=0.2)
+        except subprocess.TimeoutExpired:
+            pass
 
     key_tone_process = None
+
+
+def reset_audio_state():
+    """
+    Clears Pi-side audio processes so the next key press or playback starts fresh.
+    """
+    stop_key_tone()
+    stop_station_playback()
 
 
 # -----------------------------
@@ -825,6 +840,12 @@ def play():
 def stop_playback():
     stop_station_playback()
     return redirect(request.form.get("next") or url_for("index"))
+
+
+@app.route("/audio-reset", methods=["POST"])
+def audio_reset():
+    reset_audio_state()
+    return jsonify({"status": "reset"})
 
 
 @app.route("/station-volume", methods=["POST"])
