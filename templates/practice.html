@@ -111,24 +111,26 @@
                 </section>
             </section>
 
-            <section class="panel key-panel">
-                <div class="section-heading">
-                    <h2>Your Key Input</h2>
-                    <span class="status-pill" id="keyerStatus">Live</span>
-                </div>
-
-                <div class="readout-grid">
-                    <div>
-                        <div class="field-label">Tapped Morse</div>
-                        <div class="live-morse" id="liveMorse">Waiting for key...</div>
+            {% if mode != 'listen' %}
+                <section class="panel key-panel">
+                    <div class="section-heading">
+                        <h2>Your Key Input</h2>
+                        <span class="status-pill" id="keyerStatus">Live</span>
                     </div>
 
-                    <div>
-                        <div class="field-label">Decoded</div>
-                        <div class="live-decoded" id="liveDecoded">---</div>
+                    <div class="readout-grid">
+                        <div>
+                            <div class="field-label">Tapped Morse</div>
+                            <div class="live-morse" id="liveMorse">Waiting for key...</div>
+                        </div>
+
+                        <div>
+                            <div class="field-label">Decoded</div>
+                            <div class="live-decoded" id="liveDecoded">---</div>
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            {% endif %}
 
             <aside class="side-stack">
                 <section class="panel compact-panel">

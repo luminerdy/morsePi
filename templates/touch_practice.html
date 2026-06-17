@@ -52,16 +52,18 @@
                 </div>
             </section>
 
-            <section class="touch-drill-key">
-                <div>
-                    <div class="field-label">Tapped</div>
-                    <div class="live-morse" id="liveMorse">Waiting...</div>
-                </div>
-                <div>
-                    <div class="field-label">Decoded</div>
-                    <div class="live-decoded" id="liveDecoded">---</div>
-                </div>
-            </section>
+            {% if mode != 'listen' %}
+                <section class="touch-drill-key">
+                    <div>
+                        <div class="field-label">Tapped</div>
+                        <div class="live-morse" id="liveMorse">Waiting...</div>
+                    </div>
+                    <div>
+                        <div class="field-label">Decoded</div>
+                        <div class="live-decoded" id="liveDecoded">---</div>
+                    </div>
+                </section>
+            {% endif %}
 
             <section class="touch-drill-actions" {% if mode not in ['send', 'learn'] %}hidden{% endif %}>
                 {% if mode == 'learn' %}

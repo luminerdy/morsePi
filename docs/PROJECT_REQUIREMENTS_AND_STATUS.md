@@ -1069,6 +1069,7 @@ Confirm Operator Level and unlocked letters feel fun and encouraging.
 Confirm the 7-inch Raspberry Pi touchscreen layout avoids crowded controls and unreadable text.
 Confirm `data/practice_attempts.jsonl` captures useful timing summaries after Send/Learn attempts.
 Confirm adaptive Listen playback feels easier early without becoming too slow.
+Confirm Listen stays recognition-only, without a keyer panel or keying score path.
 Confirm `S` and `O` appear after all four modes reach at least 50% mastery.
 Confirm newly unlocked letters appear in Learn before Send, Read, and Listen.
 Confirm the Learning Now announcement is clear on desktop and touch.
@@ -1077,6 +1078,7 @@ Confirm the Sound/Test Sound reset recovers missing key speaker feedback without
 Use recent `O` timing misses to choose the first student-facing timing coaching message.
 Tune rank names and unlock thresholds after student testing.
 Decide whether wrong Listen answers should reveal the letter immediately or invite one replay first.
+Decide whether a later Echo/Copy mode should add hear-and-key-back practice separate from Listen.
 Decide whether Learn should score progress the same way as Send or be more forgiving.
 ```
 
