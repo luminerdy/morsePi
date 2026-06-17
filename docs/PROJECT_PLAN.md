@@ -24,13 +24,19 @@ Completed:
 - Browser Morse playback
 - Pi hardware playback using LED and buzzer
 - Live telegraph key input in the web app
-- Beginner Practice Mode for `E`, `T`, `A`, `N`, `I`, and `M`
+- Beginner Practice Mode starting with `E`, `T`, `A`, `N`, `I`, and `M`
 - Continuous Send practice loop with automatic feedback and advancement
+- Learn practice mode for guided letter, Morse, sound, and key-along reinforcement
 - Read practice mode for identifying letters from visible Morse patterns
+- Listen practice mode for identifying letters from browser-played Morse audio
 - Spacebar keyer for testing and keyboard-based practice
 - JSON-backed per-letter, per-mode progress tracking
+- JSONL attempt logging with raw key timing summaries
 - Student-facing level/mastery score card on Practice Mode
 - Detailed Progress page with per-letter Morse reinforcement
+- Learn-first letter unlocking through A-Z and numbers
+- Optional 7-inch touchscreen flow under `/touch`
+- Farnsworth-style beginner timing controls
 - Project pushed to GitHub at `luminerdy/morsePi`
 - Fresh Raspberry Pi setup guide added
 - Repository structure cleaned up
@@ -68,12 +74,12 @@ Completed work:
 - Weight next prompts toward weak or new letters
 - Add Practice score card with level, mastery, streak, accuracy, tries, and next goal
 - Add detailed `/progress` page
+- Capture raw key timing data in `data/practice_attempts.jsonl`
 
 Still planned:
 
 - Add student/profile support
 - Decide whether/when to migrate JSON progress to SQLite
-- Capture raw key timing data for future feedback
 - Add session history and recent-attempt summaries
 
 ### MVP 3: Student Profiles
@@ -118,13 +124,13 @@ Completed work:
 - Track Learn, Send, Read, and Listen progress separately
 - Add overall Operator Level, rank, mastery, and unlocked-letter display
 - Recommend next prompts using simple rule-based weighting
+- Add Learn-first unlock gating before new letters enter Send, Read, and Listen
+- Add the full planned unlock ladder through A-Z and numbers
 
 Planned work:
 
 - Add dot/dash timing feedback
 - Add letter gap feedback
-- Add more beginner letters
-- Enforce unlocked letters in the active practice set
 - Add word practice
 - Add Mixed mode that rotates through weak skills
 - Add copy-rhythm activity
@@ -174,11 +180,11 @@ Create or refine these GitHub issues next:
 
 1. Test Learn, Send, Read, and Listen modes with a real student session
 2. Tune overall Operator Level thresholds, rank names, and unlock messaging
-3. Decide when to enforce unlocked letters in the active practice set
+3. Test whether Learn-first gating feels fair when `S O` unlock
 4. Tune Listen/Learn audio speed, replay behavior, and feedback wording
-5. Add Mixed mode that selects weak mode+letter combinations
-6. Add settings for active letter set and difficulty
-7. Capture raw key timing events for dot/dash and spacing feedback
+5. Add first timing feedback from the logged key events
+6. Add Mixed mode that selects weak mode+letter combinations
+7. Add settings for active letter set and difficulty
 8. Add student/profile support
 9. Decide whether JSON progress should migrate to SQLite
 10. Add web app tutorial documentation
@@ -300,6 +306,8 @@ Create or refine these GitHub issues next:
 - Confirmed the connected GitHub app has admin, push, pull, maintain, and triage access to `luminerdy/morsePi`.
 - Confirmed the local repository is clean and points to `https://github.com/luminerdy/morsePi.git`.
 - Updated the main README date and current feature summary to include Learn-first unlock gating, attempt logging, touchscreen flow, and timing controls.
+- Reviewed repo docs after the Learn-first unlock work and aligned the README, project plan, requirements/status, and learning best-practices notes with the current Active Practice/Learning Now model.
+- Made the older `/practice/check` fallback route mode-aware so it records against the current mode and respects Learn-first practice sets if used.
 
 ### Ready Next
 

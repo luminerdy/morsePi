@@ -2,7 +2,7 @@
 
 Research notes for Pappy's Internet Telegraph.
 
-Last updated: 2026-06-16
+Last updated: 2026-06-17
 
 ## Purpose
 
@@ -51,6 +51,7 @@ Design implication:
 - Start with a small beginner set such as `E`, `T`, `A`, `N`, `I`, `M`.
 - Track mastery per letter and per mode.
 - Unlock new letters based on progress.
+- Introduce newly unlocked letters in Learn before testing them in Send, Read, or Listen.
 - Prefer weak or new letters when choosing the next prompt.
 - Avoid showing the whole alphabet during beginner drills.
 
@@ -146,11 +147,18 @@ Recommended progress model:
 - Track each letter separately.
 - Use mastery, accuracy, attempts, and streak.
 - Use an overall Operator Level for motivation.
-- Unlock letters gradually, but allow an adult/testing override later.
+- Unlock letters gradually, but place each new group in Learn first.
+- Keep only one group in `Learning Now` at a time so students cannot unlock far ahead before learning the new letters.
+- Move the learning group into Send, Read, and Listen after each new letter has enough Learn success.
+- Allow an adult/testing override later.
 
-Open decision:
+Current decision:
 
-- Should unlocked letters control the active practice set immediately, or should the current beginner set remain manually controlled until more testing?
+- `E T A N I M` are the starter active practice letters.
+- New groups unlock by all-mode mastery, then appear in Learn as `Learning Now`.
+- Send, Read, and Listen continue using active practice letters until the learning group is ready.
+- The current readiness rule is 3 correct Learn attempts and 60% Learn strength for each new letter.
+- Later groups cannot unlock until the current learning group joins active practice.
 
 ## Adaptive Listening
 
@@ -191,5 +199,6 @@ Current direction:
 - Keep the input dash threshold tied to playback timing so a correctly imitated dash decodes as a dash.
 - Build for short practice loops with no mouse/touch required during Send mode.
 - Continue separating Learn, Send, Read, and Listen.
+- Use Learn-first gating for new letters so students are not surprised by unlearned prompts in Send, Read, or Listen.
 - Prioritize timing feedback before adding too many new features.
 - Keep progress feedback simple on the touch station and detailed on desktop.

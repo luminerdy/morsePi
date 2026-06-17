@@ -1010,7 +1010,8 @@ def practice_play():
 def practice_check():
     global practice_feedback
 
-    practice_letters = get_unlocked_practice_letters()
+    mode = get_practice_mode()
+    practice_letters = get_practice_letters_for_mode(mode)
     expected_morse = text_to_morse(practice_target).strip()
     actual_morse = get_current_key_morse().strip()
 
@@ -1018,17 +1019,17 @@ def practice_check():
         practice_feedback = "Tap the telegraph key first, then check your answer."
 
     elif actual_morse == expected_morse:
-        record_attempt(practice_target, True, practice_letters, "send")
+        record_attempt(practice_target, True, practice_letters, mode)
         practice_feedback = f"Great job! You tapped {practice_target} correctly."
 
     else:
-        record_attempt(practice_target, False, practice_letters, "send")
+        record_attempt(practice_target, False, practice_letters, mode)
         practice_feedback = (
             f"Good try. I heard {actual_morse}, but {practice_target} is {expected_morse}. "
             "Try again and listen to the rhythm."
         )
 
-    return redirect(url_for("practice"))
+    return redirect(url_for("practice", mode=mode))
 
 
 if __name__ == "__main__":

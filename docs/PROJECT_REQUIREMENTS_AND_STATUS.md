@@ -966,7 +966,7 @@ Each station should only publish and subscribe to approved topics.
 | Listen practice mode | Complete |
 | JSON progress tracking | Complete |
 | Overall Operator Level and rank | Complete |
-| Unlocked-letter progress display | Started |
+| Active practice and Learning Now progress display | Started |
 | Student score card | Complete |
 | Detailed Progress page | Complete |
 | Touch Progress page | Started as the student-facing replacement for touch Message |
@@ -992,7 +992,7 @@ Each station should only publish and subscribe to approved topics.
 | Progress dashboard | Started |
 | Listen progress tracking | Complete |
 | Learn progress tracking | Complete |
-| Enforced letter unlocking | Started with threshold-based active practice set |
+| Learn-first letter unlocking | Complete for current threshold ladder; needs student testing |
 | Better timing feedback | Not started |
 | Refactor hardware code | Not started |
 
