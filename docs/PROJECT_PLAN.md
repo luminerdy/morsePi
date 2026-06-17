@@ -295,6 +295,12 @@ Create or refine these GitHub issues next:
 - Enforced letter unlocking in practice: `E T A N I M` are the starter set, then `S O` at 50%, `R K` at 65%, `D U` at 80%, `C W H L` at 80%, `P F Y G` at 82%, `B V J X` at 85%, `Q Z` at 85%, and numbers at 88%.
 - Added Learn-first unlock gating: a newly unlocked group appears in Learn only, blocks later unlocks, and joins Send/Read/Listen after each new letter has at least 3 correct Learn attempts and 60% Learn strength.
 
+### 2026-06-17
+
+- Confirmed the connected GitHub app has admin, push, pull, maintain, and triage access to `luminerdy/morsePi`.
+- Confirmed the local repository is clean and points to `https://github.com/luminerdy/morsePi.git`.
+- Updated the main README date and current feature summary to include Learn-first unlock gating, attempt logging, touchscreen flow, and timing controls.
+
 ### Ready Next
 
 - Test the no-scroll touch menu flow directly on the physical 7-inch touchscreen.
