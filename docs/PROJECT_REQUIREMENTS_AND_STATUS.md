@@ -960,6 +960,7 @@ Each station should only publish and subscribe to approved topics.
 | Fresh Pi setup guide | Complete |
 | Pi app autostart | Complete with user systemd service |
 | Pi browser autostart | Complete for Labwc desktop session, opens `/touch` in kiosk mode |
+| Optional Pi auto-update timer | Started with conservative user systemd updater files |
 | Continuous Send practice loop | Complete |
 | Learn practice mode | Complete |
 | Read practice mode | Complete |
@@ -1033,6 +1034,7 @@ Run Learn, Send, Read, and Listen in a real practice session.
 Confirm the browser audio is comfortable for beginners.
 Confirm Pi speaker playback works on active station `10.10.10.141` using `plughw:UACDemoV10,0`.
 Confirm the browser Sound/Test Sound button wakes browser audio and resets Pi key speaker feedback when sound stops.
+Confirm optional auto-update can fast-forward from GitHub, preserve local `data/`, compile-check the app, and restart `morse-station.service`.
 Confirm Stop Here cancels long browser playback from the Home page.
 Confirm Stop Station cancels long Pi speaker/LED playback from the Home page.
 Confirm `/touch` and `/touch/practice` are usable on the 7-inch Raspberry Pi touchscreen before changing the default desktop pages.

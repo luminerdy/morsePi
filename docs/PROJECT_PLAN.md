@@ -312,9 +312,11 @@ Create or refine these GitHub issues next:
 - Added Pi/browser sound reset behavior behind the existing Sound/Test Sound buttons: it clears stale key-tone and station playback processes, closes the browser audio context, then plays a fresh browser test beep.
 - End-of-day decisions: keep the Learn-first unlock model, keep the active set progression moving after `S O`, use the Sound/Test Sound button as the audio recovery control, and use recent `O` timing misses as the first real timing-feedback candidate.
 - End-of-day GitHub housekeeping: added MIT licensing to `morsePi` and confirmed the other accessible repos (`PathfinderV2`, `RCubed`, and `IoT`) now have MIT licenses too.
+- Added an optional Raspberry Pi auto-update plan for deployed grandkid stations: a user systemd timer can periodically fast-forward from GitHub, preserve local practice/timing data, compile-check the app, and restart the station service.
 
 ### Ready Next
 
+- Decide whether to enable the optional auto-update timer on the current test Pi, then test one manual update run before using it at remote locations.
 - Test the Sound/Test Sound reset during a real session when key speaker feedback stops.
 - Continue practicing `O` in Learn, Send, and Listen; watch whether timing feedback should focus first on long gaps between dashes.
 - Test the no-scroll touch menu flow directly on the physical 7-inch touchscreen.

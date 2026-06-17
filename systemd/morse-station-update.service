@@ -1,0 +1,12 @@
+[Unit]
+Description=Update Pappy's Internet Telegraph Morse Station
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+Environment=MORSE_APP_DIR=/home/morse/morse-station
+Environment=MORSE_UPDATE_BRANCH=main
+Environment=MORSE_UPDATE_REMOTE=origin
+Environment=MORSE_UPDATE_SERVICE=morse-station.service
+ExecStart=/home/morse/bin/update-morse-station.sh

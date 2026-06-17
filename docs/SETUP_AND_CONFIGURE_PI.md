@@ -250,6 +250,48 @@ If the Flask app is running, stop it with `Ctrl+C` before updating. Start it aga
 python3 app.py
 ```
 
+### Optional automatic updates
+
+For deployed stations at different homes, the Pi can periodically check GitHub for updates. The optional updater uses a user systemd timer and is intentionally conservative:
+
+- It preserves local station data in `data/practice_progress.json`, `data/practice_attempts.jsonl`, and `data/timing_settings.json` because those files are ignored by Git.
+- It skips updates if tracked files were changed locally on the Pi.
+- It only applies fast-forward updates from `origin/main`.
+- It runs `python3 -m py_compile app.py practice_progress.py practice_attempts.py` before restarting the app.
+- It restarts only the `morse-station.service` user service.
+
+Install the updater script and timer:
+
+```bash
+mkdir -p /home/morse/bin /home/morse/.config/systemd/user
+install -m 0755 /home/morse/morse-station/systemd/update-morse-station.sh /home/morse/bin/update-morse-station.sh
+install -m 0644 /home/morse/morse-station/systemd/morse-station-update.service /home/morse/.config/systemd/user/morse-station-update.service
+install -m 0644 /home/morse/morse-station/systemd/morse-station-update.timer /home/morse/.config/systemd/user/morse-station-update.timer
+systemctl --user daemon-reload
+systemctl --user enable --now morse-station-update.timer
+```
+
+Run one update manually:
+
+```bash
+systemctl --user start morse-station-update.service
+journalctl --user -u morse-station-update.service -n 50 --no-pager
+```
+
+Check the timer:
+
+```bash
+systemctl --user list-timers morse-station-update.timer
+```
+
+Disable automatic updates:
+
+```bash
+systemctl --user disable --now morse-station-update.timer
+```
+
+Recommended rollout: keep automatic updates disabled on brand-new stations until the app is tested locally, then enable it once the Pi is physically deployed.
+
 ## 10. Run the App at Boot with systemd
 
 The station should run as a system service so it starts automatically after the Pi boots.

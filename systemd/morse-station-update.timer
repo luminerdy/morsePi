@@ -1,0 +1,11 @@
+[Unit]
+Description=Periodically update Pappy's Internet Telegraph Morse Station
+
+[Timer]
+OnBootSec=10min
+OnUnitActiveSec=6h
+RandomizedDelaySec=30min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
