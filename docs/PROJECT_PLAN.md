@@ -334,6 +334,7 @@ When asked to do the daily wrap-up, update:
 - Tightened Listen/Learn LED synchronization by flashing with the same practice timing as browser audio and scheduling the LED start just after the browser's request is accepted.
 - Slowed letter progression for better memory burn-in: new Learning Now groups now require 10 correct Learn tries per letter, 70% Learn strength, and at least two practice days before joining Send/Read/Listen; only one new group can open per calendar day.
 - Added Echo/Copy as a separate practice mode: the station plays a hidden audio prompt, the student keys it back, and Echo gets its own progress tracking.
+- Improved post-prompt keyer sound recovery by retrying the Pi USB speaker tone briefly while the physical key is still held, and kept Echo audio-first while revealing the letter/code after a miss.
 - Reset the active Pi's student progress for tomorrow by backing up local progress data to `/home/morse/morse-station/data/backups/20260617-221425/` and clearing `practice_progress.json`, `practice_attempts.jsonl`, and `learning_state.json`.
 - Close-of-day GitHub status: code, documentation, Pi deployment, and progress-reset work are pushed to `main`.
 - Close-of-day decision: call this recurring end-of-session work the `daily wrap-up`.

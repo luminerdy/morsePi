@@ -509,7 +509,7 @@ function checkPracticeAnswer(actualMorse, expectedMorse, target) {
         const feedback = getPracticeMode() === "learn"
             ? `Try ${target} again. Follow ${expectedMorse}; I heard ${actualMorse}.`
             : getPracticeMode() === "echo"
-            ? `Listen again and echo ${target}. I heard ${actualMorse}.`
+            ? `Listen again and echo ${target}: ${expectedMorse}. I heard ${actualMorse}.`
             : `Try ${target} again. I heard ${actualMorse}, but ${target} is ${expectedMorse}.`;
         setPracticeFeedback(feedback);
         recordPracticeResult(target, false).finally(() => {

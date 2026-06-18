@@ -15,8 +15,6 @@ import tempfile
 import subprocess
 import os
 import random
-import json
-from pathlib import Path
 
 app = Flask(__name__)
 
@@ -36,6 +34,7 @@ DEFAULT_CHARACTER_WPM = 12
 DEFAULT_EFFECTIVE_WPM = 6
 DEFAULT_TONE_HZ = 700
 TIMING_SETTINGS_PATH = Path("data/timing_settings.json")
+KEY_TONE_RETRY_SECONDS = 1.25
 
 LETTER_GAP_THRESHOLD_SECONDS = 0.80
 WORD_GAP_THRESHOLD_SECONDS = 1.50
@@ -187,7 +186,13 @@ def start_key_tone():
 
         key_tone_process = None
 
-    key_tone_process = subprocess.Popen(
+    key_tone_process = start_speaker_test_process()
+
+    threading.Thread(target=retry_key_tone_if_needed, args=(key_tone_process,), daemon=True).start()
+
+
+def start_speaker_test_process():
+    return subprocess.Popen(
         [
             "speaker-test",
             "-D", AUDIO_DEVICE,
@@ -197,36 +202,36 @@ def start_key_tone():
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL
     )
-
-    threading.Thread(target=retry_key_tone_if_needed, args=(key_tone_process,), daemon=True).start()
 
 
 def retry_key_tone_if_needed(process):
     global key_tone_process
 
-    sleep(0.05)
+    deadline = time() + KEY_TONE_RETRY_SECONDS
+    current_process = process
 
-    if process.poll() is None:
-        return
+    while time() < deadline:
+        sleep(0.08)
 
-    sleep(0.15)
+        if current_process.poll() is None:
+            return
 
-    with key_lock:
-        key_is_still_down = press_started_at is not None
+        with key_lock:
+            key_is_still_down = press_started_at is not None
 
-    if not key_is_still_down or key_tone_process is not process:
-        return
+        if not key_is_still_down or key_tone_process is not current_process:
+            return
 
-    key_tone_process = subprocess.Popen(
-        [
-            "speaker-test",
-            "-D", AUDIO_DEVICE,
-            "-t", "sine",
-            "-f", str(morse_timing["tone_hz"])
-        ],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL
-    )
+        sleep(0.12)
+
+        with key_lock:
+            key_is_still_down = press_started_at is not None
+
+        if not key_is_still_down or key_tone_process is not current_process:
+            return
+
+        current_process = start_speaker_test_process()
+        key_tone_process = current_process
 
 
 def stop_key_tone():
