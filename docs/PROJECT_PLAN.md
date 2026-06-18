@@ -194,6 +194,17 @@ Create or refine these GitHub issues next:
 
 ## Progress Log
 
+### Daily Wrap-Up Checklist
+
+When asked to do the daily wrap-up, update:
+
+- GitHub sync status
+- Memory/progress log
+- Accomplishments
+- Decisions
+- To-do list and ready-next items
+- Local Pi state changes, such as progress resets or backups
+
 ### 2026-06-07
 
 - Created initial Raspberry Pi Morse station.
@@ -321,26 +332,28 @@ Create or refine these GitHub issues next:
 - Removed the keyer panel from Listen practice so Listen stays focused on hearing the code and identifying the letter; a future Echo/Copy mode can handle hear-and-key-back practice separately.
 - Tightened Listen/Learn LED synchronization by flashing with the same practice timing as browser audio and scheduling the LED start just after the browser's request is accepted.
 - Slowed letter progression for better memory burn-in: new Learning Now groups now require 10 correct Learn tries per letter, 70% Learn strength, and at least two practice days before joining Send/Read/Listen; only one new group can open per calendar day.
+- Reset the active Pi's student progress for tomorrow by backing up local progress data to `/home/morse/morse-station/data/backups/20260617-221425/` and clearing `practice_progress.json`, `practice_attempts.jsonl`, and `learning_state.json`.
+- Close-of-day GitHub status: code, documentation, Pi deployment, and progress-reset work are pushed to `main`.
+- Close-of-day decision: call this recurring end-of-session work the `daily wrap-up`.
 
 ### Ready Next
 
-- Decide whether to enable the optional auto-update timer on the current test Pi, then test one manual update run before using it at remote locations.
-- When AWS planning starts, compare periodic timer updates with AWS Systems Manager triggered updates for remote grandkid stations.
+- Start tomorrow from the reset Pi state: Operator Level 1, Active Practice `E T`, Learning Now `None`, next unlock `S O`.
+- Run a fresh student-style session across Learn, Send, Read, and Listen and watch whether the burn-in gate feels motivating rather than blocking.
+- Confirm the burn-in gate keeps new letters in Learn until enough reps, strength, and a next-day return are achieved.
 - Retest Listen as recognition-only: confirm it auto-plays, shows `Play Again`, flashes the LED, and asks for the letter without showing keyer input.
 - Confirm Listen and Learn LED flashes stay in sync well enough to reinforce the code without distracting from hearing it.
 - Confirm Learn auto-plays on entry and the LED flash helps students connect letter, sound, and keying motion.
-- Test the new burn-in gate: a newly unlocked group should stay in Learn until it has enough reps, strength, and a next-day return.
 - Test the Sound/Test Sound reset during a real session when key speaker feedback stops.
-- Continue practicing `O` in Learn, Send, and Listen; watch whether timing feedback should focus first on long gaps between dashes.
 - Test the no-scroll touch menu flow directly on the physical 7-inch touchscreen.
 - Tune any touch screen labels, button sizes, or spacing after physical testing.
 - Decide whether `/touch/message` should stay as a hidden utility or be removed entirely from the touch experience.
 - Test automatic touch UI selection on the Pi touchscreen, a laptop browser, and Kindle Fire/Silk when available.
 - Test whether the 12/6 WPM Farnsworth-style beginner timing is easier to hear and imitate than 15/7.
-- Start from a clean progress slate and test Learn, Send, Read, and Listen by hand with the physical key on touch, plus Spacebar Keyer on desktop/laptop.
 - Tune Operator Level thresholds, rank names, and unlock messaging after student testing.
 - Watch whether adding `S O` at 50% in all modes feels motivating or too early, then tune the later A-Z and number unlock thresholds after student testing.
-- Test whether 3 correct Learn attempts and 60% Learn strength is enough before new letters join Send, Read, and Listen.
+- Decide whether to enable the optional auto-update timer on the current test Pi, then test one manual update run before using it at remote locations.
+- When AWS planning starts, compare periodic timer updates with AWS Systems Manager triggered updates for remote grandkid stations.
 - Decide whether Learn should count progress the same way as Send or stay more forgiving.
 - Tune browser audio speed and replay behavior for Learn and Listen.
 - Use the recent `O` practice timing logs as the first candidate for dot/dash/gap feedback.

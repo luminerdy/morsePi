@@ -1014,7 +1014,7 @@ Remote update operations should:
 | Progress dashboard | Started |
 | Listen progress tracking | Complete |
 | Learn progress tracking | Complete |
-| Learn-first letter unlocking | Complete for current threshold ladder; needs student testing |
+| Learn-first letter unlocking | Complete with burn-in gate; needs student testing |
 | Better timing feedback | Not started |
 | Refactor hardware code | Not started |
 
@@ -1074,6 +1074,7 @@ Confirm Listen stays recognition-only, without a keyer panel or keying score pat
 Confirm `S` and `O` appear after all four modes reach at least 50% mastery.
 Confirm newly unlocked letters appear in Learn before Send, Read, and Listen.
 Confirm the burn-in gate slows progression without making the student feel stuck.
+Confirm reset progress flow leaves tomorrow's practice at Operator Level 1 with only `E T` active.
 Confirm the Learning Now announcement is clear on desktop and touch.
 Confirm later A-Z and number unlocks feel motivating rather than overwhelming.
 Confirm the Sound/Test Sound reset recovers missing key speaker feedback without rebooting the Pi.
