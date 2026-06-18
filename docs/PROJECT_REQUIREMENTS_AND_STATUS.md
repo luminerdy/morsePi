@@ -986,6 +986,7 @@ Remote update operations should:
 | Learn practice mode | Complete |
 | Read practice mode | Complete |
 | Listen practice mode | Complete |
+| Echo practice mode | Started |
 | JSON progress tracking | Complete |
 | Overall Operator Level and rank | Complete |
 | Active practice and Learning Now progress display | Started |
@@ -1052,7 +1053,7 @@ Next testing milestone:
 
 ```text
 Start from reset practice progress.
-Run Learn, Send, Read, and Listen in a real practice session.
+Run Learn, Send, Read, Listen, and Echo in a real practice session.
 Confirm the browser audio is comfortable for beginners.
 Confirm Pi speaker playback works on active station `10.10.10.141` using `plughw:UACDemoV10,0`.
 Confirm the browser Sound/Test Sound button wakes browser audio and resets Pi key speaker feedback when sound stops.
@@ -1071,7 +1072,7 @@ Confirm the 7-inch Raspberry Pi touchscreen layout avoids crowded controls and u
 Confirm `data/practice_attempts.jsonl` captures useful timing summaries after Send/Learn attempts.
 Confirm adaptive Listen playback feels easier early without becoming too slow.
 Confirm Listen stays recognition-only, without a keyer panel or keying score path.
-Confirm `S` and `O` appear after all four modes reach at least 50% mastery.
+Confirm `S` and `O` appear after all active practice modes reach at least 50% mastery.
 Confirm newly unlocked letters appear in Learn before Send, Read, and Listen.
 Confirm the burn-in gate slows progression without making the student feel stuck.
 Confirm reset progress flow leaves tomorrow's practice at Operator Level 1 with only `E T` active.
@@ -1081,7 +1082,7 @@ Confirm the Sound/Test Sound reset recovers missing key speaker feedback without
 Use recent `O` timing misses to choose the first student-facing timing coaching message.
 Tune rank names and unlock thresholds after student testing.
 Decide whether wrong Listen answers should reveal the letter immediately or invite one replay first.
-Decide whether a later Echo/Copy mode should add hear-and-key-back practice separate from Listen.
+Confirm Echo/Copy mode feels distinct from Listen and reinforces hearing plus keying.
 Decide whether Learn should score progress the same way as Send or be more forgiving.
 ```
 
@@ -1292,6 +1293,7 @@ The student can complete a short Send practice session without mouse use.
 The student can complete a short Learn practice session with letter, Morse, sound, and key-along support.
 The student can complete a short Read practice session from visible Morse.
 The student can complete a short Listen practice session from audio prompts.
+The student can complete a short Echo practice session by hearing a prompt and keying it back.
 Feedback feels encouraging and does not make practice too easy.
 Progress details are understandable to a student or parent.
 The 7-inch Raspberry Pi touchscreen layout is readable, touch-friendly, fits `800x480` without scrolling, and uses a menu plus separate focused pages instead of crowding everything into one screen.

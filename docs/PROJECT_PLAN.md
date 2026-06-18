@@ -29,6 +29,7 @@ Completed:
 - Learn practice mode for guided letter, Morse, sound, and key-along reinforcement
 - Read practice mode for identifying letters from visible Morse patterns
 - Listen practice mode for identifying letters from browser-played Morse audio
+- Echo practice mode for hearing Morse and keying it back
 - Spacebar keyer for testing and keyboard-based practice
 - JSON-backed per-letter, per-mode progress tracking
 - JSONL attempt logging with raw key timing summaries
@@ -121,10 +122,10 @@ Completed work:
 - Add Learn mode: show letter, show Morse, play sound, and let the student key along
 - Add Read mode: show Morse and have the student identify the letter
 - Add Listen mode: play Morse and have the student type/select the letter
-- Track Learn, Send, Read, and Listen progress separately
+- Track Learn, Send, Read, Listen, and Echo progress separately
 - Add overall Operator Level, rank, mastery, and unlocked-letter display
 - Recommend next prompts using simple rule-based weighting
-- Add Learn-first unlock gating before new letters enter Send, Read, and Listen
+- Add Learn-first unlock gating before new letters enter Send, Read, Listen, and Echo
 - Add the full planned unlock ladder through A-Z and numbers
 
 Planned work:
@@ -332,6 +333,7 @@ When asked to do the daily wrap-up, update:
 - Removed the keyer panel from Listen practice so Listen stays focused on hearing the code and identifying the letter; a future Echo/Copy mode can handle hear-and-key-back practice separately.
 - Tightened Listen/Learn LED synchronization by flashing with the same practice timing as browser audio and scheduling the LED start just after the browser's request is accepted.
 - Slowed letter progression for better memory burn-in: new Learning Now groups now require 10 correct Learn tries per letter, 70% Learn strength, and at least two practice days before joining Send/Read/Listen; only one new group can open per calendar day.
+- Added Echo/Copy as a separate practice mode: the station plays a hidden audio prompt, the student keys it back, and Echo gets its own progress tracking.
 - Reset the active Pi's student progress for tomorrow by backing up local progress data to `/home/morse/morse-station/data/backups/20260617-221425/` and clearing `practice_progress.json`, `practice_attempts.jsonl`, and `learning_state.json`.
 - Close-of-day GitHub status: code, documentation, Pi deployment, and progress-reset work are pushed to `main`.
 - Close-of-day decision: call this recurring end-of-session work the `daily wrap-up`.
@@ -339,7 +341,7 @@ When asked to do the daily wrap-up, update:
 ### Ready Next
 
 - Start tomorrow from the reset Pi state: Operator Level 1, Active Practice `E T`, Learning Now `None`, next unlock `S O`.
-- Run a fresh student-style session across Learn, Send, Read, and Listen and watch whether the burn-in gate feels motivating rather than blocking.
+- Run a fresh student-style session across Learn, Send, Read, Listen, and Echo and watch whether the burn-in gate feels motivating rather than blocking.
 - Confirm the burn-in gate keeps new letters in Learn until enough reps, strength, and a next-day return are achieved.
 - Retest Listen as recognition-only: confirm it auto-plays, shows `Play Again`, flashes the LED, and asks for the letter without showing keyer input.
 - Confirm Listen and Learn LED flashes stay in sync well enough to reinforce the code without distracting from hearing it.

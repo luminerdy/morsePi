@@ -68,7 +68,7 @@ Design implication:
 
 ## Practice Modes
 
-The current four practice modes map well to the learning goals.
+The current practice modes map well to the learning goals.
 
 | Mode | Student sees/hears | Student does | Skill reinforced |
 |---|---|---|---|
@@ -76,6 +76,7 @@ The current four practice modes map well to the learning goals.
 | Send | Letter | Tap Morse | Recall and send |
 | Read | Morse | Select/type letter | Decode visual Morse |
 | Listen | Audio | Select/type letter | Decode sound |
+| Echo | Audio | Key Morse back | Hear-and-key-back reinforcement |
 
 Recommended future mode:
 
@@ -143,21 +144,21 @@ Progress should encourage practice without making the app feel like a test.
 
 Recommended progress model:
 
-- Track each mode separately: Learn, Send, Read, Listen.
+- Track each mode separately: Learn, Send, Read, Listen, Echo.
 - Track each letter separately.
 - Use mastery, accuracy, attempts, and streak.
 - Use an overall Operator Level for motivation.
 - Unlock letters gradually, but place each new group in Learn first.
 - Keep only one group in `Learning Now` at a time so students cannot unlock far ahead before learning the new letters.
-- Move the learning group into Send, Read, and Listen after each new letter has enough Learn success.
+- Move the learning group into Send, Read, Listen, and Echo after each new letter has enough Learn success.
 - Allow an adult/testing override later.
 
 Current decision:
 
 - `E T A N I M` are the starter active practice letters.
 - New groups unlock by all-mode mastery, then appear in Learn as `Learning Now`.
-- Send, Read, and Listen continue using active practice letters until the learning group is ready.
-- The current readiness rule is 3 correct Learn attempts and 60% Learn strength for each new letter.
+- Send, Read, Listen, and Echo continue using active practice letters until the learning group is ready.
+- The current readiness rule is 10 correct Learn attempts, 70% Learn strength, and practice across at least two calendar days for each new letter.
 - Later groups cannot unlock until the current learning group joins active practice.
 
 ## Adaptive Listening
@@ -198,7 +199,7 @@ Current direction:
 - Start with 12/6 WPM beginner timing after hands-on testing showed 15/7 was too fast for Listen practice.
 - Keep the input dash threshold tied to playback timing so a correctly imitated dash decodes as a dash.
 - Build for short practice loops with no mouse/touch required during Send mode.
-- Continue separating Learn, Send, Read, and Listen.
-- Use Learn-first gating for new letters so students are not surprised by unlearned prompts in Send, Read, or Listen.
+- Continue separating Learn, Send, Read, Listen, and Echo.
+- Use Learn-first gating for new letters so students are not surprised by unlearned prompts in Send, Read, Listen, or Echo.
 - Prioritize timing feedback before adding too many new features.
 - Keep progress feedback simple on the touch station and detailed on desktop.

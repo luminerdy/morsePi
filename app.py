@@ -143,6 +143,10 @@ practice_modes = {
         "label": "Listen",
         "progress_label": "Listen Progress"
     },
+    "echo": {
+        "label": "Echo",
+        "progress_label": "Echo Progress"
+    },
     "learn": {
         "label": "Learn",
         "progress_label": "Learn Progress"
@@ -344,14 +348,14 @@ def get_practice_timing(mode, target=None):
     timing = dict(get_morse_timing())
     practice_letters = get_unlocked_practice_letters()
 
-    if mode != "listen":
+    if mode not in ("listen", "echo"):
         timing["adapted"] = False
         timing["adapted_reason"] = ""
         return timing
 
-    listen_score = mode_score(practice_letters, "listen")
+    listen_score = mode_score(practice_letters, mode)
     target_summary = next(
-        (item for item in progress_summary(practice_letters, "listen") if item["letter"] == (target or practice_target)),
+        (item for item in progress_summary(practice_letters, mode) if item["letter"] == (target or practice_target)),
         None
     )
     target_needs_help = bool(
@@ -1161,7 +1165,7 @@ def practice_retry():
 def practice_prompt_led():
     mode = get_practice_mode()
 
-    if mode not in ("listen", "learn"):
+    if mode not in ("listen", "echo", "learn"):
         return jsonify({"status": "ignored"})
 
     delay_ms = clamp_int(request.args.get("delay_ms"), 100, 0, 500)

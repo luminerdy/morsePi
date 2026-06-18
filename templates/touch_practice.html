@@ -29,13 +29,13 @@
               data-expected-morse="{{ expected_morse }}">
             <section class="touch-drill-prompt">
                 <div>
-                    <div class="field-label">{% if mode in ['send', 'learn'] %}Letter{% else %}Answer{% endif %}</div>
-                    <div class="target-letter" id="targetLetter">{% if mode in ['read', 'listen'] %}?{% else %}{{ target }}{% endif %}</div>
+                    <div class="field-label">{% if mode in ['send', 'learn'] %}Letter{% elif mode == 'echo' %}Echo{% else %}Answer{% endif %}</div>
+                    <div class="target-letter" id="targetLetter">{% if mode in ['read', 'listen', 'echo'] %}?{% else %}{{ target }}{% endif %}</div>
                 </div>
                 <div>
-                    <div class="field-label">{% if mode == 'listen' %}Audio{% else %}Morse{% endif %}</div>
-                    <div class="expected-morse {% if mode in ['send', 'listen'] %}prompt-placeholder{% endif %}" id="expectedMorse">
-                        {% if mode in ['read', 'learn'] %}{{ expected_morse }}{% elif mode == 'listen' %}Play{% else %}?{% endif %}
+                    <div class="field-label">{% if mode in ['listen', 'echo'] %}Audio{% else %}Morse{% endif %}</div>
+                    <div class="expected-morse {% if mode in ['send', 'listen', 'echo'] %}prompt-placeholder{% endif %}" id="expectedMorse">
+                        {% if mode in ['read', 'learn'] %}{{ expected_morse }}{% elif mode in ['listen', 'echo'] %}Play{% else %}?{% endif %}
                     </div>
                 </div>
             </section>
@@ -65,8 +65,8 @@
                 </section>
             {% endif %}
 
-            <section class="touch-drill-actions" {% if mode not in ['send', 'learn'] %}hidden{% endif %}>
-                {% if mode == 'learn' %}
+            <section class="touch-drill-actions" {% if mode not in ['send', 'echo', 'learn'] %}hidden{% endif %}>
+                {% if mode in ['echo', 'learn'] %}
                     <button type="button" class="button primary" id="listenReplay">Play Again</button>
                 {% else %}
                     <form method="post" action="/practice/play?mode={{ mode }}" class="inline-form">
@@ -116,6 +116,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260617-6"></script>
+<script src="/static/app.js?v=20260618-1"></script>
 </body>
 </html>
