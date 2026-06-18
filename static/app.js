@@ -784,8 +784,8 @@ function updateOverallScoreCard(overall) {
     if (nextUnlock && overall.next_unlock) {
         const letters = overall.next_unlock.letters || [];
         const learning = overall.learning_letters || [];
-        nextUnlock.innerText = learning.length
-            ? `Learn ${learning.join(" ")} first. Each new letter needs ${overall.learn_ready_attempts} correct Learn tries and ${overall.learn_ready_strength}% Learn strength.`
+        nextUnlock.innerText = learning.length || overall.locked_until_tomorrow
+            ? overall.next_goal
             : letters.length
             ? `Next unlock at ${overall.next_unlock.threshold}% in all modes: ${letters.join(" ")}`
             : overall.next_unlock.label;

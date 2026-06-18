@@ -1,3 +1,7 @@
+import json
+from datetime import datetime
+from pathlib import Path
+
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from gpiozero import Button, LED
 from morse import text_to_morse, morse_to_text
@@ -66,8 +70,10 @@ current_key_events = []
 key_tone_process = None
 
 starter_practice_letters = ["E", "T", "A", "N", "I", "M"]
-learn_ready_attempts = 3
-learn_ready_strength = 60
+learning_state_path = Path("data/learning_state.json")
+learn_ready_attempts = 10
+learn_ready_strength = 70
+learn_ready_min_days = 2
 all_practice_letters = [
     "E", "T", "A", "N", "I", "M",
     "S", "O", "R", "K", "D", "U",
@@ -697,32 +703,134 @@ def get_practice_mode():
     return mode if mode in practice_modes else "send"
 
 
-def learning_step_ready(step):
-    progress = progress_summary(step["letters"], "learn")
+def today_key():
+    return datetime.now().date().isoformat()
 
-    return all(
+
+def step_key(step):
+    return "".join(step["letters"])
+
+
+def load_learning_state():
+    if not learning_state_path.exists():
+        return {
+            "groups": {},
+            "last_learning_start_date": ""
+        }
+
+    try:
+        loaded = json.loads(learning_state_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        loaded = {}
+
+    return {
+        "groups": loaded.get("groups", {}) if isinstance(loaded.get("groups"), dict) else {},
+        "last_learning_start_date": str(loaded.get("last_learning_start_date", ""))
+    }
+
+
+def save_learning_state(state):
+    learning_state_path.parent.mkdir(parents=True, exist_ok=True)
+    learning_state_path.write_text(
+        json.dumps(state, indent=2, sort_keys=True),
+        encoding="utf-8"
+    )
+
+
+def days_since(date_text):
+    if not date_text:
+        return 0
+
+    try:
+        start_date = datetime.fromisoformat(date_text).date()
+    except ValueError:
+        return 0
+
+    return (datetime.now().date() - start_date).days + 1
+
+
+def learning_step_ready(step, learned_since):
+    progress = progress_summary(step["letters"], "learn")
+    days_learning = days_since(learned_since)
+
+    practice_ready = all(
         item["correct"] >= learn_ready_attempts and item["strength_percent"] >= learn_ready_strength
         for item in progress
     )
+
+    return practice_ready and days_learning >= learn_ready_min_days
+
+
+def get_learning_step_status(step, learned_since):
+    progress = progress_summary(step["letters"], "learn")
+    days_learning = days_since(learned_since)
+    needs = []
+
+    for item in progress:
+        if item["correct"] < learn_ready_attempts:
+            needs.append(f"{item['letter']} needs {learn_ready_attempts - item['correct']} more correct Learn tries")
+
+        if item["strength_percent"] < learn_ready_strength:
+            needs.append(f"{item['letter']} needs {learn_ready_strength - item['strength_percent']} more strength points")
+
+    if days_learning < learn_ready_min_days:
+        needs.append("come back tomorrow to lock it in")
+
+    return {
+        "letters": step["letters"],
+        "learned_since": learned_since,
+        "days_learning": days_learning,
+        "min_days": learn_ready_min_days,
+        "ready": not needs,
+        "needs": needs,
+        "next_need": needs[0] if needs else "Ready to join practice"
+    }
 
 
 def get_practice_letter_state():
     active = list(starter_practice_letters)
     learning_step = None
+    learning_status = None
     next_step = None
+    locked_until_tomorrow = False
+    state = load_learning_state()
+    today = today_key()
+    changed = False
 
     for step in letter_unlock_steps:
+        key = step_key(step)
         scores = [mode_score(active, mode) for mode in practice_modes]
 
         if all(score["mastery"] >= step["threshold"] for score in scores):
-            if learning_step_ready(step):
+            group_state = state["groups"].get(key)
+
+            if not group_state:
+                if state["last_learning_start_date"] == today:
+                    next_step = step
+                    locked_until_tomorrow = True
+                    break
+
+                group_state = {
+                    "letters": step["letters"],
+                    "first_learning_date": today
+                }
+                state["groups"][key] = group_state
+                state["last_learning_start_date"] = today
+                changed = True
+
+            learned_since = group_state.get("first_learning_date", "")
+            if learning_step_ready(step, learned_since):
                 active.extend(letter for letter in step["letters"] if letter not in active)
             else:
                 learning_step = step
+                learning_status = get_learning_step_status(step, learned_since)
                 break
         else:
             next_step = step
             break
+
+    if changed:
+        save_learning_state(state)
 
     if learning_step is None and next_step is None:
         next_step = get_next_letter_unlock(active)
@@ -733,9 +841,12 @@ def get_practice_letter_state():
         "active_letters": [letter for letter in all_practice_letters if letter in active],
         "learning_letters": [letter for letter in all_practice_letters if letter in learning_letters],
         "learning_step": learning_step,
+        "learning_status": learning_status,
         "next_step": next_step,
+        "locked_until_tomorrow": locked_until_tomorrow,
         "learn_ready_attempts": learn_ready_attempts,
-        "learn_ready_strength": learn_ready_strength
+        "learn_ready_strength": learn_ready_strength,
+        "learn_ready_min_days": learn_ready_min_days
     }
 
 
@@ -772,11 +883,17 @@ def get_learning_overall(letters):
     overall["learning_letters"] = state["learning_letters"]
     overall["learn_ready_attempts"] = state["learn_ready_attempts"]
     overall["learn_ready_strength"] = state["learn_ready_strength"]
+    overall["learn_ready_min_days"] = state["learn_ready_min_days"]
     overall["learning_step"] = state["learning_step"]
+    overall["learning_status"] = state["learning_status"]
+    overall["locked_until_tomorrow"] = state["locked_until_tomorrow"]
     overall["next_unlock"] = state["learning_step"] or state["next_step"] or get_next_letter_unlock(state["active_letters"])
 
     if state["learning_step"]:
-        overall["next_goal"] = f"Learn {' '.join(state['learning_letters'])} before they join practice"
+        status = state["learning_status"] or {}
+        overall["next_goal"] = status.get("next_need") or f"Learn {' '.join(state['learning_letters'])} before they join practice"
+    elif state["locked_until_tomorrow"]:
+        overall["next_goal"] = "Great work. Next new letters can open tomorrow."
     elif overall["next_unlock"]["letters"]:
         threshold = overall["next_unlock"]["threshold"]
         mode_masteries = [mode_score(state["active_letters"], mode)["mastery"] for mode in practice_modes]

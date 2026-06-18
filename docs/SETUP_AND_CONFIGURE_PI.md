@@ -150,7 +150,7 @@ This makes each letter sound more like real Morse while keeping longer pauses be
 
 Saved timing changes are stored locally in `data/timing_settings.json` on the Pi. This file is intentionally not committed because it is station-specific.
 
-Practice attempt timing logs are stored locally in `data/practice_attempts.jsonl`. This file is intentionally not committed because it contains station/student practice history.
+Practice progress, learning-gate state, and attempt timing logs are stored locally in `data/practice_progress.json`, `data/learning_state.json`, and `data/practice_attempts.jsonl`. These files are intentionally not committed because they contain station/student practice history.
 
 ## 6. Wire the Hardware
 
@@ -254,7 +254,7 @@ python3 app.py
 
 For deployed stations at different homes, the Pi can periodically check GitHub for updates. The optional updater uses a user systemd timer and is intentionally conservative:
 
-- It preserves local station data in `data/practice_progress.json`, `data/practice_attempts.jsonl`, and `data/timing_settings.json` because those files are ignored by Git.
+- It preserves local station data in `data/practice_progress.json`, `data/learning_state.json`, `data/practice_attempts.jsonl`, and `data/timing_settings.json` because those files are ignored by Git.
 - It skips updates if tracked files were changed locally on the Pi.
 - It only applies fast-forward updates from `origin/main`.
 - It runs `python3 -m py_compile app.py practice_progress.py practice_attempts.py` before restarting the app.

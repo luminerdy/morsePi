@@ -320,6 +320,7 @@ Create or refine these GitHub issues next:
 - Updated Learn practice to also auto-play the code and flash the LED when the screen opens, with `Play Again` as the replay control.
 - Removed the keyer panel from Listen practice so Listen stays focused on hearing the code and identifying the letter; a future Echo/Copy mode can handle hear-and-key-back practice separately.
 - Tightened Listen/Learn LED synchronization by flashing with the same practice timing as browser audio and scheduling the LED start just after the browser's request is accepted.
+- Slowed letter progression for better memory burn-in: new Learning Now groups now require 10 correct Learn tries per letter, 70% Learn strength, and at least two practice days before joining Send/Read/Listen; only one new group can open per calendar day.
 
 ### Ready Next
 
@@ -328,6 +329,7 @@ Create or refine these GitHub issues next:
 - Retest Listen as recognition-only: confirm it auto-plays, shows `Play Again`, flashes the LED, and asks for the letter without showing keyer input.
 - Confirm Listen and Learn LED flashes stay in sync well enough to reinforce the code without distracting from hearing it.
 - Confirm Learn auto-plays on entry and the LED flash helps students connect letter, sound, and keying motion.
+- Test the new burn-in gate: a newly unlocked group should stay in Learn until it has enough reps, strength, and a next-day return.
 - Test the Sound/Test Sound reset during a real session when key speaker feedback stops.
 - Continue practicing `O` in Learn, Send, and Listen; watch whether timing feedback should focus first on long gaps between dashes.
 - Test the no-scroll touch menu flow directly on the physical 7-inch touchscreen.

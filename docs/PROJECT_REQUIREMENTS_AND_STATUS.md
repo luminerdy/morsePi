@@ -1038,8 +1038,9 @@ Unlock behavior:
 - Only one new group can be in progress at a time.
 - A newly unlocked group appears in Learn first as `Learning Now`.
 - Send, Read, and Listen continue using only active practice letters.
-- The learning group joins active practice after each new letter has at least 3 correct Learn attempts and 60% Learn strength.
+- The learning group joins active practice after each new letter has at least 10 correct Learn attempts, 70% Learn strength, and practice across at least two calendar days.
 - Later groups cannot unlock until the current learning group has joined active practice.
+- Only one new Learning Now group should open per calendar day so students cannot unlock the whole ladder in one sitting.
 
 ---
 
@@ -1072,6 +1073,7 @@ Confirm adaptive Listen playback feels easier early without becoming too slow.
 Confirm Listen stays recognition-only, without a keyer panel or keying score path.
 Confirm `S` and `O` appear after all four modes reach at least 50% mastery.
 Confirm newly unlocked letters appear in Learn before Send, Read, and Listen.
+Confirm the burn-in gate slows progression without making the student feel stuck.
 Confirm the Learning Now announcement is clear on desktop and touch.
 Confirm later A-Z and number unlocks feel motivating rather than overwhelming.
 Confirm the Sound/Test Sound reset recovers missing key speaker feedback without rebooting the Pi.

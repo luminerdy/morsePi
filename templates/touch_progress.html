@@ -43,7 +43,9 @@
             <span>{{ overall.attempts }} practice tries</span>
             <span>
                 {% if overall.learning_letters %}
-                    Learn: {{ overall.learning_letters | join(" ") }}
+                    {{ overall.next_goal }}
+                {% elif overall.locked_until_tomorrow %}
+                    {{ overall.next_goal }}
                 {% elif overall.next_unlock.letters %}
                     Next: {{ overall.next_unlock.letters | join(" ") }} at {{ overall.next_unlock.threshold }}%
                 {% else %}
