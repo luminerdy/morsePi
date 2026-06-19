@@ -39,6 +39,15 @@ def empty_record():
 
 
 def load_progress(letters):
+    progress = load_all_progress()
+
+    for letter in letters:
+        progress[letter] = normalize_letter_progress(progress.get(letter, {}))
+
+    return {letter: progress[letter] for letter in letters}
+
+
+def load_all_progress():
     progress = {}
 
     if PROGRESS_PATH.exists():
@@ -47,10 +56,19 @@ def load_progress(letters):
         except (json.JSONDecodeError, OSError):
             progress = {}
 
+    return {
+        letter: normalize_letter_progress(value)
+        for letter, value in progress.items()
+    }
+
+
+def load_progress_for_update(letters):
+    progress = load_all_progress()
+
     for letter in letters:
         progress[letter] = normalize_letter_progress(progress.get(letter, {}))
 
-    return {letter: progress[letter] for letter in letters}
+    return progress
 
 
 def save_progress(progress):
@@ -108,7 +126,7 @@ def get_record(progress, letter, mode):
 
 
 def record_attempt(letter, is_correct, letters, mode=DEFAULT_MODE):
-    progress = load_progress(letters)
+    progress = load_progress_for_update(letters)
     record = get_record(progress, letter, mode)
 
     record["attempts"] += 1
