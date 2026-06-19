@@ -13,8 +13,9 @@ Prices are captured estimates and may change. Equivalent parts can be used if th
 | Raspberry Pi 4, 2GB or more | Main station computer | Vendor of choice | $55.00 |
 | TGKY01 Telegraph Key | Physical Morse key input | [Amazon B01MT3T676](https://www.amazon.com/dp/B01MT3T676) | $19.07 |
 | MicroSD card, 32 GB | Raspberry Pi OS and station storage | Vendor of choice | $25.00 |
+| Jumper wires | Wiring the status LED and resistor to GPIO/GND | Vendor of choice | TBD |
 
-Estimated total: **$175.03**
+Estimated priced total: **$175.03**
 
 Not included above:
 
