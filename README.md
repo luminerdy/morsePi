@@ -61,6 +61,7 @@ http://<pi-ip-address>:5000
 ```
 
 For a fresh Raspberry Pi setup, follow [docs/SETUP_AND_CONFIGURE_PI.md](docs/SETUP_AND_CONFIGURE_PI.md).
+For current hardware parts, see [docs/BILL_OF_MATERIALS.md](docs/BILL_OF_MATERIALS.md).
 
 ## Repository Layout
 

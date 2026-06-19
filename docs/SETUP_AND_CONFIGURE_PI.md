@@ -2,6 +2,8 @@
 
 This guide starts with a fresh Raspberry Pi OS install and ends with Pappy's Internet Telegraph running on the Pi.
 
+For the current hardware shopping list, see [BILL_OF_MATERIALS.md](BILL_OF_MATERIALS.md).
+
 Target setup:
 
 ```text
