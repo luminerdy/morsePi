@@ -454,10 +454,10 @@ def write_wav_file(path, samples):
         wav_file.writeframes(frames)
 
 
-def play_morse_usb_speaker(morse: str, volume: float):
+def play_morse_usb_speaker(morse: str, volume: float, timing=None):
     global station_audio_process
 
-    samples = morse_to_audio_samples(morse, volume, get_morse_timing())
+    samples = morse_to_audio_samples(morse, volume, timing or get_morse_timing())
 
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
         wav_path = temp_file.name
@@ -491,8 +491,8 @@ def play_morse_usb_speaker(morse: str, volume: float):
 # -----------------------------
 # Station output helpers
 # -----------------------------
-def flash_morse_led(morse: str):
-    timing = get_morse_timing()
+def flash_morse_led(morse: str, timing=None):
+    timing = timing or get_morse_timing()
 
     try:
         for character in morse:
@@ -571,7 +571,7 @@ def flash_prompt_led_in_background(morse: str, timing=None, start_delay_seconds:
     thread.start()
 
 
-def play_morse_on_station(morse: str):
+def play_morse_on_station(morse: str, timing=None):
     """
     Plays Morse on the Raspberry Pi station:
     - USB speaker for sound
@@ -580,13 +580,14 @@ def play_morse_on_station(morse: str):
     with output_lock:
         station_stop_event.clear()
         volume = station_volume
+        playback_timing = timing or get_morse_timing()
 
-        led_thread = threading.Thread(target=flash_morse_led, args=(morse,))
+        led_thread = threading.Thread(target=flash_morse_led, args=(morse, playback_timing))
         led_thread.daemon = True
         led_thread.start()
 
         try:
-            play_morse_usb_speaker(morse, volume)
+            play_morse_usb_speaker(morse, volume, playback_timing)
         finally:
             led_off()
 
@@ -595,6 +596,17 @@ def play_in_background(morse: str):
     stop_station_playback()
 
     thread = threading.Thread(target=play_morse_on_station, args=(morse,))
+    thread.daemon = True
+    thread.start()
+
+
+def play_practice_prompt_in_background(mode: str):
+    morse = text_to_morse(practice_target)
+    timing = get_practice_timing(mode, practice_target)
+
+    stop_station_playback()
+
+    thread = threading.Thread(target=play_morse_on_station, args=(morse, timing))
     thread.daemon = True
     thread.start()
 
@@ -1180,6 +1192,17 @@ def practice_prompt_led():
         delay_ms / 1000
     )
     return jsonify({"status": "flashing", "delay_ms": delay_ms})
+
+
+@app.route("/practice/prompt-station", methods=["POST"])
+def practice_prompt_station():
+    mode = get_practice_mode()
+
+    if mode not in ("echo", "learn"):
+        return jsonify({"status": "ignored"})
+
+    play_practice_prompt_in_background(mode)
+    return jsonify({"status": "playing"})
 
 
 @app.route("/practice/result", methods=["POST"])

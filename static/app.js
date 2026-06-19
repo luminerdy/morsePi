@@ -335,11 +335,27 @@ async function playPracticePromptInBrowser() {
     practiceAudioPlaying = true;
 
     try {
-        await triggerPracticePromptLed();
-        await playMorseText(panel.dataset.expectedMorse || "");
+        if (["echo", "learn"].includes(getPracticeMode())) {
+            await playPracticePromptOnStation();
+        } else {
+            await triggerPracticePromptLed();
+            await playMorseText(panel.dataset.expectedMorse || "");
+        }
     } finally {
         practiceAudioPlaying = false;
         await releaseBrowserAudioContext();
+    }
+}
+
+async function playPracticePromptOnStation() {
+    const mode = getPracticeMode();
+
+    try {
+        await fetch(`/practice/prompt-station?mode=${encodeURIComponent(mode)}`, {
+            method: "POST"
+        });
+    } catch (error) {
+        console.log("Unable to play prompt on station", error);
     }
 }
 

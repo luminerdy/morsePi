@@ -336,6 +336,7 @@ When asked to do the daily wrap-up, update:
 - Added Echo/Copy as a separate practice mode: the station plays a hidden audio prompt, the student keys it back, and Echo gets its own progress tracking.
 - Improved post-prompt keyer sound recovery by retrying the Pi USB speaker tone briefly while the physical key is still held, and kept Echo audio-first while revealing the letter/code after a miss.
 - Started testing the USB speaker through ALSA `default:CARD=UACDemoV10` instead of direct `plughw` so browser prompt audio and physical keyer tone can share the same speaker more gracefully.
+- Moved Learn/Echo prompt playback from browser audio to Pi station audio so the example sound, LED flash, and physical keyer tone all use the same backend audio path.
 - Reset the active Pi's student progress for tomorrow by backing up local progress data to `/home/morse/morse-station/data/backups/20260617-221425/` and clearing `practice_progress.json`, `practice_attempts.jsonl`, and `learning_state.json`.
 - Close-of-day GitHub status: code, documentation, Pi deployment, and progress-reset work are pushed to `main`.
 - Close-of-day decision: call this recurring end-of-session work the `daily wrap-up`.
