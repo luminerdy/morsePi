@@ -335,7 +335,7 @@ async function playPracticePromptInBrowser() {
     practiceAudioPlaying = true;
 
     try {
-        if (["echo", "learn"].includes(getPracticeMode())) {
+        if (["listen", "echo", "learn"].includes(getPracticeMode())) {
             await playPracticePromptOnStation();
         } else {
             await triggerPracticePromptLed();

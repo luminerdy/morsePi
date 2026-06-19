@@ -1198,7 +1198,7 @@ def practice_prompt_led():
 def practice_prompt_station():
     mode = get_practice_mode()
 
-    if mode not in ("echo", "learn"):
+    if mode not in ("listen", "echo", "learn"):
         return jsonify({"status": "ignored"})
 
     play_practice_prompt_in_background(mode)
