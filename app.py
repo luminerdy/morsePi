@@ -879,7 +879,7 @@ def get_practice_letters_for_mode(mode):
     state = get_practice_letter_state()
 
     if mode == "learn" and state["learning_letters"]:
-        return state["active_letters"] + state["learning_letters"]
+        return state["learning_letters"]
 
     return state["active_letters"]
 
