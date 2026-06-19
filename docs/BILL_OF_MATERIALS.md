@@ -11,13 +11,13 @@ Prices are captured estimates and may change. Equivalent parts can be used if th
 | CanaKit 3.5A Raspberry Pi 4 Power Supply with PiSwitch | Stable Pi 4 power with inline switch | [Amazon B07TSFYXBC](https://www.amazon.com/dp/B07TSFYXBC) | $12.99 |
 | USB Mini Speaker Computer Speaker | Station audio for prompts and keyer feedback | [Amazon B075M7FHM1](https://www.amazon.com/dp/B075M7FHM1) | $13.99 |
 | Raspberry Pi 4, 2GB or more | Main station computer | Vendor of choice | $55.00 |
+| TGKY01 Telegraph Key | Physical Morse key input | [Amazon B01MT3T676](https://www.amazon.com/dp/B01MT3T676) | $19.07 |
+| MicroSD card, 32 GB | Raspberry Pi OS and station storage | Vendor of choice | $25.00 |
 
-Estimated total: **$130.96**
+Estimated total: **$175.03**
 
 Not included above:
 
-- Telegraph key or switch
 - LED
 - Current-limiting resistor for LED, usually 220 to 330 ohms
-- MicroSD card
 - Case, mount, or enclosure materials
