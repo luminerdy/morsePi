@@ -48,7 +48,7 @@ DEFAULT_STATION_VOLUME = 0.35
 
 # Prefer the ALSA card name instead of a numeric card index so the USB speaker
 # keeps working when the SD card moves to another Pi or USB port.
-AUDIO_DEVICE = os.environ.get("MORSE_AUDIO_DEVICE", "plughw:UACDemoV10,0")
+AUDIO_DEVICE = os.environ.get("MORSE_AUDIO_DEVICE", "default:CARD=UACDemoV10")
 
 # -----------------------------
 # App state

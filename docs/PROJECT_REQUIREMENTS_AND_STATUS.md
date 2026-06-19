@@ -1055,7 +1055,7 @@ Next testing milestone:
 Start from reset practice progress.
 Run Learn, Send, Read, Listen, and Echo in a real practice session.
 Confirm the browser audio is comfortable for beginners.
-Confirm Pi speaker playback works on active station `10.10.10.141` using `plughw:UACDemoV10,0`.
+Confirm Pi speaker playback works on active station `10.10.10.141` using `default:CARD=UACDemoV10`.
 Confirm the browser Sound/Test Sound button wakes browser audio and resets Pi key speaker feedback when sound stops.
 Confirm optional auto-update can fast-forward from GitHub, preserve local `data/`, compile-check the app, and restart `morse-station.service`.
 Confirm Stop Here cancels long browser playback from the Home page.
