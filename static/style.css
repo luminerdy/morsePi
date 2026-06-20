@@ -51,6 +51,15 @@ body {
     text-transform: uppercase;
 }
 
+.student-name {
+    margin: 6px 0 0;
+    color: var(--primary);
+    font-size: 26px;
+    font-weight: 900;
+    line-height: 1;
+    overflow-wrap: anywhere;
+}
+
 h1,
 h2,
 p {
