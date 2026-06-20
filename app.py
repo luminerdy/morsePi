@@ -2,11 +2,20 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, g
 from gpiozero import Button, LED
 from morse import text_to_morse, morse_to_text
-from practice_attempts import append_practice_attempt, rounded_ms
-from practice_progress import all_mode_details, choose_next_letter, mode_score, overall_score, progress_summary, record_attempt
+from practice_attempts import append_practice_attempt, rounded_ms, set_attempts_path
+from practice_progress import all_mode_details, choose_next_letter, mode_score, overall_score, progress_summary, record_attempt, set_progress_path
+from student_profiles import (
+    STUDENT_COOKIE,
+    add_profile,
+    ensure_student_storage,
+    load_profiles,
+    profile_for_id,
+    student_data_path,
+    slugify_student_id,
+)
 from time import time, sleep
 import threading
 import wave
@@ -17,6 +26,34 @@ import os
 import random
 
 app = Flask(__name__)
+
+
+@app.before_request
+def configure_student_storage():
+    global learning_state_path
+
+    profiles = load_profiles()
+    requested_student_id = slugify_student_id(request.cookies.get(STUDENT_COOKIE, ""))
+    profile_ids = {profile["id"] for profile in profiles}
+
+    if requested_student_id not in profile_ids:
+        requested_student_id = profiles[0]["id"]
+
+    ensure_student_storage(requested_student_id)
+    g.current_student = profile_for_id(requested_student_id)
+    g.student_profiles = profiles
+
+    set_progress_path(student_data_path(requested_student_id, "practice_progress.json"))
+    set_attempts_path(student_data_path(requested_student_id, "practice_attempts.jsonl"))
+    learning_state_path = student_data_path(requested_student_id, "learning_state.json")
+
+
+@app.context_processor
+def inject_student_context():
+    return {
+        "current_student": getattr(g, "current_student", profile_for_id("pappy")),
+        "student_profiles": getattr(g, "student_profiles", load_profiles())
+    }
 
 # -----------------------------
 # GPIO setup
@@ -1010,6 +1047,15 @@ def render_practice_template(template_name):
     )
 
 
+def safe_next_url(default_endpoint="touch_index"):
+    next_url = request.form.get("next") or request.args.get("next") or ""
+
+    if next_url.startswith("/") and not next_url.startswith("//"):
+        return next_url
+
+    return url_for(default_endpoint)
+
+
 # -----------------------------
 # Main routes
 # -----------------------------
@@ -1021,6 +1067,43 @@ def index():
 @app.route("/touch", methods=["GET", "POST"])
 def touch_index():
     return render_practice_template("touch_menu.html")
+
+
+@app.route("/students", methods=["GET", "POST"])
+def students():
+    global practice_target, practice_feedback
+
+    if request.method == "POST":
+        action = request.form.get("action", "select")
+
+        if action == "create":
+            profile = add_profile(request.form.get("student_name", ""))
+        else:
+            profile = profile_for_id(slugify_student_id(request.form.get("student_id", "")))
+
+        ensure_student_storage(profile["id"])
+        practice_target = "E"
+        practice_feedback = ""
+        clear_key_state()
+        response = redirect(safe_next_url("students"))
+        response.set_cookie(STUDENT_COOKIE, profile["id"], max_age=60 * 60 * 24 * 365)
+        return response
+
+    return render_template(
+        "students.html",
+        next_url=safe_next_url("index")
+    )
+
+
+@app.route("/touch/students", methods=["GET", "POST"])
+def touch_students():
+    if request.method == "POST":
+        return students()
+
+    return render_template(
+        "touch_students.html",
+        next_url=safe_next_url("touch_index")
+    )
 
 
 @app.route("/touch/message", methods=["GET", "POST"])

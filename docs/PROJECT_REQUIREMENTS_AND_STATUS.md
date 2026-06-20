@@ -666,8 +666,8 @@ system events
 Current implementation:
 
 ```text
-Practice progress is summarized in data/practice_progress.json.
-Detailed practice attempts are appended to data/practice_attempts.jsonl.
+Practice progress is summarized per student in `data/students/<student-id>/practice_progress.json`.
+Detailed practice attempts are appended per student to `data/students/<student-id>/practice_attempts.jsonl`.
 Attempt records include mode, target, expected Morse, actual Morse or selected answer, correctness, timing settings, raw key timing events, and timing summaries.
 ```
 
@@ -1010,7 +1010,7 @@ Remote update operations should:
 |---|---|
 | SQLite database | Deferred |
 | Log practice attempts | Started with JSON progress plus JSONL attempt timing log |
-| Student profile selection | Not started |
+| Student profile selection | Started with local profile picker and per-student JSON files |
 | Morse password login | Not started |
 | Progress dashboard | Started |
 | Listen progress tracking | Complete |
@@ -1069,7 +1069,7 @@ Confirm Replay is easy to find and use.
 Confirm Progress details make sense after a few attempts.
 Confirm Operator Level and unlocked letters feel fun and encouraging.
 Confirm the 7-inch Raspberry Pi touchscreen layout avoids crowded controls and unreadable text.
-Confirm `data/practice_attempts.jsonl` captures useful timing summaries after Send/Learn attempts.
+Confirm each student's `data/students/<student-id>/practice_attempts.jsonl` captures useful timing summaries after Send/Learn attempts.
 Confirm adaptive Listen playback feels easier early without becoming too slow.
 Confirm Listen stays recognition-only, without a keyer panel or keying score path.
 Confirm `S` and `O` appear after all active practice modes reach at least 50% mastery.

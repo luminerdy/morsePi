@@ -18,6 +18,11 @@ RANKS = [
     "Telegraph Pro"
 ]
 
+
+def set_progress_path(path):
+    global PROGRESS_PATH
+    PROGRESS_PATH = Path(path)
+
 LETTER_UNLOCKS = [
     {"level": 1, "letters": ["E", "T"], "label": "First Signals"},
     {"level": 2, "letters": ["A", "N"], "label": "First Pair"},

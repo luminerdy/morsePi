@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Progress - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260611-2">
+    <link rel="stylesheet" href="/static/style.css?v=20260620-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -17,6 +17,7 @@
                 <a href="/">Home</a>
                 <a href="/practice?mode={{ mode }}">Practice</a>
                 <a class="active" href="/progress?mode={{ mode }}">Progress</a>
+                <a href="/students?next=/progress?mode={{ mode }}">Students</a>
                 <a href="/touch">Touch</a>
             </nav>
         </header>
@@ -25,7 +26,7 @@
             <section class="panel">
                 <div class="section-heading">
                     <h2>Operator Level {{ overall.level }}</h2>
-                    <span class="status-pill">{{ overall.rank }}</span>
+                    <span class="status-pill">{{ current_student.name }} · {{ overall.rank }}</span>
                 </div>
 
                 <div class="score-card score-card-wide">

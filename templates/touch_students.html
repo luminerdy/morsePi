@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+    <title>Touch Students - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260620-1">
+    <link rel="stylesheet" href="/static/touch.css?v=20260620-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="touch-ui">
+    <div class="touch-screen">
+        <header class="touch-titlebar">
+            <div>
+                <p class="eyebrow">Student</p>
+                <h1>{{ current_student.name }}</h1>
+            </div>
+            <a class="touch-top-link" href="/touch">Menu</a>
+        </header>
+
+        <main class="touch-students-layout">
+            <section class="touch-student-list">
+                {% for profile in student_profiles %}
+                    <form method="post" action="/touch/students" class="touch-student-card">
+                        <input type="hidden" name="action" value="select">
+                        <input type="hidden" name="student_id" value="{{ profile.id }}">
+                        <input type="hidden" name="next" value="{{ next_url }}">
+                        <button class="{% if profile.id == current_student.id %}active{% endif %}" type="submit">
+                            <strong>{{ profile.name }}</strong>
+                            <span>{% if profile.id == current_student.id %}Current{% else %}Choose{% endif %}</span>
+                        </button>
+                    </form>
+                {% endfor %}
+            </section>
+
+            <form class="touch-add-student" method="post" action="/touch/students">
+                <input type="hidden" name="action" value="create">
+                <input type="hidden" name="next" value="{{ next_url }}">
+                <label for="student_name">Add</label>
+                <input id="student_name" name="student_name" type="text" autocomplete="off" placeholder="Name">
+                <button class="button primary" type="submit">Add</button>
+            </form>
+        </main>
+
+        <footer class="touch-footer">
+            <span>Progress saves separately</span>
+            <span>{{ current_student.name }}</span>
+        </footer>
+    </div>
+</body>
+</html>

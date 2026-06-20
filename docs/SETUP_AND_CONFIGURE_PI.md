@@ -152,7 +152,9 @@ This makes each letter sound more like real Morse while keeping longer pauses be
 
 Saved timing changes are stored locally in `data/timing_settings.json` on the Pi. This file is intentionally not committed because it is station-specific.
 
-Practice progress, learning-gate state, and attempt timing logs are stored locally in `data/practice_progress.json`, `data/learning_state.json`, and `data/practice_attempts.jsonl`. These files are intentionally not committed because they contain station/student practice history.
+Student profiles are stored locally in `data/student_profiles.json`. Each student's progress, learning-gate state, and attempt timing logs are stored under `data/students/<student-id>/practice_progress.json`, `data/students/<student-id>/learning_state.json`, and `data/students/<student-id>/practice_attempts.jsonl`. These files are intentionally not committed because they contain station/student practice history.
+
+Older single-student data files in `data/practice_progress.json`, `data/learning_state.json`, and `data/practice_attempts.jsonl` are copied into the default `Pappy` profile the first time the profile-aware app runs.
 
 ## 6. Wire the Hardware
 
@@ -256,10 +258,10 @@ python3 app.py
 
 For deployed stations at different homes, the Pi can periodically check GitHub for updates. The optional updater uses a user systemd timer and is intentionally conservative:
 
-- It preserves local station data in `data/practice_progress.json`, `data/learning_state.json`, `data/practice_attempts.jsonl`, and `data/timing_settings.json` because those files are ignored by Git.
+- It preserves local station data in `data/student_profiles.json`, `data/students/`, and `data/timing_settings.json` because those files are ignored by Git.
 - It skips updates if tracked files were changed locally on the Pi.
 - It only applies fast-forward updates from `origin/main`.
-- It runs `python3 -m py_compile app.py practice_progress.py practice_attempts.py` before restarting the app.
+- It runs `python3 -m py_compile app.py practice_progress.py practice_attempts.py student_profiles.py` before restarting the app.
 - It restarts only the `morse-station.service` user service.
 
 Install the updater script and timer:

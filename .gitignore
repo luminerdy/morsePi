@@ -7,3 +7,5 @@ data/practice_progress.json
 data/practice_attempts.jsonl
 data/learning_state.json
 data/timing_settings.json
+data/student_profiles.json
+data/students/

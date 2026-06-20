@@ -6,6 +6,11 @@ from pathlib import Path
 ATTEMPTS_PATH = Path("data/practice_attempts.jsonl")
 
 
+def set_attempts_path(path):
+    global ATTEMPTS_PATH
+    ATTEMPTS_PATH = Path(path)
+
+
 def rounded_ms(seconds):
     return int(round(seconds * 1000))
 

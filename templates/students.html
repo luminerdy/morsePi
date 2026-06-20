@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+<head>
+    <title>Students - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260620-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div class="app-shell">
+        <header class="app-header">
+            <div>
+                <p class="eyebrow">Morse Station</p>
+                <h1>Students</h1>
+            </div>
+
+            <nav class="nav-row" aria-label="Primary navigation">
+                <a href="/">Home</a>
+                <a href="/practice">Practice</a>
+                <a href="/progress">Progress</a>
+                <a class="active" href="/students">Students</a>
+                <a href="/touch">Touch</a>
+            </nav>
+        </header>
+
+        <main class="dashboard-grid">
+            <section class="panel">
+                <div class="section-heading">
+                    <h2>Choose Student</h2>
+                    <span class="status-pill">{{ current_student.name }}</span>
+                </div>
+
+                <div class="student-list">
+                    {% for profile in student_profiles %}
+                        <form method="post" action="/students" class="student-row">
+                            <input type="hidden" name="action" value="select">
+                            <input type="hidden" name="student_id" value="{{ profile.id }}">
+                            <input type="hidden" name="next" value="{{ next_url }}">
+                            <div>
+                                <strong>{{ profile.name }}</strong>
+                                <span>{% if profile.id == current_student.id %}Current student{% else %}Ready to practice{% endif %}</span>
+                            </div>
+                            <button class="button {% if profile.id == current_student.id %}secondary{% else %}primary{% endif %}" type="submit">
+                                {% if profile.id == current_student.id %}Selected{% else %}Choose{% endif %}
+                            </button>
+                        </form>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="section-heading">
+                    <h2>Add Student</h2>
+                    <span class="panel-meta">Local profile</span>
+                </div>
+
+                <form method="post" action="/students">
+                    <input type="hidden" name="action" value="create">
+                    <input type="hidden" name="next" value="{{ next_url }}">
+                    <label for="student_name">Name</label>
+                    <input id="student_name" name="student_name" type="text" autocomplete="off" placeholder="Student name">
+                    <div class="action-row">
+                        <button class="button primary" type="submit">Add Student</button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

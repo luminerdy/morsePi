@@ -401,6 +401,35 @@ input[type="range"] + .button {
     gap: 12px;
 }
 
+.student-list {
+    display: grid;
+    gap: 12px;
+}
+
+.student-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface-muted);
+}
+
+.student-row strong {
+    display: block;
+    color: var(--text);
+    font-size: 20px;
+}
+
+.student-row span {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    font-weight: 800;
+}
+
 .progress-item {
     display: grid;
     gap: 7px;

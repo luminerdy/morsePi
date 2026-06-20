@@ -353,9 +353,22 @@ When asked to do the daily wrap-up, update:
 - Decisions: keep Echo audio-first, reveal the code only after a miss, keep station prompt playback on the backend audio path, and continue using the 7-inch touch experience as the main station flow.
 - Close-of-day GitHub status: BOM, Echo, station prompt audio, and documentation changes are committed and pushed to `main`.
 
+### 2026-06-20
+
+- Added first-pass local student profiles with a default `Pappy` profile.
+- Added desktop `/students` and touch `/touch/students` profile selection screens.
+- Profile selection uses a local browser cookie and does not require passwords yet.
+- Moved student-owned data paths to `data/students/<student-id>/practice_progress.json`, `learning_state.json`, and `practice_attempts.jsonl`.
+- Kept station timing in `data/timing_settings.json` as shared station configuration.
+- Preserved existing single-student progress by copying legacy data files into the default `Pappy` profile on first run.
+- Added current student labels to the touch menu, touch practice screens, and progress pages.
+- Deployed to the active Pi and confirmed the `Pappy` profile picker, cookie selection, and migrated progress files are working.
+
 ### Ready Next
 
-- Run a fresh student-style session from the reset Pi state across Learn, Send, Read, Listen, and Echo.
+- Add real grandkid/student profiles from the touch screen and confirm each starts with separate beginner progress.
+- Switch between `Pappy` and a new student, then verify each profile keeps its own progress, learning state, and attempt log.
+- Run a fresh student-style session across Learn, Send, Read, Listen, and Echo with one non-Pappy profile.
 - Watch whether the burn-in gate feels motivating rather than blocking after a next-day return.
 - Confirm Learn keeps new letters out of Send/Read/Listen/Echo until enough reps, strength, and practice days are reached.
 - Retest physical keyer sound immediately after Learn, Listen, and Echo station prompts.
