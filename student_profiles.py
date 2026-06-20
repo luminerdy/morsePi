@@ -15,6 +15,7 @@ STUDENT_FILES = [
     "learning_state.json",
     "practice_attempts.jsonl"
 ]
+PROFILE_METADATA = "profile.json"
 
 
 def slugify_student_id(name):
@@ -61,11 +62,18 @@ def load_profiles():
         })
         seen.add(student_id)
 
+    for profile in load_student_profile_metadata():
+        if profile["id"] not in seen:
+            normalized.append(profile)
+            seen.add(profile["id"])
+
     if DEFAULT_STUDENT_ID not in seen:
-        normalized.insert(0, {
+        default_profile = {
             "id": DEFAULT_STUDENT_ID,
             "name": DEFAULT_STUDENT_NAME
-        })
+        }
+        normalized.insert(0, default_profile)
+        seen.add(DEFAULT_STUDENT_ID)
 
     save_profiles(normalized)
     return normalized
@@ -75,6 +83,50 @@ def save_profiles(profiles):
     PROFILES_PATH.parent.mkdir(parents=True, exist_ok=True)
     PROFILES_PATH.write_text(
         json.dumps(profiles, indent=2, sort_keys=True),
+        encoding="utf-8"
+    )
+
+    for profile in profiles:
+        write_student_profile_metadata(profile)
+
+
+def load_student_profile_metadata():
+    profiles = []
+
+    if not STUDENTS_DIR.exists():
+        return profiles
+
+    for profile_path in sorted(STUDENTS_DIR.glob(f"*/{PROFILE_METADATA}")):
+        try:
+            profile = json.loads(profile_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            continue
+
+        if not isinstance(profile, dict):
+            continue
+
+        student_id = slugify_student_id(str(profile.get("id") or profile_path.parent.name))
+        name = str(profile.get("name") or student_id).strip() or student_id
+        profiles.append({
+            "id": student_id,
+            "name": name
+        })
+
+    return profiles
+
+
+def write_student_profile_metadata(profile):
+    student_id = slugify_student_id(str(profile.get("id", "")))
+    if not student_id:
+        return
+
+    profile_path = student_dir(student_id) / PROFILE_METADATA
+    profile_path.parent.mkdir(parents=True, exist_ok=True)
+    profile_path.write_text(
+        json.dumps({
+            "id": student_id,
+            "name": str(profile.get("name") or student_id).strip() or student_id
+        }, indent=2, sort_keys=True),
         encoding="utf-8"
     )
 
@@ -116,6 +168,7 @@ def add_profile(name):
     profiles.append(profile)
     save_profiles(profiles)
     ensure_student_storage(profile["id"])
+    write_student_profile_metadata(profile)
     return profile
 
 

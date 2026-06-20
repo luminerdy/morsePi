@@ -152,7 +152,7 @@ This makes each letter sound more like real Morse while keeping longer pauses be
 
 Saved timing changes are stored locally in `data/timing_settings.json` on the Pi. This file is intentionally not committed because it is station-specific.
 
-Student profiles are stored locally in `data/student_profiles.json`. Each student's progress, learning-gate state, and attempt timing logs are stored under `data/students/<student-id>/practice_progress.json`, `data/students/<student-id>/learning_state.json`, and `data/students/<student-id>/practice_attempts.jsonl`. These files are intentionally not committed because they contain station/student practice history.
+Student profiles are stored locally in `data/student_profiles.json`. Each student folder also stores a small `profile.json` safety copy so the roster can be rebuilt if the main profile list gets stale. Each student's progress, learning-gate state, and attempt timing logs are stored under `data/students/<student-id>/practice_progress.json`, `data/students/<student-id>/learning_state.json`, and `data/students/<student-id>/practice_attempts.jsonl`. These files are intentionally not committed because they contain station/student practice history.
 
 Older single-student data files in `data/practice_progress.json`, `data/learning_state.json`, and `data/practice_attempts.jsonl` are copied into the default `Pappy` profile the first time the profile-aware app runs.
 
