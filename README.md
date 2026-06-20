@@ -28,6 +28,7 @@ Pappy's Internet Telegraph is a Raspberry Pi Morse code learning station. It let
 - Local JSON progress tracking under `data/students/<student>/practice_progress.json`
 - JSONL practice attempt logging under `data/students/<student>/practice_attempts.jsonl`
 - Optional 7-inch touchscreen flow at `/touch`
+- Touch Daily Mission page for a per-student daily practice goal
 - Beginner Morse timing controls using Farnsworth-style character/effective WPM settings
 
 ## Hardware

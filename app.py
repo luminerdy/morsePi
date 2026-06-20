@@ -82,6 +82,7 @@ DOT_DASH_THRESHOLD_UNITS = 2.5
 # -----------------------------
 SAMPLE_RATE = 44100
 DEFAULT_STATION_VOLUME = 0.35
+DAILY_MISSION_GOAL = 20
 
 # Prefer the ALSA card name instead of a numeric card index so the USB speaker
 # keeps working when the SD card moves to another Pi or USB port.
@@ -765,6 +766,67 @@ def today_key():
     return datetime.now().date().isoformat()
 
 
+def load_today_attempts():
+    attempts_path = student_data_path(g.current_student["id"], "practice_attempts.jsonl")
+    today = today_key()
+    attempts = []
+
+    if not attempts_path.exists():
+        return attempts
+
+    for line in attempts_path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+
+        try:
+            attempt = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+
+        timestamp = str(attempt.get("timestamp", ""))
+        if timestamp[:10] == today:
+            attempts.append(attempt)
+
+    return attempts
+
+
+def daily_mission_summary():
+    attempts = load_today_attempts()
+    total = len(attempts)
+    correct = sum(1 for attempt in attempts if attempt.get("correct"))
+    letters = sorted({str(attempt.get("target", "")).upper() for attempt in attempts if attempt.get("target")})
+    modes = sorted({str(attempt.get("mode", "")).title() for attempt in attempts if attempt.get("mode")})
+    state = get_practice_letter_state()
+    remaining = max(0, DAILY_MISSION_GOAL - total)
+    accuracy = int(round((correct / total) * 100)) if total else 0
+    progress = min(100, int(round((total / DAILY_MISSION_GOAL) * 100))) if DAILY_MISSION_GOAL else 100
+
+    if total >= DAILY_MISSION_GOAL:
+        message = "Daily mission complete. Great practice today."
+    elif state["learning_letters"]:
+        message = f"Daily mission: practice today and spend time with {' '.join(state['learning_letters'])}."
+    else:
+        message = "Daily mission: review every active signal and keep your rhythm steady."
+
+    return {
+        "date": today_key(),
+        "goal": DAILY_MISSION_GOAL,
+        "attempts": total,
+        "display_attempts": min(total, DAILY_MISSION_GOAL),
+        "correct": correct,
+        "remaining": remaining,
+        "accuracy": accuracy,
+        "progress": progress,
+        "completed": total >= DAILY_MISSION_GOAL,
+        "letters": letters,
+        "modes": modes,
+        "active_letters": state["active_letters"],
+        "learning_letters": state["learning_letters"],
+        "letter_morse": get_practice_letter_morse(),
+        "message": message
+    }
+
+
 def step_key(step):
     return "".join(step["letters"])
 
@@ -1067,6 +1129,19 @@ def index():
 @app.route("/touch", methods=["GET", "POST"])
 def touch_index():
     return render_practice_template("touch_menu.html")
+
+
+@app.route("/touch/daily")
+def touch_daily():
+    practice_letters = get_unlocked_practice_letters()
+
+    return render_template(
+        "touch_daily.html",
+        modes=practice_modes,
+        overall=get_learning_overall(practice_letters),
+        daily=daily_mission_summary(),
+        timing=get_morse_timing()
+    )
 
 
 @app.route("/students", methods=["GET", "POST"])

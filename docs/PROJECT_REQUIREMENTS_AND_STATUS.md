@@ -1067,6 +1067,7 @@ Remote update operations should:
 | Listen progress tracking | Complete |
 | Learn progress tracking | Complete |
 | Learn-first letter unlocking | Complete with burn-in gate; needs student testing |
+| Daily Mission | Started locally; needs Pi deployment and student testing |
 | Better timing feedback | Not started |
 | Refactor hardware code | Not started |
 

@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+    <title>Daily Mission - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260620-3">
+    <link rel="stylesheet" href="/static/touch.css?v=20260620-3">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="touch-ui">
+    <div class="touch-screen">
+        <header class="touch-titlebar">
+            <div>
+                <p class="eyebrow">Daily Mission</p>
+                <h1>{{ current_student.name }}</h1>
+            </div>
+            <a class="touch-top-link" href="/touch">Menu</a>
+        </header>
+
+        <main class="touch-daily-layout">
+            <section class="touch-daily-hero">
+                <span>Today's Signals</span>
+                <strong>{{ daily.display_attempts }}/{{ daily.goal }}</strong>
+                <div class="touch-progress-meter" aria-hidden="true">
+                    <span style="width: {{ daily.progress }}%"></span>
+                </div>
+                <p>{{ daily.accuracy }}% accuracy · {{ daily.remaining }} left</p>
+                <p>{{ daily.message }}</p>
+            </section>
+
+            <section class="touch-daily-actions">
+                {% if daily.learning_letters %}
+                    <a class="touch-menu-card primary" href="/touch/practice/run?mode=learn">
+                        <strong>Learn</strong>
+                        <span>New: {{ daily.learning_letters | join(" ") }}</span>
+                    </a>
+                {% endif %}
+                <a class="touch-menu-card" href="/touch/practice/run?mode=send">
+                    <strong>Send</strong>
+                    <span>Key the code</span>
+                </a>
+                <a class="touch-menu-card" href="/touch/practice/run?mode=read">
+                    <strong>Read</strong>
+                    <span>Pick the letter</span>
+                </a>
+                <a class="touch-menu-card" href="/touch/practice/run?mode=listen">
+                    <strong>Listen</strong>
+                    <span>Hear the code</span>
+                </a>
+                <a class="touch-menu-card" href="/touch/practice/run?mode=echo">
+                    <strong>Echo</strong>
+                    <span>Hear and key</span>
+                </a>
+            </section>
+
+            <section class="touch-daily-letters">
+                <div>
+                    <span>Active</span>
+                    <p>
+                        {% for letter in daily.active_letters %}
+                            <strong>{{ letter }}</strong>
+                        {% endfor %}
+                    </p>
+                </div>
+                <div>
+                    <span>Learning Now</span>
+                    <p>
+                        {% if daily.learning_letters %}
+                            {% for letter in daily.learning_letters %}
+                                <strong>{{ letter }}</strong>
+                            {% endfor %}
+                        {% else %}
+                            <strong>None</strong>
+                        {% endif %}
+                    </p>
+                </div>
+                <div>
+                    <span>Practiced Today</span>
+                    <p>
+                        {% if daily.letters %}
+                            {% for letter in daily.letters %}
+                                <strong>{{ letter }}</strong>
+                            {% endfor %}
+                        {% else %}
+                            <strong>Start</strong>
+                        {% endif %}
+                    </p>
+                </div>
+            </section>
+        </main>
+
+        <footer class="touch-footer">
+            <span>{{ daily.date }}</span>
+            <span>{% if daily.completed %}Mission complete{% else %}{{ daily.remaining }} signals left{% endif %}</span>
+        </footer>
+    </div>
+</body>
+</html>

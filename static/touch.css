@@ -433,6 +433,103 @@
     line-height: 1;
 }
 
+.touch-daily-layout {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) 90px;
+    gap: 8px;
+}
+
+.touch-daily-hero,
+.touch-daily-actions,
+.touch-daily-letters {
+    min-height: 0;
+    padding: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(23, 33, 43, 0.08);
+}
+
+.touch-daily-hero {
+    display: grid;
+    align-content: center;
+    gap: 9px;
+}
+
+.touch-daily-hero span,
+.touch-daily-letters span {
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.touch-daily-hero strong {
+    color: var(--primary);
+    font-size: 56px;
+    line-height: 1;
+}
+
+.touch-daily-hero p {
+    margin: 0;
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.touch-daily-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr);
+    gap: 8px;
+}
+
+.touch-daily-actions .touch-menu-card {
+    padding: 10px;
+}
+
+.touch-daily-actions .touch-menu-card strong {
+    font-size: 25px;
+}
+
+.touch-daily-actions .touch-menu-card span {
+    font-size: 13px;
+}
+
+.touch-daily-letters {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.touch-daily-letters div {
+    min-width: 0;
+}
+
+.touch-daily-letters p {
+    margin: 4px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.touch-daily-letters strong {
+    min-width: 28px;
+    min-height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 6px;
+    color: var(--primary);
+    background: #e8f1ff;
+    border: 1px solid #b9cef8;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
 .practice-modes .touch-menu-card strong {
     font-size: 32px;
 }

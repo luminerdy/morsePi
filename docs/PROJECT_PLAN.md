@@ -97,6 +97,7 @@ Planned work:
 - Store known letters, weak letters, playback speed, and input settings
 - Add adult/admin profile safety tools
 - Add per-student export, backup, reset, archive, and restore
+- Add Daily Mission practice loop with per-day progress
 
 Profile admin design notes:
 
@@ -106,6 +107,26 @@ Profile admin design notes:
 - Prefer archive over delete so a grandkid's progress is not lost by accident.
 - Keep timing settings station-wide for now because the hardware station is shared.
 - Do not implement Morse password login until profile switching and profile safety are proven.
+
+### MVP 3.5: Daily Mission
+
+Status: Started locally; deploy after active student testing is not in progress.
+
+Goal: Give each student a daily practice loop that reviews all learned letters so far and makes progress visible by day.
+
+First version:
+
+- Add a touch Daily Mission page.
+- Count today's attempts from the active student's `practice_attempts.jsonl`.
+- Use a 20-signal daily goal.
+- Show today's attempts, accuracy, remaining signals, active letters, Learning Now letters, and letters practiced today.
+- Link into the existing Learn, Send, Read, Listen, and Echo practice modes instead of creating a second practice engine.
+
+Next refinements:
+
+- Add a daily completion celebration with sound and LED flash.
+- Store earned daily badges after the first reward behavior is tested.
+- Add a desktop/admin daily history view.
 
 ### MVP 4: Morse Login
 
