@@ -85,16 +85,27 @@ Still planned:
 
 ### MVP 3: Student Profiles
 
-Status: Planned
+Status: Started
 
 Goal: Allow multiple students to use the same station and track progress separately.
 
 Planned work:
 
-- Add profile selection page
-- Add simple student records
-- Track current selected student
+- Add profile selection page - complete for local touch and desktop
+- Add simple student records - complete with local JSON profile list
+- Track current selected student - complete with local browser cookie
 - Store known letters, weak letters, playback speed, and input settings
+- Add adult/admin profile safety tools
+- Add per-student export, backup, reset, archive, and restore
+
+Profile admin design notes:
+
+- Keep the touch screen simple: choose student, add student, return to practice.
+- Put reset/export/archive tools on a desktop/admin page first.
+- Create a timestamped backup before any progress reset.
+- Prefer archive over delete so a grandkid's progress is not lost by accident.
+- Keep timing settings station-wide for now because the hardware station is shared.
+- Do not implement Morse password login until profile switching and profile safety are proven.
 
 ### MVP 4: Morse Login
 

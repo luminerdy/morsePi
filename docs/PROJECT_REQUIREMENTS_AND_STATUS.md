@@ -635,6 +635,57 @@ An adult/admin shall be able to reset a student's Morse password.
 
 ---
 
+### LOGIN-006: Profile safety and admin tools
+
+The system should provide simple adult/admin tools for local student profiles before Morse password login is added.
+
+First version should support:
+
+```text
+view all local student profiles
+see current level, mastery, attempts, and Learning Now letters for each student
+export one student's data as a zip or folder copy
+backup one student's data before any destructive action
+reset one student's progress after confirmation
+archive/hide a student without deleting their data
+restore a student from a backup folder
+```
+
+Safety rules:
+
+```text
+do not allow one-tap delete
+prefer archive over delete
+create a timestamped backup before reset
+show the student name and data path before reset/export/archive
+keep timing settings station-wide, not per-student, until there is a clear need
+do not commit student profile data or backups to Git
+```
+
+Recommended local data layout:
+
+```text
+data/student_profiles.json
+data/students/<student-id>/practice_progress.json
+data/students/<student-id>/learning_state.json
+data/students/<student-id>/practice_attempts.jsonl
+data/student_backups/<timestamp>-<student-id>/
+```
+
+Initial UI recommendation:
+
+```text
+Touch screen:
+Profile picker only, with Add and Choose.
+
+Desktop/admin:
+Student list, export, backup, reset, archive, restore.
+```
+
+Delete should stay out of the first version. If delete is added later, it should require a backup and a typed confirmation.
+
+---
+
 ## 11. Logging and Data Requirements
 
 Logging is a foundational requirement and should be added early.
