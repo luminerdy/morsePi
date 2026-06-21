@@ -27,12 +27,15 @@
               data-daily-date="{{ daily.date }}"
               data-daily-student="{{ current_student.id }}">
             <section class="touch-daily-hero">
-                <span>Today's Signals</span>
+                <span>Daily Mission</span>
                 <strong>{{ daily.display_attempts }}/{{ daily.goal }}</strong>
                 <div class="touch-progress-meter" aria-hidden="true">
                     <span style="width: {{ daily.progress }}%"></span>
                 </div>
                 <p>{{ daily.accuracy }}% accuracy · {{ daily.remaining }} left</p>
+                {% if daily.learning_focus.active %}
+                    <p>Learning {{ daily.learning_focus.correct }}/{{ daily.learning_focus.goal }} · {{ daily.learning_focus.remaining }} left</p>
+                {% endif %}
                 <p>{{ daily.message }}</p>
             </section>
 
@@ -60,7 +63,7 @@
                 </div>
                 <div class="touch-coach-groups">
                     <div>
-                        <span>Strong</span>
+                        <span>{{ daily.coach.strong_label }}</span>
                         <p>
                             {% if daily.coach.strong_signals %}
                                 {% for item in daily.coach.strong_signals %}
@@ -72,7 +75,7 @@
                         </p>
                     </div>
                     <div>
-                        <span>Boost</span>
+                        <span>{{ daily.coach.boost_label }}</span>
                         <p>
                             {% for item in daily.coach.signal_boost %}
                                 <strong>{{ item.letter }}</strong>

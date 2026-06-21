@@ -191,6 +191,46 @@ class LearningGateTests(unittest.TestCase):
         self.assertTrue(daily["completed"])
         self.assertEqual("Daily mission complete.", daily["message"])
 
+    def test_daily_mission_learning_now_keeps_mission_open_until_learn_ready(self):
+        self.write_progress(app_module.starter_practice_letters, self.all_modes(1.0))
+        progress = json.loads(self.progress_path.read_text(encoding="utf-8"))
+        progress["S"] = {
+            "learn": {
+                "attempts": 6,
+                "correct": 6,
+                "last_seen": "2026-06-21T00:00:00+00:00",
+                "streak": 6,
+                "strength": 1.0,
+            }
+        }
+        progress["O"] = {
+            "learn": {
+                "attempts": 5,
+                "correct": 5,
+                "last_seen": "2026-06-21T00:00:00+00:00",
+                "streak": 5,
+                "strength": 1.0,
+            }
+        }
+        self.progress_path.write_text(json.dumps(progress), encoding="utf-8")
+
+        original_loader = app_module.load_today_attempts
+        app_module.load_today_attempts = lambda: self.make_attempts(total=22, correct=18)
+
+        try:
+            daily = app_module.daily_mission_summary()
+        finally:
+            app_module.load_today_attempts = original_loader
+
+        self.assertEqual(["S", "O"], daily["learning_letters"])
+        self.assertEqual(20, daily["learning_focus"]["goal"])
+        self.assertEqual(11, daily["learning_focus"]["correct"])
+        self.assertEqual(9, daily["learning_focus"]["remaining"])
+        self.assertEqual(55, daily["learning_focus"]["progress"])
+        self.assertEqual(78, daily["progress"])
+        self.assertFalse(daily["completed"])
+        self.assertIn("needs", daily["message"])
+
     def test_daily_next_action_prefers_learning_now(self):
         state = {
             "active_letters": ["E", "T", "A", "N", "I", "M"],
@@ -207,6 +247,8 @@ class LearningGateTests(unittest.TestCase):
         self.assertEqual("Practice Next", coach["headline"])
         self.assertEqual(["S", "O"], [item["letter"] for item in coach["practice_next"]])
         self.assertTrue(all(item["mode"] == "learn" for item in coach["practice_next"]))
+        self.assertEqual("Learning", coach["boost_label"])
+        self.assertEqual(["S", "O"], [item["letter"] for item in coach["signal_boost"]])
 
     def test_practice_coach_recommends_weakest_letter_and_mode(self):
         progress = {}

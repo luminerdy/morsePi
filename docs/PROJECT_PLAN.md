@@ -443,6 +443,7 @@ When asked to do the daily wrap-up, update:
 - Added Flask route/render regression tests for touch Daily/Progress/Learn pages, Daily celebration endpoint behavior, stale Learning Now pruning during render, and student cookie separation.
 - Added a desktop-only Admin Reset form on `/students` that requires typing `RESET`, creates a timestamped backup, clears the selected student's progress files, and clears legacy top-level files for Pappy so they cannot re-seed progress.
 - Added regression tests for reset confirmation, Pappy legacy cleanup, backup creation, and protecting other student profiles.
+- Fixed the Daily Mission screen while new letters are in `Learning Now`: mission completion now includes Learn burn-in progress, shows remaining Learn tries, and changes the coach grouping from generic `Boost` to `Learning`.
 
 ### Ready Next
 

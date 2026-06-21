@@ -810,12 +810,21 @@ def daily_mission_summary():
     state = get_practice_letter_state()
     remaining = max(0, DAILY_MISSION_GOAL - total)
     accuracy = int(round((correct / total) * 100)) if total else 0
-    progress = min(100, int(round((total / DAILY_MISSION_GOAL) * 100))) if DAILY_MISSION_GOAL else 100
+    attempt_progress = min(100, int(round((total / DAILY_MISSION_GOAL) * 100))) if DAILY_MISSION_GOAL else 100
+    learning_focus = daily_learning_focus(state["learning_letters"])
+    progress = attempt_progress
     completed = total >= DAILY_MISSION_GOAL
+
+    if learning_focus["active"]:
+        progress = int(round((attempt_progress + learning_focus["progress"]) / 2))
+        completed = completed and learning_focus["complete"]
+
     next_action = daily_next_action(state)
 
     if completed:
         message = "Daily mission complete."
+    elif learning_focus["active"] and learning_focus["next_need"]:
+        message = f"Daily mission: {learning_focus['next_need']}."
     elif state["learning_letters"]:
         message = f"Daily mission: practice today and spend time with {' '.join(state['learning_letters'])}."
     else:
@@ -829,16 +838,69 @@ def daily_mission_summary():
         "correct": correct,
         "remaining": remaining,
         "accuracy": accuracy,
+        "attempt_progress": attempt_progress,
         "progress": progress,
         "completed": completed,
         "letters": letters,
         "modes": modes,
         "active_letters": state["active_letters"],
         "learning_letters": state["learning_letters"],
+        "learning_focus": learning_focus,
         "letter_morse": get_practice_letter_morse(),
         "message": message,
         "next_action": next_action,
         "coach": daily_practice_coach(state)
+    }
+
+
+def daily_learning_focus(learning_letters):
+    if not learning_letters:
+        return {
+            "active": False,
+            "goal": 0,
+            "correct": 0,
+            "remaining": 0,
+            "progress": 100,
+            "complete": True,
+            "next_need": "",
+            "letters": []
+        }
+
+    items = progress_summary(learning_letters, "learn")
+    goal = learn_ready_attempts * len(items)
+    correct = sum(min(item["correct"], learn_ready_attempts) for item in items)
+    remaining = max(0, goal - correct)
+    progress = int(round((correct / goal) * 100)) if goal else 100
+    needs = []
+
+    for item in items:
+        correct_remaining = max(0, learn_ready_attempts - item["correct"])
+        if correct_remaining:
+            needs.append(f"{item['letter']} needs {correct_remaining} more correct Learn tries")
+            continue
+
+        strength_remaining = max(0, learn_ready_strength - item["strength_percent"])
+        if strength_remaining:
+            needs.append(f"{item['letter']} needs {strength_remaining} more Learn strength points")
+
+    return {
+        "active": True,
+        "goal": goal,
+        "correct": correct,
+        "remaining": remaining,
+        "progress": min(100, progress),
+        "complete": remaining == 0 and not needs,
+        "next_need": needs[0] if needs else "",
+        "letters": [
+            {
+                "letter": item["letter"],
+                "correct": min(item["correct"], learn_ready_attempts),
+                "goal": learn_ready_attempts,
+                "remaining": max(0, learn_ready_attempts - item["correct"]),
+                "progress": min(100, int(round((min(item["correct"], learn_ready_attempts) / learn_ready_attempts) * 100))) if learn_ready_attempts else 100
+            }
+            for item in items
+        ]
     }
 
 
@@ -849,22 +911,42 @@ def mode_display_label(mode):
 def daily_practice_coach(state):
     if state["learning_letters"]:
         letters = " ".join(state["learning_letters"])
+        learning_items = progress_summary(state["learning_letters"], "learn")
+        learning_order = {
+            letter: index
+            for index, letter in enumerate(state["learning_letters"])
+        }
+        boost_items = sorted(
+            [
+                {
+                    "letter": item["letter"],
+                    "strength": item["strength_percent"],
+                    "attempts": item["attempts"],
+                    "accuracy": item["accuracy"]
+                }
+                for item in learning_items
+            ],
+            key=lambda item: (item["strength"], item["attempts"], learning_order.get(item["letter"], 99))
+        )
+
         return {
             "headline": "Practice Next",
             "message": f"Start with Learn for {letters}. New signals stay here until they are ready.",
             "practice_next": [
                 {
-                    "letter": letter,
+                    "letter": item["letter"],
                     "mode": "learn",
                     "mode_label": "Learn",
                     "href": "/touch/practice/run?mode=learn",
-                    "score": None,
-                    "reason": "New"
+                    "score": item["strength_percent"],
+                    "reason": f"{min(item['correct'], learn_ready_attempts)}/{learn_ready_attempts}"
                 }
-                for letter in state["learning_letters"][:3]
+                for item in learning_items[:3]
             ],
+            "strong_label": "Mastered",
+            "boost_label": "Learning",
             "strong_signals": strongest_letters(state["active_letters"]),
-            "signal_boost": weakest_letters(state["active_letters"])
+            "signal_boost": boost_items[:3]
         }
 
     active_letters = state["active_letters"]
@@ -882,6 +964,8 @@ def daily_practice_coach(state):
         "headline": "Practice Coach",
         "message": message,
         "practice_next": next_items,
+        "strong_label": "Strong",
+        "boost_label": "Boost",
         "strong_signals": strong,
         "signal_boost": boost
     }
