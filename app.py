@@ -1296,6 +1296,7 @@ def get_learning_overall(letters):
     overall["learn_ready_min_days"] = state["learn_ready_min_days"]
     overall["learning_step"] = state["learning_step"]
     overall["learning_status"] = state["learning_status"]
+    overall["learning_focus"] = daily_learning_focus(state["learning_letters"])
     overall["locked_until_tomorrow"] = state["locked_until_tomorrow"]
     overall["next_unlock"] = state["learning_step"] or state["next_step"] or get_next_letter_unlock(state["active_letters"])
 

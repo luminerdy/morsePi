@@ -444,6 +444,7 @@ When asked to do the daily wrap-up, update:
 - Added a desktop-only Admin Reset form on `/students` that requires typing `RESET`, creates a timestamped backup, clears the selected student's progress files, and clears legacy top-level files for Pappy so they cannot re-seed progress.
 - Added regression tests for reset confirmation, Pappy legacy cleanup, backup creation, and protecting other student profiles.
 - Fixed the Daily Mission screen while new letters are in `Learning Now`: mission completion now includes Learn burn-in progress, shows remaining Learn tries, and changes the coach grouping from generic `Boost` to `Learning`.
+- Clarified current-set versus Learning Now progress across touch and desktop Progress/Practice screens so `100%` mode scores do not imply new letters have joined every practice mode.
 
 ### Ready Next
 

@@ -182,6 +182,11 @@
                                     <span>None</span>
                                 {% endif %}
                             </div>
+                            <p class="score-goal" id="overallLearningProgress" {% if not overall.learning_focus.active %}hidden{% endif %}>
+                                {% if overall.learning_focus.active %}
+                                    Learn progress: {{ overall.learning_focus.correct }}/{{ overall.learning_focus.goal }} · {{ overall.learning_focus.remaining }} left
+                                {% endif %}
+                            </p>
                         </div>
 
                         <p class="score-goal" id="overallNextUnlock">

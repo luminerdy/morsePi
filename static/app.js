@@ -772,7 +772,7 @@ function updateScoreCard(score) {
     }
 
     if (streak) {
-        streak.innerText = score.streak;
+        streak.innerText = `current set · ${score.streak} streak`;
     }
 
     if (accuracy) {
@@ -800,6 +800,7 @@ function updateOverallScoreCard(overall) {
     const streak = document.getElementById("overallStreak");
     const unlockedLetters = document.getElementById("overallUnlockedLetters");
     const learningLetters = document.getElementById("overallLearningLetters");
+    const learningProgress = document.getElementById("overallLearningProgress");
     const alphabetProgress = document.getElementById("overallAlphabetProgress");
     const nextUnlock = document.getElementById("overallNextUnlock");
     const masteryValue = Math.max(0, Math.min(Number(overall.current_mastery ?? overall.mastery) || 0, 100));
@@ -838,6 +839,17 @@ function updateOverallScoreCard(overall) {
         learningLetters.innerHTML = overall.learning_letters.length
             ? overall.learning_letters.map(letter => `<span>${letter}</span>`).join("")
             : "<span>None</span>";
+    }
+
+    if (learningProgress) {
+        const focus = overall.learning_focus || {};
+        if (focus.active) {
+            learningProgress.hidden = false;
+            learningProgress.innerText = `Learn progress: ${focus.correct}/${focus.goal} · ${focus.remaining} left`;
+        } else {
+            learningProgress.hidden = true;
+            learningProgress.innerText = "";
+        }
     }
 
     if (nextUnlock && overall.next_unlock) {

@@ -100,7 +100,12 @@
             <section class="touch-score-mini" id="practiceScore">
                 <span>{{ modes[mode].label }}</span>
                 <strong id="scoreMastery">{{ score.mastery }}%</strong>
-                <span id="scoreStreak">{{ score.streak }} streak</span>
+                <span id="scoreStreak">current set · {{ score.streak }} streak</span>
+                {% if overall.learning_focus.active and mode != 'learn' %}
+                    <span>Learning {{ overall.learning_letters | join(" ") }} · {{ overall.learning_focus.correct }}/{{ overall.learning_focus.goal }}</span>
+                {% elif overall.learning_focus.active %}
+                    <span>Learning Now · {{ overall.learning_focus.correct }}/{{ overall.learning_focus.goal }}</span>
+                {% endif %}
                 <span id="scoreGoal">{{ score.next_goal }}</span>
                 <span id="overallMastery" hidden>{{ overall.current_mastery }}%</span>
                 <span id="overallMasteryBar" hidden></span>

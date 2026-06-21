@@ -138,6 +138,52 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("current set", html)
         self.assertNotIn("% overall", html)
 
+    def test_touch_progress_shows_learning_now_progress_separate_from_current_set(self):
+        self.complete_starter_progress("pappy")
+        progress_path = self.student_file("pappy", "practice_progress.json")
+        progress = json.loads(progress_path.read_text(encoding="utf-8"))
+        progress["S"] = {
+            "learn": {
+                "attempts": 7,
+                "correct": 7,
+                "last_seen": "2026-06-21T00:00:00+00:00",
+                "streak": 7,
+                "strength": 1.0,
+            }
+        }
+        progress["O"] = {
+            "learn": {
+                "attempts": 7,
+                "correct": 7,
+                "last_seen": "2026-06-21T00:00:00+00:00",
+                "streak": 2,
+                "strength": 1.0,
+            }
+        }
+        progress_path.write_text(json.dumps(progress), encoding="utf-8")
+        self.write_json(
+            "pappy",
+            "learning_state.json",
+            {
+                "groups": {
+                    "SO": {
+                        "first_learning_date": app_module.today_key(),
+                        "letters": ["S", "O"],
+                    }
+                },
+                "last_learning_start_date": app_module.today_key(),
+            },
+        )
+
+        response = self.client.get("/touch/progress")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("100% current set mastery", html)
+        self.assertIn("Learning Now: S O", html)
+        self.assertIn("14/20 Learn", html)
+        self.assertIn("current set", html)
+
     def test_touch_learn_does_not_show_next_letters_before_gate(self):
         response = self.client.get("/touch/practice/run?mode=learn")
         html = response.get_data(as_text=True)
