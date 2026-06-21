@@ -448,17 +448,18 @@
 .touch-daily-layout {
     min-height: 0;
     display: grid;
-    grid-template-columns: 260px minmax(0, 1fr);
+    grid-template-columns: 220px 230px minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr) 90px;
     gap: 8px;
 }
 
 .touch-daily-layout.mission-complete {
-    grid-template-columns: 230px 250px minmax(0, 1fr);
+    grid-template-columns: 190px 220px 210px minmax(0, 1fr);
 }
 
 .touch-daily-hero,
 .touch-daily-reward,
+.touch-daily-coach,
 .touch-daily-actions,
 .touch-daily-letters {
     min-height: 0;
@@ -496,6 +497,10 @@
     font-weight: 800;
 }
 
+.mission-complete .touch-daily-hero strong {
+    font-size: 46px;
+}
+
 .touch-daily-reward {
     display: grid;
     align-content: center;
@@ -531,6 +536,101 @@
     min-height: 50px;
 }
 
+.touch-daily-coach {
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    gap: 7px;
+}
+
+.touch-daily-coach > span,
+.touch-coach-groups span {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.touch-daily-coach > p {
+    margin: 0;
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 900;
+    line-height: 1.15;
+}
+
+.touch-coach-next {
+    min-height: 0;
+    display: grid;
+    gap: 5px;
+}
+
+.touch-coach-next a {
+    min-width: 0;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 7px;
+    color: var(--text);
+    background: #e8f1ff;
+    border: 1px solid #b9cef8;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+.touch-coach-next strong {
+    color: var(--primary);
+    font-size: 28px;
+    line-height: 1;
+}
+
+.touch-coach-next em,
+.touch-coach-next small {
+    font-style: normal;
+    font-weight: 900;
+}
+
+.touch-coach-next em {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--text);
+    font-size: 15px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.touch-coach-next small {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.touch-coach-groups {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.touch-coach-groups p {
+    margin: 3px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+}
+
+.touch-coach-groups strong {
+    min-width: 24px;
+    min-height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    background: #f7f9fb;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-size: 15px;
+}
+
 .touch-daily-actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -543,11 +643,11 @@
 }
 
 .touch-daily-actions .touch-menu-card {
-    padding: 10px;
+    padding: 9px;
 }
 
 .touch-daily-actions .touch-menu-card strong {
-    font-size: 25px;
+    font-size: 24px;
 }
 
 .touch-daily-actions .touch-menu-card span {

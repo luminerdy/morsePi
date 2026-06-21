@@ -434,11 +434,16 @@ When asked to do the daily wrap-up, update:
 - Added Pi station celebration playback using a short Morse `V` flourish through the USB speaker with synchronized LED flash.
 - Added next-action guidance: prefer Learn when new letters are waiting, otherwise send the student to the weakest current practice mode or progress/next unlock guidance.
 - Deployed the reward flow to the active Pi at `10.10.10.141` and confirmed the service is active.
+- Added a Daily Practice Coach panel with `Practice Next`, `Strong`, and `Boost` recommendations.
+- Coach recommendations use existing per-letter and per-mode strength data, prefer Learn when new letters are waiting, and otherwise point students toward weak letter/mode combinations.
+- Deployed the Practice Coach to the active Pi and confirmed the Daily page renders the coach panel.
 
 ### Ready Next
 
 - Decide the first reward labels/badges, such as `Daily Signal Complete`, `First Signals Mastered`, or `Clean Copy`.
 - Decide whether Daily Mission rewards should be recorded as earned badges in student data.
+- Test whether the Daily Practice Coach wording feels encouraging for different student styles.
+- Decide whether to add a separate touch Letter Progress screen with per-letter cards and direct practice links.
 - Continue testing Astrid/Liara-style profiles to confirm each keeps separate progress, learning state, and attempt logs.
 - Run a fresh student-style session across Learn, Send, Read, Listen, Echo, and Daily Mission with one non-Pappy profile.
 - Watch whether the burn-in gate feels motivating rather than blocking after a next-day return.

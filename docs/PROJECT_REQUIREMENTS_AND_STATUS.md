@@ -1146,7 +1146,7 @@ Remote update operations should:
 | Listen progress tracking | Complete |
 | Learn progress tracking | Complete |
 | Learn-first letter unlocking | Complete with burn-in gate; needs student testing |
-| Daily Mission | Started and deployed with completion reward and next-action guidance |
+| Daily Mission | Started and deployed with completion reward, next-action guidance, and Practice Coach |
 | Word Copy practice | Planned |
 | Mastery celebrations and badges | Planned |
 | Future practice game wrapper | Planned |
@@ -1186,6 +1186,7 @@ Immediate build target:
 ```text
 Test the Daily Mission reward on the physical 7-inch screen with real student progress.
 Confirm the celebration sound/LED is noticeable but not disruptive.
+Confirm Practice Coach recommendations feel encouraging and useful.
 Decide whether earned badges should be saved per student after the first reward behavior feels right.
 ```
 

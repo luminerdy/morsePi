@@ -2,8 +2,8 @@
 <html>
 <head>
     <title>Daily Mission - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260621-2">
-    <link rel="stylesheet" href="/static/touch.css?v=20260621-2">
+    <link rel="stylesheet" href="/static/style.css?v=20260621-3">
+    <link rel="stylesheet" href="/static/touch.css?v=20260621-3">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body class="touch-ui"
@@ -45,6 +45,42 @@
                     <em>{{ daily.next_action.detail }}</em>
                 </section>
             {% endif %}
+
+            <section class="touch-daily-coach">
+                <span>{{ daily.coach.headline }}</span>
+                <p>{{ daily.coach.message }}</p>
+                <div class="touch-coach-next">
+                    {% for item in daily.coach.practice_next %}
+                        <a href="{{ item.href }}">
+                            <strong>{{ item.letter }}</strong>
+                            <em>{{ item.mode_label }}</em>
+                            <small>{{ item.reason }}</small>
+                        </a>
+                    {% endfor %}
+                </div>
+                <div class="touch-coach-groups">
+                    <div>
+                        <span>Strong</span>
+                        <p>
+                            {% if daily.coach.strong_signals %}
+                                {% for item in daily.coach.strong_signals %}
+                                    <strong>{{ item.letter }}</strong>
+                                {% endfor %}
+                            {% else %}
+                                <strong>Start</strong>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <span>Boost</span>
+                        <p>
+                            {% for item in daily.coach.signal_boost %}
+                                <strong>{{ item.letter }}</strong>
+                            {% endfor %}
+                        </p>
+                    </div>
+                </div>
+            </section>
 
             <section class="touch-daily-actions">
                 {% if daily.learning_letters %}

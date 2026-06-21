@@ -835,8 +835,117 @@ def daily_mission_summary():
         "learning_letters": state["learning_letters"],
         "letter_morse": get_practice_letter_morse(),
         "message": message,
-        "next_action": next_action
+        "next_action": next_action,
+        "coach": daily_practice_coach(state)
     }
+
+
+def mode_display_label(mode):
+    return practice_modes.get(mode, {}).get("label", mode.title())
+
+
+def daily_practice_coach(state):
+    if state["learning_letters"]:
+        letters = " ".join(state["learning_letters"])
+        return {
+            "headline": "Practice Next",
+            "message": f"Start with Learn for {letters}. New signals stay here until they are ready.",
+            "practice_next": [
+                {
+                    "letter": letter,
+                    "mode": "learn",
+                    "mode_label": "Learn",
+                    "href": "/touch/practice/run?mode=learn",
+                    "score": None,
+                    "reason": "New"
+                }
+                for letter in state["learning_letters"][:3]
+            ],
+            "strong_signals": strongest_letters(state["active_letters"]),
+            "signal_boost": weakest_letters(state["active_letters"])
+        }
+
+    active_letters = state["active_letters"]
+    next_items = weakest_letter_mode_items(active_letters, limit=3)
+    strong = strongest_letters(active_letters)
+    boost = weakest_letters(active_letters)
+
+    if next_items:
+        first = next_items[0]
+        message = f"Try {first['mode_label']} with {first['letter']} next."
+    else:
+        message = "Start with any active signal. The coach will update after a few tries."
+
+    return {
+        "headline": "Practice Coach",
+        "message": message,
+        "practice_next": next_items,
+        "strong_signals": strong,
+        "signal_boost": boost
+    }
+
+
+def weakest_letter_mode_items(letters, limit=3):
+    candidates = []
+
+    for mode in practice_modes:
+        for item in progress_summary(letters, mode):
+            score = item["strength_percent"]
+            attempts = item["attempts"]
+            priority = score + min(attempts, 3) * 3
+
+            candidates.append({
+                "letter": item["letter"],
+                "mode": mode,
+                "mode_label": mode_display_label(mode),
+                "href": f"/touch/practice/run?mode={mode}",
+                "score": score,
+                "attempts": attempts,
+                "reason": "Start" if attempts == 0 else f"{score}%"
+            } | {"priority": priority})
+
+    candidates.sort(key=lambda item: (item["priority"], item["letter"], item["mode"]))
+
+    return [
+        {key: value for key, value in item.items() if key != "priority"}
+        for item in candidates[:limit]
+    ]
+
+
+def letter_strength_rollup(letters):
+    rollup = []
+
+    for letter in letters:
+        mode_items = [
+            item for mode in practice_modes
+            for item in progress_summary([letter], mode)
+        ]
+        attempts = sum(item["attempts"] for item in mode_items)
+        strength = int(round(sum(item["strength_percent"] for item in mode_items) / len(mode_items))) if mode_items else 0
+        accuracy_attempts = sum(item["attempts"] for item in mode_items)
+        correct = sum(item["correct"] for item in mode_items)
+        accuracy = int(round((correct / accuracy_attempts) * 100)) if accuracy_attempts else 0
+
+        rollup.append({
+            "letter": letter,
+            "strength": strength,
+            "attempts": attempts,
+            "accuracy": accuracy
+        })
+
+    return rollup
+
+
+def strongest_letters(letters, limit=3):
+    practiced = [item for item in letter_strength_rollup(letters) if item["attempts"] > 0]
+    practiced.sort(key=lambda item: (-item["strength"], -item["accuracy"], item["letter"]))
+    return practiced[:limit]
+
+
+def weakest_letters(letters, limit=3):
+    rollup = letter_strength_rollup(letters)
+    rollup.sort(key=lambda item: (item["strength"], item["attempts"], item["letter"]))
+    return rollup[:limit]
 
 
 def daily_next_action(state):
