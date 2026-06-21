@@ -231,10 +231,41 @@ class LearningGateTests(unittest.TestCase):
         self.assertFalse(daily["completed"])
         self.assertIn("needs", daily["message"])
 
+    def test_daily_mission_completed_learning_waits_for_next_practice_day(self):
+        self.write_progress(app_module.starter_practice_letters, self.all_modes(1.0))
+        progress = json.loads(self.progress_path.read_text(encoding="utf-8"))
+        for letter in ["S", "O"]:
+            progress[letter] = {
+                "learn": {
+                    "attempts": 10,
+                    "correct": 10,
+                    "last_seen": "2026-06-21T00:00:00+00:00",
+                    "streak": 10,
+                    "strength": 1.0,
+                }
+            }
+        self.progress_path.write_text(json.dumps(progress), encoding="utf-8")
+
+        original_loader = app_module.load_today_attempts
+        app_module.load_today_attempts = lambda: self.make_attempts(total=22, correct=18)
+
+        try:
+            daily = app_module.daily_mission_summary()
+        finally:
+            app_module.load_today_attempts = original_loader
+
+        self.assertEqual(["S", "O"], daily["learning_letters"])
+        self.assertEqual(20, daily["learning_focus"]["correct"])
+        self.assertTrue(daily["completed"])
+        self.assertIn("Come back tomorrow", daily["message"])
+        self.assertEqual("Tomorrow", daily["next_action"]["label"])
+        self.assertEqual("Come Back Tomorrow", daily["next_action"]["title"])
+
     def test_daily_next_action_prefers_learning_now(self):
         state = {
             "active_letters": ["E", "T", "A", "N", "I", "M"],
             "learning_letters": ["S", "O"],
+            "learning_status": None,
             "locked_until_tomorrow": False,
             "next_step": None,
         }

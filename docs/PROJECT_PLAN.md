@@ -445,6 +445,7 @@ When asked to do the daily wrap-up, update:
 - Added regression tests for reset confirmation, Pappy legacy cleanup, backup creation, and protecting other student profiles.
 - Fixed the Daily Mission screen while new letters are in `Learning Now`: mission completion now includes Learn burn-in progress, shows remaining Learn tries, and changes the coach grouping from generic `Boost` to `Learning`.
 - Clarified current-set versus Learning Now progress across touch and desktop Progress/Practice screens so `100%` mode scores do not imply new letters have joined every practice mode.
+- Fixed the completed Learning Now handoff so `20/20 Learn` plus the two-day burn-in gate now points students to `Come Back Tomorrow` instead of asking them to keep learning the same letters.
 
 ### Ready Next
 

@@ -822,7 +822,10 @@ def daily_mission_summary():
     next_action = daily_next_action(state)
 
     if completed:
-        message = "Daily mission complete."
+        if state["learning_status"] and state["learning_status"].get("needs"):
+            message = f"Daily mission complete. {state['learning_status']['next_need'].capitalize()}."
+        else:
+            message = "Daily mission complete."
     elif learning_focus["active"] and learning_focus["next_need"]:
         message = f"Daily mission: {learning_focus['next_need']}."
     elif state["learning_letters"]:
@@ -1037,6 +1040,18 @@ def weakest_letters(letters, limit=3):
 def daily_next_action(state):
     if state["learning_letters"]:
         letters = " ".join(state["learning_letters"])
+        status = state.get("learning_status") or {}
+        focus = daily_learning_focus(state["learning_letters"])
+
+        if focus["complete"] and status.get("needs"):
+            return {
+                "label": "Tomorrow",
+                "mode": "",
+                "href": "/touch/daily",
+                "title": "Come Back Tomorrow",
+                "detail": status.get("next_need", "New signals can join practice on the next practice day.")
+            }
+
         return {
             "label": "Learn",
             "mode": "learn",
