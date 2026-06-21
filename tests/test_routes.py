@@ -69,6 +69,16 @@ class RouteRenderTests(unittest.TestCase):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(value, indent=2), encoding="utf-8")
 
+    def write_text_file(self, student_id, filename, value):
+        path = self.student_file(student_id, filename)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(value, encoding="utf-8")
+
+    def write_legacy_text_file(self, filename, value):
+        path = self.data_dir / filename
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(value, encoding="utf-8")
+
     def write_attempts(self, student_id, total, correct, target="E", mode="send"):
         path = self.student_file(student_id, "practice_attempts.jsonl")
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -194,6 +204,60 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("Start with Learn for S O", astrid_html)
         self.assertIn("6/26", pappy_html)
         self.assertNotIn("Learn S O", pappy_html)
+
+    def test_reset_requires_confirmation(self):
+        self.write_text_file("pappy", "practice_attempts.jsonl", "pappy data\n")
+
+        response = self.client.post(
+            "/students",
+            data={
+                "action": "reset",
+                "student_id": "pappy",
+                "reset_confirm": "nope",
+            },
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("reset_error=type-reset", response.headers["Location"])
+        self.assertTrue(self.student_file("pappy", "practice_attempts.jsonl").exists())
+
+    def test_reset_pappy_backs_up_student_and_legacy_without_touching_other_students(self):
+        self.write_text_file("pappy", "practice_attempts.jsonl", "pappy attempts\n")
+        self.write_json("pappy", "practice_progress.json", {"E": {"send": {"attempts": 1}}})
+        self.write_json("pappy", "learning_state.json", {"groups": {"SO": {}}, "last_learning_start_date": "2026-06-21"})
+        self.write_text_file("astrid", "practice_attempts.jsonl", "astrid attempts\n")
+        self.write_legacy_text_file("practice_attempts.jsonl", "legacy attempts\n")
+        self.write_legacy_text_file("practice_progress.json", "{}")
+        self.write_legacy_text_file("learning_state.json", "{}")
+
+        response = self.client.post(
+            "/students",
+            data={
+                "action": "reset",
+                "student_id": "pappy",
+                "reset_confirm": "RESET",
+            },
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("reset_student=Pappy", response.headers["Location"])
+        self.assertFalse(self.student_file("pappy", "practice_attempts.jsonl").exists())
+        self.assertFalse(self.student_file("pappy", "practice_progress.json").exists())
+        self.assertFalse(self.student_file("pappy", "learning_state.json").exists())
+        self.assertFalse((self.data_dir / "practice_attempts.jsonl").exists())
+        self.assertFalse((self.data_dir / "practice_progress.json").exists())
+        self.assertFalse((self.data_dir / "learning_state.json").exists())
+        self.assertTrue(self.student_file("astrid", "practice_attempts.jsonl").exists())
+
+        backups = list((self.data_dir / "student_backups").glob("*-pappy-reset"))
+        self.assertEqual(1, len(backups))
+        backup = backups[0]
+        self.assertTrue((backup / "student" / "practice_attempts.jsonl").exists())
+        self.assertTrue((backup / "student" / "practice_progress.json").exists())
+        self.assertTrue((backup / "student" / "learning_state.json").exists())
+        self.assertTrue((backup / "legacy" / "practice_attempts.jsonl").exists())
+        self.assertTrue((backup / "legacy" / "practice_progress.json").exists())
+        self.assertTrue((backup / "legacy" / "learning_state.json").exists())
 
 
 if __name__ == "__main__":

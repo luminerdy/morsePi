@@ -1,6 +1,7 @@
 import json
 import re
 import shutil
+from datetime import datetime
 from pathlib import Path
 
 
@@ -16,6 +17,10 @@ STUDENT_FILES = [
     "practice_attempts.jsonl"
 ]
 PROFILE_METADATA = "profile.json"
+
+
+def timestamp_key():
+    return datetime.now().strftime("%Y%m%d-%H%M%S-%f")
 
 
 def slugify_student_id(name):
@@ -193,3 +198,35 @@ def ensure_student_storage(student_id):
 
         if legacy_path.exists() and not target_path.exists():
             shutil.copy2(legacy_path, target_path)
+
+
+def reset_student_storage(student_id):
+    student_id = slugify_student_id(student_id)
+    target_dir = student_dir(student_id)
+    backup_root = DATA_DIR / "student_backups" / f"{timestamp_key()}-{student_id}-reset"
+    removed = []
+
+    def backup_and_remove(source, group):
+        if not source.exists():
+            return
+
+        backup_dir = backup_root / group
+        backup_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, backup_dir / source.name)
+        source.unlink()
+        removed.append(str(source))
+
+    for filename in STUDENT_FILES:
+        backup_and_remove(target_dir / filename, "student")
+
+    if student_id == DEFAULT_STUDENT_ID:
+        for filename in STUDENT_FILES:
+            backup_and_remove(DATA_DIR / filename, "legacy")
+
+    backup_root.mkdir(parents=True, exist_ok=True)
+
+    return {
+        "student_id": student_id,
+        "backup_path": str(backup_root),
+        "removed": removed,
+    }

@@ -228,8 +228,21 @@ textarea {
     line-height: 1.35;
 }
 
+input[type="text"],
+select {
+    width: 100%;
+    min-height: 46px;
+    padding: 0 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    background: var(--surface-muted);
+    color: var(--text);
+    font: inherit;
+}
+
 textarea:focus,
 input[type="text"]:focus,
+select:focus-visible,
 input[type="range"]:focus-visible,
 button:focus-visible,
 a:focus-visible {
@@ -307,6 +320,11 @@ a:focus-visible {
 
 .button.secondary:hover {
     background: var(--surface-muted);
+}
+
+.button.danger-button {
+    border-color: #c95c5c;
+    color: #8f2424;
 }
 
 .button.secondary.active {
@@ -735,6 +753,16 @@ input[type="range"] + .button {
 .feedback-box.needs-practice {
     background: var(--warning-bg);
     border-color: var(--warning-border);
+}
+
+.admin-panel {
+    border-color: var(--warning-border);
+}
+
+.admin-reset-form {
+    display: grid;
+    gap: 10px;
+    margin-top: 12px;
 }
 
 @media (max-width: 900px) {

@@ -441,10 +441,12 @@ When asked to do the daily wrap-up, update:
 - Changed the unlock rule so new letters start only after the current active set reaches 100% across all five modes: Learn, Send, Read, Listen, and Echo.
 - Added a Python `unittest` regression bank for learning gates, alphabet progress, stale Learning Now cleanup, Learn burn-in graduation, Daily Mission summary rules, and Practice Coach recommendations.
 - Added Flask route/render regression tests for touch Daily/Progress/Learn pages, Daily celebration endpoint behavior, stale Learning Now pruning during render, and student cookie separation.
+- Added a desktop-only Admin Reset form on `/students` that requires typing `RESET`, creates a timestamped backup, clears the selected student's progress files, and clears legacy top-level files for Pappy so they cannot re-seed progress.
+- Added regression tests for reset confirmation, Pappy legacy cleanup, backup creation, and protecting other student profiles.
 
 ### Ready Next
 
-- Add more regression tests for student profile reset behavior and practice POST routes.
+- Add regression tests for practice POST routes.
 - Test whether `6/26` letters mastered plus `100% current set` is clearer for students than the previous overall percent.
 - Decide the first reward labels/badges, such as `Daily Signal Complete`, `First Signals Mastered`, or `Clean Copy`.
 - Decide whether Daily Mission rewards should be recorded as earned badges in student data.

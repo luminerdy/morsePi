@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Students - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260621-1">
+    <link rel="stylesheet" href="/static/style.css?v=20260621-5">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -61,6 +61,40 @@
                     <input id="student_name" name="student_name" type="text" autocomplete="off" placeholder="Student name">
                     <div class="action-row">
                         <button class="button primary" type="submit">Add Student</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="panel admin-panel">
+                <div class="section-heading">
+                    <h2>Admin Reset</h2>
+                    <span class="panel-meta">Desktop only</span>
+                </div>
+
+                {% if reset_student %}
+                    <div class="feedback-box success inline-feedback">
+                        {{ reset_student }} progress was backed up and reset.
+                    </div>
+                {% elif reset_error %}
+                    <div class="feedback-box needs-practice inline-feedback">
+                        Type RESET before clearing student progress.
+                    </div>
+                {% endif %}
+
+                <form method="post" action="/students" class="admin-reset-form">
+                    <input type="hidden" name="action" value="reset">
+                    <label for="reset_student_id">Student</label>
+                    <select id="reset_student_id" name="student_id">
+                        {% for profile in student_profiles %}
+                            <option value="{{ profile.id }}" {% if profile.id == current_student.id %}selected{% endif %}>{{ profile.name }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label for="reset_confirm">Confirm</label>
+                    <input id="reset_confirm" name="reset_confirm" type="text" autocomplete="off" placeholder="Type RESET">
+
+                    <div class="action-row">
+                        <button class="button secondary danger-button" type="submit">Reset Student Progress</button>
                     </div>
                 </form>
             </section>

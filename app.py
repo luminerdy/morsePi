@@ -13,6 +13,7 @@ from student_profiles import (
     ensure_student_storage,
     load_profiles,
     profile_for_id,
+    reset_student_storage,
     student_data_path,
     slugify_student_id,
 )
@@ -1364,6 +1365,19 @@ def students():
     if request.method == "POST":
         action = request.form.get("action", "select")
 
+        if action == "reset":
+            profile = profile_for_id(slugify_student_id(request.form.get("student_id", "")))
+            if request.form.get("reset_confirm", "").strip().upper() != "RESET":
+                return redirect(url_for("students", reset_error="type-reset"))
+
+            reset_student_storage(profile["id"])
+            practice_target = "E"
+            practice_feedback = ""
+            clear_key_state()
+            response = redirect(url_for("students", reset_student=profile["name"]))
+            response.set_cookie(STUDENT_COOKIE, profile["id"], max_age=60 * 60 * 24 * 365)
+            return response
+
         if action == "create":
             profile = add_profile(request.form.get("student_name", ""))
         else:
@@ -1379,7 +1393,9 @@ def students():
 
     return render_template(
         "students.html",
-        next_url=safe_next_url("index")
+        next_url=safe_next_url("index"),
+        reset_student=request.args.get("reset_student", ""),
+        reset_error=request.args.get("reset_error", "")
     )
 
 
