@@ -110,7 +110,7 @@ Profile admin design notes:
 
 ### MVP 3.5: Daily Mission
 
-Status: Started locally; deploy after active student testing is not in progress.
+Status: Started and deployed; needs student testing.
 
 Goal: Give each student a daily practice loop that reviews all learned letters so far and makes progress visible by day.
 
@@ -127,6 +127,30 @@ Next refinements:
 - Add a daily completion celebration with sound and LED flash.
 - Store earned daily badges after the first reward behavior is tested.
 - Add a desktop/admin daily history view.
+
+### MVP 3.6: Words And Rewards
+
+Status: Planned
+
+Goal: Move students from isolated letters toward practical Morse communication while preserving motivating mastery loops.
+
+Planned work:
+
+- Add Word Copy practice using only active/learned letters.
+- Start with 2-3 letter words, then grow toward short messages.
+- Favor touch word choices and telegraph-key input before typed answers.
+- Add Signal Set Complete celebration when active letters reach 100%.
+- Add New Mission Unlocked feedback when new letters enter Learning Now.
+- Add Daily Mission completion celebration with short sound and LED flash.
+- Track word progress separately from letter mastery.
+- Consider a future game wrapper, such as Signal Quest or Message Rescue, after word practice is stable.
+
+Design notes:
+
+- Perfection-driven students should see clean mastery goals and badges.
+- Practical-progress students should quickly see real words and message-like tasks.
+- Avoid leaderboards for now; keep progress personal and encouraging.
+- Treat 100% as a transition to the next mission, not the end of the app.
 
 ### MVP 4: Morse Login
 

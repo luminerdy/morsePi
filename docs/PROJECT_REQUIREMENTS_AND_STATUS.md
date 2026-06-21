@@ -811,7 +811,86 @@ Current Speed: Turtle Mode
 
 ---
 
-## 12. LLM-Assisted Learning Requirements
+## 12. Word Practice, Rewards, And Future Game Requirements
+
+### WORD-001: Known-letter word practice
+
+The system should introduce short words before the full alphabet is unlocked.
+
+Rules:
+
+```text
+use only active letters and approved Learning Now letters
+start with 2-3 letter words
+grow to 4-5 letter words
+avoid unknown letters unless clearly marked as preview
+track word practice separately from letter mastery
+```
+
+Early word activities should avoid requiring typing on the 7-inch station.
+
+Preferred touch activities:
+
+```text
+hear Morse and choose the word
+see a word and key it
+hear a word and echo it back
+match visible Morse to the word
+```
+
+---
+
+### REWARD-001: Mastery celebrations
+
+The system should celebrate real learning milestones.
+
+Reward moments:
+
+```text
+active signal set reaches 100%
+new letters unlock into Learning Now
+Learning Now letters graduate into active practice
+Daily Mission completed
+first perfect Echo round
+first perfect Word Copy round
+return-day burn-in completed
+```
+
+Reward style:
+
+```text
+full-screen touch celebration
+short Morse-style sound flourish
+LED flash pattern
+badge/rank text
+clear next mission
+```
+
+The system should not make 100% feel like the app is finished. It should point the student toward the next mission.
+
+---
+
+### GAME-001: Future practice game wrapper
+
+The system may later add a game mode after Daily Mission, word practice, and rewards are stable.
+
+Possible direction:
+
+```text
+Signal Quest:
+Student is a radio operator.
+Daily practice powers the station.
+Letters unlock places, badges, or message missions.
+Words become supplies, secret notes, or rescued messages.
+Accuracy keeps the signal clear.
+Mistakes create static rather than punishment.
+```
+
+The game should reuse the real practice engine and should not become a separate toy disconnected from learning progress.
+
+---
+
+## 13. LLM-Assisted Learning Requirements
 
 LLM support should be added later, after logging and student progress tracking exist.
 
@@ -1067,7 +1146,10 @@ Remote update operations should:
 | Listen progress tracking | Complete |
 | Learn progress tracking | Complete |
 | Learn-first letter unlocking | Complete with burn-in gate; needs student testing |
-| Daily Mission | Started locally; needs Pi deployment and student testing |
+| Daily Mission | Started and deployed; needs student testing |
+| Word Copy practice | Planned |
+| Mastery celebrations and badges | Planned |
+| Future practice game wrapper | Planned |
 | Better timing feedback | Not started |
 | Refactor hardware code | Not started |
 

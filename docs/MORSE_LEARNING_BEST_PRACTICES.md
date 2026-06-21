@@ -176,6 +176,68 @@ Design cautions:
 - Keep the change subtle so students still learn real Morse rhythm.
 - Show adaptive timing as help, not failure, if it becomes visible in the UI.
 
+## Words, Transfer, And Practical Copy
+
+Letter drills build the foundation, but students should not wait until all A-Z letters are unlocked before seeing words. Words make Morse feel useful and help students transfer isolated letter knowledge into practical communication.
+
+Recommended progression:
+
+1. Start with micro-words made only from active letters.
+2. Add unlocked-letter words as more letters graduate into active practice.
+3. Use Daily Mission word challenges as optional short wins.
+4. Later add secret message activities where the student decodes real words or short phrases.
+
+Design rules:
+
+- Do not introduce words containing unknown letters unless the activity is explicitly a preview.
+- Keep early words short: 2-3 letters, then 4-5 letters.
+- Favor touch choices and telegraph-key input before keyboard typing for younger students.
+- Keep typed answers available on desktop/testing, but avoid making keyboard skill a blocker on the 7-inch station.
+- Track word practice separately from letter mastery so a hard word does not make basic letter progress feel worse.
+
+Student motivation notes:
+
+- Some students, like Astrid, may be motivated by perfection and 100% mastery.
+- Other students, like Liara, may be motivated by practical progress and using Morse to copy something meaningful.
+- The app should support both: clean mastery loops for perfection-driven students, plus real-word missions for practical learners.
+
+Good first word activities:
+
+```text
+Hear Morse -> choose the word from large touch buttons.
+See a word -> key the Morse with the telegraph key.
+Hear a short word -> echo it back with the key.
+Match visible Morse to the word.
+```
+
+## Rewards And Daily Return
+
+Rewards should celebrate real learning moments and point to the next mission. The goal is to make 100% feel like a doorway, not the end of the app.
+
+Recommended reward moments:
+
+- Active signal set reaches 100% across practice areas.
+- New letters unlock into Learning Now.
+- Learning Now letters graduate into active practice.
+- Daily Mission is completed.
+- First perfect Echo or Word Copy round.
+- A student returns on another day to complete burn-in.
+
+Recommended reward style:
+
+- Full-screen touch celebration for important milestones.
+- Short Morse-style sound flourish.
+- LED celebration flash.
+- Badge text connected to the skill, such as `First Signals Mastered` or `Clean Copy`.
+- Immediate next mission text, such as `New mission: Learn S O`.
+
+Avoid:
+
+- Leaderboards between students.
+- Long animations that slow practice.
+- Rewards unrelated to actual learning.
+- Making the app feel finished when a student reaches 100% on the current active set.
+
 ## Touch Station Design Notes
 
 The 7-inch Pi touchscreen should be a focused learning station.
@@ -186,6 +248,41 @@ Current direction:
 - Typed Message is hidden from the student-facing touch menu because typing phrases on the small screen is awkward.
 - Spacebar Keyer is hidden on touch screens; physical key input is the main interaction.
 - Desktop/laptop pages keep typed messages and Spacebar Keyer for testing.
+- Daily Mission should become the normal first stop if student testing shows it makes the learning flow clearer.
+- Word Copy should favor large touch choices and keyer input before typed answers.
+
+## Future Game Direction
+
+A game mode can become useful after Daily Mission, word practice, and rewards are stable. It should wrap real practice rather than becoming a separate toy.
+
+Possible game concept:
+
+```text
+Signal Quest
+Student is a radio operator.
+Daily practice powers the station.
+Letters unlock places, badges, or message missions.
+Words become supplies, secret notes, or rescued messages.
+Accuracy keeps the signal clear.
+Mistakes create static, not punishment.
+```
+
+Simpler first game:
+
+```text
+Message Rescue
+A word arrives by Morse.
+Student decodes it using big touch choices or keys it back.
+Correct words repair the signal tower, light a beacon, or deliver a secret note.
+Only already-learned letters appear.
+```
+
+Implementation guidance:
+
+- Build game mode after the core practice engine and word practice are stable.
+- Reuse existing Daily Mission, practice attempts, timing, and reward systems.
+- Keep the game cooperative and personal rather than competitive.
+- Use practical progress for students who want meaning and mastery badges for students who want perfection.
 
 ## Sources
 
@@ -193,6 +290,7 @@ Current direction:
 - Wikipedia, "Words per minute" - Morse WPM measurement and `PARIS`/`CODEX` timing standards: https://en.wikipedia.org/wiki/Words_per_minute
 - Wikipedia, "W1AW" - ARRL code practice speeds and training broadcast context: https://en.wikipedia.org/wiki/W1AW
 - LCWO - online Morse practice using Koch-style lessons and speed settings: https://lcwo.net/
+- ARRL, "W1AW Operating Schedule" - slow/fast code practice speeds and real-text practice context: https://www.arrl.org/w1aw-operating-schedule
 
 ## Project Decisions From This Research
 
@@ -203,3 +301,5 @@ Current direction:
 - Use Learn-first gating for new letters so students are not surprised by unlearned prompts in Send, Read, Listen, or Echo.
 - Prioritize timing feedback before adding too many new features.
 - Keep progress feedback simple on the touch station and detailed on desktop.
+- Introduce word practice before the full alphabet is unlocked, using only known letters.
+- Use Daily Mission and future rewards to turn mastery into the next learning step.
