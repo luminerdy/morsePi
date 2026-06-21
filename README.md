@@ -67,6 +67,17 @@ http://<pi-ip-address>:5000
 For a fresh Raspberry Pi setup, follow [docs/SETUP_AND_CONFIGURE_PI.md](docs/SETUP_AND_CONFIGURE_PI.md).
 For current hardware parts, see [docs/BILL_OF_MATERIALS.md](docs/BILL_OF_MATERIALS.md).
 
+## Regression Tests
+
+Run the learning gate test bank on the Pi with mock GPIO:
+
+```bash
+cd /home/morse/morse-station
+GPIOZERO_PIN_FACTORY=mock python3 -m unittest tests.test_learning_gates
+```
+
+These tests use temporary progress files and do not modify student practice data.
+
 ## Repository Layout
 
 ```text
@@ -74,6 +85,7 @@ app.py                  Current Flask application
 morse.py                Morse conversion helpers
 templates/              Flask HTML templates
 static/                 CSS and browser JavaScript
+tests/                  Regression tests for learning gates and progress rules
 hardware_tests/         Standalone GPIO/audio test scripts
 archive/                Earlier prototypes kept for reference
 docs/                   Project plan, setup guide, requirements, tutorials
