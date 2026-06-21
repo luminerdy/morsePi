@@ -69,14 +69,14 @@ For current hardware parts, see [docs/BILL_OF_MATERIALS.md](docs/BILL_OF_MATERIA
 
 ## Regression Tests
 
-Run the learning gate test bank on the Pi with mock GPIO:
+Run the regression test bank on the Pi with mock GPIO:
 
 ```bash
 cd /home/morse/morse-station
-GPIOZERO_PIN_FACTORY=mock python3 -m unittest tests.test_learning_gates
+GPIOZERO_PIN_FACTORY=mock python3 -m unittest tests.test_learning_gates tests.test_routes
 ```
 
-These tests use temporary progress files and do not modify student practice data. The current bank covers learning gates, alphabet progress, stale Learning Now cleanup, Daily Mission summary rules, and Practice Coach recommendations.
+These tests use temporary progress files and do not modify student practice data. The current bank covers learning gates, alphabet progress, stale Learning Now cleanup, Daily Mission summary rules, Practice Coach recommendations, rendered touch pages, profile cookie separation, and the Daily celebration endpoint.
 
 ## Repository Layout
 
