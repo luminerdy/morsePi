@@ -453,7 +453,12 @@
     gap: 8px;
 }
 
+.touch-daily-layout.mission-complete {
+    grid-template-columns: 230px 250px minmax(0, 1fr);
+}
+
 .touch-daily-hero,
+.touch-daily-reward,
 .touch-daily-actions,
 .touch-daily-letters {
     min-height: 0;
@@ -491,11 +496,50 @@
     font-weight: 800;
 }
 
+.touch-daily-reward {
+    display: grid;
+    align-content: center;
+    gap: 8px;
+    background: #e8f7ef;
+    border-color: #91d7b0;
+}
+
+.touch-daily-reward span,
+.touch-daily-reward em {
+    color: var(--accent);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.touch-daily-reward strong {
+    color: #11613e;
+    font-size: 34px;
+    line-height: 1;
+}
+
+.touch-daily-reward p {
+    margin: 0;
+    color: var(--text);
+    font-size: 17px;
+    font-weight: 900;
+}
+
+.touch-daily-reward .button {
+    width: 100%;
+    min-height: 50px;
+}
+
 .touch-daily-actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-auto-rows: minmax(0, 1fr);
     gap: 8px;
+}
+
+.mission-complete .touch-daily-actions {
+    grid-template-columns: 1fr;
 }
 
 .touch-daily-actions .touch-menu-card {

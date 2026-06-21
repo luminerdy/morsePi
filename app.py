@@ -83,6 +83,7 @@ DOT_DASH_THRESHOLD_UNITS = 2.5
 SAMPLE_RATE = 44100
 DEFAULT_STATION_VOLUME = 0.35
 DAILY_MISSION_GOAL = 20
+DAILY_CELEBRATION_MORSE = "...-"
 
 # Prefer the ALSA card name instead of a numeric card index so the USB speaker
 # keeps working when the SD card moves to another Pi or USB port.
@@ -638,6 +639,14 @@ def play_in_background(morse: str):
     thread.start()
 
 
+def play_daily_celebration_in_background():
+    stop_station_playback()
+
+    thread = threading.Thread(target=play_morse_on_station, args=(DAILY_CELEBRATION_MORSE,))
+    thread.daemon = True
+    thread.start()
+
+
 def play_practice_prompt_in_background(mode: str):
     morse = text_to_morse(practice_target)
     timing = get_practice_timing(mode, practice_target)
@@ -800,9 +809,11 @@ def daily_mission_summary():
     remaining = max(0, DAILY_MISSION_GOAL - total)
     accuracy = int(round((correct / total) * 100)) if total else 0
     progress = min(100, int(round((total / DAILY_MISSION_GOAL) * 100))) if DAILY_MISSION_GOAL else 100
+    completed = total >= DAILY_MISSION_GOAL
+    next_action = daily_next_action(state)
 
-    if total >= DAILY_MISSION_GOAL:
-        message = "Daily mission complete. Great practice today."
+    if completed:
+        message = "Daily mission complete."
     elif state["learning_letters"]:
         message = f"Daily mission: practice today and spend time with {' '.join(state['learning_letters'])}."
     else:
@@ -817,13 +828,75 @@ def daily_mission_summary():
         "remaining": remaining,
         "accuracy": accuracy,
         "progress": progress,
-        "completed": total >= DAILY_MISSION_GOAL,
+        "completed": completed,
         "letters": letters,
         "modes": modes,
         "active_letters": state["active_letters"],
         "learning_letters": state["learning_letters"],
         "letter_morse": get_practice_letter_morse(),
-        "message": message
+        "message": message,
+        "next_action": next_action
+    }
+
+
+def daily_next_action(state):
+    if state["learning_letters"]:
+        letters = " ".join(state["learning_letters"])
+        return {
+            "label": "Learn",
+            "mode": "learn",
+            "href": "/touch/practice/run?mode=learn",
+            "title": f"Learn {letters}",
+            "detail": "New signals are waiting. Learn them before they join the other practice modes."
+        }
+
+    active_letters = state["active_letters"]
+    mode_scores = [
+        (mode, mode_score(active_letters, mode))
+        for mode in practice_modes
+    ]
+
+    weakest_mode, weakest_score = min(
+        mode_scores,
+        key=lambda item: (item[1]["mastery"], item[1]["accuracy"], item[0])
+    )
+    mode_label = practice_modes[weakest_mode]["label"]
+
+    if weakest_score["mastery"] < 100:
+        return {
+            "label": mode_label,
+            "mode": weakest_mode,
+            "href": f"/touch/practice/run?mode={weakest_mode}",
+            "title": f"Practice {mode_label}",
+            "detail": f"{mode_label} has the most room to improve today."
+        }
+
+    if state["locked_until_tomorrow"]:
+        return {
+            "label": "Tomorrow",
+            "mode": "",
+            "href": "/touch/daily",
+            "title": "Come Back Tomorrow",
+            "detail": "New signals can open on the next practice day."
+        }
+
+    next_step = state["next_step"] or get_next_letter_unlock(active_letters)
+    if next_step and next_step.get("letters"):
+        letters = " ".join(next_step["letters"])
+        return {
+            "label": "Next",
+            "mode": "",
+            "href": "/touch/progress",
+            "title": f"Next Signals: {letters}",
+            "detail": "Keep today's active signals strong to unlock the next group."
+        }
+
+    return {
+        "label": "Progress",
+        "mode": "",
+        "href": "/touch/progress",
+        "title": "Review Progress",
+        "detail": "All planned signals are open. Check progress for the next weak spot."
     }
 
 
@@ -1142,6 +1215,15 @@ def touch_daily():
         daily=daily_mission_summary(),
         timing=get_morse_timing()
     )
+
+
+@app.route("/touch/daily/celebrate", methods=["POST"])
+def touch_daily_celebrate():
+    if daily_mission_summary()["completed"]:
+        play_daily_celebration_in_background()
+        return jsonify({"status": "celebrating"})
+
+    return jsonify({"status": "not-complete"}), 409
 
 
 @app.route("/students", methods=["GET", "POST"])

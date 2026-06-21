@@ -1146,7 +1146,7 @@ Remote update operations should:
 | Listen progress tracking | Complete |
 | Learn progress tracking | Complete |
 | Learn-first letter unlocking | Complete with burn-in gate; needs student testing |
-| Daily Mission | Started and deployed; early student testing is positive |
+| Daily Mission | Started and deployed with completion reward and next-action guidance |
 | Word Copy practice | Planned |
 | Mastery celebrations and badges | Planned |
 | Future practice game wrapper | Planned |
@@ -1184,9 +1184,9 @@ Unlock behavior:
 Immediate build target:
 
 ```text
-Add Daily Mission completion reward and next-action guidance.
-When today's mission reaches 20 signals, show a short celebration, play a brief sound, flash the LED, and point to the next useful practice step.
-Recommended next actions should prefer Learn when new letters are waiting, otherwise the weakest current practice mode.
+Test the Daily Mission reward on the physical 7-inch screen with real student progress.
+Confirm the celebration sound/LED is noticeable but not disruptive.
+Decide whether earned badges should be saved per student after the first reward behavior feels right.
 ```
 
 ### Step 1: Test the core practice loops

@@ -110,7 +110,7 @@ Profile admin design notes:
 
 ### MVP 3.5: Daily Mission
 
-Status: Started and deployed; needs student testing.
+Status: Started and deployed; early student testing is positive.
 
 Goal: Give each student a daily practice loop that reviews all learned letters so far and makes progress visible by day.
 
@@ -124,7 +124,6 @@ First version:
 
 Next refinements:
 
-- Add a daily completion celebration with sound and LED flash.
 - Store earned daily badges after the first reward behavior is tested.
 - Add a desktop/admin daily history view.
 
@@ -428,12 +427,18 @@ When asked to do the daily wrap-up, update:
 - Decided tomorrow's first build should focus on Daily Mission motivation: completion celebration, short sound/LED feedback, and a clear next action such as Learn new letters or practice the weakest mode.
 - Close-of-day GitHub status: student profiles, Daily Mission, words/rewards/game notes, and documentation updates are committed and pushed to `main`.
 
+### 2026-06-21
+
+- Added Daily Mission completion reward on the 7-inch touch screen.
+- Completed missions now show a `Mission Complete` reward panel with `Signal Clear`, today's accuracy, and the next recommended action.
+- Added Pi station celebration playback using a short Morse `V` flourish through the USB speaker with synchronized LED flash.
+- Added next-action guidance: prefer Learn when new letters are waiting, otherwise send the student to the weakest current practice mode or progress/next unlock guidance.
+- Deployed the reward flow to the active Pi at `10.10.10.141` and confirmed the service is active.
+
 ### Ready Next
 
-- Add Daily Mission completion celebration with a short sound, LED flash pattern, and full-screen touch reward.
-- Add Daily Mission next-action guidance so 100% points to the next useful mission instead of feeling finished.
-- Use the next action to recommend Learn when new letters are waiting, or the weakest practice mode when accuracy needs reinforcement.
 - Decide the first reward labels/badges, such as `Daily Signal Complete`, `First Signals Mastered`, or `Clean Copy`.
+- Decide whether Daily Mission rewards should be recorded as earned badges in student data.
 - Continue testing Astrid/Liara-style profiles to confirm each keeps separate progress, learning state, and attempt logs.
 - Run a fresh student-style session across Learn, Send, Read, Listen, Echo, and Daily Mission with one non-Pappy profile.
 - Watch whether the burn-in gate feels motivating rather than blocking after a next-day return.

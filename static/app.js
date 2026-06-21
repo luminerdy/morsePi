@@ -149,6 +149,38 @@ async function browserBeep(audioCtx, durationMs, playback = null) {
     }
 }
 
+async function triggerDailyCelebration() {
+    try {
+        await fetch("/touch/daily/celebrate", { method: "POST" });
+    } catch (error) {
+        console.log("Unable to trigger daily celebration", error);
+    }
+}
+
+function initializeDailyMissionReward() {
+    const daily = document.querySelector("[data-daily-complete]");
+
+    if (!daily || daily.dataset.dailyComplete !== "true") {
+        return;
+    }
+
+    const rewardKey = [
+        "dailyMissionReward",
+        daily.dataset.dailyDate || "",
+        daily.dataset.dailyStudent || ""
+    ].join(":");
+
+    if (window.localStorage.getItem(rewardKey)) {
+        return;
+    }
+
+    window.localStorage.setItem(rewardKey, "played");
+
+    setTimeout(() => {
+        triggerDailyCelebration();
+    }, 500);
+}
+
 function ensureKeyboardAudioContext() {
     keyboardAudioCtx = ensureBrowserAudioContext();
     return keyboardAudioCtx;
@@ -1114,6 +1146,7 @@ function initializeTouchRedirect() {
 document.addEventListener("DOMContentLoaded", () => {
     initializeTouchRedirect();
     initializePracticeMode();
+    initializeDailyMissionReward();
 
     if (document.getElementById("liveMorse") && document.getElementById("liveDecoded")) {
         updateLiveKey();
