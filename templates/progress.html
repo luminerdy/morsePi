@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Progress - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260620-3">
+    <link rel="stylesheet" href="/static/style.css?v=20260621-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -11,7 +11,7 @@
             <div>
                 <p class="eyebrow">Morse Station</p>
                 <h1>Progress</h1>
-                <p class="student-name">{{ current_student.name }}</p>
+                <a class="student-name student-switch-link" href="/students?next=/progress?mode={{ mode }}">{{ current_student.name }}</a>
             </div>
 
             <nav class="nav-row" aria-label="Primary navigation">
