@@ -439,11 +439,11 @@ When asked to do the daily wrap-up, update:
 - Deployed the Practice Coach to the active Pi and confirmed the Daily page renders the coach panel.
 - Separated current-set mastery from full alphabet progress: the UI now shows letters mastered as `6/26`, `8/26`, etc. instead of implying the student is 100% done with Morse.
 - Changed the unlock rule so new letters start only after the current active set reaches 100% across all five modes: Learn, Send, Read, Listen, and Echo.
-- Added a Python `unittest` regression bank for learning gates, alphabet progress, stale Learning Now cleanup, and Learn burn-in graduation.
+- Added a Python `unittest` regression bank for learning gates, alphabet progress, stale Learning Now cleanup, Learn burn-in graduation, Daily Mission summary rules, and Practice Coach recommendations.
 
 ### Ready Next
 
-- Add more regression tests for Daily Mission completion/reward selection and Practice Coach recommendations.
+- Add more regression tests for rendered touch pages and student profile reset behavior.
 - Test whether `6/26` letters mastered plus `100% current set` is clearer for students than the previous overall percent.
 - Decide the first reward labels/badges, such as `Daily Signal Complete`, `First Signals Mastered`, or `Clean Copy`.
 - Decide whether Daily Mission rewards should be recorded as earned badges in student data.

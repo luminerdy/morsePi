@@ -36,6 +36,21 @@ class LearningGateTests(unittest.TestCase):
         app_module.learning_state_path = Path("data/learning_state.json")
         self.temp_dir.cleanup()
 
+    def make_attempts(self, total, correct, target="E", mode="send"):
+        attempts = []
+
+        for index in range(total):
+            attempts.append(
+                {
+                    "correct": index < correct,
+                    "target": target,
+                    "mode": mode,
+                    "timestamp": f"{app_module.today_key()}T00:{index:02d}:00+00:00",
+                }
+            )
+
+        return attempts
+
     def write_progress(self, letters, strength_by_mode):
         progress = {}
 
@@ -158,6 +173,109 @@ class LearningGateTests(unittest.TestCase):
         self.assertEqual([], state["learning_letters"])
         self.assertEqual(["E", "T", "A", "N", "I", "M", "S", "O"], state["active_letters"])
         self.assertEqual("8/26", overall["alphabet_progress"])
+
+    def test_daily_mission_summary_caps_display_and_marks_complete(self):
+        original_loader = app_module.load_today_attempts
+        app_module.load_today_attempts = lambda: self.make_attempts(total=22, correct=18)
+
+        try:
+            daily = app_module.daily_mission_summary()
+        finally:
+            app_module.load_today_attempts = original_loader
+
+        self.assertEqual(22, daily["attempts"])
+        self.assertEqual(20, daily["display_attempts"])
+        self.assertEqual(0, daily["remaining"])
+        self.assertEqual(100, daily["progress"])
+        self.assertEqual(82, daily["accuracy"])
+        self.assertTrue(daily["completed"])
+        self.assertEqual("Daily mission complete.", daily["message"])
+
+    def test_daily_next_action_prefers_learning_now(self):
+        state = {
+            "active_letters": ["E", "T", "A", "N", "I", "M"],
+            "learning_letters": ["S", "O"],
+            "locked_until_tomorrow": False,
+            "next_step": None,
+        }
+
+        action = app_module.daily_next_action(state)
+        coach = app_module.daily_practice_coach(state)
+
+        self.assertEqual("learn", action["mode"])
+        self.assertEqual("Learn S O", action["title"])
+        self.assertEqual("Practice Next", coach["headline"])
+        self.assertEqual(["S", "O"], [item["letter"] for item in coach["practice_next"]])
+        self.assertTrue(all(item["mode"] == "learn" for item in coach["practice_next"]))
+
+    def test_practice_coach_recommends_weakest_letter_and_mode(self):
+        progress = {}
+
+        for letter in app_module.starter_practice_letters:
+            progress[letter] = {
+                mode: {
+                    "attempts": 8,
+                    "correct": 8,
+                    "last_seen": "2026-06-21T00:00:00+00:00",
+                    "streak": 8,
+                    "strength": 1.0,
+                }
+                for mode in app_module.practice_modes
+            }
+
+        progress["M"]["listen"] = {
+            "attempts": 3,
+            "correct": 1,
+            "last_seen": "2026-06-21T00:00:00+00:00",
+            "streak": 0,
+            "strength": 0.0,
+        }
+        self.progress_path.write_text(json.dumps(progress), encoding="utf-8")
+
+        state = {
+            "active_letters": app_module.starter_practice_letters,
+            "learning_letters": [],
+        }
+        coach = app_module.daily_practice_coach(state)
+        first = coach["practice_next"][0]
+
+        self.assertEqual("Practice Coach", coach["headline"])
+        self.assertEqual("M", first["letter"])
+        self.assertEqual("listen", first["mode"])
+        self.assertEqual("Listen", first["mode_label"])
+        self.assertEqual("0%", first["reason"])
+        self.assertEqual("M", coach["signal_boost"][0]["letter"])
+
+    def test_daily_next_action_points_to_weakest_mode_when_no_learning_now(self):
+        progress = {}
+
+        for letter in app_module.starter_practice_letters:
+            progress[letter] = {
+                mode: {
+                    "attempts": 8,
+                    "correct": 8,
+                    "last_seen": "2026-06-21T00:00:00+00:00",
+                    "streak": 8,
+                    "strength": 1.0,
+                }
+                for mode in app_module.practice_modes
+            }
+
+        for letter in app_module.starter_practice_letters:
+            progress[letter]["echo"]["strength"] = 0.25
+        self.progress_path.write_text(json.dumps(progress), encoding="utf-8")
+
+        state = {
+            "active_letters": app_module.starter_practice_letters,
+            "learning_letters": [],
+            "locked_until_tomorrow": False,
+            "next_step": {"letters": ["S", "O"], "threshold": 100, "label": "Signal Builder"},
+        }
+        action = app_module.daily_next_action(state)
+
+        self.assertEqual("echo", action["mode"])
+        self.assertEqual("Practice Echo", action["title"])
+        self.assertIn("most room", action["detail"])
 
 
 if __name__ == "__main__":
