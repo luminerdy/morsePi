@@ -1100,7 +1100,7 @@ def get_practice_letter_state():
     today = today_key()
     changed = False
 
-    for step in letter_unlock_steps:
+    for index, step in enumerate(letter_unlock_steps):
         key = step_key(step)
         scores = [mode_score(active, mode) for mode in practice_modes]
 
@@ -1129,6 +1129,17 @@ def get_practice_letter_state():
                 learning_status = get_learning_step_status(step, learned_since)
                 break
         else:
+            stale_keys = [
+                step_key(stale_step)
+                for stale_step in letter_unlock_steps[index:]
+                if step_key(stale_step) in state["groups"]
+            ]
+            if stale_keys:
+                for stale_key in stale_keys:
+                    state["groups"].pop(stale_key, None)
+                state["last_learning_start_date"] = ""
+                changed = True
+
             next_step = step
             break
 
