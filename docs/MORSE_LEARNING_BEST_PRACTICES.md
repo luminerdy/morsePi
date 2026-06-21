@@ -303,3 +303,5 @@ Implementation guidance:
 - Keep progress feedback simple on the touch station and detailed on desktop.
 - Introduce word practice before the full alphabet is unlocked, using only known letters.
 - Use Daily Mission and future rewards to turn mastery into the next learning step.
+- Make Daily Mission the first place to test motivational feedback because it already combines daily effort, accuracy, active letters, and next practice choices.
+- Favor a next-action reward model: celebrate completion briefly, then guide the student to Learn new letters or strengthen the weakest mode.

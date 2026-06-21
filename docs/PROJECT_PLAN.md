@@ -419,12 +419,23 @@ When asked to do the daily wrap-up, update:
 - Preserved existing single-student progress by copying legacy data files into the default `Pappy` profile on first run.
 - Added current student labels to the touch menu, touch practice screens, and progress pages.
 - Deployed to the active Pi and confirmed the `Pappy` profile picker, cookie selection, and migrated progress files are working.
+- Fixed student roster persistence so new students remain available after navigation and profile switching.
+- Made the active student name more prominent on student-facing touch pages.
+- Added a touch Daily Mission page that summarizes today's progress, accuracy, remaining signals, active letters, Learning Now letters, and practiced letters.
+- Added Daily Mission to the touch menu as the likely student starting point.
+- Confirmed hands-on testing with multiple students: profile creation/switching works, the larger student name works well, and the Daily screen data/screens are useful.
+- Captured learning direction for words, rewards, and future game ideas: introduce known-letter words before the full alphabet, reward real mastery milestones, and use game concepts later as wrappers around real practice.
+- Decided tomorrow's first build should focus on Daily Mission motivation: completion celebration, short sound/LED feedback, and a clear next action such as Learn new letters or practice the weakest mode.
+- Close-of-day GitHub status: student profiles, Daily Mission, words/rewards/game notes, and documentation updates are committed and pushed to `main`.
 
 ### Ready Next
 
-- Add real grandkid/student profiles from the touch screen and confirm each starts with separate beginner progress.
-- Switch between `Pappy` and a new student, then verify each profile keeps its own progress, learning state, and attempt log.
-- Run a fresh student-style session across Learn, Send, Read, Listen, and Echo with one non-Pappy profile.
+- Add Daily Mission completion celebration with a short sound, LED flash pattern, and full-screen touch reward.
+- Add Daily Mission next-action guidance so 100% points to the next useful mission instead of feeling finished.
+- Use the next action to recommend Learn when new letters are waiting, or the weakest practice mode when accuracy needs reinforcement.
+- Decide the first reward labels/badges, such as `Daily Signal Complete`, `First Signals Mastered`, or `Clean Copy`.
+- Continue testing Astrid/Liara-style profiles to confirm each keeps separate progress, learning state, and attempt logs.
+- Run a fresh student-style session across Learn, Send, Read, Listen, Echo, and Daily Mission with one non-Pappy profile.
 - Watch whether the burn-in gate feels motivating rather than blocking after a next-day return.
 - Confirm Learn keeps new letters out of Send/Read/Listen/Echo until enough reps, strength, and practice days are reached.
 - Retest physical keyer sound immediately after Learn, Listen, and Echo station prompts.
@@ -439,4 +450,4 @@ When asked to do the daily wrap-up, update:
 - Decide whether to enable the optional auto-update timer on the current test Pi, then test one manual update run before using it at remote locations.
 - When AWS planning starts, compare periodic timer updates with AWS Systems Manager triggered updates for remote grandkid stations.
 - Review logged attempt timing after hands-on testing and choose the first student-facing timing feedback message.
-- Choose next build: Mixed mode, more letters, or timing feedback.
+- Choose next core-practice build after Daily rewards: Mixed mode, more letters, timing feedback, or first known-letter word practice.
