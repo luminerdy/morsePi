@@ -2,8 +2,8 @@
 <html>
 <head>
     <title>Touch Progress - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260621-1">
-    <link rel="stylesheet" href="/static/touch.css?v=20260621-1">
+    <link rel="stylesheet" href="/static/style.css?v=20260621-4">
+    <link rel="stylesheet" href="/static/touch.css?v=20260621-4">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body class="touch-ui">
@@ -21,9 +21,10 @@
                 <span>Operator Level {{ overall.level }}</span>
                 <strong>{{ overall.rank }}</strong>
                 <div class="touch-progress-meter" aria-hidden="true">
-                    <span style="width: {{ overall.mastery }}%"></span>
+                    <span style="width: {{ overall.alphabet_percent }}%"></span>
                 </div>
-                <p>{{ overall.mastery }}% overall · {{ overall.accuracy }}% accuracy</p>
+                <p>{{ overall.alphabet_progress }} letters mastered · {{ overall.alphabet_percent }}%</p>
+                <p>{{ overall.current_mastery }}% current set · {{ overall.accuracy }}% accuracy</p>
                 <p>{{ overall.next_goal }}</p>
             </section>
 

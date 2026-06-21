@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Practice Mode - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260621-1">
+    <link rel="stylesheet" href="/static/style.css?v=20260621-4">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body data-tone-hz="{{ timing.tone_hz }}"
@@ -144,26 +144,26 @@
                     <div class="score-card" id="overallScore">
                         <div class="score-main">
                             <div>
-                                <span class="score-label">Overall</span>
-                                <strong id="overallMastery">{{ overall.mastery }}%</strong>
+                                <span class="score-label">Current Set</span>
+                                <strong id="overallMastery">{{ overall.current_mastery }}%</strong>
                             </div>
                             <div>
-                                <span class="score-label">Tries</span>
-                                <strong id="overallAttempts">{{ overall.attempts }}</strong>
+                                <span class="score-label">Letters Mastered</span>
+                                <strong id="overallAlphabetProgress">{{ overall.alphabet_progress }}</strong>
                             </div>
                         </div>
 
                         <div class="score-bar" aria-hidden="true">
-                            <span id="overallMasteryBar" style="width: {{ overall.mastery }}%"></span>
+                            <span id="overallMasteryBar" style="width: {{ overall.current_mastery }}%"></span>
                         </div>
 
                         <div class="score-stats">
                             <span id="overallAccuracy">{{ overall.accuracy }}% accuracy</span>
-                            <span id="overallStreak">{{ overall.streak }} best streak</span>
+                            <span id="overallStreak">{{ overall.attempts }} tries</span>
                         </div>
 
                         <div>
-                            <span class="score-label">Active Practice</span>
+                            <span class="score-label">Current Practice Set</span>
                             <div class="unlock-row" id="overallUnlockedLetters">
                                 {% for letter in overall.active_letters %}
                                     <span>{{ letter }}</span>
@@ -190,7 +190,7 @@
                             {% elif overall.locked_until_tomorrow %}
                                 {{ overall.next_goal }}
                             {% elif overall.next_unlock.letters %}
-                                Next unlock at {{ overall.next_unlock.threshold }}% in all modes: {{ overall.next_unlock.letters | join(" ") }}
+                                Next letters after 100% current set: {{ overall.next_unlock.letters | join(" ") }}
                             {% else %}
                                 {{ overall.next_unlock.label }}
                             {% endif %}
@@ -234,6 +234,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260618-4"></script>
+<script src="/static/app.js?v=20260621-4"></script>
 </body>
 </html>

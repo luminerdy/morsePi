@@ -800,8 +800,9 @@ function updateOverallScoreCard(overall) {
     const streak = document.getElementById("overallStreak");
     const unlockedLetters = document.getElementById("overallUnlockedLetters");
     const learningLetters = document.getElementById("overallLearningLetters");
+    const alphabetProgress = document.getElementById("overallAlphabetProgress");
     const nextUnlock = document.getElementById("overallNextUnlock");
-    const masteryValue = Math.max(0, Math.min(Number(overall.mastery) || 0, 100));
+    const masteryValue = Math.max(0, Math.min(Number(overall.current_mastery ?? overall.mastery) || 0, 100));
 
     if (mastery) {
         mastery.innerText = `${masteryValue}%`;
@@ -820,7 +821,11 @@ function updateOverallScoreCard(overall) {
     }
 
     if (streak) {
-        streak.innerText = `${overall.streak} best streak`;
+        streak.innerText = `${overall.attempts} tries`;
+    }
+
+    if (alphabetProgress) {
+        alphabetProgress.innerText = overall.alphabet_progress || "";
     }
 
     if (unlockedLetters && Array.isArray(overall.active_letters)) {
@@ -841,7 +846,7 @@ function updateOverallScoreCard(overall) {
         nextUnlock.innerText = learning.length || overall.locked_until_tomorrow
             ? overall.next_goal
             : letters.length
-            ? `Next unlock at ${overall.next_unlock.threshold}% in all modes: ${letters.join(" ")}`
+            ? `Next letters after 100% current set: ${letters.join(" ")}`
             : overall.next_unlock.label;
     }
 }

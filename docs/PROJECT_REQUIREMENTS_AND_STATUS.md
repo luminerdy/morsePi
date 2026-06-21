@@ -1157,15 +1157,15 @@ Current active practice unlock ladder:
 
 ```text
 Starter: E T A N I M
-50% in all modes: S O
-65% in all modes: R K
-80% in all modes: D U
-80% in all modes: C W H L
-82% in all modes: P F Y G
-85% in all modes: B V J X
-85% in all modes: Q Z
-88% in all modes: 1 2 3 4 5
-88% in all modes: 6 7 8 9 0
+100% in all five modes: S O
+100% in all five modes: R K
+100% in all five modes: D U
+100% in all five modes: C W H L
+100% in all five modes: P F Y G
+100% in all five modes: B V J X
+100% in all five modes: Q Z
+100% in all five modes: 1 2 3 4 5
+100% in all five modes: 6 7 8 9 0
 ```
 
 Unlock behavior:
@@ -1176,6 +1176,7 @@ Unlock behavior:
 - The learning group joins active practice after each new letter has at least 10 correct Learn attempts, 70% Learn strength, and practice across at least two calendar days.
 - Later groups cannot unlock until the current learning group has joined active practice.
 - Only one new Learning Now group should open per calendar day so students cannot unlock the whole ladder in one sitting.
+- Student-facing progress separates current-set mastery from full alphabet progress. The current set can reach 100%, while alphabet progress shows mastered letters such as `6/26` or `8/26`.
 
 ---
 
@@ -1215,7 +1216,7 @@ Confirm the 7-inch Raspberry Pi touchscreen layout avoids crowded controls and u
 Confirm each student's `data/students/<student-id>/practice_attempts.jsonl` captures useful timing summaries after Send/Learn attempts.
 Confirm adaptive Listen playback feels easier early without becoming too slow.
 Confirm Listen stays recognition-only, without a keyer panel or keying score path.
-Confirm `S` and `O` appear after all active practice modes reach at least 50% mastery.
+Confirm `S` and `O` appear after all five active practice modes reach 100% current-set mastery.
 Confirm newly unlocked letters appear in Learn before Send, Read, and Listen.
 Confirm the burn-in gate slows progression without making the student feel stuck.
 Confirm reset progress flow leaves tomorrow's practice at Operator Level 1 with only `E T` active.

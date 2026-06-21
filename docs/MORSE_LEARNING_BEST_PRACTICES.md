@@ -148,6 +148,7 @@ Recommended progress model:
 - Track each letter separately.
 - Use mastery, accuracy, attempts, and streak.
 - Use an overall Operator Level for motivation.
+- Separate current-set mastery from full alphabet progress so 100% means the student mastered the current working set, while alphabet progress shows `6/26`, `8/26`, and so on.
 - Unlock letters gradually, but place each new group in Learn first.
 - Keep only one group in `Learning Now` at a time so students cannot unlock far ahead before learning the new letters.
 - Move the learning group into Send, Read, Listen, and Echo after each new letter has enough Learn success.
@@ -156,7 +157,7 @@ Recommended progress model:
 Current decision:
 
 - `E T A N I M` are the starter active practice letters.
-- New groups unlock by all-mode mastery, then appear in Learn as `Learning Now`.
+- New groups unlock after 100% current-set mastery across all five modes, then appear in Learn as `Learning Now`.
 - Send, Read, Listen, and Echo continue using active practice letters until the learning group is ready.
 - The current readiness rule is 10 correct Learn attempts, 70% Learn strength, and practice across at least two calendar days for each new letter.
 - Later groups cannot unlock until the current learning group joins active practice.

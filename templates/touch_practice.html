@@ -2,8 +2,8 @@
 <html>
 <head>
     <title>Touch Practice - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260621-1">
-    <link rel="stylesheet" href="/static/touch.css?v=20260621-1">
+    <link rel="stylesheet" href="/static/style.css?v=20260621-4">
+    <link rel="stylesheet" href="/static/touch.css?v=20260621-4">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body class="touch-ui"
@@ -102,12 +102,13 @@
                 <strong id="scoreMastery">{{ score.mastery }}%</strong>
                 <span id="scoreStreak">{{ score.streak }} streak</span>
                 <span id="scoreGoal">{{ score.next_goal }}</span>
-                <span id="overallMastery" hidden>{{ overall.mastery }}%</span>
+                <span id="overallMastery" hidden>{{ overall.current_mastery }}%</span>
                 <span id="overallMasteryBar" hidden></span>
                 <span id="overallAccuracy" hidden>{{ overall.accuracy }}% accuracy</span>
                 <span id="overallAttempts" hidden>{{ overall.attempts }}</span>
                 <span id="overallStreak" hidden>{{ overall.streak }} best streak</span>
                 <span id="overallUnlockedLetters" hidden></span>
+                <span id="overallAlphabetProgress" hidden>{{ overall.alphabet_progress }}</span>
                 <span id="overallNextUnlock" hidden></span>
                 <span id="scoreMasteryBar" hidden></span>
                 <span id="scoreAccuracy" hidden>{{ score.accuracy }}% accuracy</span>
@@ -116,6 +117,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260618-4"></script>
+<script src="/static/app.js?v=20260621-4"></script>
 </body>
 </html>

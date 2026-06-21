@@ -119,49 +119,50 @@ all_practice_letters = [
     "B", "V", "J", "X", "Q", "Z",
     "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"
 ]
+alphabet_letters = [letter for letter in all_practice_letters if letter.isalpha()]
 letter_unlock_steps = [
     {
-        "threshold": 50,
+        "threshold": 100,
         "letters": ["S", "O"],
         "label": "Signal Builder"
     },
     {
-        "threshold": 65,
+        "threshold": 100,
         "letters": ["R", "K"],
         "label": "Rhythm Builder"
     },
     {
-        "threshold": 80,
+        "threshold": 100,
         "letters": ["D", "U"],
         "label": "Relay Builder"
     },
     {
-        "threshold": 80,
+        "threshold": 100,
         "letters": ["C", "W", "H", "L"],
         "label": "Word Builder"
     },
     {
-        "threshold": 82,
+        "threshold": 100,
         "letters": ["P", "F", "Y", "G"],
         "label": "Pattern Builder"
     },
     {
-        "threshold": 85,
+        "threshold": 100,
         "letters": ["B", "V", "J", "X"],
         "label": "Code Builder"
     },
     {
-        "threshold": 85,
+        "threshold": 100,
         "letters": ["Q", "Z"],
         "label": "Alphabet Builder"
     },
     {
-        "threshold": 88,
+        "threshold": 100,
         "letters": ["1", "2", "3", "4", "5"],
         "label": "Number Builder"
     },
     {
-        "threshold": 88,
+        "threshold": 100,
         "letters": ["6", "7", "8", "9", "0"],
         "label": "Full Station Operator"
     }
@@ -1180,6 +1181,17 @@ def get_next_letter_unlock(unlocked_letters):
 def get_learning_overall(letters):
     state = get_practice_letter_state()
     overall = overall_score(state["active_letters"], practice_modes.keys())
+    active_alphabet_count = sum(1 for letter in state["active_letters"] if letter in alphabet_letters)
+    alphabet_total = len(alphabet_letters)
+    alphabet_percent = int(round((active_alphabet_count / alphabet_total) * 100)) if alphabet_total else 100
+    mode_masteries = [mode_score(state["active_letters"], mode)["mastery"] for mode in practice_modes]
+
+    overall["current_mastery"] = overall["mastery"]
+    overall["current_set_complete"] = bool(mode_masteries) and all(mastery >= 100 for mastery in mode_masteries)
+    overall["alphabet_mastered"] = active_alphabet_count
+    overall["alphabet_total"] = alphabet_total
+    overall["alphabet_percent"] = alphabet_percent
+    overall["alphabet_progress"] = f"{active_alphabet_count}/{alphabet_total}"
     overall["unlocked_letters"] = state["active_letters"]
     overall["active_letters"] = state["active_letters"]
     overall["learning_letters"] = state["learning_letters"]
@@ -1198,9 +1210,8 @@ def get_learning_overall(letters):
         overall["next_goal"] = "Great work. Next new letters can open tomorrow."
     elif overall["next_unlock"]["letters"]:
         threshold = overall["next_unlock"]["threshold"]
-        mode_masteries = [mode_score(state["active_letters"], mode)["mastery"] for mode in practice_modes]
         points_to_unlock = max(0, threshold - min(mode_masteries))
-        overall["next_goal"] = f"{points_to_unlock} mastery points to unlock {' '.join(overall['next_unlock']['letters'])}"
+        overall["next_goal"] = f"{points_to_unlock} current-set mastery points to unlock {' '.join(overall['next_unlock']['letters'])}"
     else:
         overall["next_goal"] = overall["next_unlock"]["label"]
 

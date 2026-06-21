@@ -366,7 +366,7 @@ When asked to do the daily wrap-up, update:
 - Tuned beginner timing and key decoding after testing showed Listen prompts were too fast and a correctly imitated `M` could decode as `I`; dash detection now follows the configured Morse timing instead of a fixed 400 ms threshold.
 - Added JSONL practice attempt logging with expected/actual Morse, selected answers, correctness, timing settings, and raw key timing summaries for future coaching and adaptive training.
 - Added a first adaptive Listen rule: early, overall-struggling, or letter-specific struggling Listen practice plays one step slower than the station default, then returns to normal timing after accuracy improves.
-- Enforced letter unlocking in practice: `E T A N I M` are the starter set, then `S O` at 50%, `R K` at 65%, `D U` at 80%, `C W H L` at 80%, `P F Y G` at 82%, `B V J X` at 85%, `Q Z` at 85%, and numbers at 88%.
+- Enforced letter unlocking in practice: `E T A N I M` are the starter set, and later groups unlock after 100% current-set mastery across all five modes.
 - Added Learn-first unlock gating: a newly unlocked group appears in Learn only, blocks later unlocks, and joins Send/Read/Listen after each new letter has at least 3 correct Learn attempts and 60% Learn strength.
 
 ### 2026-06-17
@@ -437,9 +437,12 @@ When asked to do the daily wrap-up, update:
 - Added a Daily Practice Coach panel with `Practice Next`, `Strong`, and `Boost` recommendations.
 - Coach recommendations use existing per-letter and per-mode strength data, prefer Learn when new letters are waiting, and otherwise point students toward weak letter/mode combinations.
 - Deployed the Practice Coach to the active Pi and confirmed the Daily page renders the coach panel.
+- Separated current-set mastery from full alphabet progress: the UI now shows letters mastered as `6/26`, `8/26`, etc. instead of implying the student is 100% done with Morse.
+- Changed the unlock rule so new letters start only after the current active set reaches 100% across all five modes: Learn, Send, Read, Listen, and Echo.
 
 ### Ready Next
 
+- Test whether `6/26` letters mastered plus `100% current set` is clearer for students than the previous overall percent.
 - Decide the first reward labels/badges, such as `Daily Signal Complete`, `First Signals Mastered`, or `Clean Copy`.
 - Decide whether Daily Mission rewards should be recorded as earned badges in student data.
 - Test whether the Daily Practice Coach wording feels encouraging for different student styles.

@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Progress - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260621-1">
+    <link rel="stylesheet" href="/static/style.css?v=20260621-4">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -33,8 +33,12 @@
                 <div class="score-card score-card-wide">
                     <div class="score-main">
                         <div>
-                            <span class="score-label">Overall Mastery</span>
-                            <strong>{{ overall.mastery }}%</strong>
+                            <span class="score-label">Letters Mastered</span>
+                            <strong>{{ overall.alphabet_progress }}</strong>
+                        </div>
+                        <div>
+                            <span class="score-label">Current Set</span>
+                            <strong>{{ overall.current_mastery }}%</strong>
                         </div>
                         <div>
                             <span class="score-label">Accuracy</span>
@@ -47,12 +51,12 @@
                     </div>
 
                     <div class="score-bar" aria-hidden="true">
-                        <span style="width: {{ overall.mastery }}%"></span>
+                        <span style="width: {{ overall.alphabet_percent }}%"></span>
                     </div>
 
                     <div class="overall-unlock-grid">
                         <div>
-                            <span class="score-label">Active Practice</span>
+                            <span class="score-label">Current Practice Set</span>
                             <div class="unlock-row">
                                 {% for letter in overall.active_letters %}
                                     <span>{{ letter }}</span>
@@ -79,7 +83,7 @@
                             {% elif overall.locked_until_tomorrow %}
                                 {{ overall.next_goal }}
                             {% elif overall.next_unlock.letters %}
-                                Next unlock at {{ overall.next_unlock.threshold }}% in all modes: {{ overall.next_unlock.letters | join(" ") }}
+                                Next letters after 100% current set: {{ overall.next_unlock.letters | join(" ") }}
                             {% else %}
                                 {{ overall.next_unlock.label }}
                             {% endif %}
@@ -158,6 +162,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260618-4"></script>
+<script src="/static/app.js?v=20260621-4"></script>
 </body>
 </html>
