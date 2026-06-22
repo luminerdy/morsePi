@@ -446,11 +446,13 @@ When asked to do the daily wrap-up, update:
 - Fixed the Daily Mission screen while new letters are in `Learning Now`: mission completion now includes Learn burn-in progress, shows remaining Learn tries, and changes the coach grouping from generic `Boost` to `Learning`.
 - Clarified current-set versus Learning Now progress across touch and desktop Progress/Practice screens so `100%` mode scores do not imply new letters have joined every practice mode.
 - Fixed the completed Learning Now handoff so `20/20 Learn` plus the two-day burn-in gate now points students to `Come Back Tomorrow` instead of asking them to keep learning the same letters.
+- Forced Pappy's S/O learning date back one day on the active Pi for testing, with a backup at `/home/morse/morse-station/data/student_backups/20260621-pappy-force-next-day/`.
+- Verified the forced-next-day state: Pappy now has `8/26` letters mastered, `S` and `O` in all five practice modes, no `Learning Now` letters, and about `80%` current-set mastery because S/O still need Send/Read/Listen/Echo practice.
+- Close-of-day GitHub status: Daily Mission clarity, current-set/Learning Now wording, completed burn-in handoff, README update, and regression tests are committed and pushed to `main`.
 
 ### Ready Next
 
 - Add regression tests for practice POST routes.
-- Test whether `6/26` letters mastered plus `100% current set` is clearer for students than the previous overall percent.
 - Decide the first reward labels/badges, such as `Daily Signal Complete`, `First Signals Mastered`, or `Clean Copy`.
 - Decide whether Daily Mission rewards should be recorded as earned badges in student data.
 - Test whether the Daily Practice Coach wording feels encouraging for different student styles.
@@ -458,7 +460,7 @@ When asked to do the daily wrap-up, update:
 - Continue testing Astrid/Liara-style profiles to confirm each keeps separate progress, learning state, and attempt logs.
 - Run a fresh student-style session across Learn, Send, Read, Listen, Echo, and Daily Mission with one non-Pappy profile.
 - Watch whether the burn-in gate feels motivating rather than blocking after a next-day return.
-- Confirm Learn keeps new letters out of Send/Read/Listen/Echo until enough reps, strength, and practice days are reached.
+- Continue testing the forced-next-day S/O state to confirm new letters feel natural once they join Send/Read/Listen/Echo.
 - Retest physical keyer sound immediately after Learn, Listen, and Echo station prompts.
 - Confirm Listen remains recognition-only and that `Play Again` always plays sound and flashes the LED.
 - Confirm Learn and Echo prompt LED flashes are synchronized well enough to reinforce the Morse rhythm.
