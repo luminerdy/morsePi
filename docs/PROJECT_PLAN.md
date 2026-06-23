@@ -472,11 +472,15 @@ When asked to do the daily wrap-up, update:
 - Added route coverage for the Daily screen's Learning Now guidance so `R K` style states show the exact work remaining instead of emphasizing old current-set 100% scores.
 - Aligned touch Daily and touch Progress wording/data for Learning Now so both show the same `16/20 Learn`, per-letter counts, and `current-set mastery` terminology.
 - Added practice POST route regression coverage for `/practice/next`, `/practice/retry`, and `/practice/result`, including Learning Now scoping and ignored out-of-scope letters.
+- Added the first derived badge layer: `Daily Signal Complete`, `Clean Copy`, `First Signals Mastered`, `New Signals Ready`, and `Signal Builder`.
+- Added compact badge feedback on touch Daily and the earned badge list plus next badge target on touch Progress.
+- Kept badges derived from current progress for now instead of writing earned badge history into student data; this avoids locking in labels or thresholds before student testing.
+- Deployed the badge update to the active Pi and verified the 35-test Pi regression suite passes.
 
 ### Ready Next
 
-- Decide the first reward labels/badges, such as `Daily Signal Complete`, `First Signals Mastered`, or `Clean Copy`.
 - Decide whether Daily Mission rewards should be recorded as earned badges in student data.
+- Test whether the first badge labels and next-badge target motivate students without making the Daily screen confusing.
 - Test whether the Daily Practice Coach wording feels encouraging for different student styles.
 - Decide whether to add a separate touch Letter Progress screen with per-letter cards and direct practice links.
 - Continue testing Astrid/Liara-style profiles to confirm each keeps separate progress, learning state, and attempt logs.

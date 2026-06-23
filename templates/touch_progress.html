@@ -3,7 +3,7 @@
 <head>
     <title>Touch Progress - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260621-4">
-    <link rel="stylesheet" href="/static/touch.css?v=20260621-4">
+    <link rel="stylesheet" href="/static/touch.css?v=20260623-3">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body class="touch-ui">
@@ -35,6 +35,16 @@
                     <small>{{ overall.learning_letters | join(" ") }} are not in Send, Read, Listen, or Echo yet.</small>
                 {% endif %}
                 <p>{{ overall.next_goal }}</p>
+                <div class="touch-badge-strip">
+                    {% if badges.earned %}
+                        {% for badge in badges.earned %}
+                            <span>{{ badge.label }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <span>No badges yet</span>
+                    {% endif %}
+                </div>
+                <small>Next badge: {{ badges.next.label }} - {{ badges.next.detail }}</small>
             </section>
 
             <section class="touch-progress-modes">

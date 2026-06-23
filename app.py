@@ -856,6 +856,95 @@ def daily_mission_summary():
     }
 
 
+def student_badges(overall, daily):
+    earned = []
+
+    def add_badge(badge_id, label, detail, earned_when):
+        badge = {
+            "id": badge_id,
+            "label": label,
+            "detail": detail,
+            "earned": bool(earned_when),
+        }
+        if badge["earned"]:
+            earned.append(badge)
+        return badge
+
+    learning_focus = daily.get("learning_focus", {})
+    add_badge(
+        "daily-signal-complete",
+        "Daily Signal Complete",
+        "Finish today's practice count.",
+        daily.get("completed"),
+    )
+    add_badge(
+        "clean-copy",
+        "Clean Copy",
+        "Finish a daily mission with at least 90% accuracy.",
+        daily.get("completed") and daily.get("accuracy", 0) >= 90,
+    )
+    add_badge(
+        "first-signals-mastered",
+        "First Signals Mastered",
+        "Master the first six signals.",
+        overall.get("alphabet_mastered", 0) >= len(starter_practice_letters)
+        and overall.get("current_mastery", 0) >= 100,
+    )
+    add_badge(
+        "new-signals-ready",
+        "New Signals Ready",
+        "Complete the Learn burn-in for new signals.",
+        learning_focus.get("active") and learning_focus.get("complete"),
+    )
+    add_badge(
+        "signal-builder",
+        "Signal Builder",
+        "Master eight letters.",
+        overall.get("alphabet_mastered", 0) >= 8,
+    )
+
+    if (
+        learning_focus.get("active")
+        and not learning_focus.get("complete")
+        and daily.get("attempt_progress", 0) >= 100
+    ):
+        next_badge = {
+            "label": "New Signals Ready",
+            "detail": learning_focus.get("next_need") or "Finish the new-signal Learn work.",
+        }
+    elif not daily.get("completed"):
+        next_badge = {
+            "label": "Daily Signal Complete",
+            "detail": f"{daily.get('remaining', 0)} signals left today.",
+        }
+    elif daily.get("accuracy", 0) < 90:
+        next_badge = {
+            "label": "Clean Copy",
+            "detail": "Finish a daily mission at 90% accuracy or better.",
+        }
+    elif learning_focus.get("active") and not learning_focus.get("complete"):
+        next_badge = {
+            "label": "New Signals Ready",
+            "detail": learning_focus.get("next_need") or "Finish the new-signal Learn work.",
+        }
+    elif overall.get("alphabet_mastered", 0) < 8:
+        next_badge = {
+            "label": "Signal Builder",
+            "detail": "Unlock and master the next signal group.",
+        }
+    else:
+        next_badge = {
+            "label": "Keep Current",
+            "detail": "Keep today's signals strong and watch for the next group.",
+        }
+
+    return {
+        "earned": earned,
+        "featured": earned[0] if earned else None,
+        "next": next_badge,
+    }
+
+
 def daily_learning_focus(learning_letters):
     if not learning_letters:
         return {
@@ -1476,12 +1565,15 @@ def touch_menu():
 @app.route("/touch/daily")
 def touch_daily():
     practice_letters = get_unlocked_practice_letters()
+    overall = get_learning_overall(practice_letters)
+    daily = daily_mission_summary()
 
     return render_template(
         "touch_daily.html",
         modes=practice_modes,
-        overall=get_learning_overall(practice_letters),
-        daily=daily_mission_summary(),
+        overall=overall,
+        daily=daily,
+        badges=student_badges(overall, daily),
         timing=get_morse_timing()
     )
 
@@ -1556,10 +1648,15 @@ def touch_message():
 @app.route("/touch/progress")
 def touch_progress():
     practice_letters = get_unlocked_practice_letters()
+    overall = get_learning_overall(practice_letters)
+    daily = daily_mission_summary()
+
     return render_template(
         "touch_progress.html",
         modes=practice_modes,
-        overall=get_learning_overall(practice_letters),
+        overall=overall,
+        daily=daily,
+        badges=student_badges(overall, daily),
         details=get_progress_mode_details()
     )
 

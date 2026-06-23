@@ -558,6 +558,27 @@
     line-height: 1.15;
 }
 
+.touch-badge-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.touch-badge-strip span,
+.touch-featured-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 26px;
+    padding: 3px 8px;
+    color: #714a00;
+    background: #fff2c7;
+    border: 1px solid #e6bd54;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1;
+}
+
 .touch-daily-current {
     grid-column: 1 / span 2;
     display: grid;

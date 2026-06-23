@@ -266,6 +266,20 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("current set", html)
         self.assertNotIn("% overall", html)
 
+    def test_touch_progress_renders_badges_and_next_badge(self):
+        self.complete_starter_progress("pappy")
+        self.set_learning_state("pappy", {}, last_learning_start_date=app_module.today_key())
+        self.write_attempts("pappy", total=20, correct=19)
+
+        response = self.client.get("/touch/progress")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Daily Signal Complete", html)
+        self.assertIn("Clean Copy", html)
+        self.assertIn("First Signals Mastered", html)
+        self.assertIn("Next badge: Signal Builder", html)
+
     def test_touch_progress_shows_learning_now_progress_separate_from_current_set(self):
         self.complete_starter_progress("pappy")
         progress_path = self.student_file("pappy", "practice_progress.json")

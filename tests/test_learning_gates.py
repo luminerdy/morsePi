@@ -230,6 +230,9 @@ class LearningGateTests(unittest.TestCase):
         self.assertEqual(78, daily["progress"])
         self.assertFalse(daily["completed"])
         self.assertIn("needs", daily["message"])
+        badges = app_module.student_badges(app_module.get_learning_overall(app_module.starter_practice_letters), daily)
+        self.assertEqual("New Signals Ready", badges["next"]["label"])
+        self.assertIn("S needs", badges["next"]["detail"])
 
     def test_daily_mission_completed_learning_waits_for_next_practice_day(self):
         self.write_progress(app_module.starter_practice_letters, self.all_modes(1.0))
@@ -260,6 +263,27 @@ class LearningGateTests(unittest.TestCase):
         self.assertIn("Come back tomorrow", daily["message"])
         self.assertEqual("Tomorrow", daily["next_action"]["label"])
         self.assertEqual("Come Back Tomorrow", daily["next_action"]["title"])
+
+    def test_student_badges_reward_daily_accuracy_and_mastery(self):
+        self.write_progress(app_module.starter_practice_letters, self.all_modes(1.0))
+        self.write_learning_state({}, last_learning_start_date=app_module.today_key())
+        original_loader = app_module.load_today_attempts
+        app_module.load_today_attempts = lambda: self.make_attempts(total=20, correct=19)
+
+        try:
+            state = app_module.get_practice_letter_state()
+            overall = app_module.get_learning_overall(state["active_letters"])
+            daily = app_module.daily_mission_summary()
+            badges = app_module.student_badges(overall, daily)
+        finally:
+            app_module.load_today_attempts = original_loader
+
+        labels = [badge["label"] for badge in badges["earned"]]
+        self.assertIn("Daily Signal Complete", labels)
+        self.assertIn("Clean Copy", labels)
+        self.assertIn("First Signals Mastered", labels)
+        self.assertEqual("Daily Signal Complete", badges["featured"]["label"])
+        self.assertEqual("Signal Builder", badges["next"]["label"])
 
     def test_daily_next_action_prefers_learning_now(self):
         state = {

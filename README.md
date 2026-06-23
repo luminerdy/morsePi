@@ -34,6 +34,7 @@ Pappy's Internet Telegraph is a Raspberry Pi Morse code learning station. It let
 - Touch Daily Mission page for a per-student daily practice goal
 - Daily Mission completion reward with station sound, LED flash, and next-action guidance
 - Daily Practice Coach with practice-next, strong-signal, and signal-boost recommendations
+- Derived student badges on touch Daily and Progress, including daily completion, clean copy, first signals mastered, and new signals ready
 - Clear current-set versus Learning Now progress so new letters do not look mastered too early
 - Beginner Morse timing controls using Farnsworth-style character/effective WPM settings
 
@@ -80,7 +81,7 @@ cd /home/morse/morse-station
 GPIOZERO_PIN_FACTORY=mock python3 -m unittest tests.test_learning_gates tests.test_routes
 ```
 
-These tests use temporary progress files and do not modify student practice data. The current bank covers learning gates, alphabet progress, stale Learning Now cleanup, Daily Mission summary rules, Practice Coach recommendations, rendered touch pages, profile cookie separation, admin reset behavior, and the Daily celebration endpoint.
+These tests use temporary progress files and do not modify student practice data. The current bank covers learning gates, alphabet progress, stale Learning Now cleanup, Daily Mission summary rules, Practice Coach recommendations, derived badges, rendered touch pages, profile cookie separation, admin reset behavior, practice POST routes, and the Daily celebration endpoint.
 
 ## Repository Layout
 

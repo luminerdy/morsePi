@@ -3,7 +3,7 @@
 <head>
     <title>Daily Mission - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260621-4">
-    <link rel="stylesheet" href="/static/touch.css?v=20260623-2">
+    <link rel="stylesheet" href="/static/touch.css?v=20260623-3">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body class="touch-ui"
@@ -75,6 +75,13 @@
                 <span>Progress So Far</span>
                 <p><strong>{{ overall.alphabet_progress }}</strong> letters mastered</p>
                 <p><strong>{{ overall.current_mastery }}%</strong> current-set mastery</p>
+                <p class="touch-featured-badge">
+                    {% if badges.featured %}
+                        {{ badges.featured.label }}
+                    {% else %}
+                        Next badge: {{ badges.next.label }}
+                    {% endif %}
+                </p>
                 <div>
                     {% for letter in daily.active_letters %}
                         <strong>{{ letter }}</strong>
