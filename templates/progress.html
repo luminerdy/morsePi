@@ -80,6 +80,13 @@
                                     Learn progress: {{ overall.learning_focus.correct }}/{{ overall.learning_focus.goal }} · {{ overall.learning_focus.remaining }} left
                                 {% endif %}
                             </p>
+                            {% if overall.learning_focus.active %}
+                                <div class="unlock-row">
+                                    {% for item in overall.learning_focus.letters %}
+                                        <span>{{ item.letter }} {{ item.correct }}/{{ item.goal }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
 
                         <p class="score-goal">

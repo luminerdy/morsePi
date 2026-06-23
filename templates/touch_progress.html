@@ -24,9 +24,15 @@
                     <span style="width: {{ overall.alphabet_percent }}%"></span>
                 </div>
                 <p>{{ overall.alphabet_progress }} letters mastered · {{ overall.alphabet_percent }}%</p>
-                <p>{{ overall.current_mastery }}% current set mastery · {{ overall.accuracy }}% accuracy</p>
+                <p>{{ overall.current_mastery }}% current-set mastery · {{ overall.accuracy }}% accuracy</p>
                 {% if overall.learning_focus.active %}
                     <p>Learning Now: {{ overall.learning_letters | join(" ") }} · {{ overall.learning_focus.correct }}/{{ overall.learning_focus.goal }} Learn</p>
+                    <div class="touch-learning-letters compact-learning">
+                        {% for item in overall.learning_focus.letters %}
+                            <em>{{ item.letter }} {{ item.correct }}/{{ item.goal }}</em>
+                        {% endfor %}
+                    </div>
+                    <small>{{ overall.learning_letters | join(" ") }} are not in Send, Read, Listen, or Echo yet.</small>
                 {% endif %}
                 <p>{{ overall.next_goal }}</p>
             </section>

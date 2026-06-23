@@ -40,7 +40,15 @@
                     <span style="width: {{ daily.progress }}%"></span>
                 </div>
                 <p>{{ daily.accuracy }}% accuracy</p>
-                <p>{% if daily.completed %}Practice count done{% else %}{{ daily.remaining }} signals left{% endif %}</p>
+                <p>
+                    {% if daily.learning_focus.active and not daily.learning_focus.complete %}
+                        Practice count done
+                    {% elif daily.completed %}
+                        Practice count done
+                    {% else %}
+                        {{ daily.remaining }} signals left
+                    {% endif %}
+                </p>
             </section>
 
             <section class="touch-daily-learning">

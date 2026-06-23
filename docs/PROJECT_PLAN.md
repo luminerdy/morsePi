@@ -470,6 +470,7 @@ When asked to do the daily wrap-up, update:
 - Redesigned the touch Daily Mission content hierarchy around the student's next action: Next Step, Today, Learning Now, Progress So Far, and Working / Needs Work.
 - Made Learning Now the primary Daily focus when new letters are open, including per-letter burn-in counts and an explicit note that those letters are not yet in Send, Read, Listen, or Echo.
 - Added route coverage for the Daily screen's Learning Now guidance so `R K` style states show the exact work remaining instead of emphasizing old current-set 100% scores.
+- Aligned touch Daily and touch Progress wording/data for Learning Now so both show the same `16/20 Learn`, per-letter counts, and `current-set mastery` terminology.
 
 ### Ready Next
 
