@@ -116,6 +116,33 @@ class RouteRenderTests(unittest.TestCase):
 
         self.write_json(student_id, "practice_progress.json", progress)
 
+    def complete_progress(self, student_id, letters):
+        progress = {}
+        for letter in letters:
+            progress[letter] = {
+                mode: {
+                    "attempts": 10,
+                    "correct": 10,
+                    "last_seen": "2026-06-23T00:00:00+00:00",
+                    "streak": 10,
+                    "strength": 1.0,
+                }
+                for mode in app_module.practice_modes
+            }
+
+        self.write_json(student_id, "practice_progress.json", progress)
+        return progress
+
+    def set_learning_state(self, student_id, groups, last_learning_start_date="2026-06-23"):
+        self.write_json(
+            student_id,
+            "learning_state.json",
+            {
+                "groups": groups,
+                "last_learning_start_date": last_learning_start_date,
+            },
+        )
+
     def set_student_cookie(self, student_id):
         self.client.set_cookie(app_module.STUDENT_COOKIE, student_id)
 
@@ -280,7 +307,7 @@ class RouteRenderTests(unittest.TestCase):
         html = response.get_data(as_text=True)
 
         self.assertEqual(200, response.status_code)
-        self.assertIn("100% current set mastery", html)
+        self.assertIn("100% current-set mastery", html)
         self.assertIn("Learning Now: S O", html)
         self.assertIn("14/20 Learn", html)
         self.assertIn("current set", html)
@@ -318,6 +345,133 @@ class RouteRenderTests(unittest.TestCase):
         self.assertNotIn("Learn S O", html)
         self.assertEqual({}, saved_state["groups"])
         self.assertEqual("", saved_state["last_learning_start_date"])
+
+    def test_practice_next_uses_learning_now_letters_for_learn_mode(self):
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        self.complete_progress("pappy", active_letters)
+        self.set_learning_state(
+            "pappy",
+            {
+                "SO": {
+                    "first_learning_date": "2026-06-20",
+                    "letters": ["S", "O"],
+                }
+            },
+            last_learning_start_date="2026-06-20",
+        )
+
+        response = self.client.post("/practice/next?mode=learn")
+        payload = response.get_json()
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("learn", payload["mode"])
+        self.assertIn(payload["target"], ["R", "K"])
+        self.assertEqual(["R", "K"], [item["letter"] for item in payload["progress"]])
+        self.assertEqual(["R", "K"], payload["overall"]["learning_letters"])
+
+    def test_practice_next_keeps_send_on_current_set_when_learning_now_exists(self):
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        self.complete_progress("pappy", active_letters)
+        self.set_learning_state(
+            "pappy",
+            {
+                "SO": {
+                    "first_learning_date": "2026-06-20",
+                    "letters": ["S", "O"],
+                }
+            },
+            last_learning_start_date="2026-06-20",
+        )
+
+        response = self.client.post("/practice/next?mode=send")
+        payload = response.get_json()
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("send", payload["mode"])
+        self.assertIn(payload["target"], active_letters)
+        self.assertNotIn(payload["target"], ["R", "K"])
+        self.assertEqual(active_letters, [item["letter"] for item in payload["progress"]])
+
+    def test_practice_retry_replaces_target_not_available_in_mode(self):
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        self.complete_progress("pappy", active_letters)
+        self.set_learning_state(
+            "pappy",
+            {
+                "SO": {
+                    "first_learning_date": "2026-06-20",
+                    "letters": ["S", "O"],
+                }
+            },
+            last_learning_start_date="2026-06-20",
+        )
+        app_module.practice_target = "R"
+
+        response = self.client.post("/practice/retry?mode=send")
+        payload = response.get_json()
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("send", payload["mode"])
+        self.assertIn(payload["target"], active_letters)
+        self.assertNotEqual("R", payload["target"])
+
+    def test_practice_result_records_attempt_and_progress_for_active_letter(self):
+        response = self.client.post(
+            "/practice/result",
+            json={
+                "mode": "send",
+                "target": "E",
+                "correct": True,
+                "expected_morse": ".",
+                "actual_morse": ".",
+                "timing_events": [
+                    {"type": "symbol", "symbol": ".", "duration_ms": 110}
+                ],
+            },
+        )
+        payload = response.get_json()
+        progress = json.loads(self.student_file("pappy", "practice_progress.json").read_text(encoding="utf-8"))
+        attempts = self.student_file("pappy", "practice_attempts.jsonl").read_text(encoding="utf-8").splitlines()
+        attempt_record = json.loads(attempts[0])
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("recorded", payload["status"])
+        self.assertEqual("E", payload["attempt"]["target"])
+        self.assertTrue(payload["attempt"]["correct"])
+        self.assertEqual(1, progress["E"]["send"]["attempts"])
+        self.assertEqual(1, progress["E"]["send"]["correct"])
+        self.assertEqual("E", attempt_record["target"])
+        self.assertEqual({"avg_dash_ms": None, "avg_dot_ms": 110, "avg_gap_ms": None, "dash_count": 0, "dot_count": 1, "gap_count": 0, "symbol_count": 1}, attempt_record["timing_summary"])
+
+    def test_practice_result_ignores_learning_now_letter_in_send_mode(self):
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        self.complete_progress("pappy", active_letters)
+        self.set_learning_state(
+            "pappy",
+            {
+                "SO": {
+                    "first_learning_date": "2026-06-20",
+                    "letters": ["S", "O"],
+                }
+            },
+            last_learning_start_date="2026-06-20",
+        )
+
+        response = self.client.post(
+            "/practice/result",
+            json={
+                "mode": "send",
+                "target": "R",
+                "correct": True,
+                "expected_morse": ".-.",
+                "actual_morse": ".-.",
+            },
+        )
+        payload = response.get_json()
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("ignored", payload["status"])
+        self.assertFalse(self.student_file("pappy", "practice_attempts.jsonl").exists())
 
     def test_daily_celebrate_blocks_before_completion(self):
         response = self.client.post("/touch/daily/celebrate")
