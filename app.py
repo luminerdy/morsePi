@@ -1330,6 +1330,29 @@ def get_learning_overall(letters):
     return overall
 
 
+def get_progress_mode_details():
+    state = get_practice_letter_state()
+    details = all_mode_details(state["active_letters"], practice_modes.keys())
+
+    for mode, mode_details in details.items():
+        mode_details["scope"] = "current_set"
+        mode_details["scope_label"] = "Current Set"
+        mode_details["summary_label"] = "current set"
+        mode_details["letters_label"] = "Current Set Letters"
+
+    if state["learning_letters"]:
+        details["learn"] = {
+            "score": mode_score(state["learning_letters"], "learn"),
+            "letters": progress_summary(state["learning_letters"], "learn"),
+            "scope": "learning_now",
+            "scope_label": "Learning Now",
+            "summary_label": f"Learning {' '.join(state['learning_letters'])}",
+            "letters_label": "Learning Now Letters"
+        }
+
+    return details
+
+
 def get_read_choices(target):
     choices = [target]
     practice_letters = get_practice_letters_for_mode(get_practice_mode())
@@ -1522,7 +1545,7 @@ def touch_progress():
         "touch_progress.html",
         modes=practice_modes,
         overall=get_learning_overall(practice_letters),
-        details=all_mode_details(practice_letters, practice_modes.keys())
+        details=get_progress_mode_details()
     )
 
 
@@ -1749,7 +1772,7 @@ def progress():
         mode=mode,
         modes=practice_modes,
         overall=get_learning_overall(practice_letters),
-        details=all_mode_details(practice_letters, practice_modes.keys()),
+        details=get_progress_mode_details(),
         letter_morse=get_practice_letter_morse()
     )
 

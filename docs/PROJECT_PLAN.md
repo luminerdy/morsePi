@@ -450,6 +450,13 @@ When asked to do the daily wrap-up, update:
 - Verified the forced-next-day state: Pappy now has `8/26` letters mastered, `S` and `O` in all five practice modes, no `Learning Now` letters, and about `80%` current-set mastery because S/O still need Send/Read/Listen/Echo practice.
 - Close-of-day GitHub status: Daily Mission clarity, current-set/Learning Now wording, completed burn-in handoff, README update, and regression tests are committed and pushed to `main`.
 
+### 2026-06-22
+
+- Fixed Progress scoring for the Learning Now phase: when new letters such as `R K` are active in Learn, the Learn card/details now show the new-letter Learn mastery instead of the already-mastered current set.
+- Kept Send, Read, Listen, and Echo Progress cards scoped to the current practice set while new letters remain Learn-only.
+- Added a regression test for the S/O mastered plus R/K Learning Now state so Progress continues to point students toward the actual Learn work.
+- Deployed the Progress fix to the active Pi and verified `/touch/progress` shows `Learning R K` with low Learn mastery while current-set modes can remain 100%.
+
 ### Ready Next
 
 - Add regression tests for practice POST routes.

@@ -281,6 +281,28 @@ class LearningGateTests(unittest.TestCase):
         self.assertEqual("Learning", coach["boost_label"])
         self.assertEqual(["S", "O"], [item["letter"] for item in coach["signal_boost"]])
 
+    def test_progress_details_show_learning_now_for_learn_mode(self):
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        self.write_progress(active_letters, self.all_modes(1.0))
+        self.write_learning_state(
+            {
+                "SO": {
+                    "first_learning_date": "2026-06-20",
+                    "letters": ["S", "O"],
+                }
+            },
+            last_learning_start_date="2026-06-20",
+        )
+
+        details = app_module.get_progress_mode_details()
+
+        self.assertEqual("Learning Now", details["learn"]["scope_label"])
+        self.assertEqual("Learning R K", details["learn"]["summary_label"])
+        self.assertEqual(["R", "K"], [item["letter"] for item in details["learn"]["letters"]])
+        self.assertEqual(0, details["learn"]["score"]["mastery"])
+        self.assertEqual("Current Set", details["send"]["scope_label"])
+        self.assertEqual(100, details["send"]["score"]["mastery"])
+
     def test_practice_coach_recommends_weakest_letter_and_mode(self):
         progress = {}
 
