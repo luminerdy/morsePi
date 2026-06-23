@@ -3,7 +3,7 @@
 <head>
     <title>Daily Mission - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260621-4">
-    <link rel="stylesheet" href="/static/touch.css?v=20260623-3">
+    <link rel="stylesheet" href="/static/touch.css?v=20260623-4">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body class="touch-ui"
@@ -83,9 +83,12 @@
                     {% endif %}
                 </p>
                 <div>
-                    {% for letter in daily.active_letters %}
+                    {% for letter in daily.active_letters_preview %}
                         <strong>{{ letter }}</strong>
                     {% endfor %}
+                    {% if daily.active_letters_remaining_count %}
+                        <strong>+{{ daily.active_letters_remaining_count }}</strong>
+                    {% endif %}
                 </div>
             </section>
 
@@ -121,10 +124,13 @@
                 <div>
                     <span>Practiced Today</span>
                     <p>
-                        {% if daily.letters %}
-                            {% for letter in daily.letters %}
+                        {% if daily.letters_preview %}
+                            {% for letter in daily.letters_preview %}
                                 <strong>{{ letter }}</strong>
                             {% endfor %}
+                            {% if daily.letters_remaining_count %}
+                                <strong>+{{ daily.letters_remaining_count }}</strong>
+                            {% endif %}
                         {% else %}
                             <strong>Start</strong>
                         {% endif %}

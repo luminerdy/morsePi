@@ -191,6 +191,41 @@ class LearningGateTests(unittest.TestCase):
         self.assertTrue(daily["completed"])
         self.assertEqual("Daily mission complete.", daily["message"])
 
+    def test_daily_mission_caps_letter_previews_for_touch_layout(self):
+        all_letters = app_module.alphabet_letters
+        self.write_progress(all_letters, self.all_modes(1.0))
+        self.write_learning_state(
+            {
+                app_module.step_key(step): {
+                    "first_learning_date": "2000-01-01",
+                    "letters": step["letters"],
+                }
+                for step in app_module.letter_unlock_steps
+                if all(letter.isalpha() for letter in step["letters"])
+            },
+            last_learning_start_date="2000-01-01",
+        )
+        original_loader = app_module.load_today_attempts
+        app_module.load_today_attempts = lambda: [
+            {
+                "correct": True,
+                "target": letter,
+                "mode": "send",
+                "timestamp": f"{app_module.today_key()}T00:00:00+00:00",
+            }
+            for letter in all_letters
+        ]
+
+        try:
+            daily = app_module.daily_mission_summary()
+        finally:
+            app_module.load_today_attempts = original_loader
+
+        self.assertEqual(12, len(daily["active_letters_preview"]))
+        self.assertEqual(len(all_letters) - 12, daily["active_letters_remaining_count"])
+        self.assertEqual(8, len(daily["letters_preview"]))
+        self.assertEqual(len(all_letters) - 8, daily["letters_remaining_count"])
+
     def test_daily_mission_learning_now_keeps_mission_open_until_learn_ready(self):
         self.write_progress(app_module.starter_practice_letters, self.all_modes(1.0))
         progress = json.loads(self.progress_path.read_text(encoding="utf-8"))

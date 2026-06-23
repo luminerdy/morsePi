@@ -257,6 +257,45 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("Progress So Far", html)
         self.assertIn("100%</strong> current-set mastery", html)
 
+    def test_touch_daily_summarizes_long_letter_sets(self):
+        self.complete_progress("pappy", app_module.alphabet_letters)
+        self.set_learning_state(
+            "pappy",
+            {
+                app_module.step_key(step): {
+                    "first_learning_date": "2000-01-01",
+                    "letters": step["letters"],
+                }
+                for step in app_module.letter_unlock_steps
+                if all(letter.isalpha() for letter in step["letters"])
+            },
+            last_learning_start_date="2000-01-01",
+        )
+        self.write_text_file(
+            "pappy",
+            "practice_attempts.jsonl",
+            "\n".join(
+                json.dumps(
+                    {
+                        "correct": True,
+                        "target": letter,
+                        "mode": "send",
+                        "timestamp": f"{app_module.today_key()}T00:00:00+00:00",
+                    },
+                    sort_keys=True,
+                )
+                for letter in app_module.alphabet_letters
+            )
+            + "\n",
+        )
+
+        response = self.client.get("/touch/daily")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("<strong>+14</strong>", html)
+        self.assertIn("<strong>+18</strong>", html)
+
     def test_touch_progress_renders_letters_mastered_and_current_set(self):
         response = self.client.get("/touch/progress")
         html = response.get_data(as_text=True)

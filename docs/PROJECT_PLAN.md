@@ -476,12 +476,15 @@ When asked to do the daily wrap-up, update:
 - Added compact badge feedback on touch Daily and the earned badge list plus next badge target on touch Progress.
 - Kept badges derived from current progress for now instead of writing earned badge history into student data; this avoids locking in labels or thresholds before student testing.
 - Deployed the badge update to the active Pi and verified the 35-test Pi regression suite passes.
+- Tightened the touch Daily layout for the 800x480 7-inch screen: shorter header/footer, taller bottom row, slightly smaller large text, and capped active/practiced letter chips with `+N` overflow summaries.
+- Added regression coverage for long letter sets and verified an 800x480 worst-case Daily screenshot with all alphabet letters active and the next number group in Learning Now.
 
 ### Ready Next
 
 - Decide whether Daily Mission rewards should be recorded as earned badges in student data.
 - Test whether the first badge labels and next-badge target motivate students without making the Daily screen confusing.
 - Test whether the Daily Practice Coach wording feels encouraging for different student styles.
+- Physically confirm the revised touch Daily screen no longer scrolls or crowds the footer on the 7-inch display.
 - Decide whether to add a separate touch Letter Progress screen with per-letter cards and direct practice links.
 - Continue testing Astrid/Liara-style profiles to confirm each keeps separate progress, learning state, and attempt logs.
 - Run a fresh student-style session across Learn, Send, Read, Listen, Echo, and Daily Mission with one non-Pappy profile.
