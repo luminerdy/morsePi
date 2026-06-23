@@ -467,6 +467,9 @@ When asked to do the daily wrap-up, update:
 - Added a 10-minute touch inactivity timeout that redirects idle touch pages back to `/touch`; that then resolves to student selection or Daily based on profile count.
 - Added regression tests for touch start routing, touch menu availability, and touch student-selection redirect behavior.
 - Deployed to the active Pi and verified `/touch` redirects to `/touch/students`, `/touch/menu` renders the menu, `/touch/students` defaults to `/touch/daily`, and the full Pi regression suite passes.
+- Redesigned the touch Daily Mission content hierarchy around the student's next action: Next Step, Today, Learning Now, Progress So Far, and Working / Needs Work.
+- Made Learning Now the primary Daily focus when new letters are open, including per-letter burn-in counts and an explicit note that those letters are not yet in Send, Read, Listen, or Echo.
+- Added route coverage for the Daily screen's Learning Now guidance so `R K` style states show the exact work remaining instead of emphasizing old current-set 100% scores.
 
 ### Ready Next
 

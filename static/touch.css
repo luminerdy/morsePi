@@ -448,19 +448,20 @@
 .touch-daily-layout {
     min-height: 0;
     display: grid;
-    grid-template-columns: 220px 230px minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr) 90px;
+    grid-template-columns: 230px 170px minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) 108px;
     gap: 8px;
 }
 
 .touch-daily-layout.mission-complete {
-    grid-template-columns: 190px 220px 210px minmax(0, 1fr);
+    grid-template-columns: 230px 170px minmax(0, 1fr);
 }
 
-.touch-daily-hero,
-.touch-daily-reward,
+.touch-daily-next,
+.touch-daily-today,
+.touch-daily-learning,
+.touch-daily-current,
 .touch-daily-coach,
-.touch-daily-actions,
 .touch-daily-letters {
     min-height: 0;
     padding: 10px;
@@ -470,92 +471,127 @@
     box-shadow: 0 6px 18px rgba(23, 33, 43, 0.08);
 }
 
-.touch-daily-hero {
-    display: grid;
-    align-content: center;
-    gap: 9px;
-}
-
-.touch-daily-hero span,
-.touch-daily-letters span {
-    color: var(--muted);
-    font-size: 14px;
-    font-weight: 900;
-    text-transform: uppercase;
-}
-
-.touch-daily-hero strong {
-    color: var(--primary);
-    font-size: 56px;
-    line-height: 1;
-}
-
-.touch-daily-hero p {
-    margin: 0;
-    color: var(--text);
-    font-size: 16px;
-    font-weight: 800;
-}
-
-.mission-complete .touch-daily-hero strong {
-    font-size: 46px;
-}
-
-.touch-daily-reward {
+.touch-daily-next,
+.touch-daily-today,
+.touch-daily-learning {
     display: grid;
     align-content: center;
     gap: 8px;
-    background: #e8f7ef;
-    border-color: #91d7b0;
 }
 
-.touch-daily-reward span,
-.touch-daily-reward em {
-    color: var(--accent);
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 900;
-    text-transform: uppercase;
-}
-
-.touch-daily-reward strong {
-    color: #11613e;
-    font-size: 34px;
-    line-height: 1;
-}
-
-.touch-daily-reward p {
-    margin: 0;
-    color: var(--text);
-    font-size: 17px;
-    font-weight: 900;
-}
-
-.touch-daily-reward .button {
-    width: 100%;
-    min-height: 50px;
-}
-
-.touch-daily-coach {
-    display: grid;
-    grid-template-rows: auto auto minmax(0, 1fr) auto;
-    gap: 7px;
-}
-
-.touch-daily-coach > span,
-.touch-coach-groups span {
+.touch-daily-next span,
+.touch-daily-today span,
+.touch-daily-learning span,
+.touch-daily-current span,
+.touch-daily-coach span,
+.touch-daily-letters span {
     color: var(--muted);
     font-size: 13px;
     font-weight: 900;
     text-transform: uppercase;
 }
 
-.touch-daily-coach > p {
+.touch-daily-next strong {
+    color: var(--primary);
+    font-size: 31px;
+    line-height: 1;
+}
+
+.touch-daily-today strong,
+.touch-daily-learning > strong {
+    color: var(--primary);
+    font-size: 42px;
+    line-height: 1;
+}
+
+.touch-daily-next p,
+.touch-daily-today p,
+.touch-daily-learning p,
+.touch-daily-current p {
     margin: 0;
     color: var(--text);
     font-size: 15px;
-    font-weight: 900;
+    font-weight: 800;
     line-height: 1.15;
+}
+
+.touch-daily-next .button {
+    width: 100%;
+    min-height: 46px;
+}
+
+.touch-daily-learning small {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+.touch-learning-letters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.touch-learning-letters em {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px;
+    color: var(--primary);
+    background: #e8f1ff;
+    border: 1px solid #b9cef8;
+    border-radius: 8px;
+    font-style: normal;
+    font-weight: 900;
+    font-size: 15px;
+}
+
+.touch-daily-current {
+    grid-column: 1 / span 2;
+    display: grid;
+    align-content: center;
+    gap: 6px;
+}
+
+.touch-daily-current div,
+.touch-daily-coach p {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.touch-daily-current strong,
+.touch-daily-coach strong {
+    min-width: 26px;
+    min-height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 6px;
+    color: var(--primary);
+    background: #e8f1ff;
+    border: 1px solid #b9cef8;
+    border-radius: 8px;
+    font-size: 15px;
+    line-height: 1;
+}
+
+.touch-daily-coach {
+    grid-column: 3;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.touch-daily-coach div {
+    min-width: 0;
+}
+
+.touch-daily-coach span {
+    display: block;
+    margin-bottom: 5px;
 }
 
 .touch-coach-next {

@@ -169,6 +169,67 @@ class RouteRenderTests(unittest.TestCase):
         self.assertNotIn("New: S O", html)
         self.assertNotIn("Learn S O", html)
 
+    def test_touch_daily_prioritizes_learning_now_next_step(self):
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        progress = {}
+        for letter in active_letters:
+            progress[letter] = {
+                mode: {
+                    "attempts": 10,
+                    "correct": 10,
+                    "last_seen": "2026-06-23T00:00:00+00:00",
+                    "streak": 10,
+                    "strength": 1.0,
+                }
+                for mode in app_module.practice_modes
+            }
+        progress["R"] = {
+            "learn": {
+                "attempts": 7,
+                "correct": 7,
+                "last_seen": "2026-06-23T00:00:00+00:00",
+                "streak": 7,
+                "strength": 1.0,
+            }
+        }
+        progress["K"] = {
+            "learn": {
+                "attempts": 9,
+                "correct": 9,
+                "last_seen": "2026-06-23T00:00:00+00:00",
+                "streak": 5,
+                "strength": 1.0,
+            }
+        }
+        self.write_json("pappy", "practice_progress.json", progress)
+        self.write_json(
+            "pappy",
+            "learning_state.json",
+            {
+                "groups": {
+                    "SO": {
+                        "first_learning_date": "2026-06-20",
+                        "letters": ["S", "O"],
+                    }
+                },
+                "last_learning_start_date": "2026-06-20",
+            },
+        )
+
+        response = self.client.get("/touch/daily")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Next Step", html)
+        self.assertIn("Learn R K", html)
+        self.assertIn("R needs 3 more correct Learn tries", html)
+        self.assertIn("16/20 Learn", html)
+        self.assertIn("R 7/10", html)
+        self.assertIn("K 9/10", html)
+        self.assertIn("R K are not in Send, Read, Listen, or Echo yet.", html)
+        self.assertIn("Progress So Far", html)
+        self.assertIn("100%</strong> current-set mastery", html)
+
     def test_touch_progress_renders_letters_mastered_and_current_set(self):
         response = self.client.get("/touch/progress")
         html = response.get_data(as_text=True)
@@ -286,8 +347,10 @@ class RouteRenderTests(unittest.TestCase):
         pappy_html = pappy_response.get_data(as_text=True)
 
         self.assertIn("Astrid", astrid_html)
-        self.assertIn("New: S O", astrid_html)
-        self.assertIn("Start with Learn for S O", astrid_html)
+        self.assertIn("Next Step", astrid_html)
+        self.assertIn("Learn S O", astrid_html)
+        self.assertIn("0/20 Learn", astrid_html)
+        self.assertIn("S O are not in Send, Read, Listen, or Echo yet.", astrid_html)
         self.assertIn("6/26", pappy_html)
         self.assertNotIn("Learn S O", pappy_html)
 
