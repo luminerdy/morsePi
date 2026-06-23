@@ -1,6 +1,7 @@
 import importlib
 import json
 import os
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -117,6 +118,45 @@ class RouteRenderTests(unittest.TestCase):
 
     def set_student_cookie(self, student_id):
         self.client.set_cookie(app_module.STUDENT_COOKIE, student_id)
+
+    def test_touch_start_redirects_to_student_selection_with_multiple_profiles(self):
+        response = self.client.get("/touch")
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual("/touch/students", response.headers["Location"])
+
+    def test_touch_start_redirects_to_daily_with_one_profile(self):
+        student_profiles.save_profiles([{"id": "pappy", "name": "Pappy"}])
+        shutil.rmtree(self.students_dir / "astrid")
+
+        response = self.client.get("/touch")
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual("/touch/daily", response.headers["Location"])
+
+    def test_touch_menu_remains_available(self):
+        response = self.client.get("/touch/menu")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Touch Menu", html)
+        self.assertIn("/touch/students?next=/touch/daily", html)
+
+    def test_touch_student_selection_defaults_to_daily(self):
+        response = self.client.get("/touch/students")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn('name="next" value="/touch/daily"', html)
+
+    def test_touch_student_selection_redirects_to_daily_after_select(self):
+        response = self.client.post(
+            "/touch/students",
+            data={"action": "select", "student_id": "astrid"},
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual("/touch/daily", response.headers["Location"])
 
     def test_touch_daily_fresh_student_shows_no_learning_now(self):
         response = self.client.get("/touch/daily")

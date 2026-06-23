@@ -1160,8 +1160,35 @@ function initializeTouchRedirect() {
     }
 }
 
+function initializeTouchIdleTimeout() {
+    if (!document.body || !document.body.classList.contains("touch-ui")) {
+        return;
+    }
+
+    if (window.location.pathname === "/touch/students") {
+        return;
+    }
+
+    const timeoutMs = 10 * 60 * 1000;
+    let timeoutId = null;
+
+    const resetTimer = () => {
+        window.clearTimeout(timeoutId);
+        timeoutId = window.setTimeout(() => {
+            window.location.replace("/touch");
+        }, timeoutMs);
+    };
+
+    ["pointerdown", "touchstart", "keydown", "click"].forEach(eventName => {
+        document.addEventListener(eventName, resetTimer, { passive: true });
+    });
+
+    resetTimer();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     initializeTouchRedirect();
+    initializeTouchIdleTimeout();
     initializePracticeMode();
     initializeDailyMissionReward();
 

@@ -1462,6 +1462,14 @@ def index():
 
 @app.route("/touch", methods=["GET", "POST"])
 def touch_index():
+    if len(g.student_profiles) == 1:
+        return redirect(url_for("touch_daily"))
+
+    return redirect(url_for("touch_students"))
+
+
+@app.route("/touch/menu", methods=["GET", "POST"])
+def touch_menu():
     return render_practice_template("touch_menu.html")
 
 
@@ -1493,6 +1501,7 @@ def students():
 
     if request.method == "POST":
         action = request.form.get("action", "select")
+        default_next_endpoint = "touch_daily" if request.path.startswith("/touch/") else "students"
 
         if action == "reset":
             profile = profile_for_id(slugify_student_id(request.form.get("student_id", "")))
@@ -1516,7 +1525,7 @@ def students():
         practice_target = "E"
         practice_feedback = ""
         clear_key_state()
-        response = redirect(safe_next_url("students"))
+        response = redirect(safe_next_url(default_next_endpoint))
         response.set_cookie(STUDENT_COOKIE, profile["id"], max_age=60 * 60 * 24 * 365)
         return response
 
@@ -1535,7 +1544,7 @@ def touch_students():
 
     return render_template(
         "touch_students.html",
-        next_url=safe_next_url("touch_index")
+        next_url=safe_next_url("touch_daily")
     )
 
 

@@ -458,6 +458,16 @@ When asked to do the daily wrap-up, update:
 - Deployed the Progress fix to the active Pi and verified `/touch/progress` shows `Learning R K` with low Learn mastery while current-set modes can remain 100%.
 - Corrected Learning Now mastery again so Learn progress is based on burn-in completion, such as `15/20 Learn` and `75%`, instead of strength-only scoring that could show 100% before the required correct reps are complete.
 
+### 2026-06-23
+
+- Changed the touch start flow so `/touch` is now a resolver: multi-student stations go to `/touch/students`, while one-student stations go directly to `/touch/daily`.
+- Moved the old touch menu to `/touch/menu` so Daily Mission can be the student-centered start page without losing the full navigation menu.
+- Updated touch student switching so selecting or creating a student defaults to that student's Daily Mission.
+- Updated touch page navigation so student-name links return to Daily after switching users, while Menu links go to `/touch/menu`.
+- Added a 10-minute touch inactivity timeout that redirects idle touch pages back to `/touch`; that then resolves to student selection or Daily based on profile count.
+- Added regression tests for touch start routing, touch menu availability, and touch student-selection redirect behavior.
+- Deployed to the active Pi and verified `/touch` redirects to `/touch/students`, `/touch/menu` renders the menu, `/touch/students` defaults to `/touch/daily`, and the full Pi regression suite passes.
+
 ### Ready Next
 
 - Add regression tests for practice POST routes.
