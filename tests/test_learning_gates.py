@@ -284,6 +284,26 @@ class LearningGateTests(unittest.TestCase):
     def test_progress_details_show_learning_now_for_learn_mode(self):
         active_letters = app_module.starter_practice_letters + ["S", "O"]
         self.write_progress(active_letters, self.all_modes(1.0))
+        progress = json.loads(self.progress_path.read_text(encoding="utf-8"))
+        progress["R"] = {
+            "learn": {
+                "attempts": 7,
+                "correct": 7,
+                "last_seen": "2026-06-22T00:00:00+00:00",
+                "streak": 7,
+                "strength": 1.0,
+            }
+        }
+        progress["K"] = {
+            "learn": {
+                "attempts": 9,
+                "correct": 8,
+                "last_seen": "2026-06-22T00:00:00+00:00",
+                "streak": 5,
+                "strength": 1.0,
+            }
+        }
+        self.progress_path.write_text(json.dumps(progress), encoding="utf-8")
         self.write_learning_state(
             {
                 "SO": {
@@ -299,7 +319,9 @@ class LearningGateTests(unittest.TestCase):
         self.assertEqual("Learning Now", details["learn"]["scope_label"])
         self.assertEqual("Learning R K", details["learn"]["summary_label"])
         self.assertEqual(["R", "K"], [item["letter"] for item in details["learn"]["letters"]])
-        self.assertEqual(0, details["learn"]["score"]["mastery"])
+        self.assertEqual(75, details["learn"]["score"]["mastery"])
+        self.assertEqual("15/20 Learn", details["learn"]["score"]["completion_label"])
+        self.assertEqual("R needs 3 more correct Learn tries", details["learn"]["score"]["next_goal"])
         self.assertEqual("Current Set", details["send"]["scope_label"])
         self.assertEqual(100, details["send"]["score"]["mastery"])
 

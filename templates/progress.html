@@ -132,7 +132,13 @@
                         <span style="width: {{ mode_details.score.mastery }}%"></span>
                     </div>
 
-                    <p class="score-goal">{{ mode_details.score.next_goal }}</p>
+                    <p class="score-goal">
+                        {% if mode_details.score.completion_label %}
+                            {{ mode_details.score.completion_label }} · {{ mode_details.score.next_goal }}
+                        {% else %}
+                            {{ mode_details.score.next_goal }}
+                        {% endif %}
+                    </p>
                 </div>
             </section>
 

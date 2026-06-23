@@ -456,6 +456,7 @@ When asked to do the daily wrap-up, update:
 - Kept Send, Read, Listen, and Echo Progress cards scoped to the current practice set while new letters remain Learn-only.
 - Added a regression test for the S/O mastered plus R/K Learning Now state so Progress continues to point students toward the actual Learn work.
 - Deployed the Progress fix to the active Pi and verified `/touch/progress` shows `Learning R K` with low Learn mastery while current-set modes can remain 100%.
+- Corrected Learning Now mastery again so Learn progress is based on burn-in completion, such as `15/20 Learn` and `75%`, instead of strength-only scoring that could show 100% before the required correct reps are complete.
 
 ### Ready Next
 

@@ -1341,8 +1341,14 @@ def get_progress_mode_details():
         mode_details["letters_label"] = "Current Set Letters"
 
     if state["learning_letters"]:
+        learning_focus = daily_learning_focus(state["learning_letters"])
+        learn_score = mode_score(state["learning_letters"], "learn")
+        learn_score["mastery"] = learning_focus["progress"]
+        learn_score["next_goal"] = learning_focus["next_need"] or learn_score["next_goal"]
+        learn_score["completion_label"] = f"{learning_focus['correct']}/{learning_focus['goal']} Learn"
+
         details["learn"] = {
-            "score": mode_score(state["learning_letters"], "learn"),
+            "score": learn_score,
             "letters": progress_summary(state["learning_letters"], "learn"),
             "scope": "learning_now",
             "scope_label": "Learning Now",

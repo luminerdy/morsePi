@@ -37,7 +37,7 @@
                     <a class="touch-progress-card" href="/touch/practice/run?mode={{ mode_key }}">
                         <span>{{ mode_config.label }}</span>
                         <strong>{{ mode_score.mastery }}%</strong>
-                        <em>{{ details[mode_key].summary_label }} · {{ mode_score.streak }} streak</em>
+                        <em>{{ mode_score.completion_label or details[mode_key].summary_label ~ ' · ' ~ mode_score.streak ~ ' streak' }}</em>
                     </a>
                 {% endfor %}
             </section>
