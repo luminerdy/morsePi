@@ -28,9 +28,15 @@
               data-daily-student="{{ current_student.id }}">
             <section class="touch-daily-next">
                 <span>Next Step</span>
-                <strong>{{ daily.next_action.title }}</strong>
-                <p>{{ daily.message }}</p>
-                <a class="button primary" href="{{ daily.next_action.href }}">{{ daily.next_action.label }}</a>
+                {% if daily.completed %}
+                    <strong>Bonus Round</strong>
+                    <p>Daily complete. Try a 20-signal sprint for accuracy and streak.</p>
+                    <a class="button primary" href="/touch/bonus/sprint">Signal Sprint</a>
+                {% else %}
+                    <strong>{{ daily.next_action.title }}</strong>
+                    <p>{{ daily.message }}</p>
+                    <a class="button primary" href="{{ daily.next_action.href }}">{{ daily.next_action.label }}</a>
+                {% endif %}
             </section>
 
             <section class="touch-daily-today">

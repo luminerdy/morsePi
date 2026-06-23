@@ -453,6 +453,20 @@ function getPracticePanel() {
     return document.querySelector("[data-practice-target][data-expected-morse]");
 }
 
+function getBonusConfig() {
+    const panel = getPracticePanel();
+
+    if (!panel || !panel.dataset.bonusKind) {
+        return null;
+    }
+
+    return {
+        kind: panel.dataset.bonusKind,
+        sessionId: panel.dataset.bonusSession || "",
+        goal: Number(panel.dataset.bonusGoal) || 20
+    };
+}
+
 function getPracticeMode() {
     const panel = getPracticePanel();
     return panel ? (panel.dataset.practiceMode || "send") : "send";
@@ -548,6 +562,28 @@ function checkPracticeAnswer(actualMorse, expectedMorse, target) {
     pendingPracticeMorse = "";
     practiceBusy = true;
 
+    const bonus = getBonusConfig();
+    if (bonus) {
+        const correct = actualMorse === expectedMorse;
+        setPracticeFeedback(correct
+            ? `Correct: ${target}.`
+            : `${target} is ${expectedMorse}. I heard ${actualMorse}.`
+        );
+        recordPracticeResult(target, correct).then(data => {
+            const summary = data ? data.bonus : null;
+            updateBonusScore(summary);
+            if (summary && summary.complete) {
+                setPracticeFeedback(`Sprint complete: ${summary.correct}/${summary.goal} correct · ${summary.best_streak} best streak.`);
+                practiceActive = false;
+                practiceBusy = false;
+                return;
+            }
+
+            setTimeout(loadNextPracticePrompt, 850);
+        });
+        return;
+    }
+
     if (actualMorse === expectedMorse) {
         setPracticeFeedback(`Correct: ${target}. Next letter coming up.`);
         recordPracticeResult(target, true).finally(() => {
@@ -570,12 +606,13 @@ async function recordPracticeResult(target, correct, answer = "") {
     const panel = getPracticePanel();
     const liveMorse = document.getElementById("liveMorse");
     const mode = getPracticeMode();
+    const bonus = getBonusConfig();
     const actualMorse = ["read", "listen"].includes(mode)
         ? ""
         : normalizeMorse(keyboardKeyerActive ? keyboardMorse : (liveMorse ? liveMorse.innerText : ""));
 
     try {
-        const response = await fetch("/practice/result", {
+        const response = await fetch(bonus ? "/bonus/result" : "/practice/result", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -585,6 +622,7 @@ async function recordPracticeResult(target, correct, answer = "") {
                 correct,
                 answer,
                 mode,
+                session_id: bonus ? bonus.sessionId : "",
                 expected_morse: panel ? (panel.dataset.expectedMorse || "") : "",
                 actual_morse: actualMorse,
                 timing_events: keyboardKeyerActive ? keyboardTimingEvents : []
@@ -595,14 +633,18 @@ async function recordPracticeResult(target, correct, answer = "") {
         updateProgressPanel(data.progress || []);
         updateScoreCard(data.score || null);
         updateOverallScoreCard(data.overall || null);
+        updateBonusScore(data.bonus || null);
+        return data;
     } catch (error) {
         console.log("Unable to record practice result", error);
+        return null;
     }
 }
 
 async function loadNextPracticePrompt() {
     try {
-        const response = await fetch(`/practice/next?mode=${encodeURIComponent(getPracticeMode())}`, {
+        const bonus = getBonusConfig();
+        const response = await fetch(bonus ? "/bonus/next" : `/practice/next?mode=${encodeURIComponent(getPracticeMode())}`, {
             method: "POST"
         });
         const data = await response.json();
@@ -612,8 +654,11 @@ async function loadNextPracticePrompt() {
         updateProgressPanel(data.progress || []);
         updateScoreCard(data.score || null);
         updateOverallScoreCard(data.overall || null);
+        updateBonusScore(data.bonus || null);
         resetInputDisplay();
-        if (getPracticeMode() === "listen") {
+        if (bonus) {
+            setPracticeFeedback("Next signal. Key it once.");
+        } else if (getPracticeMode() === "listen") {
             setPracticeFeedback("Next one. Listen and choose the letter.");
             playPracticePromptInBrowser();
         } else if (getPracticeMode() === "echo") {
@@ -785,6 +830,38 @@ function updateScoreCard(score) {
 
     if (goal) {
         goal.innerText = score.next_goal;
+    }
+}
+
+function updateBonusScore(summary) {
+    if (!summary) {
+        return;
+    }
+
+    const accuracy = document.getElementById("bonusAccuracy");
+    const attempts = document.getElementById("bonusAttempts");
+    const streak = document.getElementById("bonusStreak");
+    const bestStreak = document.getElementById("bonusBestStreak");
+    const remaining = document.getElementById("bonusRemaining");
+
+    if (accuracy) {
+        accuracy.innerText = `${summary.accuracy}%`;
+    }
+
+    if (attempts) {
+        attempts.innerText = summary.attempts;
+    }
+
+    if (streak) {
+        streak.innerText = summary.streak;
+    }
+
+    if (bestStreak) {
+        bestStreak.innerText = summary.best_streak;
+    }
+
+    if (remaining) {
+        remaining.innerText = summary.complete ? "Sprint complete" : `${summary.remaining} left`;
     }
 }
 

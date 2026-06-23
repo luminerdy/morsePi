@@ -542,6 +542,54 @@ class RouteRenderTests(unittest.TestCase):
         self.assertTrue(self.daily_celebration_called)
         self.assertEqual({"status": "celebrating"}, response.get_json())
 
+    def test_touch_daily_complete_links_to_signal_sprint(self):
+        self.write_attempts("pappy", total=20, correct=18)
+
+        response = self.client.get("/touch/daily")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Bonus Round", html)
+        self.assertIn("/touch/bonus/sprint", html)
+        self.assertIn("Signal Sprint", html)
+
+    def test_touch_bonus_sprint_renders_active_letter_keying_round(self):
+        response = self.client.get("/touch/bonus/sprint?session=test-session")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Signal Sprint", html)
+        self.assertIn('data-bonus-kind="signal-sprint"', html)
+        self.assertIn('data-bonus-session="test-session"', html)
+        self.assertIn('id="bonusAttempts">0</span>/20 signals', html)
+
+    def test_bonus_result_records_without_changing_practice_progress(self):
+        response = self.client.post(
+            "/bonus/result",
+            json={
+                "session_id": "sprint-1",
+                "target": "E",
+                "correct": True,
+                "expected_morse": ".",
+                "actual_morse": ".",
+                "timing_events": [
+                    {"type": "symbol", "symbol": ".", "duration_ms": 120}
+                ],
+            },
+        )
+        payload = response.get_json()
+        bonus_attempts = self.student_file("pappy", "bonus_attempts.jsonl").read_text(encoding="utf-8").splitlines()
+        bonus_record = json.loads(bonus_attempts[0])
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("recorded", payload["status"])
+        self.assertEqual(1, payload["bonus"]["attempts"])
+        self.assertEqual(100, payload["bonus"]["accuracy"])
+        self.assertEqual(1, payload["bonus"]["streak"])
+        self.assertEqual("sprint-1", bonus_record["session_id"])
+        self.assertFalse(self.student_file("pappy", "practice_progress.json").exists())
+        self.assertFalse(self.student_file("pappy", "practice_attempts.jsonl").exists())
+
     def test_student_cookie_keeps_progress_separate(self):
         self.complete_starter_progress("astrid")
         self.set_student_cookie("astrid")
@@ -581,6 +629,7 @@ class RouteRenderTests(unittest.TestCase):
         self.write_text_file("pappy", "practice_attempts.jsonl", "pappy attempts\n")
         self.write_json("pappy", "practice_progress.json", {"E": {"send": {"attempts": 1}}})
         self.write_json("pappy", "learning_state.json", {"groups": {"SO": {}}, "last_learning_start_date": "2026-06-21"})
+        self.write_text_file("pappy", "bonus_attempts.jsonl", "pappy bonus\n")
         self.write_text_file("astrid", "practice_attempts.jsonl", "astrid attempts\n")
         self.write_legacy_text_file("practice_attempts.jsonl", "legacy attempts\n")
         self.write_legacy_text_file("practice_progress.json", "{}")
@@ -600,6 +649,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertFalse(self.student_file("pappy", "practice_attempts.jsonl").exists())
         self.assertFalse(self.student_file("pappy", "practice_progress.json").exists())
         self.assertFalse(self.student_file("pappy", "learning_state.json").exists())
+        self.assertFalse(self.student_file("pappy", "bonus_attempts.jsonl").exists())
         self.assertFalse((self.data_dir / "practice_attempts.jsonl").exists())
         self.assertFalse((self.data_dir / "practice_progress.json").exists())
         self.assertFalse((self.data_dir / "learning_state.json").exists())
@@ -611,6 +661,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertTrue((backup / "student" / "practice_attempts.jsonl").exists())
         self.assertTrue((backup / "student" / "practice_progress.json").exists())
         self.assertTrue((backup / "student" / "learning_state.json").exists())
+        self.assertTrue((backup / "student" / "bonus_attempts.jsonl").exists())
         self.assertTrue((backup / "legacy" / "practice_attempts.jsonl").exists())
         self.assertTrue((backup / "legacy" / "practice_progress.json").exists())
         self.assertTrue((backup / "legacy" / "learning_state.json").exists())

@@ -1,6 +1,7 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
+from uuid import uuid4
 
 from flask import Flask, render_template, request, redirect, url_for, jsonify, g
 from gpiozero import Button, LED
@@ -85,6 +86,7 @@ SAMPLE_RATE = 44100
 DEFAULT_STATION_VOLUME = 0.35
 DAILY_MISSION_GOAL = 20
 DAILY_CELEBRATION_MORSE = "...-"
+BONUS_SPRINT_GOAL = 20
 
 # Prefer the ALSA card name instead of a numeric card index so the USB speaker
 # keeps working when the SD card moves to another Pi or USB port.
@@ -860,6 +862,76 @@ def daily_mission_summary():
     }
 
 
+def bonus_attempts_path():
+    return student_data_path(g.current_student["id"], "bonus_attempts.jsonl")
+
+
+def append_bonus_attempt(record):
+    path = bonus_attempts_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    normalized = dict(record)
+    normalized["timestamp"] = datetime.now(timezone.utc).isoformat()
+
+    with path.open("a", encoding="utf-8") as attempts_file:
+        attempts_file.write(json.dumps(normalized, sort_keys=True) + "\n")
+
+    return normalized
+
+
+def load_bonus_attempts(session_id=None):
+    path = bonus_attempts_path()
+
+    if not path.exists():
+        return []
+
+    attempts = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        try:
+            attempt = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+
+        if session_id and attempt.get("session_id") != session_id:
+            continue
+
+        attempts.append(attempt)
+
+    return attempts
+
+
+def bonus_sprint_summary(session_id):
+    attempts = load_bonus_attempts(session_id)
+    total = len(attempts)
+    correct = sum(1 for attempt in attempts if attempt.get("correct"))
+    streak = 0
+    best_streak = 0
+
+    for attempt in attempts:
+        if attempt.get("correct"):
+            streak += 1
+            best_streak = max(best_streak, streak)
+        else:
+            streak = 0
+
+    return {
+        "goal": BONUS_SPRINT_GOAL,
+        "attempts": total,
+        "correct": correct,
+        "remaining": max(0, BONUS_SPRINT_GOAL - total),
+        "accuracy": int(round((correct / total) * 100)) if total else 0,
+        "streak": streak,
+        "best_streak": best_streak,
+        "complete": total >= BONUS_SPRINT_GOAL,
+    }
+
+
+def choose_bonus_sprint_target():
+    global practice_target
+    practice_target = random.choice(get_unlocked_practice_letters())
+    clear_key_state()
+    return practice_target
+
+
 def student_badges(overall, daily):
     earned = []
 
@@ -1582,6 +1654,22 @@ def touch_daily():
     )
 
 
+@app.route("/touch/bonus/sprint")
+def touch_bonus_sprint():
+    target = choose_bonus_sprint_target()
+    session_id = request.args.get("session") or uuid4().hex
+    summary = bonus_sprint_summary(session_id)
+
+    return render_template(
+        "touch_bonus_sprint.html",
+        target=target,
+        expected_morse=text_to_morse(target),
+        session_id=session_id,
+        bonus=summary,
+        timing=get_practice_timing("send", target)
+    )
+
+
 @app.route("/touch/daily/celebrate", methods=["POST"])
 def touch_daily_celebrate():
     if daily_mission_summary()["completed"]:
@@ -1829,6 +1917,55 @@ def practice_prompt_station():
 
     play_practice_prompt_in_background(mode)
     return jsonify({"status": "playing"})
+
+
+@app.route("/bonus/next", methods=["POST"])
+def bonus_next():
+    target = choose_bonus_sprint_target()
+
+    return jsonify({
+        "target": target,
+        "expected_morse": text_to_morse(target),
+        "timing": get_practice_timing("send", target),
+    })
+
+
+@app.route("/bonus/result", methods=["POST"])
+def bonus_result():
+    data = request.get_json(silent=True) or {}
+    session_id = str(data.get("session_id", "")).strip()
+    letter = str(data.get("target", practice_target)).upper()
+    is_correct = bool(data.get("correct", False))
+    expected_morse = data.get("expected_morse") or text_to_morse(letter)
+    actual_morse = data.get("actual_morse") or get_current_key_morse().strip()
+    timing_events = data.get("timing_events") or get_current_key_events()
+
+    if not session_id:
+        return jsonify({"status": "missing-session"}), 400
+
+    if letter not in get_unlocked_practice_letters():
+        return jsonify({
+            "status": "ignored",
+            "bonus": bonus_sprint_summary(session_id),
+        })
+
+    attempt_record = append_bonus_attempt({
+        "kind": "signal-sprint",
+        "session_id": session_id,
+        "target": letter,
+        "expected_morse": expected_morse,
+        "actual_morse": actual_morse,
+        "correct": is_correct,
+        "timing": get_practice_timing("send", letter),
+        "timing_events": timing_events,
+    })
+
+    return jsonify({
+        "status": "recorded",
+        "attempt": attempt_record,
+        "timing": get_practice_timing("send", letter),
+        "bonus": bonus_sprint_summary(session_id),
+    })
 
 
 @app.route("/practice/result", methods=["POST"])

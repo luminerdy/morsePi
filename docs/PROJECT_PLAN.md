@@ -478,11 +478,17 @@ When asked to do the daily wrap-up, update:
 - Deployed the badge update to the active Pi and verified the 35-test Pi regression suite passes.
 - Tightened the touch Daily layout for the 800x480 7-inch screen: shorter header/footer, taller bottom row, slightly smaller large text, and capped active/practiced letter chips with `+N` overflow summaries.
 - Added regression coverage for long letter sets and verified an 800x480 worst-case Daily screenshot with all alphabet letters active and the next number group in Learning Now.
+- Added the first optional Bonus Round: Signal Sprint appears after Daily completion and gives students 20 random active letters to key once each.
+- Stored Signal Sprint attempts in `bonus_attempts.jsonl` so bonus play does not inflate Daily Mission counts or advance normal practice mastery/unlock gates.
+- Added live sprint scoring for attempts, accuracy, current streak, best streak, and remaining signals.
+- Added route coverage for the Daily sprint link, sprint screen rendering, and bonus result storage that leaves normal practice progress untouched.
 
 ### Ready Next
 
 - Decide whether Daily Mission rewards should be recorded as earned badges in student data.
 - Test whether the first badge labels and next-badge target motivate students without making the Daily screen confusing.
+- Test whether Signal Sprint feels like a useful post-Daily game and whether 20 signals is the right starting length.
+- Decide whether to add Clean Streak, adaptive sprint goals, or best-sprint history next.
 - Test whether the Daily Practice Coach wording feels encouraging for different student styles.
 - Physically confirm the revised touch Daily screen no longer scrolls or crowds the footer on the 7-inch display.
 - Decide whether to add a separate touch Letter Progress screen with per-letter cards and direct practice links.

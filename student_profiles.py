@@ -14,7 +14,8 @@ STUDENT_COOKIE = "morse_student_id"
 STUDENT_FILES = [
     "practice_progress.json",
     "learning_state.json",
-    "practice_attempts.jsonl"
+    "practice_attempts.jsonl",
+    "bonus_attempts.jsonl"
 ]
 PROFILE_METADATA = "profile.json"
 
