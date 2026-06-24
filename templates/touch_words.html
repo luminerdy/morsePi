@@ -25,7 +25,9 @@
         </header>
 
         {% if word_item %}
-            <main class="touch-words-layout" data-word-morse="{{ word_item.morse }}">
+            <main class="touch-words-layout"
+                  data-word-target="{{ word_item.word }}"
+                  data-word-morse="{{ word_item.morse }}">
                 <section class="touch-word-card touch-word-hero">
                     <span>Word</span>
                     <strong>{{ word_item.word }}</strong>
@@ -46,9 +48,23 @@
                     </div>
                 </section>
 
+                <section class="touch-word-card touch-word-key">
+                    <div>
+                        <span>Keyed</span>
+                        <strong id="liveMorse">Waiting for key...</strong>
+                    </div>
+                    <div>
+                        <span>Read As</span>
+                        <strong id="liveDecoded">---</strong>
+                    </div>
+                </section>
+
+                <section class="feedback-box inline-feedback touch-word-feedback" id="wordFeedback" hidden></section>
+
                 <section class="touch-word-card touch-word-actions">
                     <button type="button" class="button primary" data-word-play>Play</button>
                     <button type="button" class="button secondary" data-word-stop>Stop</button>
+                    <button type="button" class="button secondary" data-word-clear>Clear</button>
                     <a class="button secondary" href="/touch/words?i={{ word_item.next_index }}">Next</a>
                     <a class="button secondary" href="/touch/practice/run?mode=read">Read</a>
                 </section>

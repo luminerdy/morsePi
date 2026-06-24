@@ -1312,6 +1312,11 @@ def word_practice_summary(active_letters=None):
     }
 
 
+def normalize_word_morse(value):
+    cleaned = "".join(character for character in str(value).strip() if character in ".-/ ")
+    return " ".join(cleaned.split())
+
+
 def word_practice_item(index=0, active_letters=None):
     words = available_word_practice_words(active_letters)
 
@@ -2004,6 +2009,24 @@ def practice_prompt_station():
 
     play_practice_prompt_in_background(mode)
     return jsonify({"status": "playing"})
+
+
+@app.route("/words/prompt-station", methods=["POST"])
+def words_prompt_station():
+    data = request.get_json(silent=True) or {}
+    morse = normalize_word_morse(data.get("morse", ""))
+
+    if not morse:
+        return jsonify({"status": "missing-morse"}), 400
+
+    play_in_background(morse)
+    return jsonify({"status": "playing"})
+
+
+@app.route("/words/stop", methods=["POST"])
+def words_stop():
+    stop_station_playback()
+    return jsonify({"status": "stopped"})
 
 
 @app.route("/bonus/next", methods=["POST"])

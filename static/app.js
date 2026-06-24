@@ -18,6 +18,9 @@ let keyboardToneGain = null;
 let practiceAudioPlaying = false;
 let browserAudioCtx = null;
 let browserPlayback = null;
+let wordCheckTimer = null;
+let lastCheckedWordMorse = "";
+let pendingWordMorse = "";
 
 const KEYBOARD_DASH_THRESHOLD_UNITS = 2.5;
 const MORSE_DECODE = {
@@ -350,7 +353,7 @@ async function playWordCard() {
         return;
     }
 
-    stopBrowserPlayback();
+    await stopWordPlayback();
 
     const playback = {
         cancelled: false,
@@ -360,11 +363,31 @@ async function playWordCard() {
     browserPlayback = playback;
 
     try {
-        await playMorseText(morseText, playback);
+        const response = await fetch("/words/prompt-station", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ morse: morseText })
+        });
+
+        if (!response.ok) {
+            await playMorseText(morseText, playback);
+        }
     } finally {
         if (browserPlayback === playback) {
             browserPlayback = null;
         }
+    }
+}
+
+async function stopWordPlayback() {
+    stopBrowserPlayback();
+
+    try {
+        await fetch("/words/stop", { method: "POST" });
+    } catch (error) {
+        console.log("Unable to stop word playback", error);
     }
 }
 
@@ -461,6 +484,7 @@ async function updateLiveKey() {
         }
 
         schedulePracticeAutoCheck(data.morse || "");
+        scheduleWordAutoCheck(data.morse || "", data.decoded || "");
     } catch (error) {
         console.log("Unable to update key display", error);
     }
@@ -482,6 +506,10 @@ async function clearKeyInput() {
 
 function getPracticePanel() {
     return document.querySelector("[data-practice-target][data-expected-morse]");
+}
+
+function getWordPanel() {
+    return document.querySelector("[data-word-target][data-word-morse]");
 }
 
 function getBonusConfig() {
@@ -530,6 +558,24 @@ function setPracticeFeedback(message) {
     }
 }
 
+function setWordFeedback(message) {
+    const feedback = document.getElementById("wordFeedback");
+
+    if (!feedback) {
+        return;
+    }
+
+    feedback.innerText = message;
+    feedback.hidden = !message;
+    feedback.classList.remove("success", "needs-practice");
+
+    if (message.startsWith("Correct")) {
+        feedback.classList.add("success");
+    } else if (message.startsWith("Try")) {
+        feedback.classList.add("needs-practice");
+    }
+}
+
 function resetPracticeAutoCheck() {
     if (practiceCheckTimer) {
         clearTimeout(practiceCheckTimer);
@@ -539,6 +585,73 @@ function resetPracticeAutoCheck() {
     lastCheckedPracticeMorse = "";
     pendingPracticeMorse = "";
     setPracticeFeedback("");
+    resetWordAutoCheck();
+}
+
+function resetWordAutoCheck() {
+    if (wordCheckTimer) {
+        clearTimeout(wordCheckTimer);
+    }
+
+    wordCheckTimer = null;
+    lastCheckedWordMorse = "";
+    pendingWordMorse = "";
+    setWordFeedback("");
+}
+
+function scheduleWordAutoCheck(rawMorse, decoded = "") {
+    const panel = getWordPanel();
+
+    if (!panel) {
+        return;
+    }
+
+    const actualMorse = normalizeMorse(rawMorse);
+    const expectedMorse = normalizeMorse(panel.dataset.wordMorse || "");
+
+    if (!actualMorse) {
+        resetWordAutoCheck();
+        return;
+    }
+
+    if (actualMorse === lastCheckedWordMorse) {
+        return;
+    }
+
+    if (countMorseSymbols(actualMorse) < countMorseSymbols(expectedMorse)) {
+        if (wordCheckTimer) {
+            clearTimeout(wordCheckTimer);
+            wordCheckTimer = null;
+        }
+        pendingWordMorse = "";
+        return;
+    }
+
+    if (actualMorse === pendingWordMorse) {
+        return;
+    }
+
+    if (wordCheckTimer) {
+        clearTimeout(wordCheckTimer);
+    }
+
+    pendingWordMorse = actualMorse;
+    wordCheckTimer = setTimeout(() => {
+        checkWordAnswer(actualMorse, expectedMorse, panel.dataset.wordTarget || "", decoded);
+    }, 1300);
+}
+
+function checkWordAnswer(actualMorse, expectedMorse, target, decoded = "") {
+    lastCheckedWordMorse = actualMorse;
+    pendingWordMorse = "";
+
+    if (actualMorse === expectedMorse) {
+        setWordFeedback(`Correct: ${target}.`);
+        return;
+    }
+
+    const heard = decoded ? ` I read ${decoded}.` : "";
+    setWordFeedback(`Try ${target} again. ${target} is ${expectedMorse}. I heard ${actualMorse}.${heard}`);
 }
 
 function schedulePracticeAutoCheck(rawMorse) {
@@ -1079,6 +1192,7 @@ function updateVirtualKeyerDisplay() {
     }
 
     schedulePracticeAutoCheck(morse);
+    scheduleWordAutoCheck(morse, MORSE_DECODE[morse] || "");
 }
 
 function updateKeyboardKeyerToggle() {
@@ -1230,7 +1344,11 @@ function initializePracticeMode() {
     });
 
     document.querySelectorAll("[data-word-stop]").forEach(button => {
-        button.addEventListener("click", stopBrowserPlayback);
+        button.addEventListener("click", stopWordPlayback);
+    });
+
+    document.querySelectorAll("[data-word-clear]").forEach(button => {
+        button.addEventListener("click", clearKeyInput);
     });
 
     const stopHereButton = document.getElementById("stopHereButton");

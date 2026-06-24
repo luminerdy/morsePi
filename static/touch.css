@@ -377,7 +377,7 @@
     min-height: 0;
     display: grid;
     grid-template-columns: minmax(0, 1fr) 210px;
-    grid-template-rows: 142px 112px minmax(0, 1fr);
+    grid-template-rows: 112px 74px 90px minmax(0, 1fr);
     gap: 8px;
 }
 
@@ -411,7 +411,7 @@
 .touch-word-hero strong {
     display: block;
     color: var(--primary);
-    font-size: 78px;
+    font-size: 58px;
     line-height: 0.9;
     letter-spacing: 0;
 }
@@ -419,7 +419,7 @@
 .touch-word-morse strong {
     display: block;
     color: var(--text);
-    font-size: 44px;
+    font-size: 34px;
     line-height: 1;
     overflow-wrap: anywhere;
 }
@@ -455,9 +455,37 @@
     line-height: 1;
 }
 
+.touch-word-key {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.touch-word-key div {
+    min-width: 0;
+}
+
+.touch-word-key strong {
+    display: block;
+    color: var(--primary);
+    font-size: 26px;
+    line-height: 1;
+    overflow-wrap: anywhere;
+}
+
+.touch-word-feedback {
+    min-height: 0;
+    padding: 8px 12px;
+    font-size: 19px;
+}
+
+.touch-word-feedback[hidden] {
+    display: none;
+}
+
 .touch-word-actions {
     grid-column: 2;
-    grid-row: 1 / 4;
+    grid-row: 1 / 5;
     display: grid;
     gap: 8px;
 }

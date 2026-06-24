@@ -203,6 +203,10 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(200, words_response.status_code)
         self.assertIn("<strong>AM</strong>", words_html)
         self.assertIn('data-word-morse=".- --"', words_html)
+        self.assertIn('data-word-target="AM"', words_html)
+        self.assertIn('id="liveMorse"', words_html)
+        self.assertIn('id="wordFeedback"', words_html)
+        self.assertIn("data-word-clear", words_html)
         self.assertIn("<small>.-</small>", words_html)
 
     def test_touch_words_locked_before_s_o_active(self):
@@ -212,6 +216,28 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(200, response.status_code)
         self.assertIn("Words Unlock", html)
         self.assertIn("Finish S and O", html)
+
+    def test_word_station_prompt_plays_and_stops_station_output(self):
+        played = []
+        stopped = []
+        original_play = app_module.play_in_background
+        original_stop = app_module.stop_station_playback
+        app_module.play_in_background = lambda morse: played.append(morse)
+        app_module.stop_station_playback = lambda: stopped.append(True)
+
+        try:
+            play_response = self.client.post("/words/prompt-station", json={"morse": ".- --"})
+            stop_response = self.client.post("/words/stop")
+        finally:
+            app_module.play_in_background = original_play
+            app_module.stop_station_playback = original_stop
+
+        self.assertEqual(200, play_response.status_code)
+        self.assertEqual({"status": "playing"}, play_response.get_json())
+        self.assertEqual([".- --"], played)
+        self.assertEqual(200, stop_response.status_code)
+        self.assertEqual({"status": "stopped"}, stop_response.get_json())
+        self.assertEqual([True], stopped)
 
     def test_touch_student_selection_defaults_to_daily(self):
         response = self.client.get("/touch/students")
