@@ -28,13 +28,19 @@
               data-daily-student="{{ current_student.id }}">
             <section class="touch-daily-next">
                 <span>Next Step</span>
-                {% if daily.completed %}
+                {% if daily.completed and overall.current_set_complete and not daily.learning_focus.active %}
                     <strong>Bonus Round</strong>
                     <p>Daily complete. Try a 20-signal sprint for accuracy and streak.</p>
                     <a class="button primary" href="/touch/bonus/sprint">Signal Sprint</a>
                 {% else %}
                     <strong>{{ daily.next_action.title }}</strong>
-                    <p>{{ daily.message }}</p>
+                    <p>
+                        {% if daily.completed %}
+                            Daily complete. {{ daily.next_action.detail }}
+                        {% else %}
+                            {{ daily.message }}
+                        {% endif %}
+                    </p>
                     <a class="button primary" href="{{ daily.next_action.href }}">{{ daily.next_action.label }}</a>
                 {% endif %}
             </section>

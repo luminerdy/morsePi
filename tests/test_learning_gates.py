@@ -112,7 +112,7 @@ class LearningGateTests(unittest.TestCase):
         self.assertEqual(["S", "O"], learn_letters)
         self.assertEqual(["E", "T", "A", "N", "I", "M"], send_letters)
 
-    def test_stale_learning_group_is_pruned_when_current_set_not_complete(self):
+    def test_started_learning_group_continues_when_current_set_dips(self):
         self.write_progress(app_module.starter_practice_letters, self.all_modes(0.0))
         self.write_learning_state(
             {
@@ -127,9 +127,55 @@ class LearningGateTests(unittest.TestCase):
         state = app_module.get_practice_letter_state()
         saved_state = json.loads(self.learning_state_path.read_text(encoding="utf-8"))
 
+        self.assertEqual(["S", "O"], state["learning_letters"])
+        self.assertEqual(["S", "O"], saved_state["groups"]["SO"]["letters"])
+        self.assertEqual("2026-06-21", saved_state["last_learning_start_date"])
+
+    def test_completed_learning_group_graduates_when_current_set_dips(self):
+        progress = {}
+
+        for letter in app_module.starter_practice_letters:
+            progress[letter] = {
+                mode: {
+                    "attempts": 10,
+                    "correct": 10,
+                    "last_seen": "2026-06-21T00:00:00+00:00",
+                    "streak": 10,
+                    "strength": 1.0,
+                }
+                for mode in app_module.practice_modes
+            }
+
+        progress["M"]["send"]["strength"] = 0.98
+        for letter in ["S", "O"]:
+            progress[letter] = {
+                "learn": {
+                    "attempts": 10,
+                    "correct": 10,
+                    "last_seen": "2026-06-21T00:00:00+00:00",
+                    "streak": 10,
+                    "strength": 1.0,
+                }
+            }
+
+        self.progress_path.write_text(json.dumps(progress), encoding="utf-8")
+        self.write_learning_state(
+            {
+                "SO": {
+                    "first_learning_date": "2000-01-01",
+                    "letters": ["S", "O"],
+                }
+            },
+            last_learning_start_date="2000-01-01",
+        )
+
+        state = app_module.get_practice_letter_state()
+        overall = app_module.get_learning_overall(state["active_letters"])
+
         self.assertEqual([], state["learning_letters"])
-        self.assertEqual({}, saved_state["groups"])
-        self.assertEqual("", saved_state["last_learning_start_date"])
+        self.assertEqual(["E", "T", "A", "N", "I", "M", "S", "O"], state["active_letters"])
+        self.assertEqual("8/26", overall["alphabet_progress"])
+        self.assertLess(overall["current_mastery"], 100)
 
     def test_learning_group_graduates_after_burn_in(self):
         progress = {}

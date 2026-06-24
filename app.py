@@ -1214,7 +1214,7 @@ def daily_next_action(state):
                 "mode": "",
                 "href": "/touch/daily",
                 "title": "Come Back Tomorrow",
-                "detail": status.get("next_need", "New signals can join practice on the next practice day.")
+                "detail": status.get("next_need", "New signals can join practice on the next practice day.").capitalize()
             }
 
         return {
@@ -1226,6 +1226,7 @@ def daily_next_action(state):
         }
 
     active_letters = state["active_letters"]
+    mode_order = {mode: index for index, mode in enumerate(practice_modes)}
     mode_scores = [
         (mode, mode_score(active_letters, mode))
         for mode in practice_modes
@@ -1233,7 +1234,7 @@ def daily_next_action(state):
 
     weakest_mode, weakest_score = min(
         mode_scores,
-        key=lambda item: (item[1]["mastery"], item[1]["accuracy"], item[0])
+        key=lambda item: (item[1]["mastery"], item[1]["accuracy"], mode_order[item[0]])
     )
     mode_label = practice_modes[weakest_mode]["label"]
 
@@ -1367,36 +1368,40 @@ def get_practice_letter_state():
 
     for index, step in enumerate(letter_unlock_steps):
         key = step_key(step)
-        scores = [mode_score(active, mode) for mode in practice_modes]
+        group_state = state["groups"].get(key)
 
-        if all(score["mastery"] >= step["threshold"] for score in scores):
-            group_state = state["groups"].get(key)
-
-            if not group_state:
-                if state["last_learning_start_date"] == today:
-                    next_step = step
-                    locked_until_tomorrow = True
-                    break
-
-                group_state = {
-                    "letters": step["letters"],
-                    "first_learning_date": today
-                }
-                state["groups"][key] = group_state
-                state["last_learning_start_date"] = today
-                changed = True
-
+        if group_state:
             learned_since = group_state.get("first_learning_date", "")
             if learning_step_ready(step, learned_since):
                 active.extend(letter for letter in step["letters"] if letter not in active)
-            else:
-                learning_step = step
-                learning_status = get_learning_step_status(step, learned_since)
+                continue
+
+            learning_step = step
+            learning_status = get_learning_step_status(step, learned_since)
+            break
+
+        scores = [mode_score(active, mode) for mode in practice_modes]
+
+        if all(score["mastery"] >= step["threshold"] for score in scores):
+            if state["last_learning_start_date"] == today:
+                next_step = step
+                locked_until_tomorrow = True
                 break
+
+            group_state = {
+                "letters": step["letters"],
+                "first_learning_date": today
+            }
+            state["groups"][key] = group_state
+            state["last_learning_start_date"] = today
+            learning_step = step
+            learning_status = get_learning_step_status(step, today)
+            changed = True
+            break
         else:
             stale_keys = [
                 step_key(stale_step)
-                for stale_step in letter_unlock_steps[index:]
+                for stale_step in letter_unlock_steps[index + 1:]
                 if step_key(stale_step) in state["groups"]
             ]
             if stale_keys:

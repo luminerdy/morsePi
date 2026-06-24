@@ -393,7 +393,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("100%</strong>", html)
         self.assertIn("Mode complete. Go to Daily for the next step.", html)
 
-    def test_render_prunes_stale_learning_now_state(self):
+    def test_render_keeps_started_learning_now_state(self):
         self.write_json(
             "pappy",
             "learning_state.json",
@@ -413,10 +413,10 @@ class RouteRenderTests(unittest.TestCase):
         saved_state = json.loads(self.student_file("pappy", "learning_state.json").read_text(encoding="utf-8"))
 
         self.assertEqual(200, response.status_code)
-        self.assertIn("<strong>None</strong>", html)
-        self.assertNotIn("Learn S O", html)
-        self.assertEqual({}, saved_state["groups"])
-        self.assertEqual("", saved_state["last_learning_start_date"])
+        self.assertIn("<strong>S O</strong>", html)
+        self.assertIn("Learn S O", html)
+        self.assertEqual(["S", "O"], saved_state["groups"]["SO"]["letters"])
+        self.assertEqual("2026-06-21", saved_state["last_learning_start_date"])
 
     def test_practice_next_uses_learning_now_letters_for_learn_mode(self):
         active_letters = app_module.starter_practice_letters + ["S", "O"]
@@ -563,6 +563,8 @@ class RouteRenderTests(unittest.TestCase):
 
     def test_touch_daily_complete_links_to_signal_sprint(self):
         self.write_attempts("pappy", total=20, correct=18)
+        self.complete_starter_progress("pappy")
+        self.set_learning_state("pappy", {}, last_learning_start_date=app_module.today_key())
 
         response = self.client.get("/touch/daily")
         html = response.get_data(as_text=True)
@@ -571,6 +573,102 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("Bonus Round", html)
         self.assertIn("/touch/bonus/sprint", html)
         self.assertIn("Signal Sprint", html)
+
+    def test_touch_daily_complete_with_learning_now_waits_instead_of_bonus(self):
+        self.write_attempts("pappy", total=20, correct=18)
+        progress = {}
+
+        for letter in app_module.starter_practice_letters:
+            progress[letter] = {
+                mode: {
+                    "attempts": 10,
+                    "correct": 10,
+                    "last_seen": "2026-06-21T00:00:00+00:00",
+                    "streak": 10,
+                    "strength": 1.0,
+                }
+                for mode in app_module.practice_modes
+            }
+
+        for letter in ["S", "O"]:
+            progress[letter] = {
+                "learn": {
+                    "attempts": 10,
+                    "correct": 10,
+                    "last_seen": "2026-06-21T00:00:00+00:00",
+                    "streak": 10,
+                    "strength": 1.0,
+                }
+            }
+
+        self.write_json("pappy", "practice_progress.json", progress)
+        self.set_learning_state(
+            "pappy",
+            {
+                "SO": {
+                    "first_learning_date": app_module.today_key(),
+                    "letters": ["S", "O"],
+                }
+            },
+            last_learning_start_date=app_module.today_key(),
+        )
+
+        response = self.client.get("/touch/daily")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Come Back Tomorrow", html)
+        self.assertIn("Daily complete. Come back tomorrow to lock it in", html)
+        self.assertNotIn("Bonus Round", html)
+
+    def test_touch_daily_complete_points_to_practice_when_active_set_unfinished(self):
+        self.set_student_cookie("astrid")
+        self.write_attempts("astrid", total=20, correct=17)
+        progress = {}
+
+        for letter in app_module.starter_practice_letters:
+            progress[letter] = {
+                mode: {
+                    "attempts": 10,
+                    "correct": 10,
+                    "last_seen": "2026-06-21T00:00:00+00:00",
+                    "streak": 10,
+                    "strength": 1.0,
+                }
+                for mode in app_module.practice_modes
+            }
+
+        for letter in ["S", "O"]:
+            progress[letter] = {
+                "learn": {
+                    "attempts": 10,
+                    "correct": 10,
+                    "last_seen": "2026-06-21T00:00:00+00:00",
+                    "streak": 10,
+                    "strength": 1.0,
+                }
+            }
+
+        self.write_json("astrid", "practice_progress.json", progress)
+        self.set_learning_state(
+            "astrid",
+            {
+                "SO": {
+                    "first_learning_date": "2000-01-01",
+                    "letters": ["S", "O"],
+                }
+            },
+            last_learning_start_date="2000-01-01",
+        )
+
+        response = self.client.get("/touch/daily")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Daily complete. Send has the most room to improve today.", html)
+        self.assertIn("/touch/practice/run?mode=send", html)
+        self.assertNotIn("Bonus Round", html)
+        self.assertIn("8/26", html)
 
     def test_touch_bonus_sprint_renders_active_letter_keying_round(self):
         response = self.client.get("/touch/bonus/sprint?session=test-session")
