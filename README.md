@@ -28,6 +28,7 @@ Pappy's Internet Telegraph is a Raspberry Pi Morse code learning station. It let
 - Desktop admin reset for student progress with timestamped backup
 - Local JSON progress tracking under `data/students/<student>/practice_progress.json`
 - JSONL practice attempt logging under `data/students/<student>/practice_attempts.jsonl`
+- Local data backup script and optional daily systemd user timer
 - Optional 7-inch touchscreen flow at `/touch`
 - Touch start flow that opens student selection for multi-student stations and Daily Mission for single-student stations
 - Touch inactivity timeout that returns idle screens to the touch start flow after 10 minutes
@@ -79,10 +80,10 @@ Run the regression test bank on the Pi with mock GPIO:
 
 ```bash
 cd /home/morse/morse-station
-GPIOZERO_PIN_FACTORY=mock python3 -m unittest tests.test_learning_gates tests.test_routes
+GPIOZERO_PIN_FACTORY=mock python3 -m unittest tests.test_backup_data tests.test_learning_gates tests.test_routes
 ```
 
-These tests use temporary progress files and do not modify student practice data. The current bank covers learning gates, alphabet progress, stale Learning Now cleanup, Daily Mission summary rules, Practice Coach recommendations, derived badges, rendered touch pages, profile cookie separation, admin reset behavior, practice POST routes, Signal Sprint bonus routes, and the Daily celebration endpoint.
+These tests use temporary progress files and do not modify student practice data. The current bank covers data backups, learning gates, alphabet progress, stale Learning Now cleanup, Daily Mission summary rules, Practice Coach recommendations, derived badges, rendered touch pages, profile cookie separation, admin reset behavior, practice POST routes, Signal Sprint bonus routes, and the Daily celebration endpoint.
 
 ## Repository Layout
 
@@ -92,6 +93,7 @@ morse.py                Morse conversion helpers
 templates/              Flask HTML templates
 static/                 CSS and browser JavaScript
 tests/                  Regression tests for learning gates and progress rules
+scripts/                Maintenance scripts, including local data backups
 hardware_tests/         Standalone GPIO/audio test scripts
 archive/                Earlier prototypes kept for reference
 docs/                   Project plan, setup guide, requirements, tutorials

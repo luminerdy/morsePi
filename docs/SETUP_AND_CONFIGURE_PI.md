@@ -239,7 +239,68 @@ http://10.10.10.141:5000
 
 Important: run the app with `debug=False` and `use_reloader=False`. The current `app.py` already does this. The Flask debug reloader can start multiple processes and claim the GPIO pins twice.
 
-## 9. Update the Station
+## 9. Back Up Student Data
+
+Student progress is local to the Pi and is not committed to GitHub. Backups should include:
+
+- `data/student_profiles.json`
+- `data/timing_settings.json`
+- `data/students/<student-id>/practice_progress.json`
+- `data/students/<student-id>/learning_state.json`
+- `data/students/<student-id>/practice_attempts.jsonl`
+- `data/students/<student-id>/bonus_attempts.jsonl`
+
+Create a manual backup:
+
+```bash
+cd /home/morse/morse-station
+python3 scripts/backup_data.py --label manual
+```
+
+Backups are stored as zip files in:
+
+```text
+/home/morse/morse-station/data/backups/
+```
+
+The backup script keeps the newest 30 backups by default. To keep a different number:
+
+```bash
+python3 scripts/backup_data.py --label manual --keep 60
+```
+
+Install the optional daily backup timer:
+
+```bash
+mkdir -p /home/morse/.config/systemd/user
+install -m 0644 /home/morse/morse-station/systemd/morse-station-backup.service /home/morse/.config/systemd/user/morse-station-backup.service
+install -m 0644 /home/morse/morse-station/systemd/morse-station-backup.timer /home/morse/.config/systemd/user/morse-station-backup.timer
+systemctl --user daemon-reload
+systemctl --user enable --now morse-station-backup.timer
+```
+
+Run one backup immediately:
+
+```bash
+systemctl --user start morse-station-backup.service
+journalctl --user -u morse-station-backup.service -n 50 --no-pager
+```
+
+Check the timer:
+
+```bash
+systemctl --user list-timers morse-station-backup.timer
+```
+
+Restore into a temporary folder for inspection:
+
+```bash
+python3 scripts/backup_data.py --restore data/backups/<backup-file>.zip --restore-root /tmp/morse-restore-check
+```
+
+To restore onto a station, stop the app, inspect the extracted files, then copy the restored `data/` contents back into `/home/morse/morse-station/data/`. Do not overwrite live student data without first making a fresh manual backup.
+
+## 10. Update the Station
 
 To pull the latest GitHub changes onto the Pi:
 
@@ -298,7 +359,7 @@ Recommended rollout: keep automatic updates disabled on brand-new stations until
 
 Future remote rollout: once stations are connected to AWS, AWS Systems Manager could trigger `/home/morse/bin/update-morse-station.sh` on demand. That would let Pappy push an update to one or more remote stations without waiting for the periodic timer.
 
-## 10. Run the App at Boot with systemd
+## 11. Run the App at Boot with systemd
 
 The station should run as a system service so it starts automatically after the Pi boots.
 
@@ -360,7 +421,7 @@ Stop it before running hardware test scripts:
 sudo systemctl stop morse-station
 ```
 
-## 11. Launch the Browser at Desktop Startup
+## 12. Launch the Browser at Desktop Startup
 
 The Pi desktop can also open Chromium directly to the Morse Station web app after login.
 
@@ -388,7 +449,7 @@ mkdir -p /home/morse/.config/autostart
 install -m 0644 /home/morse/morse-station/systemd/morse-station-browser.desktop /home/morse/.config/autostart/morse-station-browser.desktop
 ```
 
-## 12. Troubleshooting
+## 13. Troubleshooting
 
 ### GPIO busy
 
@@ -468,7 +529,7 @@ app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)
 
 Make sure no other hardware test script is still running. The web app owns GPIO17, GPIO27, and GPIO18 while it runs.
 
-## 12. Fresh Pi Done Checklist
+## 14. Fresh Pi Done Checklist
 
 - Raspberry Pi OS installed
 - SSH enabled

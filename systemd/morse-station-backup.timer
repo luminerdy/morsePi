@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Morse station data backup daily
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+RandomizedDelaySec=30min
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,7 @@
+[Unit]
+Description=Back up Pappy's Internet Telegraph student data
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/morse/morse-station
+ExecStart=/usr/bin/python3 /home/morse/morse-station/scripts/backup_data.py --label timer --keep 30

@@ -484,8 +484,18 @@ When asked to do the daily wrap-up, update:
 - Added route coverage for the Daily sprint link, sprint screen rendering, and bonus result storage that leaves normal practice progress untouched.
 - Close-of-day GitHub status: touch start flow, Daily clarity/layout, badges, practice POST tests, and Signal Sprint are deployed to the active Pi and pushed to `main`; latest Pi regression suite passed with 40 tests.
 
+### 2026-06-24
+
+- Added `scripts/backup_data.py` to create local zip backups of station data, including student profiles, timing settings, per-student progress, learning state, practice attempts, and Signal Sprint bonus attempts.
+- Added backup manifests, restore-to-folder support, and retention cleanup so the newest backups are kept and old backup zips are rotated out.
+- Added optional user systemd backup service/timer files for daily Pi backups.
+- Updated the fresh Pi setup guide with manual backup, daily timer install, restore inspection, and restore safety steps.
+- Added backup regression tests for zip contents, manifest format, restore extraction, and retention cleanup.
+- Deployed the backup script/docs/tests to the active Pi, ran the 43-test regression suite, and verified a manual backup zip at `data/backups/20260624-140412-manual-test.zip`.
+
 ### Ready Next
 
+- Install and test the optional daily backup timer on the active Pi.
 - Decide whether Daily Mission rewards should be recorded as earned badges in student data.
 - Test whether the first badge labels and next-badge target motivate students without making the Daily screen confusing.
 - Test whether Signal Sprint feels like a useful post-Daily game and whether 20 signals is the right starting length.

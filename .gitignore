@@ -9,3 +9,5 @@ data/learning_state.json
 data/timing_settings.json
 data/student_profiles.json
 data/students/
+data/backups/
+data/student_backups/
