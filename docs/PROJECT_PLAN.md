@@ -482,6 +482,7 @@ When asked to do the daily wrap-up, update:
 - Stored Signal Sprint attempts in `bonus_attempts.jsonl` so bonus play does not inflate Daily Mission counts or advance normal practice mastery/unlock gates.
 - Added live sprint scoring for attempts, accuracy, current streak, best streak, and remaining signals.
 - Added route coverage for the Daily sprint link, sprint screen rendering, and bonus result storage that leaves normal practice progress untouched.
+- Close-of-day GitHub status: touch start flow, Daily clarity/layout, badges, practice POST tests, and Signal Sprint are deployed to the active Pi and pushed to `main`; latest Pi regression suite passed with 40 tests.
 
 ### Ready Next
 

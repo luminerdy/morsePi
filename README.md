@@ -82,7 +82,7 @@ cd /home/morse/morse-station
 GPIOZERO_PIN_FACTORY=mock python3 -m unittest tests.test_learning_gates tests.test_routes
 ```
 
-These tests use temporary progress files and do not modify student practice data. The current bank covers learning gates, alphabet progress, stale Learning Now cleanup, Daily Mission summary rules, Practice Coach recommendations, derived badges, rendered touch pages, profile cookie separation, admin reset behavior, practice POST routes, and the Daily celebration endpoint.
+These tests use temporary progress files and do not modify student practice data. The current bank covers learning gates, alphabet progress, stale Learning Now cleanup, Daily Mission summary rules, Practice Coach recommendations, derived badges, rendered touch pages, profile cookie separation, admin reset behavior, practice POST routes, Signal Sprint bonus routes, and the Daily celebration endpoint.
 
 ## Repository Layout
 
