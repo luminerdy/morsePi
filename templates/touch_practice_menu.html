@@ -23,6 +23,17 @@
                     <span>{{ mode_config.progress_label }}</span>
                 </a>
             {% endfor %}
+            {% if word_practice.unlocked %}
+                <a class="touch-menu-card primary" href="/touch/words">
+                    <strong>Words</strong>
+                    <span>{{ word_practice.count }} known-letter words</span>
+                </a>
+            {% else %}
+                <a class="touch-menu-card" href="/touch/progress">
+                    <strong>Words</strong>
+                    <span>Unlock after {{ word_practice.unlock_letters | join(" ") }}</span>
+                </a>
+            {% endif %}
         </main>
 
         <footer class="touch-footer">

@@ -337,6 +337,37 @@ async function playInBrowser() {
     }
 }
 
+async function playWordCard() {
+    const panel = document.querySelector("[data-word-morse]");
+
+    if (!panel) {
+        return;
+    }
+
+    const morseText = (panel.dataset.wordMorse || "").trim();
+
+    if (!morseText) {
+        return;
+    }
+
+    stopBrowserPlayback();
+
+    const playback = {
+        cancelled: false,
+        oscillator: null
+    };
+
+    browserPlayback = playback;
+
+    try {
+        await playMorseText(morseText, playback);
+    } finally {
+        if (browserPlayback === playback) {
+            browserPlayback = null;
+        }
+    }
+}
+
 function stopBrowserPlayback() {
     if (!browserPlayback) {
         setHomePlaybackState(false);
@@ -1192,6 +1223,14 @@ function initializePracticeMode() {
 
     document.querySelectorAll("[data-test-sound]").forEach(button => {
         button.addEventListener("click", testBrowserSound);
+    });
+
+    document.querySelectorAll("[data-word-play]").forEach(button => {
+        button.addEventListener("click", playWordCard);
+    });
+
+    document.querySelectorAll("[data-word-stop]").forEach(button => {
+        button.addEventListener("click", stopBrowserPlayback);
     });
 
     const stopHereButton = document.getElementById("stopHereButton");

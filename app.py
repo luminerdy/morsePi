@@ -123,6 +123,14 @@ all_practice_letters = [
     "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"
 ]
 alphabet_letters = [letter for letter in all_practice_letters if letter.isalpha()]
+word_practice_unlock_letters = ["S", "O"]
+word_practice_bank = [
+    "AM", "AN", "AS", "AT", "IN", "IS", "IT", "ME", "NO", "ON", "SO", "TO",
+    "EAT", "SAT", "SIT", "SET", "SEE", "SEA", "TEA", "TEN", "NET", "MEN",
+    "MET", "MAT", "MAN", "SON", "NOT", "TOO", "ANT", "MOM", "MINE", "NAME",
+    "MEAN", "MEAT", "MOON", "SOON", "TEAM", "TONE", "NOTE", "SEAT", "STEM",
+    "STONE"
+]
 letter_unlock_steps = [
     {
         "threshold": 100,
@@ -1276,6 +1284,59 @@ def daily_next_action(state):
     }
 
 
+def word_practice_unlocked(active_letters=None):
+    letters = set(active_letters or get_unlocked_practice_letters())
+    return all(letter in letters for letter in word_practice_unlock_letters)
+
+
+def available_word_practice_words(active_letters=None):
+    letters = set(active_letters or get_unlocked_practice_letters())
+
+    if not word_practice_unlocked(letters):
+        return []
+
+    return [
+        word for word in word_practice_bank
+        if all(character in letters for character in word)
+    ]
+
+
+def word_practice_summary(active_letters=None):
+    words = available_word_practice_words(active_letters)
+
+    return {
+        "unlocked": bool(words),
+        "count": len(words),
+        "unlock_letters": word_practice_unlock_letters,
+        "words": words,
+    }
+
+
+def word_practice_item(index=0, active_letters=None):
+    words = available_word_practice_words(active_letters)
+
+    if not words:
+        return None
+
+    normalized_index = index % len(words)
+    word = words[normalized_index]
+
+    return {
+        "word": word,
+        "morse": text_to_morse(word),
+        "index": normalized_index,
+        "next_index": (normalized_index + 1) % len(words),
+        "total": len(words),
+        "letters": [
+            {
+                "letter": letter,
+                "morse": text_to_morse(letter),
+            }
+            for letter in word
+        ],
+    }
+
+
 def step_key(step):
     return "".join(step["letters"])
 
@@ -1607,6 +1668,7 @@ def render_practice_template(template_name):
         progress=progress_summary(practice_letters, mode),
         score=mode_score(practice_letters, mode),
         overall=overall,
+        word_practice=word_practice_summary(overall["active_letters"]),
         letter_morse=get_practice_letter_morse(),
         progress_label=practice_modes[mode]["progress_label"],
         timing=get_practice_timing(mode, practice_target)
@@ -1848,6 +1910,26 @@ def touch_practice():
 @app.route("/touch/practice/run")
 def touch_practice_run():
     return render_practice_template("touch_practice.html")
+
+
+@app.route("/touch/words")
+def touch_words():
+    active_letters = get_unlocked_practice_letters()
+    overall = get_learning_overall(active_letters)
+    summary = word_practice_summary(active_letters)
+
+    try:
+        word_index = int(request.args.get("i", "0"))
+    except ValueError:
+        word_index = 0
+
+    return render_template(
+        "touch_words.html",
+        overall=overall,
+        word_practice=summary,
+        word_item=word_practice_item(word_index, active_letters),
+        timing=get_morse_timing()
+    )
 
 
 @app.route("/practice/new", methods=["POST"])

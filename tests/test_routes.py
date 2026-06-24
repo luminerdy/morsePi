@@ -169,6 +169,50 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("Touch Menu", html)
         self.assertIn("/touch/students?next=/touch/daily", html)
 
+    def test_touch_practice_menu_shows_locked_words_for_fresh_student(self):
+        response = self.client.get("/touch/practice")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("<strong>Words</strong>", html)
+        self.assertIn("Unlock after S O", html)
+        self.assertIn('href="/touch/progress"', html)
+
+    def test_touch_words_unlocks_after_s_o_active(self):
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        self.complete_progress("pappy", active_letters)
+        self.set_learning_state(
+            "pappy",
+            {
+                "SO": {
+                    "first_learning_date": "2000-01-01",
+                    "letters": ["S", "O"],
+                }
+            },
+            last_learning_start_date="2000-01-01",
+        )
+
+        menu_response = self.client.get("/touch/practice")
+        menu_html = menu_response.get_data(as_text=True)
+        words_response = self.client.get("/touch/words?i=0")
+        words_html = words_response.get_data(as_text=True)
+
+        self.assertEqual(200, menu_response.status_code)
+        self.assertIn('href="/touch/words"', menu_html)
+        self.assertIn("known-letter words", menu_html)
+        self.assertEqual(200, words_response.status_code)
+        self.assertIn("<strong>AM</strong>", words_html)
+        self.assertIn('data-word-morse=".- --"', words_html)
+        self.assertIn("<small>.-</small>", words_html)
+
+    def test_touch_words_locked_before_s_o_active(self):
+        response = self.client.get("/touch/words")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Words Unlock", html)
+        self.assertIn("Finish S and O", html)
+
     def test_touch_student_selection_defaults_to_daily(self):
         response = self.client.get("/touch/students")
         html = response.get_data(as_text=True)

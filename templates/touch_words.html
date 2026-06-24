@@ -1,0 +1,69 @@
+<html>
+<head>
+    <title>Words - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260621-4">
+    <link rel="stylesheet" href="/static/touch.css?v=20260624-2">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="touch-ui"
+      data-tone-hz="{{ timing.tone_hz }}"
+      data-dot-ms="{{ timing.dot_ms }}"
+      data-dash-ms="{{ timing.dash_ms }}"
+      data-symbol-gap-ms="{{ timing.symbol_gap_ms }}"
+      data-letter-gap-ms="{{ timing.letter_gap_ms }}"
+      data-word-gap-ms="{{ timing.word_gap_ms }}">
+    <div class="touch-screen">
+        <header class="touch-titlebar compact">
+            <div>
+                <p class="eyebrow">Words</p>
+                <h1><a class="touch-student-link" href="/touch/students?next=/touch/daily">{{ current_student.name }}</a></h1>
+            </div>
+            <nav class="touch-top-actions" aria-label="Words navigation">
+                <a class="touch-top-link" href="/touch/daily">Daily</a>
+                <a class="touch-top-link" href="/touch/practice">Modes</a>
+            </nav>
+        </header>
+
+        {% if word_item %}
+            <main class="touch-words-layout" data-word-morse="{{ word_item.morse }}">
+                <section class="touch-word-card touch-word-hero">
+                    <span>Word</span>
+                    <strong>{{ word_item.word }}</strong>
+                    <p>{{ word_item.index + 1 }}/{{ word_item.total }} · built from known letters</p>
+                </section>
+
+                <section class="touch-word-card touch-word-morse">
+                    <span>Morse</span>
+                    <strong>{{ word_item.morse }}</strong>
+                </section>
+
+                <section class="touch-word-card touch-word-letters">
+                    <span>Letters</span>
+                    <div>
+                        {% for item in word_item.letters %}
+                            <em><strong>{{ item.letter }}</strong><small>{{ item.morse }}</small></em>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                <section class="touch-word-card touch-word-actions">
+                    <button type="button" class="button primary" data-word-play>Play</button>
+                    <button type="button" class="button secondary" data-word-stop>Stop</button>
+                    <a class="button secondary" href="/touch/words?i={{ word_item.next_index }}">Next</a>
+                    <a class="button secondary" href="/touch/practice/run?mode=read">Read</a>
+                </section>
+            </main>
+        {% else %}
+            <main class="touch-words-locked">
+                <section class="touch-word-card">
+                    <span>Words Unlock</span>
+                    <strong>{{ word_practice.unlock_letters | join(" ") }}</strong>
+                    <p>Finish S and O, then words made from known letters will appear here.</p>
+                    <a class="button primary" href="/touch/daily">Daily</a>
+                </section>
+            </main>
+        {% endif %}
+    </div>
+<script src="/static/app.js?v=20260624-2"></script>
+</body>
+</html>

@@ -112,6 +112,23 @@ class LearningGateTests(unittest.TestCase):
         self.assertEqual(["S", "O"], learn_letters)
         self.assertEqual(["E", "T", "A", "N", "I", "M"], send_letters)
 
+    def test_word_practice_unlocks_after_s_o_join_active_set(self):
+        self.write_progress(app_module.starter_practice_letters, self.all_modes(1.0))
+
+        locked = app_module.word_practice_summary(app_module.starter_practice_letters)
+
+        self.assertFalse(locked["unlocked"])
+        self.assertEqual([], locked["words"])
+
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        unlocked = app_module.word_practice_summary(active_letters)
+        item = app_module.word_practice_item(0, active_letters)
+
+        self.assertTrue(unlocked["unlocked"])
+        self.assertIn("SO", unlocked["words"])
+        self.assertEqual("AM", item["word"])
+        self.assertEqual(".- --", item["morse"])
+
     def test_started_learning_group_continues_when_current_set_dips(self):
         self.write_progress(app_module.starter_practice_letters, self.all_modes(0.0))
         self.write_learning_state(

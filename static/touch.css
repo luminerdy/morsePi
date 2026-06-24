@@ -20,6 +20,8 @@
 .touch-screen:has(.touch-message-layout),
 .touch-screen:has(.touch-key-layout),
 .touch-screen:has(.touch-settings-layout),
+.touch-screen:has(.touch-words-layout),
+.touch-screen:has(.touch-words-locked),
 .touch-screen:has(.touch-drill) {
     grid-template-rows: 54px minmax(0, 1fr);
 }
@@ -369,6 +371,120 @@
 .touch-timing-note strong {
     color: var(--primary);
     font-size: 28px;
+}
+
+.touch-words-layout {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 210px;
+    grid-template-rows: 142px 112px minmax(0, 1fr);
+    gap: 8px;
+}
+
+.touch-word-card,
+.touch-words-locked .touch-word-card {
+    min-width: 0;
+    min-height: 0;
+    padding: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(23, 33, 43, 0.08);
+}
+
+.touch-word-card span {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.touch-word-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.touch-word-hero strong {
+    display: block;
+    color: var(--primary);
+    font-size: 78px;
+    line-height: 0.9;
+    letter-spacing: 0;
+}
+
+.touch-word-morse strong {
+    display: block;
+    color: var(--text);
+    font-size: 44px;
+    line-height: 1;
+    overflow-wrap: anywhere;
+}
+
+.touch-word-letters div {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.touch-word-letters em {
+    min-width: 0;
+    display: grid;
+    place-items: center;
+    gap: 5px;
+    padding: 8px;
+    background: #edf5f0;
+    border: 1px solid #c7dfd0;
+    border-radius: 8px;
+    font-style: normal;
+}
+
+.touch-word-letters em strong {
+    color: var(--primary);
+    font-size: 26px;
+    line-height: 1;
+}
+
+.touch-word-letters em small {
+    color: var(--text);
+    font-size: 20px;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.touch-word-actions {
+    grid-column: 2;
+    grid-row: 1 / 4;
+    display: grid;
+    gap: 8px;
+}
+
+.touch-word-actions .button {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+}
+
+.touch-words-locked {
+    min-height: 0;
+    display: grid;
+    place-items: stretch;
+}
+
+.touch-words-locked .touch-word-card {
+    display: grid;
+    align-content: center;
+    gap: 14px;
+    text-align: center;
+}
+
+.touch-words-locked .touch-word-card strong {
+    color: var(--primary);
+    font-size: 70px;
+    line-height: 1;
 }
 
 .touch-progress-layout {
