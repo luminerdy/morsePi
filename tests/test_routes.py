@@ -374,6 +374,25 @@ class RouteRenderTests(unittest.TestCase):
         self.assertNotIn("New: S O", html)
         self.assertNotIn("Learn S O", html)
 
+    def test_touch_practice_has_direct_daily_navigation(self):
+        response = self.client.get("/touch/practice/run?mode=echo")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn('href="/touch/daily">Daily</a>', html)
+        self.assertIn('href="/touch/practice">Modes</a>', html)
+
+    def test_touch_practice_mastered_mode_points_back_to_daily(self):
+        self.complete_starter_progress("pappy")
+        self.set_learning_state("pappy", {}, last_learning_start_date=app_module.today_key())
+
+        response = self.client.get("/touch/practice/run?mode=echo")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("100%</strong>", html)
+        self.assertIn("Mode complete. Go to Daily for the next step.", html)
+
     def test_render_prunes_stale_learning_now_state(self):
         self.write_json(
             "pappy",

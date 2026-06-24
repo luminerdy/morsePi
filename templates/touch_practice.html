@@ -3,7 +3,7 @@
 <head>
     <title>Touch Practice - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260621-4">
-    <link rel="stylesheet" href="/static/touch.css?v=20260621-4">
+    <link rel="stylesheet" href="/static/touch.css?v=20260624-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body class="touch-ui"
@@ -20,7 +20,10 @@
                 <p class="eyebrow">{{ modes[mode].label }} Practice</p>
                 <h1><a class="touch-student-link" href="/touch/students?next=/touch/daily">{{ current_student.name }}</a></h1>
             </div>
-            <a class="touch-top-link" href="/touch/practice">Modes</a>
+            <nav class="touch-top-actions" aria-label="Practice navigation">
+                <a class="touch-top-link" href="/touch/daily">Daily</a>
+                <a class="touch-top-link" href="/touch/practice">Modes</a>
+            </nav>
         </header>
 
         <main class="touch-drill"
@@ -106,7 +109,7 @@
                 {% elif overall.learning_focus.active %}
                     <span>Learning Now · {{ overall.learning_focus.correct }}/{{ overall.learning_focus.goal }}</span>
                 {% endif %}
-                <span id="scoreGoal">{{ score.next_goal }}</span>
+                <span id="scoreGoal">{% if score.mastery >= 100 %}Mode complete. Go to Daily for the next step.{% else %}{{ score.next_goal }}{% endif %}</span>
                 <span id="overallMastery" hidden>{{ overall.current_mastery }}%</span>
                 <span id="overallMasteryBar" hidden></span>
                 <span id="overallAccuracy" hidden>{{ overall.accuracy }}% accuracy</span>

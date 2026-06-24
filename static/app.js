@@ -829,7 +829,9 @@ function updateScoreCard(score) {
     }
 
     if (goal) {
-        goal.innerText = score.next_goal;
+        goal.innerText = masteryValue >= 100
+            ? "Mode complete. Go to Daily for the next step."
+            : score.next_goal;
     }
 }
 

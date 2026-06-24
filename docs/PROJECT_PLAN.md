@@ -492,11 +492,14 @@ When asked to do the daily wrap-up, update:
 - Updated the fresh Pi setup guide with manual backup, daily timer install, restore inspection, and restore safety steps.
 - Added backup regression tests for zip contents, manifest format, restore extraction, and retention cleanup.
 - Deployed the backup script/docs/tests to the active Pi, ran the 43-test regression suite, and verified a manual backup zip at `data/backups/20260624-140412-manual-test.zip`.
+- Added direct Daily navigation from touch practice screens so students do not have to go through Modes/Menu after a practice round.
+- Added a 100% practice-mode guidance message: `Mode complete. Go to Daily for the next step.`
 
 ### Ready Next
 
 - Install and test the optional daily backup timer on the active Pi.
 - Decide whether Daily Mission rewards should be recorded as earned badges in student data.
+- Test whether the direct Daily button and completion message solve the Echo/Practice navigation confusion.
 - Test whether the first badge labels and next-badge target motivate students without making the Daily screen confusing.
 - Test whether Signal Sprint feels like a useful post-Daily game and whether 20 signals is the right starting length.
 - Decide whether to add Clean Streak, adaptive sprint goals, or best-sprint history next.
