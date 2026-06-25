@@ -1185,10 +1185,12 @@ Unlock behavior:
 Immediate build target:
 
 ```text
-Test the Daily Mission reward on the physical 7-inch screen with real student progress.
-Confirm the celebration sound/LED is noticeable but not disruptive.
-Confirm Practice Coach recommendations feel encouraging and useful.
-Decide whether earned badges should be saved per student after the first reward behavior feels right.
+Test Words practice on the physical 7-inch screen with real student progress.
+Confirm Play uses the Pi USB speaker and LED clearly.
+Confirm Next clears the old word and auto-plays the next word.
+Confirm wrong-answer feedback makes the Clear-then-retry flow obvious.
+Confirm the 10-flash visual reward is encouraging without being distracting.
+Review `word_attempts.jsonl` after real use and decide what word progress should appear on Daily or Progress.
 ```
 
 ### Step 1: Test the core practice loops

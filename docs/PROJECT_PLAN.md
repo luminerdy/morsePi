@@ -129,20 +129,30 @@ Next refinements:
 
 ### MVP 3.6: Words And Rewards
 
-Status: Planned
+Status: In progress
 
 Goal: Move students from isolated letters toward practical Morse communication while preserving motivating mastery loops.
 
 Planned work:
 
-- Add Word Copy practice using only active/learned letters.
-- Start with 2-3 letter words, then grow toward short messages.
-- Favor touch word choices and telegraph-key input before typed answers.
+- Add Word Copy practice using only active/learned letters. Started for the `E T A N I M S O` active set.
+- Start with 2-3 letter words, then grow toward short messages. Started with short known-letter words.
+- Favor touch word choices and telegraph-key input before typed answers. First implementation uses touch controls and physical keying.
 - Add Signal Set Complete celebration when active letters reach 100%.
 - Add New Mission Unlocked feedback when new letters enter Learning Now.
 - Add Daily Mission completion celebration with short sound and LED flash.
 - Track word progress separately from letter mastery.
 - Consider a future game wrapper, such as Signal Quest or Message Rescue, after word practice is stable.
+
+Implemented so far:
+
+- Touch Words practice unlocks once `S O` are active.
+- Words are filtered to the student's active letters.
+- Play uses Pi station USB speaker output and LED flash.
+- Students key the whole word and see `Keyed`, `Read As`, and persistent Correct/retry feedback.
+- Correct answers flash the word cards 10 times with no extra Morse-like reward sound.
+- Wrong answers explicitly tell the student to tap Clear, then try again.
+- Word attempts log separately in `word_attempts.jsonl` and do not affect normal letter mastery.
 
 Design notes:
 
@@ -495,8 +505,28 @@ When asked to do the daily wrap-up, update:
 - Added direct Daily navigation from touch practice screens so students do not have to go through Modes/Menu after a practice round.
 - Added a 100% practice-mode guidance message: `Mode complete. Go to Daily for the next step.`
 
+### 2026-06-25
+
+- Fixed Daily Mission guidance for the S/O transition: already-started Learning Now groups now stay active until they lock in or graduate, instead of being pruned if an older mode dips below 100%.
+- Adjusted Daily so Bonus Round appears only when the Daily count is complete, the current set is complete, and no Learning Now group is still active.
+- Bumped Astrid's S/O learning date forward on the active Pi for testing so S/O joined her active practice set.
+- Added the first Words practice flow after S/O: known-letter words filtered to active letters, a touch Words tile, and a dedicated `/touch/words` screen.
+- Added Pi station playback for Words so Play uses the USB speaker and LED.
+- Added full-word keying feedback with Keyed, Read As, Correct, and retry messages.
+- Removed the Read shortcut from Words and kept the right-side controls focused on Play, Stop, Clear, and Next.
+- Changed Next to clear the old keyed input and auto-play the next word.
+- Added visual-only correct feedback for Words: the word cards flash 10 times while the Correct message remains visible until Clear or Next.
+- Removed the confusing Morse-like correct-answer reward sound.
+- Added separate word attempt logging in `word_attempts.jsonl`, including word, expected/actual Morse, decoded text, correct flag, elapsed time, and timing summary.
+- Added or updated regression coverage for Words unlock, rendering, station playback, word logging, and Daily guidance edge cases.
+- Deployed all changes to the active Pi at `10.10.10.141`, restarted the app after each deployed fix, and kept GitHub `main` updated.
+- Close-of-day GitHub status: all Words practice, Daily guidance, visual reward, retry feedback, and documentation changes are committed and pushed to `main`.
+
 ### Ready Next
 
+- Test Words practice with Astrid/Liara on the physical 7-inch screen: confirm Play LED/sound, Next auto-play, Clear retry flow, and the 10-flash reward feel right.
+- Review the first real `word_attempts.jsonl` entries after student testing and decide what word progress should show on Daily or Progress.
+- Decide whether Words should remain non-scoring, become a bonus badge, or eventually become part of Daily Mission after first tests.
 - Install and test the optional daily backup timer on the active Pi.
 - Decide whether Daily Mission rewards should be recorded as earned badges in student data.
 - Test whether the direct Daily button and completion message solve the Echo/Practice navigation confusion.
