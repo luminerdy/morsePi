@@ -283,20 +283,6 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(2, word_record["timing_summary"]["symbol_count"])
         self.assertFalse(self.student_file("pappy", "practice_attempts.jsonl").exists())
 
-    def test_word_celebration_triggers_station_reward(self):
-        called = []
-        original = app_module.play_word_celebration_in_background
-        app_module.play_word_celebration_in_background = lambda: called.append(True)
-
-        try:
-            response = self.client.post("/words/celebrate")
-        finally:
-            app_module.play_word_celebration_in_background = original
-
-        self.assertEqual(200, response.status_code)
-        self.assertEqual({"status": "celebrating"}, response.get_json())
-        self.assertEqual([True], called)
-
     def test_touch_student_selection_defaults_to_daily(self):
         response = self.client.get("/touch/students")
         html = response.get_data(as_text=True)

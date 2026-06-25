@@ -87,7 +87,6 @@ DEFAULT_STATION_VOLUME = 0.35
 DAILY_MISSION_GOAL = 20
 DAILY_CELEBRATION_MORSE = "...-"
 BONUS_SPRINT_GOAL = 20
-WORD_CELEBRATION_MORSE = ".- .-"
 
 # Prefer the ALSA card name instead of a numeric card index so the USB speaker
 # keeps working when the SD card moves to another Pi or USB port.
@@ -656,14 +655,6 @@ def play_daily_celebration_in_background():
     stop_station_playback()
 
     thread = threading.Thread(target=play_morse_on_station, args=(DAILY_CELEBRATION_MORSE,))
-    thread.daemon = True
-    thread.start()
-
-
-def play_word_celebration_in_background():
-    stop_station_playback()
-
-    thread = threading.Thread(target=play_morse_on_station, args=(WORD_CELEBRATION_MORSE,))
     thread.daemon = True
     thread.start()
 
@@ -2054,12 +2045,6 @@ def words_prompt_station():
 def words_stop():
     stop_station_playback()
     return jsonify({"status": "stopped"})
-
-
-@app.route("/words/celebrate", methods=["POST"])
-def words_celebrate():
-    play_word_celebration_in_background()
-    return jsonify({"status": "celebrating"})
 
 
 @app.route("/words/result", methods=["POST"])

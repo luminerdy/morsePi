@@ -711,10 +711,6 @@ function rewardCorrectWord() {
         void panel.offsetWidth;
         panel.classList.add("word-correct-reward");
     }
-
-    fetch("/words/celebrate", { method: "POST" }).catch(error => {
-        console.log("Unable to trigger word celebration", error);
-    });
 }
 
 function schedulePracticeAutoCheck(rawMorse) {
