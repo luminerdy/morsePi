@@ -391,6 +391,22 @@ async function stopWordPlayback() {
     }
 }
 
+async function initializeWordPractice() {
+    const panel = getWordPanel();
+
+    if (!panel) {
+        return;
+    }
+
+    await clearKeyInput();
+
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get("autoplay") === "1") {
+        setTimeout(playWordCard, 300);
+    }
+}
+
 function stopBrowserPlayback() {
     if (!browserPlayback) {
         setHomePlaybackState(false);
@@ -1373,6 +1389,7 @@ function initializePracticeMode() {
             : "Listen and choose the letter.");
         setTimeout(playPracticePromptInBrowser, 350);
     }
+    initializeWordPractice();
     focusReadInput();
 }
 

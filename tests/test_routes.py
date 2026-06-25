@@ -207,6 +207,8 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn('id="liveMorse"', words_html)
         self.assertIn('id="wordFeedback"', words_html)
         self.assertIn("data-word-clear", words_html)
+        self.assertIn('/touch/words?i=1&autoplay=1', words_html)
+        self.assertNotIn(">Read</a>", words_html)
         self.assertIn("<small>.-</small>", words_html)
 
     def test_touch_words_locked_before_s_o_active(self):
