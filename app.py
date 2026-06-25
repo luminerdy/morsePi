@@ -1295,7 +1295,8 @@ def daily_practice_coach(state):
     active_letters = state["active_letters"]
     next_items = weakest_letter_mode_items(active_letters, limit=3)
     strong = strongest_letters(active_letters)
-    boost = weakest_letters(active_letters)
+    strong_letters = {item["letter"] for item in strong}
+    boost = weakest_letters(active_letters, exclude=strong_letters)
 
     if next_items:
         first = next_items[0]
@@ -1371,8 +1372,9 @@ def strongest_letters(letters, limit=3):
     return practiced[:limit]
 
 
-def weakest_letters(letters, limit=3):
-    rollup = letter_strength_rollup(letters)
+def weakest_letters(letters, limit=3, exclude=None):
+    exclude = set(exclude or [])
+    rollup = [item for item in letter_strength_rollup(letters) if item["letter"] not in exclude]
     rollup.sort(key=lambda item: (item["strength"], item["attempts"], item["letter"]))
     return rollup[:limit]
 

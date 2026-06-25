@@ -605,6 +605,33 @@ class LearningGateTests(unittest.TestCase):
         self.assertEqual("0%", first["reason"])
         self.assertEqual("M", coach["signal_boost"][0]["letter"])
 
+    def test_practice_coach_does_not_repeat_strong_letters_as_boosts(self):
+        progress = {}
+
+        for letter in app_module.starter_practice_letters:
+            progress[letter] = {
+                mode: {
+                    "attempts": 8,
+                    "correct": 8,
+                    "last_seen": "2026-06-21T00:00:00+00:00",
+                    "streak": 8,
+                    "strength": 1.0,
+                }
+                for mode in app_module.practice_modes
+            }
+
+        self.progress_path.write_text(json.dumps(progress), encoding="utf-8")
+
+        state = {
+            "active_letters": app_module.starter_practice_letters,
+            "learning_letters": [],
+        }
+        coach = app_module.daily_practice_coach(state)
+        strong_letters = {item["letter"] for item in coach["strong_signals"]}
+        boost_letters = {item["letter"] for item in coach["signal_boost"]}
+
+        self.assertFalse(strong_letters & boost_letters)
+
     def test_daily_next_action_points_to_weakest_mode_when_no_learning_now(self):
         progress = {}
 
