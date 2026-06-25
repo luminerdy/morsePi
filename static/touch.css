@@ -500,8 +500,7 @@
     text-align: center;
 }
 
-.touch-words-layout.word-correct-reward .touch-word-card,
-.touch-words-layout.word-correct-reward .touch-word-feedback {
+.touch-words-layout.word-correct-reward .touch-word-card {
     animation: word-correct-flash 200ms ease-in-out 10;
 }
 

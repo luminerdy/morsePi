@@ -710,6 +710,9 @@ function rewardCorrectWord() {
         panel.classList.remove("word-correct-reward");
         void panel.offsetWidth;
         panel.classList.add("word-correct-reward");
+        setTimeout(() => {
+            panel.classList.remove("word-correct-reward");
+        }, 2200);
     }
 }
 
