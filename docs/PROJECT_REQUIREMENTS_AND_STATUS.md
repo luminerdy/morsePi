@@ -1071,12 +1071,14 @@ Each station should only publish and subscribe to approved topics.
 
 The system should eventually support remote station operations for deployed family stations.
 
-Candidate approach:
+Current preferred approach:
 
 ```text
-AWS Systems Manager can trigger the station's local update script on demand.
-The local systemd timer remains a fallback for periodic self-update.
-AWS IoT Core remains focused on secure station messaging.
+AWS IoT Core can trigger the station's local update, backup, restart, and status scripts on demand.
+S3 stores station backups and status snapshots.
+GitHub remains the source of app code.
+The local systemd timer remains a fallback for periodic self-update or backup.
+AWS Systems Manager remains an option if full Linux fleet management is worth the per-device cost.
 ```
 
 Remote update operations should:
@@ -1085,6 +1087,8 @@ Remote update operations should:
 - Pull only approved GitHub updates.
 - Run a compile or health check before restarting the app.
 - Report update success or failure for each station.
+- Create a pre-update backup before changing code.
+- Work even when the device is off most of the time by running when the Pi next comes online.
 
 ---
 
@@ -1113,6 +1117,10 @@ Remote update operations should:
 | Pi app autostart | Complete with user systemd service |
 | Pi browser autostart | Complete for Labwc desktop session, opens `/touch` in kiosk mode |
 | Optional Pi auto-update timer | Started with conservative user systemd updater files |
+| Station identity config | Started with `data/station_config.json` |
+| Cloud backup upload | Started with S3 upload support in `scripts/backup_data.py` |
+| Station status report | Started with `scripts/station_status.py` |
+| Remote update foundation | Started with `scripts/update_station.sh` |
 | Continuous Send practice loop | Complete |
 | Learn practice mode | Complete |
 | Read practice mode | Complete |

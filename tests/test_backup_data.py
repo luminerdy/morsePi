@@ -5,7 +5,7 @@ import unittest
 import zipfile
 from pathlib import Path
 
-from scripts.backup_data import create_backup, restore_backup, rotate_backups
+from scripts.backup_data import create_backup, resolve_station_id, restore_backup, rotate_backups, upload_backup_to_s3
 
 
 class BackupDataTests(unittest.TestCase):
@@ -50,6 +50,32 @@ class BackupDataTests(unittest.TestCase):
         self.assertIn("data/students/pappy/bonus_attempts.jsonl", names)
         self.assertNotIn("data/backups/do-not-recurse.txt", names)
         self.assertEqual("morse-station-data-backup-v1", manifest["format"])
+        self.assertEqual("unknown-station", manifest["station_id"])
+
+    def test_create_backup_uses_station_id_in_manifest_and_filename(self):
+        backup_path = create_backup(self.data_dir, self.backup_dir, "manual", station_id="liara-station")
+
+        with zipfile.ZipFile(backup_path) as backup_zip:
+            manifest = json.loads(backup_zip.read("manifest.json").decode("utf-8"))
+
+        self.assertIn("liara-station-manual.zip", backup_path.name)
+        self.assertEqual("liara-station", manifest["station_id"])
+
+    def test_upload_backup_to_s3_builds_station_path_in_dry_run(self):
+        backup_path = self.backup_dir / "backup.zip"
+        backup_path.write_text("backup", encoding="utf-8")
+
+        result = upload_backup_to_s3(backup_path, "s3://morsepi-backups/", "astrid-station", dry_run=True)
+
+        self.assertFalse(result["uploaded"])
+        self.assertEqual("s3://morsepi-backups/stations/astrid-station/backup.zip", result["destination"])
+        self.assertEqual(["aws", "s3", "cp", str(backup_path), result["destination"]], result["command"])
+
+    def test_resolve_station_id_reads_station_config(self):
+        config_path = self.data_dir / "station_config.json"
+        config_path.write_text(json.dumps({"station_id": "astrid-station"}), encoding="utf-8")
+
+        self.assertEqual("astrid-station", resolve_station_id(config_path=config_path))
 
     def test_restore_backup_extracts_data_folder(self):
         backup_path = create_backup(self.data_dir, self.backup_dir, "manual")

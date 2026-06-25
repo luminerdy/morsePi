@@ -1,0 +1,4 @@
+{
+  "station_id": "grandkid-station",
+  "backup_s3_uri": "s3://morsepi-backups"
+}

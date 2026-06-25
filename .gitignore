@@ -8,6 +8,8 @@ data/practice_attempts.jsonl
 data/learning_state.json
 data/timing_settings.json
 data/student_profiles.json
+data/station_config.json
+data/station_status.json
 data/students/
 data/backups/
 data/student_backups/

@@ -91,6 +91,12 @@ Optional package for future MQTT messaging:
 sudo apt install -y python3-paho-mqtt
 ```
 
+Optional package for cloud backups to S3:
+
+```bash
+sudo apt install -y awscli
+```
+
 Do not create a Python virtual environment for the current Raspberry Pi station setup. This project originally tried `.venv` and `pip install flask gpiozero`, but the station now uses system Python packages because GPIO libraries are simpler and more reliable that way.
 
 ## 4. Clone the Project
@@ -155,6 +161,35 @@ Saved timing changes are stored locally in `data/timing_settings.json` on the Pi
 Student profiles are stored locally in `data/student_profiles.json`. Each student folder also stores a small `profile.json` safety copy so the roster can be rebuilt if the main profile list gets stale. Each student's progress, learning-gate state, and attempt timing logs are stored under `data/students/<student-id>/practice_progress.json`, `data/students/<student-id>/learning_state.json`, and `data/students/<student-id>/practice_attempts.jsonl`. These files are intentionally not committed because they contain station/student practice history.
 
 Older single-student data files in `data/practice_progress.json`, `data/learning_state.json`, and `data/practice_attempts.jsonl` are copied into the default `Pappy` profile the first time the profile-aware app runs.
+
+## 5B. Configure Station Identity
+
+Each deployed station should have its own station id so backups and status reports are easy to identify.
+
+Create the station config:
+
+```bash
+cd /home/morse/morse-station
+cp config.station.example.json data/station_config.json
+```
+
+Edit `data/station_config.json`:
+
+```json
+{
+  "station_id": "astrid-station",
+  "backup_s3_uri": "s3://morsepi-backups"
+}
+```
+
+Use a unique id for each station, such as:
+
+```text
+astrid-station
+liara-station
+```
+
+`data/station_config.json` is intentionally ignored by Git because it is different for each Pi.
 
 ## 6. Wire the Hardware
 
@@ -269,6 +304,30 @@ The backup script keeps the newest 30 backups by default. To keep a different nu
 python3 scripts/backup_data.py --label manual --keep 60
 ```
 
+If AWS CLI credentials are configured and `data/station_config.json` has `backup_s3_uri`, upload a backup to S3:
+
+```bash
+python3 scripts/backup_data.py --label manual --s3-uri s3://morsepi-backups
+```
+
+Dry-run the S3 path without uploading:
+
+```bash
+python3 scripts/backup_data.py --label manual --s3-uri s3://morsepi-backups --dry-run-s3
+```
+
+Write station status locally:
+
+```bash
+python3 scripts/station_status.py
+```
+
+Upload station status to S3:
+
+```bash
+python3 scripts/station_status.py --s3-uri s3://morsepi-backups
+```
+
 Install the optional daily backup timer:
 
 ```bash
@@ -357,7 +416,9 @@ systemctl --user disable --now morse-station-update.timer
 
 Recommended rollout: keep automatic updates disabled on brand-new stations until the app is tested locally, then enable it once the Pi is physically deployed.
 
-Future remote rollout: once stations are connected to AWS, AWS Systems Manager could trigger `/home/morse/bin/update-morse-station.sh` on demand. That would let Pappy push an update to one or more remote stations without waiting for the periodic timer.
+Future remote rollout: once stations are connected to AWS, AWS IoT can trigger `/home/morse/morse-station/scripts/update_station.sh` on demand. Systems Manager could also trigger the same script if we decide the monthly device cost is worth the extra Linux fleet-management features.
+
+The update script creates a pre-update backup, optionally uploads it to S3, fast-forwards from GitHub only when safe, compile-checks the app, restarts the service, and writes station status.
 
 ## 11. Run the App at Boot with systemd
 

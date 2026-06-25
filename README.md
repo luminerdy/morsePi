@@ -30,6 +30,7 @@ Pappy's Internet Telegraph is a Raspberry Pi Morse code learning station. It let
 - JSONL practice attempt logging under `data/students/<student>/practice_attempts.jsonl`
 - JSONL word practice attempt logging under `data/students/<student>/word_attempts.jsonl`
 - Local data backup script and optional daily systemd user timer
+- Station identity, status reporting, S3 backup upload support, and remote-update foundation scripts
 - Optional 7-inch touchscreen flow at `/touch`
 - Touch start flow that opens student selection for multi-student stations and Daily Mission for single-student stations
 - Touch inactivity timeout that returns idle screens to the touch start flow after 10 minutes
@@ -75,6 +76,8 @@ http://<pi-ip-address>:5000
 
 For a fresh Raspberry Pi setup, follow [docs/SETUP_AND_CONFIGURE_PI.md](docs/SETUP_AND_CONFIGURE_PI.md).
 For current hardware parts, see [docs/BILL_OF_MATERIALS.md](docs/BILL_OF_MATERIALS.md).
+For remote grandkid-station planning, see [docs/REMOTE_DEPLOYMENT_AWS.md](docs/REMOTE_DEPLOYMENT_AWS.md).
+For student-facing rules and expectations, see [docs/KIDS_STATION_INSTRUCTIONS.md](docs/KIDS_STATION_INSTRUCTIONS.md).
 
 ## Regression Tests
 
@@ -82,10 +85,10 @@ Run the regression test bank on the Pi with mock GPIO:
 
 ```bash
 cd /home/morse/morse-station
-GPIOZERO_PIN_FACTORY=mock python3 -m unittest tests.test_backup_data tests.test_learning_gates tests.test_routes
+GPIOZERO_PIN_FACTORY=mock python3 -m unittest tests.test_backup_data tests.test_station_status tests.test_learning_gates tests.test_routes
 ```
 
-These tests use temporary progress files and do not modify student practice data. The current bank covers data backups, learning gates, alphabet progress, stale Learning Now cleanup, Daily Mission summary rules, Practice Coach recommendations, derived badges, rendered touch pages, profile cookie separation, admin reset behavior, practice POST routes, Signal Sprint bonus routes, and the Daily celebration endpoint.
+These tests use temporary progress files and do not modify student practice data. The current bank covers data backups, station status reporting, learning gates, alphabet progress, stale Learning Now cleanup, Daily Mission summary rules, Practice Coach recommendations, derived badges, rendered touch pages, profile cookie separation, admin reset behavior, practice POST routes, Signal Sprint bonus routes, and the Daily celebration endpoint.
 
 ## Repository Layout
 
@@ -96,6 +99,7 @@ templates/              Flask HTML templates
 static/                 CSS and browser JavaScript
 tests/                  Regression tests for learning gates and progress rules
 scripts/                Maintenance scripts, including local data backups
+config.station.example.json  Example per-station deployment config
 hardware_tests/         Standalone GPIO/audio test scripts
 archive/                Earlier prototypes kept for reference
 docs/                   Project plan, setup guide, requirements, tutorials
@@ -106,7 +110,7 @@ systemd/                Optional Linux service file
 
 See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) for milestones and next steps.
 
-Current next focus: test the faster-but-controlled unlock gate, Words practice requirements, and 7-inch touch Daily guidance with real student-style sessions.
+Current next focus: prepare two grandkid-station deployments with S3 backups, station status reporting, and an AWS IoT command path while continuing student testing of Words and unlock pacing.
 
 ## License
 

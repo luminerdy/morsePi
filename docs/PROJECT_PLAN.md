@@ -526,9 +526,19 @@ When asked to do the daily wrap-up, update:
 - Added a daily pacing cap of 2 new Learning Now groups per calendar day so fast learners can continue after a break but cannot unlock the whole ladder in one sitting.
 - Updated Daily next-action guidance so it can point students to `Practice Words`, `Take A Break`, or `Come Back Tomorrow` depending on which gate is blocking the next group.
 - Added regression tests covering the new Words/rest unlock gates and updated route fixtures to match the new pacing model.
+- Started the remote grandkid-station deployment foundation.
+- Added station identity config support for unique ids such as `astrid-station` and `liara-station`.
+- Extended local backups with station-aware filenames/manifests and optional S3 upload paths.
+- Added station status reporting with station id, hostname, Git commit, latest backup, service state, and optional S3 upload.
+- Added a safer remote-update wrapper that backs up first, fast-forwards from GitHub only when safe, compile-checks, restarts the service, and writes status.
+- Added AWS remote deployment notes and kid-facing station instructions/rules to GitHub docs.
 
 ### Ready Next
 
+- Configure AWS S3 for `morsepi-backups`, create least-privilege station credentials, and test one cloud backup/status upload from the active Pi.
+- Decide AWS IoT command-agent shape for update/backup/status triggers.
+- Add the first small AWS IoT agent or command receiver after S3 backup/status upload is proven.
+- Prepare two station ids and deployment checklists for the first grandkid units.
 - Test Words practice with Astrid/Liara on the physical 7-inch screen: confirm Play LED/sound, Next auto-play, Clear retry flow, and the 10-flash reward feel right.
 - Review the first real `word_attempts.jsonl` entries after student testing and decide what word progress should show on Daily or Progress.
 - Decide whether Words should remain non-scoring, become a bonus badge, or eventually become part of Daily Mission after first tests.
