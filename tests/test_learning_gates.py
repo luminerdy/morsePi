@@ -78,6 +78,22 @@ class LearningGateTests(unittest.TestCase):
             encoding="utf-8",
         )
 
+    def write_word_attempts(self, total, correct, word="AM", timestamp="2026-06-21T00:00:00+00:00"):
+        lines = []
+        for index in range(total):
+            lines.append(
+                json.dumps(
+                    {
+                        "correct": index < correct,
+                        "timestamp": timestamp,
+                        "word": word,
+                    },
+                    sort_keys=True,
+                )
+            )
+
+        (self.base / "word_attempts.jsonl").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
     def all_modes(self, strength):
         return {mode: strength for mode in app_module.practice_modes}
 
@@ -332,7 +348,7 @@ class LearningGateTests(unittest.TestCase):
         self.assertEqual("New Signals Ready", badges["next"]["label"])
         self.assertIn("S needs", badges["next"]["detail"])
 
-    def test_daily_mission_completed_learning_waits_for_next_practice_day(self):
+    def test_daily_mission_completed_learning_waits_for_short_break(self):
         self.write_progress(app_module.starter_practice_letters, self.all_modes(1.0))
         progress = json.loads(self.progress_path.read_text(encoding="utf-8"))
         for letter in ["S", "O"]:
@@ -358,13 +374,72 @@ class LearningGateTests(unittest.TestCase):
         self.assertEqual(["S", "O"], daily["learning_letters"])
         self.assertEqual(20, daily["learning_focus"]["correct"])
         self.assertTrue(daily["completed"])
-        self.assertIn("Come back tomorrow", daily["message"])
-        self.assertEqual("Tomorrow", daily["next_action"]["label"])
-        self.assertEqual("Come Back Tomorrow", daily["next_action"]["title"])
+        self.assertIn("Take a short break", daily["message"])
+        self.assertEqual("Break", daily["next_action"]["label"])
+        self.assertEqual("Take A Break", daily["next_action"]["title"])
+
+    def test_next_letters_require_correct_words_after_current_set_mastery(self):
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        self.write_progress(active_letters, self.all_modes(1.0))
+        self.write_learning_state(
+            {
+                "SO": {
+                    "first_learning_date": "2000-01-01",
+                    "letters": ["S", "O"],
+                }
+            },
+            last_learning_start_date="2000-01-01",
+        )
+
+        state = app_module.get_practice_letter_state()
+        overall = app_module.get_learning_overall(state["active_letters"])
+
+        self.assertEqual([], state["learning_letters"])
+        self.assertEqual(["R", "K"], state["next_step"]["letters"])
+        self.assertTrue(state["locked_until_tomorrow"])
+        self.assertIn("5 more correct Words", overall["next_goal"])
+
+    def test_next_letters_open_after_words_and_rest_gate(self):
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        self.write_progress(active_letters, self.all_modes(1.0))
+        self.write_learning_state(
+            {
+                "SO": {
+                    "first_learning_date": "2000-01-01",
+                    "letters": ["S", "O"],
+                }
+            },
+            last_learning_start_date="2000-01-01",
+        )
+        word_attempts = []
+        for index in range(app_module.word_ready_correct_attempts):
+            word_attempts.append(
+                json.dumps(
+                    {
+                        "word": "AM",
+                        "correct": True,
+                        "timestamp": f"2026-06-21T00:0{index}:00+00:00",
+                    }
+                )
+            )
+        (self.base / "word_attempts.jsonl").write_text("\n".join(word_attempts) + "\n", encoding="utf-8")
+
+        state = app_module.get_practice_letter_state()
+
+        self.assertEqual(["R", "K"], state["learning_letters"])
 
     def test_student_badges_reward_daily_accuracy_and_mastery(self):
-        self.write_progress(app_module.starter_practice_letters, self.all_modes(1.0))
-        self.write_learning_state({}, last_learning_start_date=app_module.today_key())
+        self.write_progress(app_module.all_practice_letters, self.all_modes(1.0))
+        self.write_learning_state(
+            {
+                app_module.step_key(step): {
+                    "first_learning_date": "2000-01-01",
+                    "letters": step["letters"],
+                }
+                for step in app_module.letter_unlock_steps
+            },
+            last_learning_start_date="2000-01-01",
+        )
         original_loader = app_module.load_today_attempts
         app_module.load_today_attempts = lambda: self.make_attempts(total=20, correct=19)
 
@@ -381,7 +456,7 @@ class LearningGateTests(unittest.TestCase):
         self.assertIn("Clean Copy", labels)
         self.assertIn("First Signals Mastered", labels)
         self.assertEqual("Daily Signal Complete", badges["featured"]["label"])
-        self.assertEqual("Signal Builder", badges["next"]["label"])
+        self.assertEqual("Keep Current", badges["next"]["label"])
 
     def test_daily_next_action_prefers_learning_now(self):
         state = {
@@ -406,6 +481,7 @@ class LearningGateTests(unittest.TestCase):
     def test_progress_details_show_learning_now_for_learn_mode(self):
         active_letters = app_module.starter_practice_letters + ["S", "O"]
         self.write_progress(active_letters, self.all_modes(1.0))
+        self.write_word_attempts(app_module.word_ready_correct_attempts, app_module.word_ready_correct_attempts)
         progress = json.loads(self.progress_path.read_text(encoding="utf-8"))
         progress["R"] = {
             "learn": {

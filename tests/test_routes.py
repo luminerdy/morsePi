@@ -100,6 +100,25 @@ class RouteRenderTests(unittest.TestCase):
 
         path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
+    def write_word_attempts(self, student_id, total, correct, word="AM", timestamp="2026-06-21T00:00:00+00:00"):
+        path = self.student_file(student_id, "word_attempts.jsonl")
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+        lines = []
+        for index in range(total):
+            lines.append(
+                json.dumps(
+                    {
+                        "correct": index < correct,
+                        "word": word,
+                        "timestamp": timestamp,
+                    },
+                    sort_keys=True,
+                )
+            )
+
+        path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
     def complete_starter_progress(self, student_id):
         progress = {}
         for letter in app_module.starter_practice_letters:
@@ -356,6 +375,7 @@ class RouteRenderTests(unittest.TestCase):
                 "last_learning_start_date": "2026-06-20",
             },
         )
+        self.write_word_attempts("pappy", total=app_module.word_ready_correct_attempts, correct=app_module.word_ready_correct_attempts)
 
         response = self.client.get("/touch/daily")
         html = response.get_data(as_text=True)
@@ -420,8 +440,18 @@ class RouteRenderTests(unittest.TestCase):
         self.assertNotIn("% overall", html)
 
     def test_touch_progress_renders_badges_and_next_badge(self):
-        self.complete_starter_progress("pappy")
-        self.set_learning_state("pappy", {}, last_learning_start_date=app_module.today_key())
+        self.complete_progress("pappy", app_module.all_practice_letters)
+        self.set_learning_state(
+            "pappy",
+            {
+                "".join(step["letters"]): {
+                    "first_learning_date": "2000-01-01",
+                    "letters": step["letters"],
+                }
+                for step in app_module.letter_unlock_steps
+            },
+            last_learning_start_date="2000-01-01",
+        )
         self.write_attempts("pappy", total=20, correct=19)
 
         response = self.client.get("/touch/progress")
@@ -431,7 +461,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("Daily Signal Complete", html)
         self.assertIn("Clean Copy", html)
         self.assertIn("First Signals Mastered", html)
-        self.assertIn("Next badge: Signal Builder", html)
+        self.assertIn("Next badge: Keep Current", html)
 
     def test_touch_progress_shows_learning_now_progress_separate_from_current_set(self):
         self.complete_starter_progress("pappy")
@@ -535,6 +565,7 @@ class RouteRenderTests(unittest.TestCase):
     def test_practice_next_uses_learning_now_letters_for_learn_mode(self):
         active_letters = app_module.starter_practice_letters + ["S", "O"]
         self.complete_progress("pappy", active_letters)
+        self.write_word_attempts("pappy", total=app_module.word_ready_correct_attempts, correct=app_module.word_ready_correct_attempts)
         self.set_learning_state(
             "pappy",
             {
@@ -677,8 +708,18 @@ class RouteRenderTests(unittest.TestCase):
 
     def test_touch_daily_complete_links_to_signal_sprint(self):
         self.write_attempts("pappy", total=20, correct=18)
-        self.complete_starter_progress("pappy")
-        self.set_learning_state("pappy", {}, last_learning_start_date=app_module.today_key())
+        self.complete_progress("pappy", app_module.all_practice_letters)
+        self.set_learning_state(
+            "pappy",
+            {
+                "".join(step["letters"]): {
+                    "first_learning_date": "2000-01-01",
+                    "letters": step["letters"],
+                }
+                for step in app_module.letter_unlock_steps
+            },
+            last_learning_start_date="2000-01-01",
+        )
 
         response = self.client.get("/touch/daily")
         html = response.get_data(as_text=True)
@@ -688,7 +729,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("/touch/bonus/sprint", html)
         self.assertIn("Signal Sprint", html)
 
-    def test_touch_daily_complete_with_learning_now_waits_instead_of_bonus(self):
+    def test_touch_daily_complete_with_learning_now_short_break_instead_of_bonus(self):
         self.write_attempts("pappy", total=20, correct=18)
         progress = {}
 
@@ -731,8 +772,8 @@ class RouteRenderTests(unittest.TestCase):
         html = response.get_data(as_text=True)
 
         self.assertEqual(200, response.status_code)
-        self.assertIn("Come Back Tomorrow", html)
-        self.assertIn("Daily complete. Come back tomorrow to lock it in", html)
+        self.assertIn("Take A Break", html)
+        self.assertIn("Daily complete. Take a short break", html)
         self.assertNotIn("Bonus Round", html)
 
     def test_touch_daily_complete_points_to_practice_when_active_set_unfinished(self):

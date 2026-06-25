@@ -719,6 +719,7 @@ Current implementation:
 ```text
 Practice progress is summarized per student in `data/students/<student-id>/practice_progress.json`.
 Detailed practice attempts are appended per student to `data/students/<student-id>/practice_attempts.jsonl`.
+Word practice attempts are appended per student to `data/students/<student-id>/word_attempts.jsonl`.
 Attempt records include mode, target, expected Morse, actual Morse or selected answer, correctness, timing settings, raw key timing events, and timing summaries.
 ```
 
@@ -1147,8 +1148,8 @@ Remote update operations should:
 | Learn progress tracking | Complete |
 | Learn-first letter unlocking | Complete with burn-in gate; needs student testing |
 | Daily Mission | Started and deployed with completion reward, next-action guidance, and Practice Coach |
-| Word Copy practice | Planned |
-| Mastery celebrations and badges | Planned |
+| Word Copy practice | Started with known-letter Words after S/O |
+| Mastery celebrations and badges | Started with Daily reward, badges, Signal Sprint, and Words visual reward |
 | Future practice game wrapper | Planned |
 | Better timing feedback | Not started |
 | Refactor hardware code | Not started |
@@ -1173,9 +1174,10 @@ Unlock behavior:
 - Only one new group can be in progress at a time.
 - A newly unlocked group appears in Learn first as `Learning Now`.
 - Send, Read, and Listen continue using only active practice letters.
-- The learning group joins active practice after each new letter has at least 10 correct Learn attempts, 70% Learn strength, and practice across at least two calendar days.
+- The learning group joins active practice after each new letter has at least 10 correct Learn attempts, 70% Learn strength, and about 3 hours of rest from when the group started.
 - Later groups cannot unlock until the current learning group has joined active practice.
-- Only one new Learning Now group should open per calendar day so students cannot unlock the whole ladder in one sitting.
+- After `S O` unlocks Words, the next letter group also requires 5 correct Words attempts since the latest learning group started.
+- No more than two new Learning Now groups should open per calendar day so fast learners can continue after a break but cannot unlock the whole ladder in one sitting.
 - Student-facing progress separates current-set mastery from full alphabet progress. The current set can reach 100%, while alphabet progress shows mastered letters such as `6/26` or `8/26`.
 
 ---

@@ -91,7 +91,7 @@
 
                         <p class="score-goal">
                             {% if overall.learning_letters %}
-                                {{ overall.next_goal }}. Each new letter needs {{ overall.learn_ready_attempts }} correct Learn tries, {{ overall.learn_ready_strength }}% Learn strength, and {{ overall.learn_ready_min_days }} practice days.
+                                {{ overall.next_goal }}. Each new letter needs {{ overall.learn_ready_attempts }} correct Learn tries, {{ overall.learn_ready_strength }}% Learn strength, and about {{ overall.learn_ready_rest_hours }} hours of rest.
                             {% elif overall.locked_until_tomorrow %}
                                 {{ overall.next_goal }}
                             {% elif overall.next_unlock.letters %}

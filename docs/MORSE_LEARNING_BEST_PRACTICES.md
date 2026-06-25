@@ -2,7 +2,7 @@
 
 Research notes for Pappy's Internet Telegraph.
 
-Last updated: 2026-06-17
+Last updated: 2026-06-25
 
 ## Purpose
 
@@ -152,6 +152,7 @@ Recommended progress model:
 - Unlock letters gradually, but place each new group in Learn first.
 - Keep only one group in `Learning Now` at a time so students cannot unlock far ahead before learning the new letters.
 - Move the learning group into Send, Read, Listen, and Echo after each new letter has enough Learn success.
+- Require a short rest and a small amount of word practice before opening the next group, so motivated students can continue the same day without racing through the whole ladder.
 - Allow an adult/testing override later.
 
 Current decision:
@@ -159,7 +160,9 @@ Current decision:
 - `E T A N I M` are the starter active practice letters.
 - New groups unlock after 100% current-set mastery across all five modes, then appear in Learn as `Learning Now`.
 - Send, Read, Listen, and Echo continue using active practice letters until the learning group is ready.
-- The current readiness rule is 10 correct Learn attempts, 70% Learn strength, and practice across at least two calendar days for each new letter.
+- The current readiness rule is 10 correct Learn attempts, 70% Learn strength, and about 3 hours of rest for each new letter group.
+- After Words unlock, opening the next group also requires 5 correct Words attempts since the latest group started.
+- A daily cap of 2 new groups keeps fast learners moving without letting them unlock the whole ladder in one sitting.
 - Later groups cannot unlock until the current learning group joins active practice.
 
 ## Adaptive Listening

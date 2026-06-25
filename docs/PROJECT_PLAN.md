@@ -397,7 +397,7 @@ When asked to do the daily wrap-up, update:
 - Updated Learn practice to also auto-play the code and flash the LED when the screen opens, with `Play Again` as the replay control.
 - Removed the keyer panel from Listen practice so Listen stays focused on hearing the code and identifying the letter; a future Echo/Copy mode can handle hear-and-key-back practice separately.
 - Tightened Listen/Learn LED synchronization by flashing with the same practice timing as browser audio and scheduling the LED start just after the browser's request is accepted.
-- Slowed letter progression for better memory burn-in: new Learning Now groups now require 10 correct Learn tries per letter, 70% Learn strength, and at least two practice days before joining Send/Read/Listen; only one new group can open per calendar day.
+- Slowed letter progression for better memory burn-in: new Learning Now groups were raised to 10 correct Learn tries per letter and 70% Learn strength before joining Send/Read/Listen/Echo; the original next-day pacing was later retuned to a shorter rest plus Words requirement after student testing.
 - Added Echo/Copy as a separate practice mode: the station plays a hidden audio prompt, the student keys it back, and Echo gets its own progress tracking.
 - Improved post-prompt keyer sound recovery by retrying the Pi USB speaker tone briefly while the physical key is still held, and kept Echo audio-first while revealing the letter/code after a miss.
 - Started testing the USB speaker through ALSA `default:CARD=UACDemoV10` instead of direct `plughw` so browser prompt audio and physical keyer tone can share the same speaker more gracefully.
@@ -455,7 +455,7 @@ When asked to do the daily wrap-up, update:
 - Added regression tests for reset confirmation, Pappy legacy cleanup, backup creation, and protecting other student profiles.
 - Fixed the Daily Mission screen while new letters are in `Learning Now`: mission completion now includes Learn burn-in progress, shows remaining Learn tries, and changes the coach grouping from generic `Boost` to `Learning`.
 - Clarified current-set versus Learning Now progress across touch and desktop Progress/Practice screens so `100%` mode scores do not imply new letters have joined every practice mode.
-- Fixed the completed Learning Now handoff so `20/20 Learn` plus the two-day burn-in gate now points students to `Come Back Tomorrow` instead of asking them to keep learning the same letters.
+- Fixed the completed Learning Now handoff so `20/20 Learn` plus a pacing gate points students to the right waiting/next-action message instead of asking them to keep learning the same letters.
 - Forced Pappy's S/O learning date back one day on the active Pi for testing, with a backup at `/home/morse/morse-station/data/student_backups/20260621-pappy-force-next-day/`.
 - Verified the forced-next-day state: Pappy now has `8/26` letters mastered, `S` and `O` in all five practice modes, no `Learning Now` letters, and about `80%` current-set mastery because S/O still need Send/Read/Listen/Echo practice.
 - Close-of-day GitHub status: Daily Mission clarity, current-set/Learning Now wording, completed burn-in handoff, README update, and regression tests are committed and pushed to `main`.
@@ -521,6 +521,11 @@ When asked to do the daily wrap-up, update:
 - Added or updated regression coverage for Words unlock, rendering, station playback, word logging, and Daily guidance edge cases.
 - Deployed all changes to the active Pi at `10.10.10.141`, restarted the app after each deployed fix, and kept GitHub `main` updated.
 - Close-of-day GitHub status: all Words practice, Daily guidance, visual reward, retry feedback, and documentation changes are committed and pushed to `main`.
+- Replaced the full next-day letter pacing rule with a faster controlled gate: Learning Now still needs 10 correct Learn tries per new letter, 70% Learn strength, and about 3 hours of rest before joining active practice.
+- Added a next-group gate after `S O`: once the current active set is 100%, the student also needs 5 correct Words attempts since the latest group started before another new group can open.
+- Added a daily pacing cap of 2 new Learning Now groups per calendar day so fast learners can continue after a break but cannot unlock the whole ladder in one sitting.
+- Updated Daily next-action guidance so it can point students to `Practice Words`, `Take A Break`, or `Come Back Tomorrow` depending on which gate is blocking the next group.
+- Added regression tests covering the new Words/rest unlock gates and updated route fixtures to match the new pacing model.
 
 ### Ready Next
 
@@ -538,7 +543,7 @@ When asked to do the daily wrap-up, update:
 - Decide whether to add a separate touch Letter Progress screen with per-letter cards and direct practice links.
 - Continue testing Astrid/Liara-style profiles to confirm each keeps separate progress, learning state, and attempt logs.
 - Run a fresh student-style session across Learn, Send, Read, Listen, Echo, and Daily Mission with one non-Pappy profile.
-- Watch whether the burn-in gate feels motivating rather than blocking after a next-day return.
+- Watch whether the 3-hour rest plus 5 correct Words gate feels motivating rather than blocking after students finish a signal set.
 - Continue testing the forced-next-day S/O state to confirm new letters feel natural once they join Send/Read/Listen/Echo.
 - Retest physical keyer sound immediately after Learn, Listen, and Echo station prompts.
 - Confirm Listen remains recognition-only and that `Play Again` always plays sound and flashes the LED.
