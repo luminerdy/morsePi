@@ -3,7 +3,7 @@
 <head>
     <title>Daily Mission - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260621-4">
-    <link rel="stylesheet" href="/static/touch.css?v=20260623-4">
+    <link rel="stylesheet" href="/static/touch.css?v=20260625-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body class="touch-ui"
@@ -94,6 +94,7 @@
                         Next badge: {{ badges.next.label }}
                     {% endif %}
                 </p>
+                <small>{{ daily.grit_message }}</small>
                 <div>
                     {% for letter in daily.active_letters_preview %}
                         <strong>{{ letter }}</strong>

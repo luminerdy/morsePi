@@ -700,6 +700,13 @@
     line-height: 1.15;
 }
 
+.touch-daily-current small {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
 .touch-learning-letters {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));

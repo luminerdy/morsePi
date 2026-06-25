@@ -284,6 +284,36 @@ class LearningGateTests(unittest.TestCase):
         self.assertEqual(2, effort["minutes"])
         self.assertEqual("2 min", effort["label"])
 
+    def test_try_again_win_detects_miss_then_correct(self):
+        attempts = [
+            {"correct": False, "timestamp": "2026-06-21T00:00:00+00:00"},
+            {"correct": True, "timestamp": "2026-06-21T00:01:00+00:00"},
+        ]
+
+        self.assertTrue(app_module.has_try_again_win(attempts))
+
+    def test_student_badges_reward_focused_practice_and_try_again(self):
+        daily = {
+            "attempt_progress": 50,
+            "completed": False,
+            "effort": {"minutes": 12},
+            "accuracy": 50,
+            "remaining": 10,
+            "try_again_win": True,
+            "learning_focus": {"active": False, "complete": True},
+        }
+        overall = {
+            "alphabet_mastered": 6,
+            "current_mastery": 0,
+        }
+
+        badges = app_module.student_badges(overall, daily)
+        labels = [badge["label"] for badge in badges["earned"]]
+
+        self.assertIn("Focused Practice", labels)
+        self.assertIn("Try Again Champ", labels)
+        self.assertEqual("Daily Signal Complete", badges["next"]["label"])
+
     def test_daily_mission_caps_letter_previews_for_touch_layout(self):
         all_letters = app_module.alphabet_letters
         self.write_progress(all_letters, self.all_modes(1.0))
@@ -470,7 +500,7 @@ class LearningGateTests(unittest.TestCase):
         self.assertIn("Clean Copy", labels)
         self.assertIn("First Signals Mastered", labels)
         self.assertEqual("Daily Signal Complete", badges["featured"]["label"])
-        self.assertEqual("Keep Current", badges["next"]["label"])
+        self.assertEqual("Try Again Champ", badges["next"]["label"])
 
     def test_daily_next_action_prefers_learning_now(self):
         state = {

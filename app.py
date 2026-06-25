@@ -89,6 +89,7 @@ DAILY_CELEBRATION_MORSE = "...-"
 BONUS_SPRINT_GOAL = 20
 EFFORT_MIN_SECONDS_PER_ATTEMPT = 20
 EFFORT_MAX_GAP_SECONDS = 180
+FOCUSED_PRACTICE_MINUTES = 10
 
 # Prefer the ALSA card name instead of a numeric card index so the USB speaker
 # keeps working when the SD card moves to another Pi or USB port.
@@ -891,9 +892,47 @@ def effort_summary(attempts):
     }
 
 
+def has_try_again_win(attempts):
+    sorted_attempts = sorted(
+        (
+            (parse_attempt_time(attempt.get("timestamp")), attempt)
+            for attempt in attempts
+            if parse_attempt_time(attempt.get("timestamp")) is not None
+        ),
+        key=lambda item: item[0],
+    )
+    saw_miss = False
+
+    for _, attempt in sorted_attempts:
+        if attempt.get("correct"):
+            if saw_miss:
+                return True
+            continue
+
+        saw_miss = True
+
+    return False
+
+
+def grit_coach_line(daily):
+    if daily.get("try_again_win"):
+        return "You missed one, tried again, and got stronger."
+
+    effort = daily.get("effort", {})
+    if effort.get("minutes", 0) >= FOCUSED_PRACTICE_MINUTES:
+        return "You gave focused practice time. That is how Morse gets stronger."
+
+    if daily.get("attempts", 0) > 0:
+        return "Every careful try helps your signal grow."
+
+    return "Start with one good try. Practice builds the signal."
+
+
 def daily_mission_summary():
     attempts = load_today_attempts()
-    effort = effort_summary(load_today_effort_attempts() if has_request_context() else attempts)
+    effort_attempts = load_today_effort_attempts() if has_request_context() else attempts
+    effort = effort_summary(effort_attempts)
+    try_again_win = has_try_again_win(effort_attempts)
     total = len(attempts)
     correct = sum(1 for attempt in attempts if attempt.get("correct"))
     letters = sorted({str(attempt.get("target", "")).upper() for attempt in attempts if attempt.get("target")})
@@ -924,7 +963,7 @@ def daily_mission_summary():
     else:
         message = "Daily mission: review every active signal and keep your rhythm steady."
 
-    return {
+    summary = {
         "date": today_key(),
         "goal": DAILY_MISSION_GOAL,
         "attempts": total,
@@ -933,6 +972,7 @@ def daily_mission_summary():
         "remaining": remaining,
         "accuracy": accuracy,
         "effort": effort,
+        "try_again_win": try_again_win,
         "attempt_progress": attempt_progress,
         "progress": progress,
         "completed": completed,
@@ -950,6 +990,8 @@ def daily_mission_summary():
         "next_action": next_action,
         "coach": daily_practice_coach(state)
     }
+    summary["grit_message"] = grit_coach_line(summary)
+    return summary
 
 
 def bonus_attempts_path():
@@ -1071,6 +1113,18 @@ def student_badges(overall, daily):
         daily.get("completed") and daily.get("accuracy", 0) >= 90,
     )
     add_badge(
+        "focused-practice",
+        "Focused Practice",
+        f"Practice for {FOCUSED_PRACTICE_MINUTES} active minutes today.",
+        daily.get("effort", {}).get("minutes", 0) >= FOCUSED_PRACTICE_MINUTES,
+    )
+    add_badge(
+        "try-again-champ",
+        "Try Again Champ",
+        "Miss one, try again, and keep going.",
+        daily.get("try_again_win"),
+    )
+    add_badge(
         "first-signals-mastered",
         "First Signals Mastered",
         "Master the first six signals.",
@@ -1098,6 +1152,16 @@ def student_badges(overall, daily):
         next_badge = {
             "label": "New Signals Ready",
             "detail": learning_focus.get("next_need") or "Finish the new-signal Learn work.",
+        }
+    elif daily.get("effort", {}).get("minutes", 0) < FOCUSED_PRACTICE_MINUTES:
+        next_badge = {
+            "label": "Focused Practice",
+            "detail": f"{max(0, FOCUSED_PRACTICE_MINUTES - daily.get('effort', {}).get('minutes', 0))} active minutes left today.",
+        }
+    elif not daily.get("try_again_win"):
+        next_badge = {
+            "label": "Try Again Champ",
+            "detail": "Keep going after a miss and get one right.",
         }
     elif not daily.get("completed"):
         next_badge = {

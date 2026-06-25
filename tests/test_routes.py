@@ -463,7 +463,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("Clean Copy", html)
         self.assertIn("First Signals Mastered", html)
         self.assertIn("26 min practice time", html)
-        self.assertIn("Next badge: Keep Current", html)
+        self.assertIn("Next badge: Try Again Champ", html)
 
     def test_touch_progress_shows_learning_now_progress_separate_from_current_set(self):
         self.complete_starter_progress("pappy")

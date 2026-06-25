@@ -180,6 +180,17 @@ That is not a failure. It means your brain is getting time to remember the new c
 - Stop before you get frustrated.
 - Notice your practice time. More steady practice helps your Morse get stronger.
 
+## Grit Badges
+
+The station also rewards effort.
+
+Examples:
+
+- Focused Practice: you gave active practice time.
+- Try Again Champ: you missed one, tried again, and kept going.
+
+These badges mean you are learning how to practice, not just getting answers right.
+
 ## What To Do If Something Seems Wrong
 
 Ask an adult if:

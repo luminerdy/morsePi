@@ -534,6 +534,7 @@ When asked to do the daily wrap-up, update:
 - Added AWS remote deployment notes and kid-facing station instructions/rules to GitHub docs.
 - Added student effort feedback: Daily and Progress now show estimated practice time so kids are encouraged by steady learning time, not only correctness.
 - Effort time is estimated from logged practice, Words, and Signal Sprint attempts; close-together attempts count as active practice, while long idle gaps are ignored.
+- Added first grit-focused motivation layer: `Focused Practice` rewards 10 active minutes, `Try Again Champ` rewards a miss followed by a later correct attempt, and Daily now shows a short coach line connecting effort to improvement.
 
 ### Ready Next
 
@@ -543,6 +544,7 @@ When asked to do the daily wrap-up, update:
 - Prepare two station ids and deployment checklists for the first grandkid units.
 - Test Words practice with Astrid/Liara on the physical 7-inch screen: confirm Play LED/sound, Next auto-play, Clear retry flow, and the 10-flash reward feel right.
 - Watch whether practice-time feedback motivates the kids and whether the wording feels clear on the 7-inch Daily screen.
+- Watch whether `Focused Practice` and `Try Again Champ` feel encouraging without distracting from the main Daily next step.
 - Review the first real `word_attempts.jsonl` entries after student testing and decide what word progress should show on Daily or Progress.
 - Decide whether Words should remain non-scoring, become a bonus badge, or eventually become part of Daily Mission after first tests.
 - Install and test the optional daily backup timer on the active Pi.

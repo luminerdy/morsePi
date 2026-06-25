@@ -41,6 +41,7 @@ Pappy's Internet Telegraph is a Raspberry Pi Morse code learning station. It let
 - Known-letter Words practice after `S O`, with Pi speaker/LED playback, full-word keying feedback, visual correct reward, and separate word logging
 - Daily Practice Coach with practice-next, strong-signal, and signal-boost recommendations
 - Derived student badges on touch Daily and Progress, including daily completion, clean copy, first signals mastered, and new signals ready
+- Grit-focused motivation with Focused Practice and Try Again Champ badges plus short coach messages connecting effort to improvement
 - Clear current-set versus Learning Now progress so new letters do not look mastered too early
 - Beginner Morse timing controls using Farnsworth-style character/effective WPM settings
 
