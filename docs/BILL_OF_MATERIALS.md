@@ -22,3 +22,27 @@ Not included above:
 - LED
 - Current-limiting resistor for LED, usually 220 to 330 ohms
 - Case, mount, or enclosure materials
+
+## 3D Printed Case Notes
+
+The Raspberry Pi mounts to the back of the 7-inch touchscreen, so the printed case needs to be more than a front bezel. It should be a full display enclosure with enough rear depth for the Raspberry Pi 4, DSI ribbon cable, GPIO wiring, USB speaker cable, power cable, and airflow.
+
+Current design intent:
+
+- Front opening sized for the 7-inch touch display.
+- Rear cavity deep enough for the Raspberry Pi 4 mounted behind the display without pressing on the board, USB plugs, GPIO wires, or DSI ribbon.
+- Access openings for USB power, USB speaker, telegraph key wiring, and any service ports that should remain reachable.
+- Ventilation around the Pi so the case does not trap heat during long practice sessions.
+- Internal strain relief or routing space so the DSI ribbon and GPIO jumper wires are not sharply bent.
+- Mounting points or standoffs for the display/Pi stack once exact hole spacing is confirmed.
+- Bambu X1 Carbon is the current target printer for prototypes.
+
+Measurements still needed before modeling:
+
+- Overall display module width, height, and thickness.
+- Visible screen opening width and height.
+- Display mounting-hole diameter and center-to-center spacing.
+- Mounting-hole distance from each board edge.
+- Total depth from the display front face to the deepest installed Pi/connector point.
+- DSI ribbon exit location and bend direction.
+- Power, USB speaker, telegraph key, and LED wire exit locations.

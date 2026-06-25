@@ -542,6 +542,8 @@ When asked to do the daily wrap-up, update:
 - Decide AWS IoT command-agent shape for update/backup/status triggers.
 - Add the first small AWS IoT agent or command receiver after S3 backup/status upload is proven.
 - Prepare two station ids and deployment checklists for the first grandkid units.
+- Measure the 7-inch display/Pi stack and design a 3D printed enclosure deep enough for the Raspberry Pi 4 mounted on the back of the monitor.
+- Print a small Bambu X1 Carbon test-fit plate for the screen opening and mounting holes before printing a full case.
 - Test Words practice with Astrid/Liara on the physical 7-inch screen: confirm Play LED/sound, Next auto-play, Clear retry flow, and the 10-flash reward feel right.
 - Watch whether practice-time feedback motivates the kids and whether the wording feels clear on the 7-inch Daily screen.
 - Watch whether `Focused Practice` and `Try Again Champ` feel encouraging without distracting from the main Daily next step.
