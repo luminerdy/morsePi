@@ -427,6 +427,7 @@ class RouteRenderTests(unittest.TestCase):
         html = response.get_data(as_text=True)
 
         self.assertEqual(200, response.status_code)
+        self.assertIn("9 min", html)
         self.assertIn("<strong>+14</strong>", html)
         self.assertIn("<strong>+18</strong>", html)
 
@@ -461,6 +462,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("Daily Signal Complete", html)
         self.assertIn("Clean Copy", html)
         self.assertIn("First Signals Mastered", html)
+        self.assertIn("26 min practice time", html)
         self.assertIn("Next badge: Keep Current", html)
 
     def test_touch_progress_shows_learning_now_progress_separate_from_current_set(self):

@@ -24,6 +24,7 @@
                     <span style="width: {{ overall.alphabet_percent }}%"></span>
                 </div>
                 <p>{{ overall.alphabet_progress }} letters mastered · {{ overall.alphabet_percent }}%</p>
+                <p>{{ effort.label }} practice time · {{ overall.attempts }} tries</p>
                 <p>{{ overall.current_mastery }}% current-set mastery · {{ overall.accuracy }}% accuracy</p>
                 {% if overall.learning_focus.active %}
                     <p>Learning Now: {{ overall.learning_letters | join(" ") }} · {{ overall.learning_focus.correct }}/{{ overall.learning_focus.goal }} Learn</p>
@@ -60,7 +61,7 @@
         </main>
 
         <footer class="touch-footer">
-            <span>{{ overall.attempts }} practice tries</span>
+            <span>{{ effort.label }} practice time</span>
             <span>
                 {% if overall.learning_letters %}
                     {{ overall.next_goal }}

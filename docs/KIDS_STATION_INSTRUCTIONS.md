@@ -44,6 +44,7 @@ It shows:
 - what you are learning now
 - what to practice next
 - how much of today's mission is done
+- how much practice time you have put in today
 
 Start with the Next Step on Daily.
 
@@ -177,6 +178,7 @@ That is not a failure. It means your brain is getting time to remember the new c
 - Use Clear when you want to try again.
 - Use Daily to know what to do next.
 - Stop before you get frustrated.
+- Notice your practice time. More steady practice helps your Morse get stronger.
 
 ## What To Do If Something Seems Wrong
 

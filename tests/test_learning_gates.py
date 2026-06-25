@@ -270,6 +270,20 @@ class LearningGateTests(unittest.TestCase):
         self.assertTrue(daily["completed"])
         self.assertEqual("Daily mission complete.", daily["message"])
 
+    def test_effort_summary_counts_close_practice_without_idle_time(self):
+        attempts = [
+            {"timestamp": "2026-06-21T00:00:00+00:00"},
+            {"timestamp": "2026-06-21T00:01:00+00:00"},
+            {"timestamp": "2026-06-21T00:20:00+00:00"},
+        ]
+
+        effort = app_module.effort_summary(attempts)
+
+        self.assertEqual(3, effort["attempts"])
+        self.assertEqual(120, effort["seconds"])
+        self.assertEqual(2, effort["minutes"])
+        self.assertEqual("2 min", effort["label"])
+
     def test_daily_mission_caps_letter_previews_for_touch_layout(self):
         all_letters = app_module.alphabet_letters
         self.write_progress(all_letters, self.all_modes(1.0))

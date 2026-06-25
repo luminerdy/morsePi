@@ -87,6 +87,8 @@ DEFAULT_STATION_VOLUME = 0.35
 DAILY_MISSION_GOAL = 20
 DAILY_CELEBRATION_MORSE = "...-"
 BONUS_SPRINT_GOAL = 20
+EFFORT_MIN_SECONDS_PER_ATTEMPT = 20
+EFFORT_MAX_GAP_SECONDS = 180
 
 # Prefer the ALSA card name instead of a numeric card index so the USB speaker
 # keeps working when the SD card moves to another Pi or USB port.
@@ -789,15 +791,25 @@ def today_key():
     return datetime.now().date().isoformat()
 
 
-def load_today_attempts():
-    attempts_path = student_data_path(g.current_student["id"], "practice_attempts.jsonl")
-    today = today_key()
-    attempts = []
+def parse_attempt_time(value):
+    if not value:
+        return None
 
-    if not attempts_path.exists():
+    try:
+        return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def load_attempt_records(path, today_only=False):
+    path = Path(path)
+    attempts = []
+    today = today_key()
+
+    if not path.exists():
         return attempts
 
-    for line in attempts_path.read_text(encoding="utf-8").splitlines():
+    for line in path.read_text(encoding="utf-8").splitlines():
         if not line.strip():
             continue
 
@@ -807,14 +819,81 @@ def load_today_attempts():
             continue
 
         timestamp = str(attempt.get("timestamp", ""))
-        if timestamp[:10] == today:
+        if not today_only or timestamp[:10] == today:
             attempts.append(attempt)
 
     return attempts
 
 
+def load_today_attempts():
+    return load_attempt_records(student_data_path(g.current_student["id"], "practice_attempts.jsonl"), today_only=True)
+
+
+def load_today_effort_attempts():
+    student_id = g.current_student["id"]
+    attempts = []
+    for filename in ("practice_attempts.jsonl", "word_attempts.jsonl", "bonus_attempts.jsonl"):
+        attempts.extend(load_attempt_records(student_data_path(student_id, filename), today_only=True))
+    return attempts
+
+
+def load_all_effort_attempts():
+    student_id = g.current_student["id"]
+    attempts = []
+    for filename in ("practice_attempts.jsonl", "word_attempts.jsonl", "bonus_attempts.jsonl"):
+        attempts.extend(load_attempt_records(student_data_path(student_id, filename), today_only=False))
+    return attempts
+
+
+def effort_summary(attempts):
+    timestamps = sorted(
+        parsed for parsed in (parse_attempt_time(attempt.get("timestamp")) for attempt in attempts)
+        if parsed is not None
+    )
+    attempt_count = len(timestamps)
+
+    if not attempt_count:
+        return {
+            "attempts": 0,
+            "seconds": 0,
+            "minutes": 0,
+            "label": "0 min",
+        }
+
+    seconds = attempt_count * EFFORT_MIN_SECONDS_PER_ATTEMPT
+
+    for previous, current in zip(timestamps, timestamps[1:]):
+        if previous.tzinfo and not current.tzinfo:
+            current = current.replace(tzinfo=previous.tzinfo)
+        elif current.tzinfo and not previous.tzinfo:
+            previous = previous.replace(tzinfo=current.tzinfo)
+
+        gap_seconds = max(0, int(round((current - previous).total_seconds())))
+        if gap_seconds <= EFFORT_MAX_GAP_SECONDS:
+            seconds += gap_seconds
+
+    minutes = int(round(seconds / 60))
+    if seconds > 0 and minutes == 0:
+        minutes = 1
+
+    if minutes < 60:
+        label = f"{minutes} min"
+    else:
+        hours = minutes // 60
+        remainder = minutes % 60
+        label = f"{hours} hr {remainder} min" if remainder else f"{hours} hr"
+
+    return {
+        "attempts": attempt_count,
+        "seconds": seconds,
+        "minutes": minutes,
+        "label": label,
+    }
+
+
 def daily_mission_summary():
     attempts = load_today_attempts()
+    effort = effort_summary(load_today_effort_attempts() if has_request_context() else attempts)
     total = len(attempts)
     correct = sum(1 for attempt in attempts if attempt.get("correct"))
     letters = sorted({str(attempt.get("target", "")).upper() for attempt in attempts if attempt.get("target")})
@@ -853,6 +932,7 @@ def daily_mission_summary():
         "correct": correct,
         "remaining": remaining,
         "accuracy": accuracy,
+        "effort": effort,
         "attempt_progress": attempt_progress,
         "progress": progress,
         "completed": completed,
@@ -1998,12 +2078,14 @@ def touch_progress():
     practice_letters = get_unlocked_practice_letters()
     overall = get_learning_overall(practice_letters)
     daily = daily_mission_summary()
+    effort = effort_summary(load_all_effort_attempts())
 
     return render_template(
         "touch_progress.html",
         modes=practice_modes,
         overall=overall,
         daily=daily,
+        effort=effort,
         badges=student_badges(overall, daily),
         details=get_progress_mode_details()
     )
@@ -2349,6 +2431,7 @@ def practice_result():
 def progress():
     mode = get_practice_mode()
     practice_letters = get_unlocked_practice_letters()
+    effort = effort_summary(load_all_effort_attempts())
 
     return render_template(
         "progress.html",
@@ -2356,6 +2439,7 @@ def progress():
         modes=practice_modes,
         overall=get_learning_overall(practice_letters),
         details=get_progress_mode_details(),
+        effort=effort,
         letter_morse=get_practice_letter_morse()
     )
 

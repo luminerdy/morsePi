@@ -51,7 +51,7 @@
                 <div class="touch-progress-meter" aria-hidden="true">
                     <span style="width: {{ daily.progress }}%"></span>
                 </div>
-                <p>{{ daily.accuracy }}% accuracy</p>
+                <p>{{ daily.accuracy }}% accuracy · {{ daily.effort.label }}</p>
                 <p>
                     {% if daily.learning_focus.active and not daily.learning_focus.complete %}
                         Practice count done
