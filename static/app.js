@@ -21,6 +21,7 @@ let browserPlayback = null;
 let wordCheckTimer = null;
 let lastCheckedWordMorse = "";
 let pendingWordMorse = "";
+let wordStartedAt = null;
 
 const KEYBOARD_DASH_THRESHOLD_UNITS = 2.5;
 const MORSE_DECODE = {
@@ -612,6 +613,7 @@ function resetWordAutoCheck() {
     wordCheckTimer = null;
     lastCheckedWordMorse = "";
     pendingWordMorse = "";
+    wordStartedAt = null;
     setWordFeedback("");
 }
 
@@ -628,6 +630,10 @@ function scheduleWordAutoCheck(rawMorse, decoded = "") {
     if (!actualMorse) {
         resetWordAutoCheck();
         return;
+    }
+
+    if (wordStartedAt === null) {
+        wordStartedAt = performance.now();
     }
 
     if (actualMorse === lastCheckedWordMorse) {
@@ -660,14 +666,55 @@ function scheduleWordAutoCheck(rawMorse, decoded = "") {
 function checkWordAnswer(actualMorse, expectedMorse, target, decoded = "") {
     lastCheckedWordMorse = actualMorse;
     pendingWordMorse = "";
+    const correct = actualMorse === expectedMorse;
+    const elapsedMs = wordStartedAt === null ? null : Math.round(performance.now() - wordStartedAt);
 
-    if (actualMorse === expectedMorse) {
+    recordWordResult(target, correct, actualMorse, expectedMorse, decoded, elapsedMs);
+
+    if (correct) {
         setWordFeedback(`Correct: ${target}.`);
+        rewardCorrectWord();
         return;
     }
 
     const heard = decoded ? ` I read ${decoded}.` : "";
     setWordFeedback(`Try ${target} again. ${target} is ${expectedMorse}. I heard ${actualMorse}.${heard}`);
+}
+
+async function recordWordResult(target, correct, actualMorse, expectedMorse, decoded, elapsedMs) {
+    try {
+        await fetch("/words/result", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                word: target,
+                correct,
+                actual_morse: actualMorse,
+                expected_morse: expectedMorse,
+                decoded,
+                elapsed_ms: elapsedMs,
+                timing_events: keyboardKeyerActive ? keyboardTimingEvents : []
+            })
+        });
+    } catch (error) {
+        console.log("Unable to record word result", error);
+    }
+}
+
+function rewardCorrectWord() {
+    const panel = getWordPanel();
+
+    if (panel) {
+        panel.classList.remove("word-correct-reward");
+        void panel.offsetWidth;
+        panel.classList.add("word-correct-reward");
+    }
+
+    fetch("/words/celebrate", { method: "POST" }).catch(error => {
+        console.log("Unable to trigger word celebration", error);
+    });
 }
 
 function schedulePracticeAutoCheck(rawMorse) {

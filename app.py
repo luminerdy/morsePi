@@ -6,7 +6,7 @@ from uuid import uuid4
 from flask import Flask, render_template, request, redirect, url_for, jsonify, g
 from gpiozero import Button, LED
 from morse import text_to_morse, morse_to_text
-from practice_attempts import append_practice_attempt, rounded_ms, set_attempts_path
+from practice_attempts import append_practice_attempt, normalize_timing_events, rounded_ms, set_attempts_path, timing_summary
 from practice_progress import all_mode_details, choose_next_letter, mode_score, overall_score, progress_summary, record_attempt, set_progress_path
 from student_profiles import (
     STUDENT_COOKIE,
@@ -87,6 +87,7 @@ DEFAULT_STATION_VOLUME = 0.35
 DAILY_MISSION_GOAL = 20
 DAILY_CELEBRATION_MORSE = "...-"
 BONUS_SPRINT_GOAL = 20
+WORD_CELEBRATION_MORSE = ".- .-"
 
 # Prefer the ALSA card name instead of a numeric card index so the USB speaker
 # keeps working when the SD card moves to another Pi or USB port.
@@ -659,6 +660,14 @@ def play_daily_celebration_in_background():
     thread.start()
 
 
+def play_word_celebration_in_background():
+    stop_station_playback()
+
+    thread = threading.Thread(target=play_morse_on_station, args=(WORD_CELEBRATION_MORSE,))
+    thread.daemon = True
+    thread.start()
+
+
 def play_practice_prompt_in_background(mode: str):
     morse = text_to_morse(practice_target)
     timing = get_practice_timing(mode, practice_target)
@@ -879,6 +888,24 @@ def append_bonus_attempt(record):
     path.parent.mkdir(parents=True, exist_ok=True)
     normalized = dict(record)
     normalized["timestamp"] = datetime.now(timezone.utc).isoformat()
+
+    with path.open("a", encoding="utf-8") as attempts_file:
+        attempts_file.write(json.dumps(normalized, sort_keys=True) + "\n")
+
+    return normalized
+
+
+def word_attempts_path():
+    return student_data_path(g.current_student["id"], "word_attempts.jsonl")
+
+
+def append_word_attempt(record):
+    path = word_attempts_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    normalized = dict(record)
+    normalized["timestamp"] = datetime.now(timezone.utc).isoformat()
+    normalized["timing_events"] = normalize_timing_events(normalized.get("timing_events", []))
+    normalized["timing_summary"] = timing_summary(normalized["timing_events"])
 
     with path.open("a", encoding="utf-8") as attempts_file:
         attempts_file.write(json.dumps(normalized, sort_keys=True) + "\n")
@@ -2027,6 +2054,48 @@ def words_prompt_station():
 def words_stop():
     stop_station_playback()
     return jsonify({"status": "stopped"})
+
+
+@app.route("/words/celebrate", methods=["POST"])
+def words_celebrate():
+    play_word_celebration_in_background()
+    return jsonify({"status": "celebrating"})
+
+
+@app.route("/words/result", methods=["POST"])
+def words_result():
+    data = request.get_json(silent=True) or {}
+    word = str(data.get("word", "")).upper()
+    expected_morse = normalize_word_morse(data.get("expected_morse", text_to_morse(word)))
+    actual_morse = normalize_word_morse(data.get("actual_morse", get_current_key_morse()))
+    decoded = str(data.get("decoded", morse_to_text(actual_morse) if actual_morse else "")).upper()
+    is_correct = bool(data.get("correct", False))
+    elapsed_ms = data.get("elapsed_ms")
+
+    try:
+        elapsed_ms = max(0, int(round(float(elapsed_ms)))) if elapsed_ms is not None else None
+    except (TypeError, ValueError):
+        elapsed_ms = None
+
+    if not word or word not in available_word_practice_words():
+        return jsonify({"status": "ignored"}), 400
+
+    attempt_record = append_word_attempt({
+        "kind": "word-practice",
+        "word": word,
+        "expected_morse": expected_morse,
+        "actual_morse": actual_morse,
+        "decoded": decoded,
+        "correct": is_correct,
+        "elapsed_ms": elapsed_ms,
+        "timing": get_morse_timing(),
+        "timing_events": data.get("timing_events") or get_current_key_events(),
+    })
+
+    return jsonify({
+        "status": "recorded",
+        "attempt": attempt_record,
+    })
 
 
 @app.route("/bonus/next", methods=["POST"])

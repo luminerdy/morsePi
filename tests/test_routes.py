@@ -241,6 +241,62 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual({"status": "stopped"}, stop_response.get_json())
         self.assertEqual([True], stopped)
 
+    def test_word_result_records_attempt_without_practice_progress(self):
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        self.complete_progress("pappy", active_letters)
+        self.set_learning_state(
+            "pappy",
+            {
+                "SO": {
+                    "first_learning_date": "2000-01-01",
+                    "letters": ["S", "O"],
+                }
+            },
+            last_learning_start_date="2000-01-01",
+        )
+
+        response = self.client.post(
+            "/words/result",
+            json={
+                "word": "AM",
+                "correct": True,
+                "expected_morse": ".- --",
+                "actual_morse": ".- --",
+                "decoded": "AM",
+                "elapsed_ms": 2400,
+                "timing_events": [
+                    {"type": "symbol", "symbol": ".", "duration_ms": 100},
+                    {"type": "symbol", "symbol": "-", "duration_ms": 310},
+                ],
+            },
+        )
+        payload = response.get_json()
+        word_attempts = self.student_file("pappy", "word_attempts.jsonl").read_text(encoding="utf-8").splitlines()
+        word_record = json.loads(word_attempts[0])
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("recorded", payload["status"])
+        self.assertEqual("AM", payload["attempt"]["word"])
+        self.assertEqual(2400, payload["attempt"]["elapsed_ms"])
+        self.assertTrue(payload["attempt"]["correct"])
+        self.assertEqual("AM", word_record["decoded"])
+        self.assertEqual(2, word_record["timing_summary"]["symbol_count"])
+        self.assertFalse(self.student_file("pappy", "practice_attempts.jsonl").exists())
+
+    def test_word_celebration_triggers_station_reward(self):
+        called = []
+        original = app_module.play_word_celebration_in_background
+        app_module.play_word_celebration_in_background = lambda: called.append(True)
+
+        try:
+            response = self.client.post("/words/celebrate")
+        finally:
+            app_module.play_word_celebration_in_background = original
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual({"status": "celebrating"}, response.get_json())
+        self.assertEqual([True], called)
+
     def test_touch_student_selection_defaults_to_daily(self):
         response = self.client.get("/touch/students")
         html = response.get_data(as_text=True)
