@@ -18,11 +18,11 @@ The current app is a working local Morse station MVP.
 
 Completed:
 
-- Raspberry Pi GPIO setup for telegraph key, LED, and passive piezo buzzer
+- Raspberry Pi GPIO setup for telegraph key and LED
 - Text-to-Morse conversion
 - Morse-to-text decoding
 - Browser Morse playback
-- Pi hardware playback using LED and buzzer
+- Pi hardware playback using LED and USB speaker
 - Live telegraph key input in the web app
 - Beginner Practice Mode starting with `E`, `T`, `A`, `N`, `I`, and `M`
 - Continuous Send practice loop with automatic feedback and advancement
@@ -55,7 +55,7 @@ Completed work:
 - Create Flask app
 - Add Morse conversion
 - Add browser playback
-- Add Pi LED and buzzer playback
+- Add Pi LED and USB speaker playback
 - Add physical key input
 - Add live key display
 - Add basic Practice Mode
@@ -274,7 +274,7 @@ When asked to do the daily wrap-up, update:
 ### 2026-06-07
 
 - Created initial Raspberry Pi Morse station.
-- Added telegraph key, LED, and buzzer hardware tests.
+- Added telegraph key and LED hardware tests.
 - Added Flask web app.
 - Added browser and Pi hardware playback.
 - Added live physical key input.

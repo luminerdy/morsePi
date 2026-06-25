@@ -201,18 +201,15 @@ GPIO layout:
 | Telegraph key ground | GND | Pin 9 | Shared ground |
 | Status LED | GPIO27 | Pin 13 | Use resistor in series with LED |
 | LED ground | GND | Pin 14 | Shared ground |
-| Passive piezo buzzer | GPIO18 | Pin 12 | Optional hardware test output |
-| Buzzer ground | GND | Pin 20 | Shared ground |
 
 Wiring summary:
 
 ```text
 GPIO17 / Pin 11 -> Telegraph Key -> GND / Pin 9
 GPIO27 / Pin 13 -> Resistor -> LED + ; LED - -> GND / Pin 14
-GPIO18 / Pin 12 -> Passive Piezo + ; Piezo - -> GND / Pin 20
 ```
 
-Use a resistor with the LED, usually `220` to `330` ohms. The active web app currently uses the USB speaker for sound; the passive piezo buzzer is still useful for standalone hardware tests.
+Use a resistor with the LED, usually `220` to `330` ohms. The active web app uses the USB speaker for sound.
 
 ## 7. Test the Hardware
 
@@ -229,24 +226,6 @@ LED:
 
 ```bash
 python3 hardware_tests/test_led.py
-```
-
-Buzzer:
-
-```bash
-python3 hardware_tests/test_buzzer.py
-```
-
-Key, LED, and buzzer together:
-
-```bash
-python3 hardware_tests/key_reader_led_buzzer.py
-```
-
-Typed message playback:
-
-```bash
-python3 hardware_tests/morse_output.py
 ```
 
 Stop each test with `Ctrl+C` before starting the next one. Only one running script should own the GPIO pins at a time.
@@ -588,7 +567,7 @@ app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)
 
 ### Hardware tests work, but web app does not
 
-Make sure no other hardware test script is still running. The web app owns GPIO17, GPIO27, and GPIO18 while it runs.
+Make sure no other hardware test script is still running. The web app owns GPIO17 and GPIO27 while it runs.
 
 ## 14. Fresh Pi Done Checklist
 
@@ -600,7 +579,6 @@ Make sure no other hardware test script is still running. The web app owns GPIO1
 - Telegraph key wired to GPIO17
 - LED wired to GPIO27 with resistor
 - USB speaker tested with `speaker-test`
-- Optional passive piezo buzzer wired to GPIO18
 - Hardware tests pass
 - `python3 app.py` starts successfully
 - Browser can open `http://<pi-ip-address>:5000`

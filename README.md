@@ -53,7 +53,6 @@ Current target hardware:
 - TGKY01 telegraph key, or similar switch/key
 - LED with resistor
 - USB speaker
-- Optional passive piezo buzzer for hardware tests
 
 GPIO layout:
 
@@ -61,7 +60,6 @@ GPIO layout:
 |---|---:|---:|
 | Telegraph key input | GPIO17 | Pin 11 |
 | Status LED | GPIO27 | Pin 13 |
-| Passive piezo buzzer test | GPIO18 | Pin 12 |
 
 ## Quick Start on the Pi
 

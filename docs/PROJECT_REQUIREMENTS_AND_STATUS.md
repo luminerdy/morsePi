@@ -25,7 +25,7 @@ The system should help students:
 1. Learn Morse code letters, numbers, and simple messages.
 2. Hear Morse code as beeps.
 3. Tap Morse code using a physical telegraph key.
-4. See immediate feedback from an LED and buzzer.
+4. See immediate feedback from an LED and USB speaker.
 5. Practice with short, encouraging lessons.
 6. Log in using a Morse code password.
 7. Track individual progress over time.
@@ -42,7 +42,6 @@ Current target hardware:
 Raspberry Pi 4, 2GB
 TGKY01 telegraph key
 LED with resistor
-Passive piezo buzzer
 USB speaker
 Wi-Fi or Ethernet network connection
 ```
@@ -59,15 +58,12 @@ The Raspberry Pi is currently using system Python instead of a virtual environme
 | Telegraph key ground | GND | Pin 9 | Shared ground |
 | Status LED | GPIO27 | Pin 13 | Visual key/Morse feedback |
 | LED ground | GND | Pin 14 | Use resistor in series with LED |
-| Passive piezo buzzer | GPIO18 | Pin 12 | Optional hardware test output |
-| Buzzer ground | GND | Pin 20 | Shared ground |
 
 Recommended wiring:
 
 ```text
 GPIO17 / Pin 11 ─── Telegraph Key ─── GND / Pin 9
 GPIO27 / Pin 13 ─── Resistor ─── LED + ; LED - ─── GND / Pin 14
-GPIO18 / Pin 12 ─── Passive Piezo + ; Piezo - ─── GND / Pin 20
 ```
 
 ---
@@ -151,39 +147,23 @@ press key → LED turns on → release key → dot/dash is detected
 
 ---
 
-### 5.5 Passive piezo buzzer test
+### 5.5 Key + LED + USB speaker integration
 
 Completed:
 
-- Passive piezo buzzer connected to GPIO18 and GND.
-- Python script created to play a 700 Hz tone.
-- Buzzer successfully produces Morse-style beeps.
-
-Important design decision:
-
-```text
-Keep the passive piezo buzzer tests available for troubleshooting, but use the USB speaker for the current web app station audio.
-```
-
----
-
-### 5.6 Key + LED + buzzer integration
-
-Completed:
-
-- Telegraph key, LED, and passive piezo buzzer combined.
+- Telegraph key, LED, and USB speaker combined.
 - When the key is pressed:
 
 ```text
 LED turns on
-buzzer plays tone
+USB speaker plays tone
 ```
 
 - When the key is released:
 
 ```text
 LED turns off
-buzzer stops
+USB speaker tone stops
 dot/dash is classified
 ```
 
@@ -197,7 +177,7 @@ Completed:
 
 - Morse conversion code created.
 - Typed messages can be converted to Morse.
-- Morse can be played through LED and buzzer.
+- Morse can be played through LED and USB speaker.
 
 Example:
 
@@ -223,7 +203,7 @@ Completed:
 - Home page allows typed text to be converted to Morse.
 - Morse code is displayed visually.
 - Browser playback added using JavaScript/Web Audio.
-- Pi station playback added using LED + piezo buzzer.
+- Pi station playback added using LED + USB speaker.
 - Live telegraph key input appears in the web app.
 
 Important Flask/GPIO decision:
@@ -296,10 +276,8 @@ morse-station/
 │   └── app.js
 ├── hardware_tests/
 │   ├── key_reader.py
-│   ├── test_led.py
-│   ├── test_buzzer.py
-│   ├── key_reader_led_buzzer.py
-│   └── morse_output.py
+│   ├── key_reader_led.py
+│   └── test_led.py
 ├── archive/
 ├── docs/
 └── systemd/
@@ -324,9 +302,8 @@ morse-station/
 │       └── 01-morse-station-hardware-baby-steps.md
 └── hardware_tests/
     ├── key_reader.py
-    ├── test_led.py
-    ├── test_buzzer.py
-    └── key_reader_led_buzzer.py
+    ├── key_reader_led.py
+    └── test_led.py
 ```
 
 ---
@@ -384,27 +361,15 @@ The system shall flash an LED during Morse playback and key presses.
 
 ---
 
-### FR-006: Piezo buzzer output
-
-The system shall play Morse tones using a passive piezo buzzer.
-
-Recommended starting tone:
-
-```text
-700 Hz
-```
-
----
-
-### FR-007: USB speaker output
+### FR-006: USB speaker output
 
 The system shall support a USB speaker for better audio playback.
 
-This is planned as a next hardware improvement.
+The current station uses the USB speaker for Morse playback and key-down tone feedback.
 
 ---
 
-### FR-008: Browser audio playback
+### FR-007: Browser audio playback
 
 The web app shall support playing Morse audio in the browser using JavaScript.
 
@@ -412,13 +377,13 @@ This allows audio playback from a laptop, tablet, or browser connected to the Pi
 
 ---
 
-### FR-009: Pi station playback
+### FR-008: Pi station playback
 
-The web app shall support playing Morse on the Raspberry Pi station hardware using LED and piezo buzzer.
+The web app shall support playing Morse on the Raspberry Pi station hardware using LED and USB speaker.
 
 ---
 
-### FR-010: Live key display
+### FR-009: Live key display
 
 The web app shall show live telegraph key input.
 
@@ -431,13 +396,13 @@ Decoded: A
 
 ---
 
-### FR-011: Practice Mode
+### FR-010: Practice Mode
 
 The system shall provide a Practice Mode where students tap the Morse code for a displayed letter or word.
 
 ---
 
-### FR-012: Friendly feedback
+### FR-011: Friendly feedback
 
 The system shall provide encouraging feedback.
 
@@ -1102,8 +1067,7 @@ Remote update operations should:
 | System Python and GPIO working | Complete |
 | Telegraph key input | Complete |
 | LED output | Complete |
-| Passive piezo buzzer output | Complete |
-| Key + LED + buzzer integration | Complete |
+| Key + LED integration | Complete |
 | Morse conversion | Complete |
 | Text-to-Morse web page | Complete |
 | Browser playback | Complete |
@@ -1348,8 +1312,7 @@ Examples:
 ```text
 key_reader.py
 test_led.py
-test_buzzer.py
-key_reader_led_buzzer.py
+key_reader_led.py
 ```
 
 These are useful for troubleshooting.
@@ -1369,7 +1332,7 @@ GPIO busy
 Cause:
 
 ```text
-app.py and morse_output.py both tried to create LED(GPIO27)
+app.py and older hardware test scripts both tried to create LED(GPIO27)
 ```
 
 Current solution:
@@ -1423,7 +1386,7 @@ Student can open the web app.
 Student can type a message and see Morse.
 Student can play Morse in the browser.
 Student can stop browser playback when a phrase is longer than expected.
-Student can play Morse on the Pi LED + buzzer.
+Student can play Morse on the Pi LED + USB speaker.
 Student can stop Pi playback when a phrase is longer than expected.
 Student can tap the telegraph key.
 The tapped Morse appears in the web app.
