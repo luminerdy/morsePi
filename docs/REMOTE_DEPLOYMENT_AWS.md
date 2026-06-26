@@ -2,6 +2,9 @@
 
 This document describes the first remote-deployment plan for grandkid morsePi stations.
 
+For the operational checklist and commands, see [REMOTE_BACKUP_STATUS_RUNBOOK.md](REMOTE_BACKUP_STATUS_RUNBOOK.md).
+For preparing a station before it leaves Pappy's house, see [GRANDKID_STATION_DEPLOYMENT.md](GRANDKID_STATION_DEPLOYMENT.md).
+
 Goal:
 
 ```text
@@ -49,6 +52,14 @@ On the Pi, copy the sample config:
 ```bash
 cd /home/morse/morse-station
 cp config.station.example.json data/station_config.json
+```
+
+For the active test station and first two planned grandkid stations, tracked examples are also available:
+
+```text
+config/stations/pappy-test-station.example.json
+config/stations/astrid-station.example.json
+config/stations/liara-station.example.json
 ```
 
 Edit `data/station_config.json`:

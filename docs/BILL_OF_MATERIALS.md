@@ -27,6 +27,8 @@ Not included above:
 
 The Raspberry Pi mounts to the back of the 7-inch touchscreen, so the printed case needs to be more than a front bezel. It should be a full display enclosure with enough rear depth for the Raspberry Pi 4, DSI ribbon cable, GPIO wiring, USB speaker cable, power cable, and airflow.
 
+Use [CASE_MEASUREMENT_WORKSHEET.md](CASE_MEASUREMENT_WORKSHEET.md) to collect dimensions before modeling the Bambu X1 Carbon test-fit plate or full enclosure.
+
 Current design intent:
 
 - Front opening sized for the 7-inch touch display.

@@ -3,6 +3,8 @@
 This guide starts with a fresh Raspberry Pi OS install and ends with Pappy's Internet Telegraph running on the Pi.
 
 For the current hardware shopping list, see [BILL_OF_MATERIALS.md](BILL_OF_MATERIALS.md).
+For a station that will leave Pappy's house, use [GRANDKID_STATION_DEPLOYMENT.md](GRANDKID_STATION_DEPLOYMENT.md) after this fresh setup guide.
+For remote backup/status/update operations, use [REMOTE_BACKUP_STATUS_RUNBOOK.md](REMOTE_BACKUP_STATUS_RUNBOOK.md).
 
 Target setup:
 
@@ -187,6 +189,14 @@ Use a unique id for each station, such as:
 ```text
 astrid-station
 liara-station
+```
+
+Tracked examples are available at:
+
+```text
+config/stations/pappy-test-station.example.json
+config/stations/astrid-station.example.json
+config/stations/liara-station.example.json
 ```
 
 `data/station_config.json` is intentionally ignored by Git because it is different for each Pi.

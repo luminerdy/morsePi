@@ -543,14 +543,28 @@ When asked to do the daily wrap-up, update:
 - Linked the handout from the student instructions and README so it is easy to find in GitHub.
 - Close-of-day GitHub status: passive buzzer cleanup, Daily coach fix, enclosure notes, kids handout, and documentation updates are committed and pushed to `main`.
 
+### 2026-06-26
+
+- Renamed the printable kids handout to `Pappy's Operators`, changed the badge to `Grand Operator`, and regenerated the PDF.
+- Added a second handout page for duplex printing: a comic-style `Signal Roadmap` showing the full learning order from starter letters through numbers.
+- Added [GRANDKID_STATION_DEPLOYMENT.md](GRANDKID_STATION_DEPLOYMENT.md) as the leave-the-house checklist for fresh Pi setup, station identity, hardware tests, touch boot, student profiles, backup, status, update, and kid readiness.
+- Added [REMOTE_BACKUP_STATUS_RUNBOOK.md](REMOTE_BACKUP_STATUS_RUNBOOK.md) with the recommended operations order: local backup, optional S3 backup/status, manual update wrapper, optional timer later, and AWS IoT command triggers after backup/status is proven.
+- Added tracked station config examples for `astrid-station` and `liara-station` under `config/stations/`.
+- Added a tracked `pappy-test-station` config example and applied it to the active Pi so test-station backups/status are no longer named `unknown-station`.
+- Smoke-tested the active Pi backup/status path with `--dry-run-s3`; local backup/status worked, service state reported `active`, and dry-run destinations resolved under `s3://morsepi-backups/stations/pappy-test-station/`.
+- Added [CASE_MEASUREMENT_WORKSHEET.md](CASE_MEASUREMENT_WORKSHEET.md) for measuring the 7-inch display/Pi stack before designing the Bambu X1 Carbon test-fit plate or full enclosure.
+- Updated README, setup, AWS remote deployment, BOM, and student instruction docs to link the new handout/checklist/runbook/worksheet.
+
 ### Ready Next
 
+- Use the new grandkid deployment checklist to prepare the first two stations end to end.
 - Configure AWS S3 for `morsepi-backups`, create least-privilege station credentials, and test one cloud backup/status upload from the active Pi.
-- Decide AWS IoT command-agent shape for update/backup/status triggers.
-- Add the first small AWS IoT agent or command receiver after S3 backup/status upload is proven.
-- Prepare two station ids and deployment checklists for the first grandkid units.
-- Measure the 7-inch display/Pi stack and design a 3D printed enclosure deep enough for the Raspberry Pi 4 mounted on the back of the monitor.
-- Print a small Bambu X1 Carbon test-fit plate for the screen opening and mounting holes before printing a full case.
+- Copy the appropriate station config example to each deployed Pi as `data/station_config.json`.
+- Run the remote backup/status/update runbook on the active Pi, then repeat for each grandkid station before it leaves Pappy's house.
+- Use the case measurement worksheet to measure the 7-inch display/Pi stack before designing the first Bambu X1 Carbon test-fit plate.
+- Design and print a small Bambu X1 Carbon test-fit plate for the screen opening and mounting holes before printing a full case.
+- Decide AWS IoT command-agent shape for update/backup/status triggers after S3 backup/status upload is proven.
+- Add the first small AWS IoT agent or command receiver after the command shape is chosen.
 - Continue testing Words practice with Astrid/Liara on the physical 7-inch screen and decide what Words progress should show on Daily or Progress.
 - Watch whether practice-time feedback motivates the kids and whether the wording feels clear on the 7-inch Daily screen.
 - Watch whether `Focused Practice` and `Try Again Champ` feel encouraging without distracting from the main Daily next step.

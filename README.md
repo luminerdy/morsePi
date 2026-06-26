@@ -1,6 +1,6 @@
 # morsePi
 
-Last updated: 2026-06-25
+Last updated: 2026-06-26
 
 Pappy's Internet Telegraph is a Raspberry Pi Morse code learning station. It lets students type messages, see Morse code, hear Morse code, tap a physical telegraph key, and practice beginner letters with immediate feedback.
 
@@ -45,6 +45,7 @@ Pappy's Internet Telegraph is a Raspberry Pi Morse code learning station. It let
 - Clear current-set versus Learning Now progress so new letters do not look mastered too early
 - Beginner Morse timing controls using Farnsworth-style character/effective WPM settings
 - Printable two-sided kid quick-start handout and student instructions under `docs/`
+- Grandkid station deployment checklist, remote backup/status runbook, and 3D printed case measurement worksheet under `docs/`
 
 ## Hardware
 
@@ -61,6 +62,16 @@ GPIO layout:
 |---|---:|---:|
 | Telegraph key input | GPIO17 | Pin 11 |
 | Status LED | GPIO27 | Pin 13 |
+
+## Key Docs
+
+- [Fresh Pi setup](docs/SETUP_AND_CONFIGURE_PI.md)
+- [Grandkid station deployment checklist](docs/GRANDKID_STATION_DEPLOYMENT.md)
+- [Remote backup, status, and update runbook](docs/REMOTE_BACKUP_STATUS_RUNBOOK.md)
+- [Bill of materials](docs/BILL_OF_MATERIALS.md)
+- [7-inch case measurement worksheet](docs/CASE_MEASUREMENT_WORKSHEET.md)
+- [Kids station instructions](docs/KIDS_STATION_INSTRUCTIONS.md)
+- [Pappy's Operators handout](docs/KIDS_QUICK_START_HANDOUT.pdf)
 
 ## Quick Start on the Pi
 
