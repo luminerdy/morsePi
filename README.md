@@ -44,6 +44,7 @@ Pappy's Internet Telegraph is a Raspberry Pi Morse code learning station. It let
 - Grit-focused motivation with Focused Practice and Try Again Champ badges plus short coach messages connecting effort to improvement
 - Clear current-set versus Learning Now progress so new letters do not look mastered too early
 - Beginner Morse timing controls using Farnsworth-style character/effective WPM settings
+- Printable kid quick-start handout and student instructions under `docs/`
 
 ## Hardware
 
