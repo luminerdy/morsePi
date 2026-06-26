@@ -446,13 +446,21 @@
     .letters {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.035in;
+      gap: 0.045in;
       margin: 0.045in 0;
     }
 
+    .signal-tile {
+      display: grid;
+      grid-template-rows: auto auto;
+      gap: 0.02in;
+      justify-items: center;
+      min-width: 0.35in;
+    }
+
     .letter-chip {
-      display: inline-grid;
-      min-width: 0.25in;
+      display: grid;
+      width: 0.25in;
       height: 0.25in;
       place-items: center;
       border: 2px solid #1f2937;
@@ -461,11 +469,12 @@
       font-weight: 900;
     }
 
-    .code-line {
+    .signal-code {
       font-family: "Courier New", monospace;
-      font-size: 11.5px;
-      line-height: 1.12;
+      font-size: 10.5px;
+      line-height: 1;
       font-weight: 900;
+      white-space: nowrap;
     }
 
     .roadmap-note {
@@ -605,8 +614,7 @@
           <div class="unlock-step">1</div>
           <div>
             <h3>Starter Signals</h3>
-            <div class="letters"><span class="letter-chip">E</span><span class="letter-chip">T</span><span class="letter-chip">A</span><span class="letter-chip">N</span><span class="letter-chip">I</span><span class="letter-chip">M</span></div>
-            <div class="code-line">E .  T -  A .-  N -.  I ..  M --</div>
+            <div class="letters"><span class="signal-tile"><span class="letter-chip">E</span><span class="signal-code">.</span></span><span class="signal-tile"><span class="letter-chip">T</span><span class="signal-code">-</span></span><span class="signal-tile"><span class="letter-chip">A</span><span class="signal-code">.-</span></span><span class="signal-tile"><span class="letter-chip">N</span><span class="signal-code">-.</span></span><span class="signal-tile"><span class="letter-chip">I</span><span class="signal-code">..</span></span><span class="signal-tile"><span class="letter-chip">M</span><span class="signal-code">--</span></span></div>
           </div>
         </article>
 
@@ -614,8 +622,7 @@
           <div class="unlock-step">2</div>
           <div>
             <h3>Signal Builder</h3>
-            <div class="letters"><span class="letter-chip">S</span><span class="letter-chip">O</span></div>
-            <div class="code-line">S ...  O ---</div>
+            <div class="letters"><span class="signal-tile"><span class="letter-chip">S</span><span class="signal-code">...</span></span><span class="signal-tile"><span class="letter-chip">O</span><span class="signal-code">---</span></span></div>
           </div>
         </article>
 
@@ -623,8 +630,7 @@
           <div class="unlock-step">3</div>
           <div>
             <h3>Rhythm Builder</h3>
-            <div class="letters"><span class="letter-chip">R</span><span class="letter-chip">K</span></div>
-            <div class="code-line">R .-.  K -.-</div>
+            <div class="letters"><span class="signal-tile"><span class="letter-chip">R</span><span class="signal-code">.-.</span></span><span class="signal-tile"><span class="letter-chip">K</span><span class="signal-code">-.-</span></span></div>
           </div>
         </article>
 
@@ -632,8 +638,7 @@
           <div class="unlock-step">4</div>
           <div>
             <h3>Relay Builder</h3>
-            <div class="letters"><span class="letter-chip">D</span><span class="letter-chip">U</span></div>
-            <div class="code-line">D -..  U ..-</div>
+            <div class="letters"><span class="signal-tile"><span class="letter-chip">D</span><span class="signal-code">-..</span></span><span class="signal-tile"><span class="letter-chip">U</span><span class="signal-code">..-</span></span></div>
           </div>
         </article>
 
@@ -641,8 +646,7 @@
           <div class="unlock-step">5</div>
           <div>
             <h3>Word Builder</h3>
-            <div class="letters"><span class="letter-chip">C</span><span class="letter-chip">W</span><span class="letter-chip">H</span><span class="letter-chip">L</span></div>
-            <div class="code-line">C -.-.  W .--  H ....  L .-..</div>
+            <div class="letters"><span class="signal-tile"><span class="letter-chip">C</span><span class="signal-code">-.-.</span></span><span class="signal-tile"><span class="letter-chip">W</span><span class="signal-code">.--</span></span><span class="signal-tile"><span class="letter-chip">H</span><span class="signal-code">....</span></span><span class="signal-tile"><span class="letter-chip">L</span><span class="signal-code">.-..</span></span></div>
           </div>
         </article>
 
@@ -650,8 +654,7 @@
           <div class="unlock-step">6</div>
           <div>
             <h3>Pattern Builder</h3>
-            <div class="letters"><span class="letter-chip">P</span><span class="letter-chip">F</span><span class="letter-chip">Y</span><span class="letter-chip">G</span></div>
-            <div class="code-line">P .--.  F ..-.  Y -.--  G --.</div>
+            <div class="letters"><span class="signal-tile"><span class="letter-chip">P</span><span class="signal-code">.--.</span></span><span class="signal-tile"><span class="letter-chip">F</span><span class="signal-code">..-.</span></span><span class="signal-tile"><span class="letter-chip">Y</span><span class="signal-code">-.--</span></span><span class="signal-tile"><span class="letter-chip">G</span><span class="signal-code">--.</span></span></div>
           </div>
         </article>
 
@@ -659,8 +662,7 @@
           <div class="unlock-step">7</div>
           <div>
             <h3>Code Builder</h3>
-            <div class="letters"><span class="letter-chip">B</span><span class="letter-chip">V</span><span class="letter-chip">J</span><span class="letter-chip">X</span></div>
-            <div class="code-line">B -...  V ...-  J .---  X -..-</div>
+            <div class="letters"><span class="signal-tile"><span class="letter-chip">B</span><span class="signal-code">-...</span></span><span class="signal-tile"><span class="letter-chip">V</span><span class="signal-code">...-</span></span><span class="signal-tile"><span class="letter-chip">J</span><span class="signal-code">.---</span></span><span class="signal-tile"><span class="letter-chip">X</span><span class="signal-code">-..-</span></span></div>
           </div>
         </article>
 
@@ -668,8 +670,7 @@
           <div class="unlock-step">8</div>
           <div>
             <h3>Alphabet Builder</h3>
-            <div class="letters"><span class="letter-chip">Q</span><span class="letter-chip">Z</span></div>
-            <div class="code-line">Q --.-  Z --..</div>
+            <div class="letters"><span class="signal-tile"><span class="letter-chip">Q</span><span class="signal-code">--.-</span></span><span class="signal-tile"><span class="letter-chip">Z</span><span class="signal-code">--..</span></span></div>
           </div>
         </article>
 
@@ -677,8 +678,7 @@
           <div class="unlock-step">9</div>
           <div>
             <h3>Number Builder</h3>
-            <div class="letters"><span class="letter-chip">1</span><span class="letter-chip">2</span><span class="letter-chip">3</span><span class="letter-chip">4</span><span class="letter-chip">5</span></div>
-            <div class="code-line">1 .----  2 ..---  3 ...--  4 ....-  5 .....</div>
+            <div class="letters"><span class="signal-tile"><span class="letter-chip">1</span><span class="signal-code">.----</span></span><span class="signal-tile"><span class="letter-chip">2</span><span class="signal-code">..---</span></span><span class="signal-tile"><span class="letter-chip">3</span><span class="signal-code">...--</span></span><span class="signal-tile"><span class="letter-chip">4</span><span class="signal-code">....-</span></span><span class="signal-tile"><span class="letter-chip">5</span><span class="signal-code">.....</span></span></div>
           </div>
         </article>
 
@@ -686,8 +686,7 @@
           <div class="unlock-step">10</div>
           <div>
             <h3>Full Station Operator</h3>
-            <div class="letters"><span class="letter-chip">6</span><span class="letter-chip">7</span><span class="letter-chip">8</span><span class="letter-chip">9</span><span class="letter-chip">0</span></div>
-            <div class="code-line">6 -....  7 --...  8 ---..  9 ----.  0 -----</div>
+            <div class="letters"><span class="signal-tile"><span class="letter-chip">6</span><span class="signal-code">-....</span></span><span class="signal-tile"><span class="letter-chip">7</span><span class="signal-code">--...</span></span><span class="signal-tile"><span class="letter-chip">8</span><span class="signal-code">---..</span></span><span class="signal-tile"><span class="letter-chip">9</span><span class="signal-code">----.</span></span><span class="signal-tile"><span class="letter-chip">0</span><span class="signal-code">-----</span></span></div>
           </div>
         </article>
       </section>
