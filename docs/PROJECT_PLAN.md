@@ -554,13 +554,16 @@ When asked to do the daily wrap-up, update:
 - Smoke-tested the active Pi backup/status path with `--dry-run-s3`; local backup/status worked, service state reported `active`, and dry-run destinations resolved under `s3://morsepi-backups/stations/pappy-test-station/`.
 - Added [CASE_MEASUREMENT_WORKSHEET.md](CASE_MEASUREMENT_WORKSHEET.md) for measuring the 7-inch display/Pi stack before designing the Bambu X1 Carbon test-fit plate or full enclosure.
 - Updated README, setup, AWS remote deployment, BOM, and student instruction docs to link the new handout/checklist/runbook/worksheet.
+- Ran the grandkid deployment checklist rehearsal on the active Pi: station identity, service, touch routes, student folders, kiosk browser, display mode, USB audio device, compile check, backup/status dry-run, and practice prompt playback all passed.
+- Rehearsal finding: the active Pi app folder is still file-deployed rather than a Git checkout, so the update-wrapper path cannot be fully rehearsed there. Grandkid units should be cloned from GitHub so status can report Git branch/commit and the update wrapper can fast-forward safely.
 
 ### Ready Next
 
 - Use the new grandkid deployment checklist to prepare the first two stations end to end.
 - Configure AWS S3 for `morsepi-backups`, create least-privilege station credentials, and test one cloud backup/status upload from the active Pi.
 - Copy the appropriate station config example to each deployed Pi as `data/station_config.json`.
-- Run the remote backup/status/update runbook on the active Pi, then repeat for each grandkid station before it leaves Pappy's house.
+- Run one real S3 backup/status upload from the active Pi after AWS credentials are configured.
+- Use a fresh Git-cloned Pi/SD card to rehearse the update wrapper, then repeat for each grandkid station before it leaves Pappy's house.
 - Use the case measurement worksheet to measure the 7-inch display/Pi stack before designing the first Bambu X1 Carbon test-fit plate.
 - Design and print a small Bambu X1 Carbon test-fit plate for the screen opening and mounting holes before printing a full case.
 - Decide AWS IoT command-agent shape for update/backup/status triggers after S3 backup/status upload is proven.
