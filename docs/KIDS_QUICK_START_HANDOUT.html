@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MorsePi Quick Start Handout</title>
+  <style>
+    @page {
+      size: letter;
+      margin: 0.35in;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #f5f0df;
+      color: #1f2937;
+      font-family: "Trebuchet MS", Arial, sans-serif;
+    }
+
+    .page {
+      width: 8.5in;
+      min-height: 11in;
+      margin: 0 auto;
+      padding: 0.35in;
+      background:
+        radial-gradient(circle at 18px 18px, rgba(31, 41, 55, 0.08) 2px, transparent 2px),
+        #fff7d6;
+      background-size: 36px 36px;
+    }
+
+    .sheet {
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 0.16in;
+      min-height: 10.3in;
+      border: 5px solid #1f2937;
+      background: #fffdf4;
+      padding: 0.18in;
+      box-shadow: 8px 8px 0 #1f2937;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.18in;
+      align-items: center;
+      border: 4px solid #1f2937;
+      background: #ffcc33;
+      padding: 0.12in 0.16in;
+      box-shadow: 5px 5px 0 #1f2937;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 36px;
+      line-height: 0.95;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      margin-top: 0.06in;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .badge {
+      min-width: 1.3in;
+      border: 4px solid #1f2937;
+      border-radius: 999px;
+      background: #18b6f6;
+      color: #ffffff;
+      padding: 0.12in;
+      text-align: center;
+      font-size: 22px;
+      font-weight: 900;
+      box-shadow: 4px 4px 0 #1f2937;
+      transform: rotate(5deg);
+    }
+
+    .top-strip {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 0.16in;
+    }
+
+    .panel {
+      border: 4px solid #1f2937;
+      background: #ffffff;
+      padding: 0.14in;
+      box-shadow: 5px 5px 0 #1f2937;
+    }
+
+    .panel.blue {
+      background: #dff4ff;
+    }
+
+    .panel.green {
+      background: #dff8d5;
+    }
+
+    .panel.pink {
+      background: #ffe1ef;
+    }
+
+    .panel.purple {
+      background: #eee4ff;
+    }
+
+    .panel.orange {
+      background: #ffe2ba;
+    }
+
+    h2 {
+      margin: 0 0 0.08in;
+      font-size: 20px;
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.22;
+      font-weight: 700;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.09in;
+      margin-top: 0.1in;
+    }
+
+    .step {
+      min-height: 1.05in;
+      border: 3px solid #1f2937;
+      background: #ffffff;
+      padding: 0.08in;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 0.04in;
+    }
+
+    .num {
+      display: inline-grid;
+      width: 0.28in;
+      height: 0.28in;
+      place-items: center;
+      border: 3px solid #1f2937;
+      border-radius: 999px;
+      background: #ff5a5f;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .step strong {
+      display: block;
+      margin-top: 0.03in;
+      font-size: 13px;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    .step span {
+      font-size: 12px;
+      line-height: 1.12;
+      font-weight: 700;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.16in;
+    }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.08in;
+    }
+
+    .mode {
+      border: 3px solid #1f2937;
+      background: #ffffff;
+      padding: 0.07in;
+      min-height: 0.7in;
+    }
+
+    .mode b {
+      display: block;
+      font-size: 15px;
+      text-transform: uppercase;
+    }
+
+    .mode span {
+      display: block;
+      margin-top: 0.02in;
+      font-size: 11.5px;
+      line-height: 1.15;
+      font-weight: 700;
+    }
+
+    .key-art {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.12in;
+      align-items: center;
+    }
+
+    .key {
+      width: 1.65in;
+      height: 0.92in;
+      position: relative;
+    }
+
+    .key::before {
+      content: "";
+      position: absolute;
+      left: 0.12in;
+      right: 0.12in;
+      bottom: 0.08in;
+      height: 0.16in;
+      border: 4px solid #1f2937;
+      background: #9ca3af;
+      transform: skewX(-14deg);
+    }
+
+    .key::after {
+      content: "";
+      position: absolute;
+      right: 0.12in;
+      bottom: 0.01in;
+      width: 0.28in;
+      height: 0.22in;
+      border: 4px solid #1f2937;
+      border-radius: 999px 999px 0 0;
+      background: #ef4444;
+    }
+
+    .spark {
+      display: inline-block;
+      margin-top: 0.04in;
+      border: 4px solid #1f2937;
+      background: #ff5a5f;
+      color: #ffffff;
+      padding: 0.04in 0.08in;
+      font-size: 18px;
+      font-weight: 900;
+      transform: rotate(-4deg);
+      box-shadow: 3px 3px 0 #1f2937;
+    }
+
+    .morse-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.08in;
+      margin-top: 0.1in;
+    }
+
+    .morse-card {
+      border: 3px solid #1f2937;
+      background: #ffffff;
+      padding: 0.07in;
+      text-align: center;
+      min-height: 0.62in;
+    }
+
+    .morse-card b {
+      display: block;
+      font-size: 23px;
+      line-height: 1;
+    }
+
+    .morse-card span {
+      display: block;
+      margin-top: 0.03in;
+      font-family: "Courier New", monospace;
+      font-size: 21px;
+      font-weight: 900;
+    }
+
+    .speech {
+      position: relative;
+      border: 4px solid #1f2937;
+      border-radius: 18px;
+      background: #ffffff;
+      padding: 0.12in;
+    }
+
+    .speech::after {
+      content: "";
+      position: absolute;
+      left: 0.35in;
+      bottom: -0.18in;
+      width: 0.24in;
+      height: 0.24in;
+      background: #ffffff;
+      border-right: 4px solid #1f2937;
+      border-bottom: 4px solid #1f2937;
+      transform: rotate(45deg);
+    }
+
+    .rules {
+      display: grid;
+      gap: 0.08in;
+      margin-top: 0.1in;
+    }
+
+    .rule {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.08in;
+      align-items: start;
+      border: 3px solid #1f2937;
+      background: #ffffff;
+      padding: 0.07in;
+      font-size: 13px;
+      line-height: 1.15;
+      font-weight: 800;
+    }
+
+    .dot {
+      width: 0.22in;
+      height: 0.22in;
+      border: 3px solid #1f2937;
+      border-radius: 999px;
+      background: #18b6f6;
+    }
+
+    footer {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.16in;
+      align-items: center;
+      border: 4px solid #1f2937;
+      background: #1f2937;
+      color: #ffffff;
+      padding: 0.1in 0.14in;
+    }
+
+    footer strong {
+      display: block;
+      font-size: 18px;
+      text-transform: uppercase;
+    }
+
+    footer span {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .mini-logo {
+      border: 3px solid #ffffff;
+      padding: 0.05in 0.09in;
+      font-family: "Courier New", monospace;
+      font-size: 20px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+      }
+
+      .page {
+        margin: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="sheet">
+      <header>
+        <div>
+          <h1>MorsePi Mission</h1>
+          <div class="subtitle">Learn secret signal letters. Practice a little. Get stronger.</div>
+        </div>
+        <div class="badge">Kid<br>Operator</div>
+      </header>
+
+      <section class="top-strip">
+        <div class="panel blue">
+          <h2>Start Here</h2>
+          <p>Find your name, tap Daily, and follow the big next step. The station will tell you what to practice.</p>
+          <div class="steps">
+            <div class="step">
+              <div><span class="num">1</span><strong>Pick Name</strong></div>
+              <span>Use your own profile so your progress is saved.</span>
+            </div>
+            <div class="step">
+              <div><span class="num">2</span><strong>Tap Daily</strong></div>
+              <span>Daily shows what to do next.</span>
+            </div>
+            <div class="step">
+              <div><span class="num">3</span><strong>Try It</strong></div>
+              <span>Use the key. Dots are short. Dashes are long.</span>
+            </div>
+            <div class="step">
+              <div><span class="num">4</span><strong>Fix It</strong></div>
+              <span>Wrong answer? Clear and try again.</span>
+            </div>
+            <div class="step">
+              <div><span class="num">5</span><strong>Grow</strong></div>
+              <span>Master letters to unlock more.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel green">
+          <h2>Use The Key</h2>
+          <div class="key-art">
+            <div>
+              <p>Tap fast for a dot. Hold longer for a dash. Listen to the sound and watch the light.</p>
+              <div class="spark">DIT! DAH!</div>
+            </div>
+            <div class="key" aria-hidden="true"></div>
+          </div>
+          <div class="morse-row">
+            <div class="morse-card"><b>E</b><span>.</span></div>
+            <div class="morse-card"><b>T</b><span>-</span></div>
+            <div class="morse-card"><b>S</b><span>...</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="main-grid">
+        <div class="panel purple">
+          <h2>Practice Modes</h2>
+          <div class="mode-grid">
+            <div class="mode"><b>Learn</b><span>See a new letter. Hear it. Key it.</span></div>
+            <div class="mode"><b>Send</b><span>See the letter. Send the code.</span></div>
+            <div class="mode"><b>Read</b><span>See code. Pick the matching letter.</span></div>
+            <div class="mode"><b>Listen</b><span>Hear code. Pick the letter.</span></div>
+            <div class="mode"><b>Echo</b><span>Hear it, then copy the rhythm.</span></div>
+            <div class="mode"><b>Words</b><span>Use letters you know to send real words.</span></div>
+          </div>
+        </div>
+
+        <div class="panel pink">
+          <h2>Operator Rules</h2>
+          <div class="speech">
+            <p>Every good radio operator misses signals sometimes. The trick is to slow down, try again, and keep your rhythm steady.</p>
+          </div>
+          <div class="rules">
+            <div class="rule"><span class="dot"></span><span>Do not rush. Clean signals beat fast guesses.</span></div>
+            <div class="rule"><span class="dot"></span><span>Use Clear when you want a fresh try.</span></div>
+            <div class="rule"><span class="dot"></span><span>Daily complete? Try Words or Signal Sprint for extra practice.</span></div>
+            <div class="rule"><span class="dot"></span><span>Practice time matters. Your brain gets stronger with repeats.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <div>
+          <strong>Your mission: five good minutes today.</strong>
+          <span>Small practice, repeated often, turns dots and dashes into a language you can hear.</span>
+        </div>
+        <div class="mini-logo">.--. ..</div>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>

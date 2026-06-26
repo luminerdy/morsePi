@@ -2,6 +2,8 @@
 
 This guide is for students using Pappy's Internet Telegraph.
 
+Printable one-page version: [MorsePi Quick Start Handout](KIDS_QUICK_START_HANDOUT.pdf)
+
 ## What This Station Does
 
 The station helps you learn Morse code by using:
