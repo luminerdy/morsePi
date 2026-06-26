@@ -36,7 +36,12 @@ class BackupDataTests(unittest.TestCase):
         self.temp_dir.cleanup()
 
     def test_create_backup_includes_student_data_and_manifest(self):
-        backup_path = create_backup(self.data_dir, self.backup_dir, "manual")
+        backup_path = create_backup(
+            self.data_dir,
+            self.backup_dir,
+            "manual",
+            config_path=self.base / "missing-station-config.json",
+        )
 
         with zipfile.ZipFile(backup_path) as backup_zip:
             names = set(backup_zip.namelist())
@@ -78,7 +83,12 @@ class BackupDataTests(unittest.TestCase):
         self.assertEqual("astrid-station", resolve_station_id(config_path=config_path))
 
     def test_restore_backup_extracts_data_folder(self):
-        backup_path = create_backup(self.data_dir, self.backup_dir, "manual")
+        backup_path = create_backup(
+            self.data_dir,
+            self.backup_dir,
+            "manual",
+            config_path=self.base / "missing-station-config.json",
+        )
         restore_root = self.base / "restore"
 
         restore_backup(backup_path, restore_root)

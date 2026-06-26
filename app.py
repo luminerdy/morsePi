@@ -1533,6 +1533,42 @@ def load_word_attempts():
     return attempts
 
 
+def word_progress_summary():
+    summary = word_practice_summary()
+    attempts = load_word_attempts()
+    total = len(attempts)
+    correct = sum(1 for attempt in attempts if attempt.get("correct"))
+    unique_correct = sorted({
+        str(attempt.get("word", "")).upper()
+        for attempt in attempts
+        if attempt.get("correct") and attempt.get("word")
+    })
+    accuracy = int(round((correct / total) * 100)) if total else 0
+
+    if not summary["unlocked"]:
+        return {
+            "unlocked": False,
+            "accuracy": 0,
+            "correct": 0,
+            "total": 0,
+            "unique_correct": 0,
+            "available": 0,
+            "label": "Unlock after S O",
+            "detail": "Known-letter words",
+        }
+
+    return {
+        "unlocked": True,
+        "accuracy": accuracy,
+        "correct": correct,
+        "total": total,
+        "unique_correct": len(unique_correct),
+        "available": summary["count"],
+        "label": f"{len(unique_correct)}/{summary['count']} words",
+        "detail": f"{correct}/{total} correct" if total else "No word tries yet",
+    }
+
+
 def timestamp_at_or_after(timestamp, started_at):
     if not timestamp:
         return False
@@ -2152,6 +2188,7 @@ def touch_progress():
         overall=overall,
         daily=daily,
         effort=effort,
+        words=word_progress_summary(),
         badges=student_badges(overall, daily),
         details=get_progress_mode_details()
     )

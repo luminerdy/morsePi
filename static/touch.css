@@ -541,14 +541,14 @@
 .touch-progress-layout {
     min-height: 0;
     display: grid;
-    grid-template-columns: 290px minmax(0, 1fr);
+    grid-template-columns: 360px minmax(0, 1fr);
     gap: 8px;
 }
 
 .touch-progress-hero,
 .touch-progress-card {
     min-height: 0;
-    padding: 14px;
+    padding: 10px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -557,34 +557,36 @@
 
 .touch-progress-hero {
     display: grid;
-    align-content: center;
-    gap: 10px;
+    align-content: start;
+    gap: 6px;
+    overflow: hidden;
 }
 
 .touch-progress-hero span,
 .touch-progress-card span,
 .touch-progress-card em {
     color: var(--muted);
-    font-size: 15px;
+    font-size: 13px;
     font-style: normal;
     font-weight: 900;
 }
 
 .touch-progress-hero strong {
     color: var(--primary);
-    font-size: 36px;
+    font-size: 26px;
     line-height: 1;
 }
 
 .touch-progress-hero p {
     margin: 0;
     color: var(--text);
-    font-size: 17px;
+    font-size: 15px;
+    line-height: 1.15;
     font-weight: 800;
 }
 
 .touch-progress-meter {
-    height: 14px;
+    height: 12px;
     overflow: hidden;
     background: #dfe7ef;
     border-radius: 999px;
@@ -600,22 +602,27 @@
     min-height: 0;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
     gap: 8px;
 }
 
 .touch-progress-card {
     display: grid;
     align-content: center;
-    gap: 6px;
+    gap: 4px;
     color: var(--text);
     text-decoration: none;
 }
 
 .touch-progress-card strong {
     color: var(--primary);
-    font-size: 42px;
+    font-size: 31px;
     line-height: 1;
+}
+
+.words-progress-card {
+    background: #fff8df;
+    border-color: #e6bd54;
 }
 
 .touch-daily-layout {

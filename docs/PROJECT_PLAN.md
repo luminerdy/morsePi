@@ -556,6 +556,9 @@ When asked to do the daily wrap-up, update:
 - Updated README, setup, AWS remote deployment, BOM, and student instruction docs to link the new handout/checklist/runbook/worksheet.
 - Ran the grandkid deployment checklist rehearsal on the active Pi: station identity, service, touch routes, student folders, kiosk browser, display mode, USB audio device, compile check, backup/status dry-run, and practice prompt playback all passed.
 - Rehearsal finding: the active Pi app folder is still file-deployed rather than a Git checkout, so the update-wrapper path cannot be fully rehearsed there. Grandkid units should be cloned from GitHub so status can report Git branch/commit and the update wrapper can fast-forward safely.
+- Cleaned up the touch Progress screen for the 800x480 display: widened the left summary column, reduced Send/Read/Listen/Echo/Learn card size, fixed the `Telegraph Pro` overlap, and added a compact Words progress card.
+- Added Words progress summary data from `word_attempts.jsonl`, including accuracy, unique words completed, available known-letter words, and correct/total word attempts.
+- Deployed the Progress cleanup to the active Pi, verified the updated Pappy screen with an 800x480 screenshot, and ran the 66-test Pi regression suite successfully.
 
 ### Ready Next
 
@@ -568,10 +571,9 @@ When asked to do the daily wrap-up, update:
 - Design and print a small Bambu X1 Carbon test-fit plate for the screen opening and mounting holes before printing a full case.
 - Decide AWS IoT command-agent shape for update/backup/status triggers after S3 backup/status upload is proven.
 - Add the first small AWS IoT agent or command receiver after the command shape is chosen.
-- Continue testing Words practice with Astrid/Liara on the physical 7-inch screen and decide what Words progress should show on Daily or Progress.
+- Continue testing Words practice with Astrid/Liara on the physical 7-inch screen and decide whether Words should stay bonus-only or become part of Daily Mission.
 - Watch whether practice-time feedback motivates the kids and whether the wording feels clear on the 7-inch Daily screen.
 - Watch whether `Focused Practice` and `Try Again Champ` feel encouraging without distracting from the main Daily next step.
-- Review the first real `word_attempts.jsonl` entries after student testing and decide what word progress should show on Daily or Progress.
 - Decide whether Words should remain non-scoring, become a bonus badge, or eventually become part of Daily Mission after first tests.
 - Consider a first-day operator certificate or other printable reward for kids who complete their first Daily Mission.
 - Consider a short parent/adult handout covering switching users, reading progress, backup/update basics, and what the practice numbers mean.

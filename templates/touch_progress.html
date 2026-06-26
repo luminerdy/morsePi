@@ -3,7 +3,7 @@
 <head>
     <title>Touch Progress - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260621-4">
-    <link rel="stylesheet" href="/static/touch.css?v=20260625-1">
+    <link rel="stylesheet" href="/static/touch.css?v=20260626-2">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body class="touch-ui">
@@ -57,6 +57,15 @@
                         <em>{{ mode_score.completion_label or details[mode_key].summary_label ~ ' · ' ~ mode_score.streak ~ ' streak' }}</em>
                     </a>
                 {% endfor %}
+                <a class="touch-progress-card words-progress-card" href="/touch/words">
+                    <span>Words</span>
+                    {% if words.unlocked %}
+                        <strong>{{ words.accuracy }}%</strong>
+                    {% else %}
+                        <strong>Lock</strong>
+                    {% endif %}
+                    <em>{{ words.label }} · {{ words.detail }}</em>
+                </a>
             </section>
         </main>
 

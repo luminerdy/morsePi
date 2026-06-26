@@ -438,7 +438,33 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(200, response.status_code)
         self.assertIn("6/26 letters mastered", html)
         self.assertIn("current set", html)
+        self.assertIn("Words", html)
+        self.assertIn("Unlock after S O", html)
         self.assertNotIn("% overall", html)
+
+    def test_touch_progress_renders_words_progress_when_unlocked(self):
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        self.complete_progress("pappy", active_letters)
+        self.set_learning_state(
+            "pappy",
+            {
+                "SO": {
+                    "first_learning_date": "2000-01-01",
+                    "letters": ["S", "O"],
+                }
+            },
+            last_learning_start_date="2000-01-01",
+        )
+        self.write_word_attempts("pappy", total=24, correct=19, word="AM")
+
+        response = self.client.get("/touch/progress")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Words", html)
+        self.assertIn("79%", html)
+        self.assertIn("1/42 words", html)
+        self.assertIn("19/24 correct", html)
 
     def test_touch_progress_renders_badges_and_next_badge(self):
         self.complete_progress("pappy", app_module.all_practice_letters)
