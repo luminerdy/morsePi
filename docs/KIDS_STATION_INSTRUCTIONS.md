@@ -2,7 +2,7 @@
 
 This guide is for students using Pappy's Internet Telegraph.
 
-Printable one-page version: [Pappy's Operators Handout](KIDS_QUICK_START_HANDOUT.pdf)
+Printable two-sided version: [Pappy's Operators Handout](KIDS_QUICK_START_HANDOUT.pdf)
 
 ## What This Station Does
 
