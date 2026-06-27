@@ -2301,6 +2301,7 @@ def touch_words():
         "touch_words.html",
         overall=overall,
         word_practice=summary,
+        word_progress=word_progress_summary(),
         word_item=word_practice_item(word_index, active_letters),
         timing=get_morse_timing()
     )

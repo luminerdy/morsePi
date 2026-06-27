@@ -221,6 +221,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("known-letter words", menu_html)
         self.assertEqual(200, words_response.status_code)
         self.assertIn("<strong>AM</strong>", words_html)
+        self.assertIn("0% · 0/42 words · No word tries yet", words_html)
         self.assertIn('data-word-morse=".- --"', words_html)
         self.assertIn('data-word-target="AM"', words_html)
         self.assertIn('id="liveMorse"', words_html)

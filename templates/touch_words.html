@@ -2,7 +2,7 @@
 <head>
     <title>Words - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260621-4">
-    <link rel="stylesheet" href="/static/touch.css?v=20260625-1">
+    <link rel="stylesheet" href="/static/touch.css?v=20260627-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body class="touch-ui"
@@ -31,7 +31,7 @@
                 <section class="touch-word-card touch-word-hero">
                     <span>Word</span>
                     <strong>{{ word_item.word }}</strong>
-                    <p>{{ word_item.index + 1 }}/{{ word_item.total }} · built from known letters</p>
+                    <p>{{ word_progress.accuracy }}% · {{ word_progress.label }} · {{ word_progress.detail }}</p>
                 </section>
 
                 <section class="touch-word-card touch-word-morse">
@@ -79,6 +79,6 @@
             </main>
         {% endif %}
     </div>
-<script src="/static/app.js?v=20260624-2"></script>
+<script src="/static/app.js?v=20260627-1"></script>
 </body>
 </html>

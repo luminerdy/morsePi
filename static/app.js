@@ -22,6 +22,7 @@ let wordCheckTimer = null;
 let lastCheckedWordMorse = "";
 let pendingWordMorse = "";
 let wordStartedAt = null;
+let wordAutoAdvanceTimer = null;
 
 const KEYBOARD_DASH_THRESHOLD_UNITS = 2.5;
 const MORSE_DECODE = {
@@ -384,12 +385,21 @@ async function playWordCard() {
 
 async function stopWordPlayback() {
     stopBrowserPlayback();
+    cancelWordAutoAdvance();
 
     try {
         await fetch("/words/stop", { method: "POST" });
     } catch (error) {
         console.log("Unable to stop word playback", error);
     }
+}
+
+function cancelWordAutoAdvance() {
+    if (wordAutoAdvanceTimer) {
+        clearTimeout(wordAutoAdvanceTimer);
+    }
+
+    wordAutoAdvanceTimer = null;
 }
 
 async function initializeWordPractice() {
@@ -610,6 +620,7 @@ function resetWordAutoCheck() {
         clearTimeout(wordCheckTimer);
     }
 
+    cancelWordAutoAdvance();
     wordCheckTimer = null;
     lastCheckedWordMorse = "";
     pendingWordMorse = "";
@@ -674,6 +685,7 @@ function checkWordAnswer(actualMorse, expectedMorse, target, decoded = "") {
     if (correct) {
         setWordFeedback(`Correct: ${target}.`);
         rewardCorrectWord();
+        scheduleWordAutoAdvance();
         return;
     }
 
@@ -714,6 +726,19 @@ function rewardCorrectWord() {
             panel.classList.remove("word-correct-reward");
         }, 2200);
     }
+}
+
+function scheduleWordAutoAdvance() {
+    const nextLink = document.querySelector("[data-word-next]");
+
+    if (!nextLink) {
+        return;
+    }
+
+    cancelWordAutoAdvance();
+    wordAutoAdvanceTimer = setTimeout(() => {
+        window.location.href = nextLink.href;
+    }, 2000);
 }
 
 function schedulePracticeAutoCheck(rawMorse) {
@@ -1238,6 +1263,8 @@ function resetVirtualKeyer() {
         clearTimeout(practiceCheckTimer);
         practiceCheckTimer = null;
     }
+
+    resetWordAutoCheck();
 }
 
 function updateVirtualKeyerDisplay() {

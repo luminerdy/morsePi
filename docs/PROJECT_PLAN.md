@@ -559,6 +559,9 @@ When asked to do the daily wrap-up, update:
 - Cleaned up the touch Progress screen for the 800x480 display: widened the left summary column, reduced Send/Read/Listen/Echo/Learn card size, fixed the `Telegraph Pro` overlap, and added a compact Words progress card.
 - Added Words progress summary data from `word_attempts.jsonl`, including accuracy, unique words completed, available known-letter words, and correct/total word attempts.
 - Deployed the Progress cleanup to the active Pi, verified the updated Pappy screen with an 800x480 screenshot, and ran the 66-test Pi regression suite successfully.
+- Updated the touch Words screen to show the same Words progress summary as Progress, including percentage, unique words completed, and correct/total word attempts.
+- Added Words auto-advance: after a correct keyed word, the Correct message remains visible briefly and the screen advances to the next word after about 2 seconds.
+- Deployed the Words update to the active Pi, verified the Pappy Words screen at 800x480, and reran the 66-test Pi regression suite successfully.
 
 ### Ready Next
 
