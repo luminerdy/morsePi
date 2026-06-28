@@ -563,46 +563,22 @@ When asked to do the daily wrap-up, update:
 - Added Words auto-advance: after a correct keyed word, the Correct message remains visible briefly and the screen advances to the next word after about 2 seconds.
 - Deployed the Words update to the active Pi, verified the Pappy Words screen at 800x480, and reran the 66-test Pi regression suite successfully.
 
+### 2026-06-27
+
+- Closed the day with the current app, touch UI, docs, handout, and Pi deployment changes committed and pushed to GitHub.
+- Confirmed the latest GitHub work includes the touch Progress cleanup, Words progress summary, Words auto-advance, and the enlarged two-page `Pappy's Operators` handout roadmap.
+- Active Pi status at close: latest app/static/template/test files are deployed to `10.10.10.141`, service was restarted after the Words update, and the Pi regression suite passed with 66 tests.
+- Current learning/product decision: Words practice looks encouraging and should keep getting tested with the kids before deciding whether it stays a bonus activity or becomes part of Daily Mission.
+- Current deployment decision: grandkid stations should be built as Git clones, not file-deployed folders, so the update wrapper, branch/commit status, and future remote update path can work cleanly.
+- Current operations decision: local backups are ready; next cloud step is AWS S3 backup/status upload before adding AWS IoT command triggers.
+
 ### Ready Next
 
-- Use the new grandkid deployment checklist to prepare the first two stations end to end.
-- Configure AWS S3 for `morsepi-backups`, create least-privilege station credentials, and test one cloud backup/status upload from the active Pi.
-- Copy the appropriate station config example to each deployed Pi as `data/station_config.json`.
-- Run one real S3 backup/status upload from the active Pi after AWS credentials are configured.
-- Use a fresh Git-cloned Pi/SD card to rehearse the update wrapper, then repeat for each grandkid station before it leaves Pappy's house.
-- Use the case measurement worksheet to measure the 7-inch display/Pi stack before designing the first Bambu X1 Carbon test-fit plate.
-- Design and print a small Bambu X1 Carbon test-fit plate for the screen opening and mounting holes before printing a full case.
-- Decide AWS IoT command-agent shape for update/backup/status triggers after S3 backup/status upload is proven.
-- Add the first small AWS IoT agent or command receiver after the command shape is chosen.
-- Continue testing Words practice with Astrid/Liara on the physical 7-inch screen and decide whether Words should stay bonus-only or become part of Daily Mission.
-- Watch whether practice-time feedback motivates the kids and whether the wording feels clear on the 7-inch Daily screen.
-- Watch whether `Focused Practice` and `Try Again Champ` feel encouraging without distracting from the main Daily next step.
-- Decide whether Words should remain non-scoring, become a bonus badge, or eventually become part of Daily Mission after first tests.
-- Consider a first-day operator certificate or other printable reward for kids who complete their first Daily Mission.
-- Consider a short parent/adult handout covering switching users, reading progress, backup/update basics, and what the practice numbers mean.
-- Install and test the optional daily backup timer on the active Pi.
-- Decide whether Daily Mission rewards should be recorded as earned badges in student data.
-- Test whether the direct Daily button and completion message solve the Echo/Practice navigation confusion.
-- Test whether the first badge labels and next-badge target motivate students without making the Daily screen confusing.
-- Test whether Signal Sprint feels like a useful post-Daily game and whether 20 signals is the right starting length.
-- Decide whether to add Clean Streak, adaptive sprint goals, or best-sprint history next.
-- Test whether the Daily Practice Coach wording feels encouraging for different student styles.
-- Physically confirm the revised touch Daily screen no longer scrolls or crowds the footer on the 7-inch display.
-- Decide whether to add a separate touch Letter Progress screen with per-letter cards and direct practice links.
-- Continue testing Astrid/Liara-style profiles to confirm each keeps separate progress, learning state, and attempt logs.
-- Run a fresh student-style session across Learn, Send, Read, Listen, Echo, and Daily Mission with one non-Pappy profile.
-- Watch whether the 3-hour rest plus 5 correct Words gate feels motivating rather than blocking after students finish a signal set.
-- Continue testing the forced-next-day S/O state to confirm new letters feel natural once they join Send/Read/Listen/Echo.
-- Retest physical keyer sound immediately after Learn, Listen, and Echo station prompts.
-- Confirm Listen remains recognition-only and that `Play Again` always plays sound and flashes the LED.
-- Confirm Learn and Echo prompt LED flashes are synchronized well enough to reinforce the Morse rhythm.
-- Test the no-scroll touch menu flow directly on the physical 7-inch touchscreen.
-- Tune any touch screen labels, button sizes, or spacing after physical testing.
-- Decide whether `/touch/message` should stay as a hidden utility or be removed entirely from the touch experience.
-- Test automatic touch UI selection on the Pi touchscreen, a laptop browser, and Kindle Fire/Silk when available.
-- Test whether the 12/6 WPM Farnsworth-style beginner timing is easier to hear and imitate than 15/7.
-- Tune Operator Level thresholds, rank names, badges, and unlock messaging after student testing.
-- Decide whether to enable the optional auto-update timer on the current test Pi, then test one manual update run before using it at remote locations.
-- When AWS planning starts, compare periodic timer updates with AWS Systems Manager triggered updates for remote grandkid stations.
-- Review logged attempt timing after hands-on testing and choose the first student-facing timing feedback message.
-- Choose next core-practice build after Daily rewards: Mixed mode, more letters, timing feedback, or first known-letter word practice.
+- Prepare the first two grandkid stations end to end with [GRANDKID_STATION_DEPLOYMENT.md](GRANDKID_STATION_DEPLOYMENT.md).
+- Configure AWS S3 for `morsepi-backups`, create least-privilege station credentials, and run one real backup/status upload from the active Pi.
+- Build or reimage a fresh Git-cloned Pi/SD card and rehearse the update wrapper there before using it on grandkid stations.
+- Continue hands-on Words testing with Astrid/Liara/Pappy, especially auto-advance, progress clarity, and whether Words should remain bonus-only or join Daily Mission.
+- Decide the next learning screen improvement after testing: Words in Daily, Letter Progress cards, Mixed mode, timing feedback, or a small reward/certificate.
+- Measure the 7-inch display/Pi stack with [CASE_MEASUREMENT_WORKSHEET.md](CASE_MEASUREMENT_WORKSHEET.md), then design a Bambu X1 Carbon test-fit plate.
+- After S3 backup/status is proven, decide the AWS IoT command-agent shape for remote backup/update/status triggers.
+- Keep watching whether practice-time feedback, `Focused Practice`, `Try Again Champ`, and Signal Sprint motivate the kids without making Daily confusing.
