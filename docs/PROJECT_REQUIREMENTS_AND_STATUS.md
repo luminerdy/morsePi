@@ -1039,11 +1039,11 @@ The system should eventually support remote station operations for deployed fami
 Current preferred approach:
 
 ```text
-AWS IoT Core can trigger the station's local update, backup, restart, and status scripts on demand.
+AWS Systems Manager is the first remote-admin bridge for deployed stations.
+AWS IoT Core can later trigger the station's local update, backup, restart, and status scripts on demand.
 S3 stores station backups and status snapshots.
 GitHub remains the source of app code.
 The local systemd timer remains a fallback for periodic self-update or backup.
-AWS Systems Manager remains an option if full Linux fleet management is worth the per-device cost.
 ```
 
 Remote update operations should:

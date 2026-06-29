@@ -572,13 +572,25 @@ When asked to do the daily wrap-up, update:
 - Current deployment decision: grandkid stations should be built as Git clones, not file-deployed folders, so the update wrapper, branch/commit status, and future remote update path can work cleanly.
 - Current operations decision: local backups are ready; next cloud step is AWS S3 backup/status upload before adding AWS IoT command triggers.
 
+### 2026-06-28
+
+- Refined the AWS deployment direction for tomorrow's work.
+- Decision: start with Systems Manager as the first remote-admin bridge so Pappy can connect, troubleshoot, and run update/status/backup scripts on deployed stations.
+- Decision: keep normal app backup/sync independent of Systems Manager; S3 remains the backup, status, progress snapshot, and family-summary store.
+- Decision: AWS IoT remains the likely later path for lower-cost lightweight commands, online presence, and family Morse messages after S3 backup/status is proven.
+- Decision: each Pi must have its own narrow AWS identity. No shared device credentials.
+- Product direction: shared progress should focus on practice visibility, effort, persistence, recent wins, and family milestones instead of ranked leaderboards that could discourage younger learners.
+- Added [AWS_BACKUP_SYNC_DESIGN.md](AWS_BACKUP_SYNC_DESIGN.md) to capture the S3 layout, per-device credential rule, family progress philosophy, temporary setup user, and first AWS tasks.
+- Updated the AWS deployment and remote backup/status docs to match the new SSM-first remote-admin plan.
+- Close-of-day status: this was documentation and strategy work only; no app code changed and no regression suite was needed.
+
 ### Ready Next
 
-- Prepare the first two grandkid stations end to end with [GRANDKID_STATION_DEPLOYMENT.md](GRANDKID_STATION_DEPLOYMENT.md).
-- Configure AWS S3 for `morsepi-backups`, create least-privilege station credentials, and run one real backup/status upload from the active Pi.
-- Build or reimage a fresh Git-cloned Pi/SD card and rehearse the update wrapper there before using it on grandkid stations.
-- Continue hands-on Words testing with Astrid/Liara/Pappy, especially auto-advance, progress clarity, and whether Words should remain bonus-only or join Daily Mission.
-- Decide the next learning screen improvement after testing: Words in Daily, Letter Progress cards, Mixed mode, timing feedback, or a small reward/certificate.
+- Create the temporary AWS setup user/profile for `morsepi-setup-admin` with the limited setup permissions listed in [AWS_BACKUP_SYNC_DESIGN.md](AWS_BACKUP_SYNC_DESIGN.md).
+- Confirm AWS Region and final bucket name, then create/configure the S3 bucket with public access blocked, encryption enabled, and versioning enabled.
+- Create one narrow station credential for `pappy-test-station` and test one backup upload plus one status upload from the active Pi.
+- Prepare the Systems Manager hybrid activation steps for the first deployed Pi and decide whether to register the active test Pi first.
+- Create the first `family_summary.json` shape focused on practice minutes, Daily Missions, new letters, words attempted, recent wins, and family totals.
+- After AWS backup/status works, prepare the first two grandkid stations end to end with [GRANDKID_STATION_DEPLOYMENT.md](GRANDKID_STATION_DEPLOYMENT.md).
+- Keep testing Words/Daily with Astrid/Liara/Pappy, especially auto-advance, progress clarity, and whether Words should remain bonus-only or join Daily Mission.
 - Measure the 7-inch display/Pi stack with [CASE_MEASUREMENT_WORKSHEET.md](CASE_MEASUREMENT_WORKSHEET.md), then design a Bambu X1 Carbon test-fit plate.
-- After S3 backup/status is proven, decide the AWS IoT command-agent shape for remote backup/update/status triggers.
-- Keep watching whether practice-time feedback, `Focused Practice`, `Try Again Champ`, and Signal Sprint motivate the kids without making Daily confusing.

@@ -18,15 +18,29 @@ Use this shape first:
 ```text
 GitHub          source code
 S3              station backups and status files
-AWS IoT Core    future command/status layer
+Systems Manager first remote-admin/update bridge
+AWS IoT Core    future lower-cost command/status/message layer
 Pi scripts      actual update, backup, and status work
 ```
 
 The Pi should stay self-sufficient. AWS should trigger known local scripts, not become the only way the station can be maintained.
 
-## Why AWS IoT Looks Promising
+## Why Systems Manager First
 
-AWS IoT fits the station better than full server management because the devices may be off most of the time.
+Systems Manager is the first remote-admin bridge because it gives Pappy a practical way to connect to a deployed Pi, troubleshoot, and run the local backup/update/status scripts without port forwarding or asking the family to open the home network.
+
+Use Systems Manager for:
+
+- remote shell access when a station is online
+- manual update triggers
+- service status checks
+- emergency troubleshooting
+
+Do not make Systems Manager the normal app sync path. S3 should handle backups and shared family summaries, and IoT can take over lightweight commands later if the cost and complexity make sense.
+
+## Why AWS IoT Still Looks Promising
+
+AWS IoT fits the long-term station experience better than full server management because the devices may be off most of the time.
 
 Good fit:
 
@@ -36,7 +50,45 @@ Good fit:
 - The same MQTT foundation can later carry family Morse messages.
 - Commands can be simple: update, backup, restart, status.
 
-Systems Manager is still useful if we later want Linux fleet management, but the advanced hybrid-device cost is roughly `$5/month/device` when a device is registered continuously. For two stations, that is about `$10/month` plus small S3 costs.
+Systems Manager advanced hybrid-device access may cost roughly `$5/month/device` when a device is registered continuously. That can be acceptable for the first two deployed stations while we need remote hands, but the longer-term command path should remain open to AWS IoT if it reduces monthly cost.
+
+## Backup, Sync, And Family Visibility
+
+The cloud data path should support more than raw backup. It should also consolidate safe progress snapshots so each station can eventually show family progress without ranking kids against each other.
+
+Use this effort-first model:
+
+- each station uploads its own backup and progress snapshot
+- a family summary combines practice minutes, daily missions, new letters, words attempted, recent wins, and family totals
+- stations can read the shared family summary
+- avoid ranked leaderboards; emphasize practice, persistence, personal bests, and family milestones
+
+Example S3 layout:
+
+```text
+s3://morsepi-backups/
+  stations/
+    pappy-test-station/
+      backups/
+      status/
+      snapshots/
+      inbox/
+    astrid-station/
+      backups/
+      status/
+      snapshots/
+      inbox/
+    liara-station/
+      backups/
+      status/
+      snapshots/
+      inbox/
+  family/
+    family_summary.json
+    recent_wins.json
+```
+
+Each device must have its own narrow credential. A station can write only under its own station prefix and read only shared family files plus its own future inbox.
 
 ## Station Identity
 
@@ -165,9 +217,20 @@ export MORSE_APP_DIR=/home/morse/morse-station
 First AWS pieces:
 
 - S3 bucket: `morsepi-backups`
-- IAM user or role for station backups with limited access to one station prefix
+- IAM setup user for initial provisioning only
+- IAM user or role per station with limited access to one station prefix
 - AWS CLI installed on each Pi
 - One station config file per Pi
+- Systems Manager hybrid activation for each deployed station
+
+Temporary setup user permissions needed for tomorrow's AWS work:
+
+- S3 bucket creation and configuration for the MorsePi bucket
+- IAM user/policy/access-key creation for each station
+- Systems Manager activation creation for deployed Pi registration
+- `sts:GetCallerIdentity` for safety checks
+
+After setup, disable or delete the temporary setup access key.
 
 Future AWS IoT pieces:
 
@@ -201,6 +264,8 @@ Before a station leaves Pappy's house:
 
 ## Open Decisions
 
+- Exact AWS Region and final bucket name.
+- Whether the first station credentials should be IAM users with access keys or a more managed credential pattern later.
 - Use AWS IoT Jobs or a small custom MQTT command agent for update triggers.
 - Decide whether status should live only in S3, IoT Device Shadow, or both.
 - Decide backup retention in S3.

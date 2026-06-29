@@ -1,6 +1,6 @@
 # morsePi
 
-Last updated: 2026-06-27
+Last updated: 2026-06-28
 
 Pappy's Internet Telegraph is a Raspberry Pi Morse code learning station. It lets students type messages, see Morse code, hear Morse code, tap a physical telegraph key, and practice beginner letters with immediate feedback.
 
@@ -68,6 +68,7 @@ GPIO layout:
 - [Fresh Pi setup](docs/SETUP_AND_CONFIGURE_PI.md)
 - [Grandkid station deployment checklist](docs/GRANDKID_STATION_DEPLOYMENT.md)
 - [Remote backup, status, and update runbook](docs/REMOTE_BACKUP_STATUS_RUNBOOK.md)
+- [AWS backup and sync design](docs/AWS_BACKUP_SYNC_DESIGN.md)
 - [Bill of materials](docs/BILL_OF_MATERIALS.md)
 - [7-inch case measurement worksheet](docs/CASE_MEASUREMENT_WORKSHEET.md)
 - [Kids station instructions](docs/KIDS_STATION_INSTRUCTIONS.md)
@@ -89,6 +90,7 @@ http://<pi-ip-address>:5000
 For a fresh Raspberry Pi setup, follow [docs/SETUP_AND_CONFIGURE_PI.md](docs/SETUP_AND_CONFIGURE_PI.md).
 For current hardware parts, see [docs/BILL_OF_MATERIALS.md](docs/BILL_OF_MATERIALS.md).
 For remote grandkid-station planning, see [docs/REMOTE_DEPLOYMENT_AWS.md](docs/REMOTE_DEPLOYMENT_AWS.md).
+For the current AWS backup/sync design, see [docs/AWS_BACKUP_SYNC_DESIGN.md](docs/AWS_BACKUP_SYNC_DESIGN.md).
 For student-facing rules and expectations, see [docs/KIDS_STATION_INSTRUCTIONS.md](docs/KIDS_STATION_INSTRUCTIONS.md).
 
 ## Regression Tests
@@ -122,7 +124,7 @@ systemd/                Optional Linux service file
 
 See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) for milestones and next steps.
 
-Current next focus: prepare two grandkid-station deployments with S3 backups, station status reporting, and an AWS IoT command path while continuing student testing of Words and unlock pacing.
+Current next focus: set up the AWS backup/sync foundation with narrow per-device credentials, Systems Manager for first remote-admin access, S3 for backups and family progress summaries, and AWS IoT later for lower-cost commands and family messaging.
 
 ## License
 

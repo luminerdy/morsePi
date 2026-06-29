@@ -14,11 +14,12 @@ Use this order:
 
 1. Local backup on each Pi.
 2. Optional S3 backup/status upload.
-3. Manual update wrapper.
-4. Optional scheduled update timer after local testing.
-5. AWS IoT command trigger later, after S3 backup/status is proven.
+3. AWS Systems Manager for first remote-admin access and manual update triggers.
+4. Manual update wrapper, run locally or through Systems Manager.
+5. Optional scheduled update timer after local testing.
+6. AWS IoT command trigger later, after S3 backup/status is proven and the simpler SSM path has served its first-deployment purpose.
 
-Avoid relying on AWS Systems Manager for the first deployment unless the added monthly per-device cost becomes worth it. AWS IoT should be the first remote-command path to test because it supports outbound device connections and should be lower cost for this project.
+Use Systems Manager first as the remote hands path so Pappy can connect, troubleshoot, and run known scripts while the stations are away from home. Keep app backup/sync independent of Systems Manager: S3 remains the backup and shared-summary store, and AWS IoT remains the likely lower-cost future path for device commands and family messaging.
 
 ## Station Config
 
