@@ -73,12 +73,12 @@ s3://morsepi-backups/
       status/
       snapshots/
       inbox/
-    astrid-station/
+    astrid-liara-station/
       backups/
       status/
       snapshots/
       inbox/
-    liara-station/
+    campbell-olivea-station/
       backups/
       status/
       snapshots/
@@ -95,8 +95,9 @@ Each device must have its own narrow credential. A station can write only under 
 Each deployed station should have a stable id:
 
 ```text
-astrid-station
-liara-station
+pappy-station
+astrid-liara-station
+campbell-olivea-station
 ```
 
 On the Pi, copy the sample config:
@@ -106,20 +107,22 @@ cd /home/morse/morse-station
 cp config.station.example.json data/station_config.json
 ```
 
-For the active test station and first two planned grandkid stations, tracked examples are also available:
+Tracked examples are available:
 
 ```text
 config/stations/pappy-test-station.example.json
-config/stations/astrid-station.example.json
-config/stations/liara-station.example.json
+config/stations/pappy-station.example.json
+config/stations/astrid-liara-station.example.json
+config/stations/campbell-olivea-station.example.json
 ```
 
 Edit `data/station_config.json`:
 
 ```json
 {
-  "station_id": "astrid-station",
-  "backup_s3_uri": "s3://morsepi-backups"
+  "station_id": "astrid-liara-station",
+  "backup_s3_uri": "s3://morsepi-backups",
+  "admin_pin": ""
 }
 ```
 
@@ -207,7 +210,7 @@ The update script:
 Useful environment variables:
 
 ```bash
-export MORSE_STATION_ID=astrid-station
+export MORSE_STATION_ID=astrid-liara-station
 export MORSE_BACKUP_S3_URI=s3://morsepi-backups
 export MORSE_APP_DIR=/home/morse/morse-station
 ```

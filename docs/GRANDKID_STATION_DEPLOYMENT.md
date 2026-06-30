@@ -28,9 +28,10 @@ Recommended first station ids:
 
 | Station | Config example |
 |---|---|
+| Pappy's house | `config/stations/pappy-station.example.json` |
+| Astrid and Liara's house | `config/stations/astrid-liara-station.example.json` |
+| Campbell and Olivea's house | `config/stations/campbell-olivea-station.example.json` |
 | Active test station | `config/stations/pappy-test-station.example.json` |
-| Astrid | `config/stations/astrid-station.example.json` |
-| Liara | `config/stations/liara-station.example.json` |
 
 ## 1. Fresh Pi Build
 
@@ -59,13 +60,13 @@ Copy the right example config to the station-local data folder:
 ```bash
 cd /home/morse/morse-station
 mkdir -p data
-cp config/stations/astrid-station.example.json data/station_config.json
+cp config/stations/astrid-liara-station.example.json data/station_config.json
 ```
 
-For Liara, use:
+For Campbell and Olivea's house, use:
 
 ```bash
-cp config/stations/liara-station.example.json data/station_config.json
+cp config/stations/campbell-olivea-station.example.json data/station_config.json
 ```
 
 Open the file and confirm:
@@ -78,6 +79,7 @@ Expected:
 
 - `station_id` is unique.
 - `backup_s3_uri` is set if cloud backup/status will be used.
+- `admin_pin` is set before the station leaves home if adult controls should be protected.
 
 `data/station_config.json` is ignored by Git because it is station-specific.
 

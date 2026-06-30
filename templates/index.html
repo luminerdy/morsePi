@@ -138,6 +138,10 @@
                             value="{{ station_volume_percent }}"
                             oninput="document.getElementById('volumeValue').innerText = this.value + '%'"
                         >
+                        {% if admin_pin_required %}
+                            <label class="sr-only" for="volume_admin_pin">Admin PIN</label>
+                            <input id="volume_admin_pin" name="admin_pin" type="password" autocomplete="current-password" inputmode="numeric" placeholder="Admin PIN">
+                        {% endif %}
 
                         <button type="submit" class="button secondary full-width">Save Volume</button>
                     </form>
@@ -186,6 +190,10 @@
                             oninput="document.getElementById('toneHzValue').innerText = this.value + ' Hz'"
                         >
                         <span class="volume-value" id="toneHzValue">{{ timing.tone_hz }} Hz</span>
+                        {% if admin_pin_required %}
+                            <label class="sr-only" for="timing_admin_pin">Admin PIN</label>
+                            <input id="timing_admin_pin" name="admin_pin" type="password" autocomplete="current-password" inputmode="numeric" placeholder="Admin PIN">
+                        {% endif %}
 
                         <button type="submit" class="button secondary full-width">Save Timing</button>
                     </form>

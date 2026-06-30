@@ -28,6 +28,10 @@
 
                 <label for="tone_hz">Tone <span>{{ timing.tone_hz }} Hz</span></label>
                 <input type="range" id="tone_hz" name="tone_hz" min="400" max="1000" step="25" value="{{ timing.tone_hz }}">
+                {% if admin_pin_required %}
+                    <label for="touch_timing_admin_pin">Admin PIN</label>
+                    <input id="touch_timing_admin_pin" name="admin_pin" type="password" autocomplete="current-password" inputmode="numeric" placeholder="PIN">
+                {% endif %}
 
                 <button type="submit" class="button primary full-width">Save Timing</button>
             </form>

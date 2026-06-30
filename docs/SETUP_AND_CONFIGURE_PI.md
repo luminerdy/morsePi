@@ -179,24 +179,29 @@ Edit `data/station_config.json`:
 
 ```json
 {
-  "station_id": "astrid-station",
-  "backup_s3_uri": "s3://morsepi-backups"
+  "station_id": "astrid-liara-station",
+  "backup_s3_uri": "s3://morsepi-backups",
+  "admin_pin": ""
 }
 ```
+
+Set `admin_pin` before a station leaves home to protect adult actions such as adding students, resetting progress, and changing timing or volume settings. Leave it blank only while the station is in local development or testing.
 
 Use a unique id for each station, such as:
 
 ```text
-astrid-station
-liara-station
+pappy-station
+astrid-liara-station
+campbell-olivea-station
 ```
 
 Tracked examples are available at:
 
 ```text
 config/stations/pappy-test-station.example.json
-config/stations/astrid-station.example.json
-config/stations/liara-station.example.json
+config/stations/pappy-station.example.json
+config/stations/astrid-liara-station.example.json
+config/stations/campbell-olivea-station.example.json
 ```
 
 `data/station_config.json` is intentionally ignored by Git because it is different for each Pi.

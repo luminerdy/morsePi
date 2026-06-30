@@ -28,6 +28,9 @@ import os
 import random
 
 app = Flask(__name__)
+SESSION_COOKIE = "morse_practice_session_id"
+STATION_CONFIG_PATH = Path("data/station_config.json")
+ADMIN_PIN_PATH = Path("data/admin_pin.txt")
 
 
 @app.before_request
@@ -48,13 +51,24 @@ def configure_student_storage():
     set_progress_path(student_data_path(requested_student_id, "practice_progress.json"))
     set_attempts_path(student_data_path(requested_student_id, "practice_attempts.jsonl"))
     learning_state_path = student_data_path(requested_student_id, "learning_state.json")
+    g.practice_session_id = safe_session_id(request.cookies.get(SESSION_COOKIE, ""))
+
+
+@app.after_request
+def persist_practice_session(response):
+    if not getattr(g, "practice_session_id", ""):
+        g.practice_session_id = new_practice_session_id()
+
+    response.set_cookie(SESSION_COOKIE, g.practice_session_id, max_age=60 * 60 * 12, samesite="Lax")
+    return response
 
 
 @app.context_processor
 def inject_student_context():
     return {
         "current_student": getattr(g, "current_student", profile_for_id("pappy")),
-        "student_profiles": getattr(g, "student_profiles", load_profiles())
+        "student_profiles": getattr(g, "student_profiles", load_profiles()),
+        "admin_pin_required": admin_pin_required(),
     }
 
 # -----------------------------
@@ -136,6 +150,68 @@ word_practice_bank = [
     "MEAN", "MEAT", "MOON", "SOON", "TEAM", "TONE", "NOTE", "SEAT", "STEM",
     "STONE"
 ]
+
+
+def new_practice_session_id():
+    return uuid4().hex
+
+
+def safe_session_id(value):
+    value = str(value or "").strip().lower()
+    if len(value) == 32 and all(character in "0123456789abcdef" for character in value):
+        return value
+
+    return new_practice_session_id()
+
+
+def load_station_config():
+    try:
+        loaded = json.loads(STATION_CONFIG_PATH.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+    return loaded if isinstance(loaded, dict) else {}
+
+
+def current_station_id():
+    return str(load_station_config().get("station_id") or "unknown-station")
+
+
+def configured_admin_pin():
+    env_pin = os.environ.get("MORSE_ADMIN_PIN", "").strip()
+    if env_pin:
+        return env_pin
+
+    config_pin = str(load_station_config().get("admin_pin") or "").strip()
+    if config_pin:
+        return config_pin
+
+    try:
+        return ADMIN_PIN_PATH.read_text(encoding="utf-8").strip()
+    except OSError:
+        return ""
+
+
+def admin_pin_required():
+    return bool(configured_admin_pin())
+
+
+def admin_pin_valid(value):
+    required_pin = configured_admin_pin()
+    if not required_pin:
+        return True
+
+    return str(value or "").strip() == required_pin
+
+
+def attempt_metadata():
+    return {
+        "station_id": current_station_id(),
+        "practice_session_id": getattr(g, "practice_session_id", ""),
+        "student_id": getattr(g, "current_student", {}).get("id", ""),
+    }
+
+
 letter_unlock_steps = [
     {
         "threshold": 100,
@@ -2142,15 +2218,23 @@ def students():
             if request.form.get("reset_confirm", "").strip().upper() != "RESET":
                 return redirect(url_for("students", reset_error="type-reset"))
 
+            if not admin_pin_valid(request.form.get("admin_pin", "")):
+                return redirect(url_for("students", reset_error="admin-pin"))
+
             reset_student_storage(profile["id"])
             practice_target = "E"
             practice_feedback = ""
             clear_key_state()
             response = redirect(url_for("students", reset_student=profile["name"]))
             response.set_cookie(STUDENT_COOKIE, profile["id"], max_age=60 * 60 * 24 * 365)
+            g.practice_session_id = new_practice_session_id()
+            response.set_cookie(SESSION_COOKIE, g.practice_session_id, max_age=60 * 60 * 12, samesite="Lax")
             return response
 
         if action == "create":
+            if not admin_pin_valid(request.form.get("admin_pin", "")):
+                return redirect(url_for("students", reset_error="admin-pin"))
+
             profile = add_profile(request.form.get("student_name", ""))
         else:
             profile = profile_for_id(slugify_student_id(request.form.get("student_id", "")))
@@ -2161,6 +2245,8 @@ def students():
         clear_key_state()
         response = redirect(safe_next_url(default_next_endpoint))
         response.set_cookie(STUDENT_COOKIE, profile["id"], max_age=60 * 60 * 24 * 365)
+        g.practice_session_id = new_practice_session_id()
+        response.set_cookie(SESSION_COOKIE, g.practice_session_id, max_age=60 * 60 * 12, samesite="Lax")
         return response
 
     return render_template(
@@ -2240,6 +2326,9 @@ def audio_reset():
 def set_station_volume():
     global station_volume
 
+    if not admin_pin_valid(request.form.get("admin_pin", "")):
+        return "Admin PIN required", 403
+
     try:
         volume_percent = int(request.form.get("station_volume", "35"))
     except ValueError:
@@ -2253,6 +2342,9 @@ def set_station_volume():
 
 @app.route("/timing-settings", methods=["POST"])
 def set_timing_settings():
+    if not admin_pin_valid(request.form.get("admin_pin", "")):
+        return "Admin PIN required", 403
+
     morse_timing.update(normalize_morse_timing({
         "character_wpm": request.form.get("character_wpm"),
         "effective_wpm": request.form.get("effective_wpm"),
@@ -2430,6 +2522,7 @@ def words_result():
 
     attempt_record = append_word_attempt({
         "kind": "word-practice",
+        **attempt_metadata(),
         "word": word,
         "expected_morse": expected_morse,
         "actual_morse": actual_morse,
@@ -2479,6 +2572,7 @@ def bonus_result():
 
     attempt_record = append_bonus_attempt({
         "kind": "signal-sprint",
+        **attempt_metadata(),
         "session_id": session_id,
         "target": letter,
         "expected_morse": expected_morse,
@@ -2530,6 +2624,7 @@ def practice_result():
     record_attempt(letter, is_correct, practice_letters, mode)
     attempt_record = append_practice_attempt({
         "mode": mode,
+        **attempt_metadata(),
         "target": letter,
         "expected_morse": expected_morse,
         "actual_morse": actual_morse,

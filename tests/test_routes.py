@@ -34,12 +34,16 @@ class RouteRenderTests(unittest.TestCase):
             "PROFILES_PATH": student_profiles.PROFILES_PATH,
         }
         self.original_timing_path = app_module.TIMING_SETTINGS_PATH
+        self.original_station_config_path = app_module.STATION_CONFIG_PATH
+        self.original_admin_pin_path = app_module.ADMIN_PIN_PATH
         self.original_play_daily = app_module.play_daily_celebration_in_background
 
         student_profiles.DATA_DIR = self.data_dir
         student_profiles.STUDENTS_DIR = self.students_dir
         student_profiles.PROFILES_PATH = self.data_dir / "student_profiles.json"
         app_module.TIMING_SETTINGS_PATH = self.data_dir / "timing_settings.json"
+        app_module.STATION_CONFIG_PATH = self.data_dir / "station_config.json"
+        app_module.ADMIN_PIN_PATH = self.data_dir / "admin_pin.txt"
         app_module.play_daily_celebration_in_background = self.record_daily_celebration
         self.daily_celebration_called = False
 
@@ -56,6 +60,8 @@ class RouteRenderTests(unittest.TestCase):
         student_profiles.STUDENTS_DIR = self.original_student_paths["STUDENTS_DIR"]
         student_profiles.PROFILES_PATH = self.original_student_paths["PROFILES_PATH"]
         app_module.TIMING_SETTINGS_PATH = self.original_timing_path
+        app_module.STATION_CONFIG_PATH = self.original_station_config_path
+        app_module.ADMIN_PIN_PATH = self.original_admin_pin_path
         app_module.play_daily_celebration_in_background = self.original_play_daily
         self.temp_dir.cleanup()
 
@@ -79,6 +85,10 @@ class RouteRenderTests(unittest.TestCase):
         path = self.data_dir / filename
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(value, encoding="utf-8")
+
+    def write_station_config(self, value):
+        app_module.STATION_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        app_module.STATION_CONFIG_PATH.write_text(json.dumps(value), encoding="utf-8")
 
     def write_attempts(self, student_id, total, correct, target="E", mode="send"):
         path = self.student_file(student_id, "practice_attempts.jsonl")
@@ -164,6 +174,9 @@ class RouteRenderTests(unittest.TestCase):
 
     def set_student_cookie(self, student_id):
         self.client.set_cookie(app_module.STUDENT_COOKIE, student_id)
+
+    def set_practice_session_cookie(self, session_id):
+        self.client.set_cookie(app_module.SESSION_COOKIE, session_id)
 
     def test_touch_start_redirects_to_student_selection_with_multiple_profiles(self):
         response = self.client.get("/touch")
@@ -694,6 +707,9 @@ class RouteRenderTests(unittest.TestCase):
         self.assertNotEqual("R", payload["target"])
 
     def test_practice_result_records_attempt_and_progress_for_active_letter(self):
+        self.write_station_config({"station_id": "pappy-station"})
+        self.set_practice_session_cookie("0123456789abcdef0123456789abcdef")
+
         response = self.client.post(
             "/practice/result",
             json={
@@ -716,9 +732,15 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual("recorded", payload["status"])
         self.assertEqual("E", payload["attempt"]["target"])
         self.assertTrue(payload["attempt"]["correct"])
+        self.assertEqual("pappy-station", payload["attempt"]["station_id"])
+        self.assertEqual("pappy", payload["attempt"]["student_id"])
+        self.assertEqual("0123456789abcdef0123456789abcdef", payload["attempt"]["practice_session_id"])
         self.assertEqual(1, progress["E"]["send"]["attempts"])
         self.assertEqual(1, progress["E"]["send"]["correct"])
         self.assertEqual("E", attempt_record["target"])
+        self.assertEqual("pappy-station", attempt_record["station_id"])
+        self.assertEqual("pappy", attempt_record["student_id"])
+        self.assertEqual("0123456789abcdef0123456789abcdef", attempt_record["practice_session_id"])
         self.assertEqual({"avg_dash_ms": None, "avg_dot_ms": 110, "avg_gap_ms": None, "dash_count": 0, "dot_count": 1, "gap_count": 0, "symbol_count": 1}, attempt_record["timing_summary"])
 
     def test_practice_result_recomputes_keyed_correctness_server_side(self):
@@ -1021,6 +1043,75 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(302, response.status_code)
         self.assertIn("reset_error=type-reset", response.headers["Location"])
         self.assertTrue(self.student_file("pappy", "practice_attempts.jsonl").exists())
+
+    def test_reset_requires_admin_pin_when_configured(self):
+        self.write_station_config({"admin_pin": "1234"})
+        self.write_text_file("pappy", "practice_attempts.jsonl", "pappy data\n")
+
+        response = self.client.post(
+            "/students",
+            data={
+                "action": "reset",
+                "student_id": "pappy",
+                "reset_confirm": "RESET",
+                "admin_pin": "9999",
+            },
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("reset_error=admin-pin", response.headers["Location"])
+        self.assertTrue(self.student_file("pappy", "practice_attempts.jsonl").exists())
+
+    def test_add_student_requires_admin_pin_when_configured(self):
+        self.write_station_config({"admin_pin": "1234"})
+
+        denied = self.client.post(
+            "/students",
+            data={
+                "action": "create",
+                "student_name": "Campbell",
+                "admin_pin": "9999",
+            },
+        )
+        allowed = self.client.post(
+            "/students",
+            data={
+                "action": "create",
+                "student_name": "Campbell",
+                "admin_pin": "1234",
+            },
+        )
+        profiles = student_profiles.load_profiles()
+
+        self.assertEqual(302, denied.status_code)
+        self.assertIn("reset_error=admin-pin", denied.headers["Location"])
+        self.assertEqual(302, allowed.status_code)
+        self.assertIn("campbell", {profile["id"] for profile in profiles})
+
+    def test_settings_require_admin_pin_when_configured(self):
+        self.write_station_config({"admin_pin": "1234"})
+
+        denied_volume = self.client.post(
+            "/station-volume",
+            data={
+                "station_volume": "10",
+                "admin_pin": "9999",
+            },
+        )
+        allowed_timing = self.client.post(
+            "/timing-settings",
+            data={
+                "character_wpm": "10",
+                "effective_wpm": "5",
+                "tone_hz": "600",
+                "admin_pin": "1234",
+            },
+        )
+
+        self.assertEqual(403, denied_volume.status_code)
+        self.assertEqual(302, allowed_timing.status_code)
+        saved_timing = json.loads(app_module.TIMING_SETTINGS_PATH.read_text(encoding="utf-8"))
+        self.assertEqual(10, saved_timing["character_wpm"])
 
     def test_reset_pappy_backs_up_student_and_legacy_without_touching_other_students(self):
         self.write_text_file("pappy", "practice_attempts.jsonl", "pappy attempts\n")

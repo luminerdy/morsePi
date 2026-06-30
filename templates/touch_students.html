@@ -36,6 +36,9 @@
                 <input type="hidden" name="next" value="{{ next_url }}">
                 <label for="student_name">Add</label>
                 <input id="student_name" name="student_name" type="text" autocomplete="off" placeholder="Name">
+                {% if admin_pin_required %}
+                    <input name="admin_pin" type="password" autocomplete="current-password" inputmode="numeric" placeholder="PIN">
+                {% endif %}
                 <button class="button primary" type="submit">Add</button>
             </form>
         </main>

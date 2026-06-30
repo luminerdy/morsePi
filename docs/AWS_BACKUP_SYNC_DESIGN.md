@@ -49,9 +49,9 @@ s3://morsepi-backups/
 Examples:
 
 ```text
-stations/astrid-station/backups/
-stations/astrid-station/status/station_status.json
-stations/astrid-station/snapshots/latest_progress.json
+stations/astrid-liara-station/backups/
+stations/astrid-liara-station/status/station_status.json
+stations/astrid-liara-station/snapshots/latest_progress.json
 family/family_summary.json
 ```
 
@@ -71,6 +71,19 @@ A station may not:
 - delete bucket contents broadly
 - create AWS resources
 - manage IAM
+
+## Student And Session Model
+
+Kids do not need passwords for the learning station. They choose their name and practice.
+
+Use this model:
+
+- stations can host multiple allowed students
+- Pappy's station can host all four grandkids
+- progress belongs to the student, not the station
+- each attempt includes `station_id`, `student_id`, and `practice_session_id`
+- wrong-user recovery should move or discard a whole practice session later
+- adult actions use an admin PIN
 
 ## Family Progress Philosophy
 

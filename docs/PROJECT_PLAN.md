@@ -592,11 +592,15 @@ When asked to do the daily wrap-up, update:
 - Updated backup/status tests and runbooks so IAM policies can be written against the same prefix layout the code uses.
 - Hardened Practice, Words, and Signal Sprint result recording so the server recomputes correctness from the target and submitted Morse/answer instead of trusting the browser's `correct` flag.
 - Added regression tests for browser-submitted false positives across keyed practice, read/listen answers, Words, and Signal Sprint.
+- Decided the station model for the four grandkids: no kid passwords, shared student profiles across three family stations, progress belongs to students, and Pappy's station can host all four students.
+- Added `station_id`, `student_id`, and `practice_session_id` metadata to Practice, Words, and Signal Sprint attempts so wrong-user recovery can later move or discard a whole session.
+- Added optional admin PIN protection for adult actions: adding students, resetting progress, and changing timing or station volume.
 
 ### Ready Next
 
 - Run the new GitHub Actions CI after push and confirm the full Flask route/gate suite runs instead of skipping.
-- Add a simple admin PIN/CSRF protection path for reset/settings/admin routes before stations leave home.
+- Add a wrong-user recovery tool that can move or discard a recent `practice_session_id`.
+- Use the new station config examples for `pappy-station`, `astrid-liara-station`, and `campbell-olivea-station` when preparing the first deployed units.
 - Create the temporary AWS setup user/profile for `morsepi-setup-admin` with the limited setup permissions listed in [AWS_BACKUP_SYNC_DESIGN.md](AWS_BACKUP_SYNC_DESIGN.md).
 - Confirm AWS Region and final bucket name, then create/configure the S3 bucket with public access blocked, encryption enabled, and versioning enabled.
 - Create one narrow station credential for `pappy-test-station` and test one backup upload plus one status upload from the active Pi.

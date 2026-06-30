@@ -33,8 +33,9 @@ Example:
 
 ```json
 {
-  "station_id": "astrid-station",
-  "backup_s3_uri": "s3://morsepi-backups"
+  "station_id": "astrid-liara-station",
+  "backup_s3_uri": "s3://morsepi-backups",
+  "admin_pin": ""
 }
 ```
 
@@ -43,7 +44,7 @@ The backup and status Python scripts read this file automatically.
 The shell update wrapper can also upload its pre-update backup/status, but it currently uses environment variables:
 
 ```bash
-export MORSE_STATION_ID=astrid-station
+export MORSE_STATION_ID=astrid-liara-station
 export MORSE_BACKUP_S3_URI=s3://morsepi-backups
 ```
 
@@ -147,7 +148,7 @@ The update wrapper:
 Use environment variables when cloud upload is desired during update:
 
 ```bash
-MORSE_STATION_ID=astrid-station \
+MORSE_STATION_ID=astrid-liara-station \
 MORSE_BACKUP_S3_URI=s3://morsepi-backups \
 scripts/update_station.sh
 ```
