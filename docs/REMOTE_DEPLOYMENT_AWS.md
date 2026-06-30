@@ -143,7 +143,7 @@ python3 scripts/backup_data.py --label manual --s3-uri s3://morsepi-backups
 Expected S3 path:
 
 ```text
-s3://morsepi-backups/stations/<station-id>/<timestamp>-<station-id>-manual.zip
+s3://morsepi-backups/stations/<station-id>/backups/<timestamp>-<station-id>-manual.zip
 ```
 
 The backup zip includes:
@@ -180,7 +180,7 @@ Status includes:
 Expected S3 path:
 
 ```text
-s3://morsepi-backups/stations/<station-id>/station_status.json
+s3://morsepi-backups/stations/<station-id>/status/station_status.json
 ```
 
 ## Update Flow

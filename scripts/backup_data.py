@@ -104,11 +104,18 @@ def create_backup(data_dir=DEFAULT_DATA_DIR, backup_dir=DEFAULT_BACKUP_DIR, labe
     return backup_path
 
 
-def upload_backup_to_s3(backup_path, s3_uri, station_id=None, dry_run=False):
+def station_s3_destination(s3_uri, station_id, key):
     s3_uri = normalize_s3_uri(s3_uri)
-    station_id = station_id or "unknown-station"
-    destination = f"{s3_uri}/stations/{station_id}/{Path(backup_path).name}"
-    command = ["aws", "s3", "cp", str(backup_path), destination]
+    safe_station = "".join(ch if ch.isalnum() or ch in ("-", "_") else "-" for ch in (station_id or "unknown-station")).strip("-") or "unknown-station"
+    clean_key = str(key).replace("\\", "/").lstrip("/")
+    return f"{s3_uri}/stations/{safe_station}/{clean_key}"
+
+
+def upload_file_to_s3(source_path, s3_uri, station_id=None, key=None, dry_run=False):
+    source_path = Path(source_path)
+    key = key or source_path.name
+    destination = station_s3_destination(s3_uri, station_id, key)
+    command = ["aws", "s3", "cp", str(source_path), destination]
 
     if dry_run:
         return {
@@ -123,6 +130,20 @@ def upload_backup_to_s3(backup_path, s3_uri, station_id=None, dry_run=False):
         "destination": destination,
         "uploaded": True,
     }
+
+
+def upload_backup_to_s3(backup_path, s3_uri, station_id=None, dry_run=False):
+    key = f"backups/{Path(backup_path).name}"
+    return upload_file_to_s3(backup_path, s3_uri, station_id, key, dry_run)
+
+
+def upload_status_to_s3(status_path, s3_uri, station_id=None, dry_run=False):
+    return upload_file_to_s3(status_path, s3_uri, station_id, "status/station_status.json", dry_run)
+
+
+def upload_snapshot_to_s3(snapshot_path, s3_uri, station_id=None, dry_run=False):
+    key = f"snapshots/{Path(snapshot_path).name}"
+    return upload_file_to_s3(snapshot_path, s3_uri, station_id, key, dry_run)
 
 
 def rotate_backups(backup_dir=DEFAULT_BACKUP_DIR, keep=DEFAULT_KEEP):

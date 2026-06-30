@@ -2,9 +2,10 @@ import json
 import os
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
-from scripts.station_status import build_status, write_status
+from scripts.station_status import build_status, main, write_status
 
 
 class StationStatusTests(unittest.TestCase):
@@ -40,6 +41,31 @@ class StationStatusTests(unittest.TestCase):
         saved = json.loads(output_path.read_text(encoding="utf-8"))
 
         self.assertEqual(status, saved)
+
+    def test_status_dry_run_uploads_to_status_prefix(self):
+        output_path = self.base / "station_status.json"
+
+        with mock.patch(
+            "sys.argv",
+            [
+                "station_status.py",
+                "--station-id",
+                "astrid-station",
+                "--service",
+                "",
+                "--backup-dir",
+                str(self.backup_dir),
+                "--output",
+                str(output_path),
+                "--s3-uri",
+                "s3://morsepi-backups",
+                "--dry-run-s3",
+            ],
+        ), mock.patch("builtins.print") as mock_print:
+            main()
+
+        printed = "\n".join(str(call.args[0]) for call in mock_print.call_args_list if call.args)
+        self.assertIn("s3://morsepi-backups/stations/astrid-station/status/station_status.json", printed)
 
 
 if __name__ == "__main__":

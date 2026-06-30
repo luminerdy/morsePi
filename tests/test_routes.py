@@ -303,6 +303,38 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(2, word_record["timing_summary"]["symbol_count"])
         self.assertFalse(self.student_file("pappy", "practice_attempts.jsonl").exists())
 
+    def test_word_result_recomputes_correctness_server_side(self):
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        self.complete_progress("pappy", active_letters)
+        self.set_learning_state(
+            "pappy",
+            {
+                "SO": {
+                    "first_learning_date": "2000-01-01",
+                    "letters": ["S", "O"],
+                }
+            },
+            last_learning_start_date="2000-01-01",
+        )
+
+        response = self.client.post(
+            "/words/result",
+            json={
+                "word": "AM",
+                "correct": True,
+                "expected_morse": ".- --",
+                "actual_morse": ".",
+                "decoded": "AM",
+            },
+        )
+        payload = response.get_json()
+
+        self.assertEqual(200, response.status_code)
+        self.assertFalse(payload["attempt"]["correct"])
+        self.assertEqual(".- --", payload["attempt"]["expected_morse"])
+        self.assertEqual(".", payload["attempt"]["actual_morse"])
+        self.assertEqual("E", payload["attempt"]["decoded"])
+
     def test_touch_student_selection_defaults_to_daily(self):
         response = self.client.get("/touch/students")
         html = response.get_data(as_text=True)
@@ -689,6 +721,49 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual("E", attempt_record["target"])
         self.assertEqual({"avg_dash_ms": None, "avg_dot_ms": 110, "avg_gap_ms": None, "dash_count": 0, "dot_count": 1, "gap_count": 0, "symbol_count": 1}, attempt_record["timing_summary"])
 
+    def test_practice_result_recomputes_keyed_correctness_server_side(self):
+        response = self.client.post(
+            "/practice/result",
+            json={
+                "mode": "send",
+                "target": "T",
+                "correct": True,
+                "expected_morse": "-",
+                "actual_morse": ".",
+            },
+        )
+        payload = response.get_json()
+        progress = json.loads(self.student_file("pappy", "practice_progress.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("recorded", payload["status"])
+        self.assertFalse(payload["attempt"]["correct"])
+        self.assertEqual("-", payload["attempt"]["expected_morse"])
+        self.assertEqual(".", payload["attempt"]["actual_morse"])
+        self.assertEqual(1, progress["T"]["send"]["attempts"])
+        self.assertEqual(0, progress["T"]["send"]["correct"])
+
+    def test_practice_result_recomputes_read_answer_server_side(self):
+        response = self.client.post(
+            "/practice/result",
+            json={
+                "mode": "read",
+                "target": "E",
+                "correct": True,
+                "answer": "T",
+            },
+        )
+        payload = response.get_json()
+        progress = json.loads(self.student_file("pappy", "practice_progress.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("recorded", payload["status"])
+        self.assertFalse(payload["attempt"]["correct"])
+        self.assertEqual("T", payload["attempt"]["answer"])
+        self.assertEqual("", payload["attempt"]["actual_morse"])
+        self.assertEqual(1, progress["E"]["read"]["attempts"])
+        self.assertEqual(0, progress["E"]["read"]["correct"])
+
     def test_practice_result_ignores_learning_now_letter_in_send_mode(self):
         active_letters = app_module.starter_practice_letters + ["S", "O"]
         self.complete_progress("pappy", active_letters)
@@ -890,6 +965,27 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual("sprint-1", bonus_record["session_id"])
         self.assertFalse(self.student_file("pappy", "practice_progress.json").exists())
         self.assertFalse(self.student_file("pappy", "practice_attempts.jsonl").exists())
+
+    def test_bonus_result_recomputes_correctness_server_side(self):
+        response = self.client.post(
+            "/bonus/result",
+            json={
+                "session_id": "sprint-1",
+                "target": "T",
+                "correct": True,
+                "expected_morse": "-",
+                "actual_morse": ".",
+            },
+        )
+        payload = response.get_json()
+        bonus_attempts = self.student_file("pappy", "bonus_attempts.jsonl").read_text(encoding="utf-8").splitlines()
+        bonus_record = json.loads(bonus_attempts[0])
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("recorded", payload["status"])
+        self.assertFalse(payload["attempt"]["correct"])
+        self.assertEqual(0, payload["bonus"]["accuracy"])
+        self.assertFalse(bonus_record["correct"])
 
     def test_student_cookie_keeps_progress_separate(self):
         self.complete_starter_progress("astrid")

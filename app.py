@@ -1489,6 +1489,18 @@ def normalize_word_morse(value):
     return " ".join(cleaned.split())
 
 
+def server_checked_keying_result(target, actual_morse):
+    expected_morse = normalize_word_morse(text_to_morse(target))
+    actual_morse = normalize_word_morse(actual_morse)
+    return expected_morse, actual_morse, bool(actual_morse and actual_morse == expected_morse)
+
+
+def server_checked_letter_answer(target, answer):
+    normalized_target = str(target).strip().upper()
+    normalized_answer = str(answer or "").strip().upper()[:1]
+    return normalized_answer, bool(normalized_answer and normalized_answer == normalized_target)
+
+
 def word_practice_item(index=0, active_letters=None):
     words = available_word_practice_words(active_letters)
 
@@ -2403,10 +2415,9 @@ def words_stop():
 def words_result():
     data = request.get_json(silent=True) or {}
     word = str(data.get("word", "")).upper()
-    expected_morse = normalize_word_morse(data.get("expected_morse", text_to_morse(word)))
     actual_morse = normalize_word_morse(data.get("actual_morse", get_current_key_morse()))
-    decoded = str(data.get("decoded", morse_to_text(actual_morse) if actual_morse else "")).upper()
-    is_correct = bool(data.get("correct", False))
+    expected_morse, actual_morse, is_correct = server_checked_keying_result(word, actual_morse)
+    decoded = morse_to_text(actual_morse).upper() if actual_morse else ""
     elapsed_ms = data.get("elapsed_ms")
 
     try:
@@ -2451,9 +2462,10 @@ def bonus_result():
     data = request.get_json(silent=True) or {}
     session_id = str(data.get("session_id", "")).strip()
     letter = str(data.get("target", practice_target)).upper()
-    is_correct = bool(data.get("correct", False))
-    expected_morse = data.get("expected_morse") or text_to_morse(letter)
-    actual_morse = data.get("actual_morse") or get_current_key_morse().strip()
+    expected_morse, actual_morse, is_correct = server_checked_keying_result(
+        letter,
+        data.get("actual_morse") or get_current_key_morse().strip()
+    )
     timing_events = data.get("timing_events") or get_current_key_events()
 
     if not session_id:
@@ -2487,16 +2499,22 @@ def bonus_result():
 @app.route("/practice/result", methods=["POST"])
 def practice_result():
     data = request.get_json(silent=True) or {}
-    letter = data.get("target", practice_target)
-    is_correct = bool(data.get("correct", False))
+    letter = str(data.get("target", practice_target)).upper()
     mode = data.get("mode", "send")
-    expected_morse = data.get("expected_morse") or text_to_morse(letter)
-    actual_morse = data.get("actual_morse") or get_current_key_morse().strip()
     answer = data.get("answer", "")
+    actual_morse = data.get("actual_morse") or get_current_key_morse().strip()
     timing_events = data.get("timing_events") or get_current_key_events()
 
     if mode not in practice_modes:
         mode = "send"
+
+    expected_morse = normalize_word_morse(text_to_morse(letter))
+
+    if mode in ("read", "listen"):
+        answer, is_correct = server_checked_letter_answer(letter, answer)
+        actual_morse = ""
+    else:
+        expected_morse, actual_morse, is_correct = server_checked_keying_result(letter, actual_morse)
 
     practice_letters = get_practice_letters_for_mode(mode)
 

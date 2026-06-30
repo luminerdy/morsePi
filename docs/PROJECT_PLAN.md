@@ -584,8 +584,19 @@ When asked to do the daily wrap-up, update:
 - Updated the AWS deployment and remote backup/status docs to match the new SSM-first remote-admin plan.
 - Close-of-day status: this was documentation and strategy work only; no app code changed and no regression suite was needed.
 
+### 2026-06-30
+
+- Started the pre-AWS hardening work from the adversarial review.
+- Added GitHub Actions CI so GitHub installs project dependencies with mock GPIO and runs the regression test bank on every push and pull request.
+- Aligned cloud upload destinations with the AWS backup/sync design: backups now target `stations/<station-id>/backups/`, status targets `stations/<station-id>/status/station_status.json`, and progress snapshots have a `stations/<station-id>/snapshots/` helper ready for the next phase.
+- Updated backup/status tests and runbooks so IAM policies can be written against the same prefix layout the code uses.
+- Hardened Practice, Words, and Signal Sprint result recording so the server recomputes correctness from the target and submitted Morse/answer instead of trusting the browser's `correct` flag.
+- Added regression tests for browser-submitted false positives across keyed practice, read/listen answers, Words, and Signal Sprint.
+
 ### Ready Next
 
+- Run the new GitHub Actions CI after push and confirm the full Flask route/gate suite runs instead of skipping.
+- Add a simple admin PIN/CSRF protection path for reset/settings/admin routes before stations leave home.
 - Create the temporary AWS setup user/profile for `morsepi-setup-admin` with the limited setup permissions listed in [AWS_BACKUP_SYNC_DESIGN.md](AWS_BACKUP_SYNC_DESIGN.md).
 - Confirm AWS Region and final bucket name, then create/configure the S3 bucket with public access blocked, encryption enabled, and versioning enabled.
 - Create one narrow station credential for `pappy-test-station` and test one backup upload plus one status upload from the active Pi.

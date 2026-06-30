@@ -5,7 +5,16 @@ import unittest
 import zipfile
 from pathlib import Path
 
-from scripts.backup_data import create_backup, resolve_station_id, restore_backup, rotate_backups, upload_backup_to_s3
+from scripts.backup_data import (
+    create_backup,
+    resolve_station_id,
+    restore_backup,
+    rotate_backups,
+    station_s3_destination,
+    upload_backup_to_s3,
+    upload_snapshot_to_s3,
+    upload_status_to_s3,
+)
 
 
 class BackupDataTests(unittest.TestCase):
@@ -73,8 +82,32 @@ class BackupDataTests(unittest.TestCase):
         result = upload_backup_to_s3(backup_path, "s3://morsepi-backups/", "astrid-station", dry_run=True)
 
         self.assertFalse(result["uploaded"])
-        self.assertEqual("s3://morsepi-backups/stations/astrid-station/backup.zip", result["destination"])
+        self.assertEqual("s3://morsepi-backups/stations/astrid-station/backups/backup.zip", result["destination"])
         self.assertEqual(["aws", "s3", "cp", str(backup_path), result["destination"]], result["command"])
+
+    def test_upload_status_to_s3_builds_status_path_in_dry_run(self):
+        status_path = self.data_dir / "station_status.json"
+        status_path.write_text("{}", encoding="utf-8")
+
+        result = upload_status_to_s3(status_path, "s3://morsepi-backups/", "astrid-station", dry_run=True)
+
+        self.assertFalse(result["uploaded"])
+        self.assertEqual("s3://morsepi-backups/stations/astrid-station/status/station_status.json", result["destination"])
+        self.assertEqual(["aws", "s3", "cp", str(status_path), result["destination"]], result["command"])
+
+    def test_upload_snapshot_to_s3_builds_snapshot_path_in_dry_run(self):
+        snapshot_path = self.data_dir / "latest_progress.json"
+        snapshot_path.write_text("{}", encoding="utf-8")
+
+        result = upload_snapshot_to_s3(snapshot_path, "s3://morsepi-backups/", "astrid-station", dry_run=True)
+
+        self.assertFalse(result["uploaded"])
+        self.assertEqual("s3://morsepi-backups/stations/astrid-station/snapshots/latest_progress.json", result["destination"])
+
+    def test_station_s3_destination_sanitizes_station_id(self):
+        destination = station_s3_destination("s3://morsepi-backups/", "Astrid Station!", "backups/file.zip")
+
+        self.assertEqual("s3://morsepi-backups/stations/Astrid-Station/backups/file.zip", destination)
 
     def test_resolve_station_id_reads_station_config(self):
         config_path = self.data_dir / "station_config.json"

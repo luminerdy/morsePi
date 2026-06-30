@@ -191,8 +191,8 @@ python3 scripts/station_status.py
 Expected S3 paths:
 
 ```text
-s3://morsepi-backups/stations/<station-id>/<timestamp>-<station-id>-pre-deploy.zip
-s3://morsepi-backups/stations/<station-id>/station_status.json
+s3://morsepi-backups/stations/<station-id>/backups/<timestamp>-<station-id>-pre-deploy.zip
+s3://morsepi-backups/stations/<station-id>/status/station_status.json
 ```
 
 ## 8. Update Path

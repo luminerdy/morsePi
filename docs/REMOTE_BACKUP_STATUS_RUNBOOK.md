@@ -84,7 +84,7 @@ python3 scripts/backup_data.py --label manual
 Expected destination:
 
 ```text
-s3://morsepi-backups/stations/<station-id>/<timestamp>-<station-id>-manual.zip
+s3://morsepi-backups/stations/<station-id>/backups/<timestamp>-<station-id>-manual.zip
 ```
 
 ## Manual Status
@@ -111,7 +111,7 @@ python3 scripts/station_status.py
 Expected destination:
 
 ```text
-s3://morsepi-backups/stations/<station-id>/station_status.json
+s3://morsepi-backups/stations/<station-id>/status/station_status.json
 ```
 
 Status should include:

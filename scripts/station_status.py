@@ -9,7 +9,7 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from scripts.backup_data import DEFAULT_CONFIG_PATH, load_station_config, resolve_station_id, upload_backup_to_s3
+from scripts.backup_data import DEFAULT_CONFIG_PATH, load_station_config, resolve_station_id, upload_status_to_s3
 
 
 DEFAULT_OUTPUT_PATH = Path("data/station_status.json")
@@ -102,7 +102,7 @@ def main():
     print(json.dumps(status, indent=2, sort_keys=True))
 
     if s3_uri:
-        upload = upload_backup_to_s3(output_path, s3_uri, station_id, args.dry_run_s3)
+        upload = upload_status_to_s3(output_path, s3_uri, station_id, args.dry_run_s3)
         action = "Would upload" if args.dry_run_s3 else "Uploaded"
         print(f"{action} status to: {upload['destination']}")
 

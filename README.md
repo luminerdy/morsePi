@@ -1,6 +1,6 @@
 # morsePi
 
-Last updated: 2026-06-28
+Last updated: 2026-06-30
 
 Pappy's Internet Telegraph is a Raspberry Pi Morse code learning station. It lets students type messages, see Morse code, hear Morse code, tap a physical telegraph key, and practice beginner letters with immediate feedback.
 
