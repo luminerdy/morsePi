@@ -595,11 +595,15 @@ When asked to do the daily wrap-up, update:
 - Decided the station model for the four grandkids: no kid passwords, shared student profiles across three family stations, progress belongs to students, and Pappy's station can host all four students.
 - Added `station_id`, `student_id`, and `practice_session_id` metadata to Practice, Words, and Signal Sprint attempts so wrong-user recovery can later move or discard a whole session.
 - Added optional admin PIN protection for adult actions: adding students, resetting progress, and changing timing or station volume.
+- Replaced the old per-child station examples with the three planned station examples: `pappy-station`, `astrid-liara-station`, and `campbell-olivea-station`.
+- Deployed the station/session/admin PIN update to the active Pi at `10.10.10.141`, restarted the app service, and verified the Pi regression suite passed with 77 tests.
+- Confirmed GitHub Actions CI is green after the hardening work; latest successful run is for commit `abb75a2`.
+- Close-of-day decision: start AWS work only after the local recovery/audit basics are in place enough to avoid syncing confusing or wrong-user practice data.
 
 ### Ready Next
 
-- Run the new GitHub Actions CI after push and confirm the full Flask route/gate suite runs instead of skipping.
 - Add a wrong-user recovery tool that can move or discard a recent `practice_session_id`.
+- Decide and set the real adult admin PINs on each station before sending the grandkid units home.
 - Use the new station config examples for `pappy-station`, `astrid-liara-station`, and `campbell-olivea-station` when preparing the first deployed units.
 - Create the temporary AWS setup user/profile for `morsepi-setup-admin` with the limited setup permissions listed in [AWS_BACKUP_SYNC_DESIGN.md](AWS_BACKUP_SYNC_DESIGN.md).
 - Confirm AWS Region and final bucket name, then create/configure the S3 bucket with public access blocked, encryption enabled, and versioning enabled.
