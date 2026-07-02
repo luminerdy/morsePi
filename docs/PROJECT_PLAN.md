@@ -600,9 +600,18 @@ When asked to do the daily wrap-up, update:
 - Confirmed GitHub Actions CI is green after the hardening work; latest successful run is for commit `abb75a2`.
 - Close-of-day decision: start AWS work only after the local recovery/audit basics are in place enough to avoid syncing confusing or wrong-user practice data.
 
+### 2026-07-01
+
+- Implemented the wrong-user recovery tool at `/admin/sessions`.
+- Added a desktop admin page that lists recent practice sessions by `practice_session_id`, student, station, attempt counts, accuracy, and latest timestamp.
+- Added admin actions to move a full session to another student or discard a session, with optional admin PIN protection when configured.
+- Recovery now updates Practice, Words, and Signal Sprint attempt logs and rebuilds `practice_progress.json` for affected students so Progress/Daily match the corrected logs.
+- Recovery creates a local backup under `data/session_recovery_backups/` before changing affected student files.
+- Added route tests for session listing, moving, discarding, admin PIN rejection, and progress rebuild behavior.
+- Deployed the recovery tool to the active Pi at `10.10.10.141`, restarted the user-level `morse-station.service`, verified `/admin/sessions` renders, and confirmed the Pi regression suite passed with 81 tests.
+
 ### Ready Next
 
-- Add a wrong-user recovery tool that can move or discard a recent `practice_session_id`.
 - Decide and set the real adult admin PINs on each station before sending the grandkid units home.
 - Use the new station config examples for `pappy-station`, `astrid-liara-station`, and `campbell-olivea-station` when preparing the first deployed units.
 - Create the temporary AWS setup user/profile for `morsepi-setup-admin` with the limited setup permissions listed in [AWS_BACKUP_SYNC_DESIGN.md](AWS_BACKUP_SYNC_DESIGN.md).

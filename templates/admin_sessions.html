@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+<head>
+    <title>Session Recovery - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260701-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div class="app-shell">
+        <header class="app-header">
+            <div>
+                <p class="eyebrow">Admin</p>
+                <h1>Session Recovery</h1>
+                <a class="student-name student-switch-link" href="/students">{{ current_student.name }}</a>
+            </div>
+
+            <nav class="nav-row" aria-label="Primary navigation">
+                <a href="/">Home</a>
+                <a href="/practice">Practice</a>
+                <a href="/progress">Progress</a>
+                <a href="/students">Students</a>
+                <a class="active" href="/admin/sessions">Recovery</a>
+            </nav>
+        </header>
+
+        <main class="progress-page">
+            <section class="panel">
+                <div class="section-heading">
+                    <h2>Recent Practice Sessions</h2>
+                    <span class="panel-meta">{{ sessions|length }} shown</span>
+                </div>
+
+                {% if recovery_status %}
+                    <div class="feedback-box success inline-feedback">
+                        {% if recovery_status == "moved" %}
+                            Moved {{ count }} attempts and rebuilt progress.
+                        {% else %}
+                            Discarded {{ count }} attempts and rebuilt progress.
+                        {% endif %}
+                    </div>
+                {% elif recovery_error %}
+                    <div class="feedback-box needs-practice inline-feedback">
+                        {% if recovery_error == "admin-pin" %}
+                            Admin PIN is required.
+                        {% elif recovery_error == "missing-target" %}
+                            Choose a student before moving a session.
+                        {% elif recovery_error == "not-found" %}
+                            Session was not found.
+                        {% elif recovery_error == "bad-session" %}
+                            Session ID was not valid.
+                        {% else %}
+                            Session recovery could not run.
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                {% if not sessions %}
+                    <p class="empty-state">No recent practice sessions found yet.</p>
+                {% else %}
+                    <div class="session-list">
+                        {% for session in sessions %}
+                            <article class="session-card">
+                                <div class="session-summary">
+                                    <div>
+                                        <strong>{{ session.student_label }}</strong>
+                                        <span>{{ session.station_label }}</span>
+                                    </div>
+                                    <div class="session-stats">
+                                        <span>{{ session.attempts }} attempts</span>
+                                        <span>{{ session.accuracy }}%</span>
+                                    </div>
+                                </div>
+
+                                <div class="session-meta">
+                                    <span>Practice {{ session.practice_count }}</span>
+                                    <span>Words {{ session.word_count }}</span>
+                                    <span>Sprint {{ session.bonus_count }}</span>
+                                    <span>{{ session.ended_at[:19].replace("T", " ") }}</span>
+                                </div>
+
+                                <code class="session-id">{{ session.id }}</code>
+
+                                <div class="session-actions">
+                                    <form method="post" action="/admin/sessions">
+                                        <input type="hidden" name="action" value="move">
+                                        <input type="hidden" name="session_id" value="{{ session.id }}">
+                                        <label for="target_{{ session.id }}">Move to</label>
+                                        <select id="target_{{ session.id }}" name="target_student_id">
+                                            {% for profile in student_profiles %}
+                                                <option value="{{ profile.id }}">{{ profile.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {% if admin_pin_required %}
+                                            <input name="admin_pin" type="password" autocomplete="current-password" inputmode="numeric" placeholder="PIN">
+                                        {% endif %}
+                                        <button class="button primary" type="submit">Move Session</button>
+                                    </form>
+
+                                    <form method="post" action="/admin/sessions">
+                                        <input type="hidden" name="action" value="discard">
+                                        <input type="hidden" name="session_id" value="{{ session.id }}">
+                                        {% if admin_pin_required %}
+                                            <input name="admin_pin" type="password" autocomplete="current-password" inputmode="numeric" placeholder="PIN">
+                                        {% endif %}
+                                        <button class="button secondary danger-button" type="submit">Discard Session</button>
+                                    </form>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </section>
+        </main>
+    </div>
+</body>
+</html>

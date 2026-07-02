@@ -1113,6 +1113,142 @@ class RouteRenderTests(unittest.TestCase):
         saved_timing = json.loads(app_module.TIMING_SETTINGS_PATH.read_text(encoding="utf-8"))
         self.assertEqual(10, saved_timing["character_wpm"])
 
+    def test_admin_sessions_lists_recent_practice_sessions(self):
+        session_id = "0123456789abcdef0123456789abcdef"
+        self.write_text_file(
+            "pappy",
+            "practice_attempts.jsonl",
+            json.dumps({
+                "correct": True,
+                "mode": "send",
+                "practice_session_id": session_id,
+                "station_id": "pappy-station",
+                "student_id": "pappy",
+                "target": "E",
+                "timestamp": "2026-07-01T12:00:00+00:00",
+            }, sort_keys=True) + "\n",
+        )
+
+        response = self.client.get("/admin/sessions")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Session Recovery", html)
+        self.assertIn(session_id, html)
+        self.assertIn("Pappy", html)
+        self.assertIn("pappy-station", html)
+
+    def test_admin_sessions_move_session_updates_attempts_and_rebuilds_progress(self):
+        session_id = "0123456789abcdef0123456789abcdef"
+        self.write_text_file(
+            "pappy",
+            "practice_attempts.jsonl",
+            "\n".join([
+                json.dumps({
+                    "correct": True,
+                    "mode": "send",
+                    "practice_session_id": session_id,
+                    "student_id": "pappy",
+                    "target": "E",
+                    "timestamp": "2026-07-01T12:00:00+00:00",
+                }, sort_keys=True),
+                json.dumps({
+                    "correct": False,
+                    "mode": "send",
+                    "practice_session_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    "student_id": "pappy",
+                    "target": "T",
+                    "timestamp": "2026-07-01T12:01:00+00:00",
+                }, sort_keys=True),
+            ]) + "\n",
+        )
+        self.write_json("pappy", "practice_progress.json", {"E": {"send": {"attempts": 99, "correct": 99, "streak": 99, "strength": 1}}})
+
+        response = self.client.post(
+            "/admin/sessions",
+            data={
+                "action": "move",
+                "session_id": session_id,
+                "target_student_id": "astrid",
+            },
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("recovery_status=moved", response.headers["Location"])
+        pappy_attempts = self.student_file("pappy", "practice_attempts.jsonl").read_text(encoding="utf-8")
+        astrid_attempts = self.student_file("astrid", "practice_attempts.jsonl").read_text(encoding="utf-8")
+        pappy_progress = json.loads(self.student_file("pappy", "practice_progress.json").read_text(encoding="utf-8"))
+        astrid_progress = json.loads(self.student_file("astrid", "practice_progress.json").read_text(encoding="utf-8"))
+
+        self.assertNotIn(session_id, pappy_attempts)
+        self.assertIn(session_id, astrid_attempts)
+        self.assertIn('"student_id": "astrid"', astrid_attempts)
+        self.assertNotIn("E", pappy_progress)
+        self.assertEqual(1, pappy_progress["T"]["send"]["attempts"])
+        self.assertEqual(1, astrid_progress["E"]["send"]["attempts"])
+        self.assertEqual(1, astrid_progress["E"]["send"]["correct"])
+        backups = list((self.data_dir / "session_recovery_backups").glob(f"*-{session_id}"))
+        self.assertEqual(1, len(backups))
+
+    def test_admin_sessions_discard_session_updates_attempts_and_rebuilds_progress(self):
+        session_id = "0123456789abcdef0123456789abcdef"
+        self.write_text_file(
+            "pappy",
+            "practice_attempts.jsonl",
+            json.dumps({
+                "correct": True,
+                "mode": "send",
+                "practice_session_id": session_id,
+                "student_id": "pappy",
+                "target": "E",
+                "timestamp": "2026-07-01T12:00:00+00:00",
+            }, sort_keys=True) + "\n",
+        )
+        self.write_json("pappy", "practice_progress.json", {"E": {"send": {"attempts": 99, "correct": 99, "streak": 99, "strength": 1}}})
+
+        response = self.client.post(
+            "/admin/sessions",
+            data={
+                "action": "discard",
+                "session_id": session_id,
+            },
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("recovery_status=discarded", response.headers["Location"])
+        self.assertFalse(self.student_file("pappy", "practice_attempts.jsonl").exists())
+        pappy_progress = json.loads(self.student_file("pappy", "practice_progress.json").read_text(encoding="utf-8"))
+        self.assertEqual({}, pappy_progress)
+
+    def test_admin_sessions_requires_admin_pin_when_configured(self):
+        session_id = "0123456789abcdef0123456789abcdef"
+        self.write_station_config({"admin_pin": "1234"})
+        self.write_text_file(
+            "pappy",
+            "practice_attempts.jsonl",
+            json.dumps({
+                "correct": True,
+                "mode": "send",
+                "practice_session_id": session_id,
+                "student_id": "pappy",
+                "target": "E",
+                "timestamp": "2026-07-01T12:00:00+00:00",
+            }, sort_keys=True) + "\n",
+        )
+
+        response = self.client.post(
+            "/admin/sessions",
+            data={
+                "action": "discard",
+                "session_id": session_id,
+                "admin_pin": "9999",
+            },
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("recovery_error=admin-pin", response.headers["Location"])
+        self.assertTrue(self.student_file("pappy", "practice_attempts.jsonl").exists())
+
     def test_reset_pappy_backs_up_student_and_legacy_without_touching_other_students(self):
         self.write_text_file("pappy", "practice_attempts.jsonl", "pappy attempts\n")
         self.write_json("pappy", "practice_progress.json", {"E": {"send": {"attempts": 1}}})

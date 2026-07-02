@@ -187,6 +187,103 @@ h2 {
     border-color: #b9cef8;
 }
 
+.empty-state {
+    margin: 0;
+    padding: 18px;
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-weight: 800;
+}
+
+.session-list {
+    display: grid;
+    gap: 12px;
+}
+
+.session-card {
+    display: grid;
+    gap: 10px;
+    padding: 14px;
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.session-summary,
+.session-meta,
+.session-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.session-summary {
+    justify-content: space-between;
+}
+
+.session-summary strong {
+    display: block;
+    color: var(--primary);
+    font-size: 20px;
+    line-height: 1.15;
+}
+
+.session-summary span,
+.session-meta {
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.session-stats {
+    display: flex;
+    gap: 8px;
+}
+
+.session-stats span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 0 10px;
+    background: #e8f1ff;
+    border: 1px solid #b9cef8;
+    border-radius: 999px;
+    color: var(--primary);
+}
+
+.session-meta {
+    flex-wrap: wrap;
+}
+
+.session-id {
+    display: block;
+    width: 100%;
+    padding: 8px 10px;
+    overflow-wrap: anywhere;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+}
+
+.session-actions {
+    align-items: end;
+    flex-wrap: wrap;
+}
+
+.session-actions form {
+    display: grid;
+    grid-template-columns: minmax(120px, 180px) minmax(120px, 170px) auto;
+    align-items: end;
+    gap: 8px;
+}
+
+.session-actions form:last-child {
+    grid-template-columns: minmax(120px, 170px) auto;
+}
+
 .volume-value {
     color: var(--primary);
     font-size: 18px;
@@ -229,6 +326,7 @@ textarea {
 }
 
 input[type="text"],
+input[type="password"],
 select {
     width: 100%;
     min-height: 46px;
@@ -242,6 +340,7 @@ select {
 
 textarea:focus,
 input[type="text"]:focus,
+input[type="password"]:focus,
 select:focus-visible,
 input[type="range"]:focus-visible,
 button:focus-visible,

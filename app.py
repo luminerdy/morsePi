@@ -7,7 +7,8 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify, g
 from gpiozero import Button, LED
 from morse import text_to_morse, morse_to_text
 from practice_attempts import append_practice_attempt, normalize_timing_events, rounded_ms, set_attempts_path, timing_summary
-from practice_progress import all_mode_details, choose_next_letter, mode_score, overall_score, progress_summary, record_attempt, set_progress_path
+from practice_progress import all_mode_details, choose_next_letter, mode_score, overall_score, progress_summary, record_attempt, save_progress, set_progress_path
+import student_profiles as student_profile_store
 from student_profiles import (
     STUDENT_COOKIE,
     add_profile,
@@ -26,6 +27,7 @@ import tempfile
 import subprocess
 import os
 import random
+import shutil
 
 app = Flask(__name__)
 SESSION_COOKIE = "morse_practice_session_id"
@@ -156,9 +158,14 @@ def new_practice_session_id():
     return uuid4().hex
 
 
+def is_practice_session_id(value):
+    value = str(value or "").strip().lower()
+    return len(value) == 32 and all(character in "0123456789abcdef" for character in value)
+
+
 def safe_session_id(value):
     value = str(value or "").strip().lower()
-    if len(value) == 32 and all(character in "0123456789abcdef" for character in value):
+    if is_practice_session_id(value):
         return value
 
     return new_practice_session_id()
@@ -900,6 +907,220 @@ def load_attempt_records(path, today_only=False):
             attempts.append(attempt)
 
     return attempts
+
+
+SESSION_RECOVERY_FILES = ("practice_attempts.jsonl", "word_attempts.jsonl", "bonus_attempts.jsonl")
+
+
+def write_attempt_records(path, attempts):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    if not attempts:
+        try:
+            path.unlink()
+        except OSError:
+            pass
+        return
+
+    path.write_text(
+        "\n".join(json.dumps(attempt, sort_keys=True) for attempt in attempts) + "\n",
+        encoding="utf-8"
+    )
+
+
+def session_recovery_backup_path(session_id):
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
+    safe_id = safe_session_id(session_id)
+    return student_profile_store.DATA_DIR / "session_recovery_backups" / f"{timestamp}-{safe_id}"
+
+
+def backup_session_recovery_files(backup_root, student_ids):
+    for student_id in sorted({slugify_student_id(student_id) for student_id in student_ids}):
+        for filename in SESSION_RECOVERY_FILES + ("practice_progress.json",):
+            source = student_data_path(student_id, filename)
+            if not source.exists():
+                continue
+
+            target = backup_root / student_id / filename
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, target)
+
+
+def summarize_practice_sessions(limit=20):
+    sessions = {}
+
+    for profile in load_profiles():
+        student_id = profile["id"]
+        student_name = profile["name"]
+        for filename in SESSION_RECOVERY_FILES:
+            for attempt in load_attempt_records(student_data_path(student_id, filename)):
+                raw_session_id = str(attempt.get("practice_session_id", "")).strip().lower()
+                if not is_practice_session_id(raw_session_id):
+                    continue
+                session_id = raw_session_id
+
+                summary = sessions.setdefault(session_id, {
+                    "id": session_id,
+                    "students": {},
+                    "station_ids": set(),
+                    "counts": {name: 0 for name in SESSION_RECOVERY_FILES},
+                    "attempts": 0,
+                    "correct": 0,
+                    "started_at": "",
+                    "ended_at": "",
+                })
+                summary["students"][student_id] = student_name
+                if attempt.get("station_id"):
+                    summary["station_ids"].add(str(attempt.get("station_id")))
+                summary["counts"][filename] += 1
+                summary["attempts"] += 1
+                if attempt.get("correct"):
+                    summary["correct"] += 1
+
+                timestamp = str(attempt.get("timestamp", ""))
+                if timestamp:
+                    if not summary["started_at"] or timestamp < summary["started_at"]:
+                        summary["started_at"] = timestamp
+                    if not summary["ended_at"] or timestamp > summary["ended_at"]:
+                        summary["ended_at"] = timestamp
+
+    normalized = []
+    for summary in sessions.values():
+        summary["student_label"] = ", ".join(summary["students"].values())
+        summary["station_label"] = ", ".join(sorted(summary["station_ids"])) or "unknown-station"
+        summary["accuracy"] = int(round((summary["correct"] / summary["attempts"]) * 100)) if summary["attempts"] else 0
+        summary["practice_count"] = summary["counts"]["practice_attempts.jsonl"]
+        summary["word_count"] = summary["counts"]["word_attempts.jsonl"]
+        summary["bonus_count"] = summary["counts"]["bonus_attempts.jsonl"]
+        normalized.append(summary)
+
+    normalized.sort(key=lambda item: item["ended_at"], reverse=True)
+    return normalized[:limit]
+
+
+def rebuild_practice_progress_for_student(student_id):
+    progress = {}
+    attempts = load_attempt_records(student_data_path(student_id, "practice_attempts.jsonl"))
+    attempts.sort(key=lambda attempt: str(attempt.get("timestamp", "")))
+
+    for attempt in attempts:
+        letter = str(attempt.get("target", "")).upper()
+        mode = str(attempt.get("mode", "send")).lower()
+        if not letter or mode not in practice_modes:
+            continue
+
+        letter_progress = progress.setdefault(letter, {})
+        record = letter_progress.setdefault(mode, {
+            "attempts": 0,
+            "correct": 0,
+            "streak": 0,
+            "strength": 0.0,
+            "last_seen": ""
+        })
+        record["attempts"] += 1
+        record["last_seen"] = str(attempt.get("timestamp", "")) or datetime.now(timezone.utc).isoformat()
+
+        if attempt.get("correct"):
+            record["correct"] += 1
+            record["streak"] += 1
+            record["strength"] = min(1.0, record["strength"] + 0.18 + min(record["streak"], 4) * 0.02)
+        else:
+            record["streak"] = 0
+            record["strength"] = max(0.0, record["strength"] - 0.35)
+
+    original_path = student_data_path(g.current_student["id"], "practice_progress.json") if has_request_context() else None
+    set_progress_path(student_data_path(student_id, "practice_progress.json"))
+    save_progress(progress)
+    if original_path is not None:
+        set_progress_path(original_path)
+
+    return progress
+
+
+def recover_practice_session(session_id, action, target_student_id=""):
+    if not is_practice_session_id(session_id):
+        return {"status": "bad-session", "moved": 0, "discarded": 0}
+
+    session_id = str(session_id).strip().lower()
+    target_student_id = slugify_student_id(target_student_id)
+    profiles = load_profiles()
+    valid_student_ids = {profile["id"] for profile in profiles}
+
+    if target_student_id and target_student_id not in valid_student_ids:
+        target_student_id = ""
+
+    if action == "move" and not target_student_id:
+        return {"status": "missing-target", "moved": 0, "discarded": 0}
+
+    if action not in ("move", "discard"):
+        return {"status": "bad-action", "moved": 0, "discarded": 0}
+
+    touched_students = set()
+    moved_count = 0
+    discarded_count = 0
+    found_count = 0
+    backup_root = session_recovery_backup_path(session_id)
+    backed_up_students = set()
+
+    for profile in profiles:
+        student_id = profile["id"]
+        for filename in SESSION_RECOVERY_FILES:
+            path = student_data_path(student_id, filename)
+            attempts = load_attempt_records(path)
+            kept = []
+            selected = []
+
+            for attempt in attempts:
+                raw_session_id = str(attempt.get("practice_session_id", "")).strip().lower()
+                if raw_session_id == session_id:
+                    selected.append(attempt)
+                else:
+                    kept.append(attempt)
+
+            if not selected:
+                continue
+
+            found_count += len(selected)
+            touched_students.add(student_id)
+
+            students_to_backup = {student_id}
+            if action == "move":
+                students_to_backup.add(target_student_id)
+            backup_session_recovery_files(backup_root, students_to_backup - backed_up_students)
+            backed_up_students.update(students_to_backup)
+
+            write_attempt_records(path, kept)
+
+            if action == "move":
+                target_path = student_data_path(target_student_id, filename)
+                target_attempts = load_attempt_records(target_path)
+                for attempt in selected:
+                    moved_attempt = dict(attempt)
+                    moved_attempt["student_id"] = target_student_id
+                    target_attempts.append(moved_attempt)
+                target_attempts.sort(key=lambda attempt: str(attempt.get("timestamp", "")))
+                write_attempt_records(target_path, target_attempts)
+                touched_students.add(target_student_id)
+                moved_count += len(selected)
+            else:
+                discarded_count += len(selected)
+
+    if not found_count:
+        return {"status": "not-found", "moved": 0, "discarded": 0}
+
+    for student_id in touched_students:
+        rebuild_practice_progress_for_student(student_id)
+
+    return {
+        "status": "moved" if action == "move" else "discarded",
+        "session_id": session_id,
+        "target_student_id": target_student_id,
+        "moved": moved_count,
+        "discarded": discarded_count,
+        "backup_path": str(backup_root),
+        "students": sorted(touched_students),
+    }
 
 
 def load_today_attempts():
@@ -2289,6 +2510,36 @@ def touch_progress():
         words=word_progress_summary(),
         badges=student_badges(overall, daily),
         details=get_progress_mode_details()
+    )
+
+
+@app.route("/admin/sessions", methods=["GET", "POST"])
+def admin_sessions():
+    if request.method == "POST":
+        if not admin_pin_valid(request.form.get("admin_pin", "")):
+            return redirect(url_for("admin_sessions", recovery_error="admin-pin"))
+
+        result = recover_practice_session(
+            request.form.get("session_id", ""),
+            request.form.get("action", ""),
+            request.form.get("target_student_id", "")
+        )
+
+        if result["status"] in ("moved", "discarded"):
+            return redirect(url_for(
+                "admin_sessions",
+                recovery_status=result["status"],
+                count=result["moved"] or result["discarded"],
+            ))
+
+        return redirect(url_for("admin_sessions", recovery_error=result["status"]))
+
+    return render_template(
+        "admin_sessions.html",
+        sessions=summarize_practice_sessions(),
+        recovery_status=request.args.get("recovery_status", ""),
+        recovery_error=request.args.get("recovery_error", ""),
+        count=request.args.get("count", "0"),
     )
 
 
