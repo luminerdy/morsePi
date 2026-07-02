@@ -146,6 +146,10 @@
     gap: 8px;
 }
 
+.touch-students-layout.no-add {
+    grid-template-rows: minmax(0, 1fr);
+}
+
 .touch-student-list {
     min-height: 0;
     display: grid;

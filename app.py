@@ -13,7 +13,9 @@ from student_profiles import (
     STUDENT_COOKIE,
     add_profile,
     ensure_student_storage,
+    ensure_profiles,
     load_profiles,
+    normalize_profile,
     profile_for_id,
     reset_student_storage,
     student_data_path,
@@ -39,16 +41,19 @@ ADMIN_PIN_PATH = Path("data/admin_pin.txt")
 def configure_student_storage():
     global learning_state_path
 
+    ensure_station_configured_profiles()
     profiles = load_profiles()
+    visible_profiles = visible_student_profiles(profiles)
     requested_student_id = slugify_student_id(request.cookies.get(STUDENT_COOKIE, ""))
-    profile_ids = {profile["id"] for profile in profiles}
+    profile_ids = {profile["id"] for profile in visible_profiles}
 
     if requested_student_id not in profile_ids:
-        requested_student_id = profiles[0]["id"]
+        requested_student_id = visible_profiles[0]["id"]
 
     ensure_student_storage(requested_student_id)
     g.current_student = profile_for_id(requested_student_id)
-    g.student_profiles = profiles
+    g.student_profiles = visible_profiles
+    g.all_student_profiles = profiles
 
     set_progress_path(student_data_path(requested_student_id, "practice_progress.json"))
     set_attempts_path(student_data_path(requested_student_id, "practice_attempts.jsonl"))
@@ -70,7 +75,9 @@ def inject_student_context():
     return {
         "current_student": getattr(g, "current_student", profile_for_id("pappy")),
         "student_profiles": getattr(g, "student_profiles", load_profiles()),
+        "all_student_profiles": getattr(g, "all_student_profiles", load_profiles()),
         "admin_pin_required": admin_pin_required(),
+        "student_creation_allowed": student_creation_allowed(),
     }
 
 # -----------------------------
@@ -180,6 +187,82 @@ def load_station_config():
     return loaded if isinstance(loaded, dict) else {}
 
 
+def configured_station_profiles():
+    config = load_station_config()
+    raw_profiles = config.get("students", [])
+
+    if not isinstance(raw_profiles, list):
+        raw_profiles = []
+
+    profiles = []
+    for item in raw_profiles:
+        if isinstance(item, str):
+            profiles.append(normalize_profile({"id": item, "name": item}))
+        elif isinstance(item, dict):
+            profiles.append(normalize_profile(item))
+
+    guest_profile = config.get("guest_profile")
+    include_guest = config.get("include_guest", True)
+    if include_guest and isinstance(guest_profile, dict):
+        guest = normalize_profile({
+            "id": guest_profile.get("id") or "guest",
+            "name": guest_profile.get("name") or "Guest Operator",
+            "guest": True,
+            "disposable": True,
+        })
+        profiles.append(guest)
+    elif include_guest and raw_profiles:
+        profiles.append(normalize_profile({
+            "id": "guest",
+            "name": "Guest Operator",
+            "guest": True,
+            "disposable": True,
+        }))
+
+    seen = set()
+    unique_profiles = []
+    for profile in profiles:
+        if profile["id"] in seen:
+            continue
+        unique_profiles.append(profile)
+        seen.add(profile["id"])
+
+    return unique_profiles
+
+
+def station_roster_configured():
+    return bool(configured_station_profiles())
+
+
+def ensure_station_configured_profiles():
+    profiles = configured_station_profiles()
+    if profiles:
+        ensure_profiles(profiles)
+
+
+def visible_student_profiles(profiles):
+    configured_profiles = configured_station_profiles()
+    if not configured_profiles:
+        return profiles
+
+    configured_ids = {profile["id"] for profile in configured_profiles}
+    by_id = {profile["id"]: profile for profile in profiles}
+    visible = []
+
+    for profile in configured_profiles:
+        visible.append(by_id.get(profile["id"], profile))
+
+    return visible or profiles
+
+
+def student_creation_allowed():
+    config = load_station_config()
+    if "allow_student_create" in config:
+        return bool(config.get("allow_student_create"))
+
+    return not station_roster_configured()
+
+
 def current_station_id():
     return str(load_station_config().get("station_id") or "unknown-station")
 
@@ -216,6 +299,7 @@ def attempt_metadata():
         "station_id": current_station_id(),
         "practice_session_id": getattr(g, "practice_session_id", ""),
         "student_id": getattr(g, "current_student", {}).get("id", ""),
+        "student_disposable": bool(getattr(g, "current_student", {}).get("disposable")),
     }
 
 
@@ -2453,6 +2537,9 @@ def students():
             return response
 
         if action == "create":
+            if not student_creation_allowed():
+                return redirect(url_for("students", reset_error="create-disabled"))
+
             if not admin_pin_valid(request.form.get("admin_pin", "")):
                 return redirect(url_for("students", reset_error="admin-pin"))
 

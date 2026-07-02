@@ -1,5 +1,34 @@
 {
   "station_id": "pappy-test-station",
   "backup_s3_uri": "s3://morsepi-backups",
-  "admin_pin": ""
+  "admin_pin": "",
+  "allow_student_create": false,
+  "students": [
+    {
+      "id": "pappy",
+      "name": "Pappy"
+    },
+    {
+      "id": "astrid",
+      "name": "Astrid"
+    },
+    {
+      "id": "liara",
+      "name": "Liara"
+    },
+    {
+      "id": "campbell",
+      "name": "Campbell"
+    },
+    {
+      "id": "olivea",
+      "name": "Olivea"
+    }
+  ],
+  "guest_profile": {
+    "id": "guest",
+    "name": "Guest Operator",
+    "guest": true,
+    "disposable": true
+  }
 }

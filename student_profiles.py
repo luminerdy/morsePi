@@ -18,6 +18,7 @@ STUDENT_FILES = [
     "bonus_attempts.jsonl"
 ]
 PROFILE_METADATA = "profile.json"
+OPTIONAL_PROFILE_FLAGS = ("disposable", "guest")
 
 
 def timestamp_key():
@@ -36,6 +37,24 @@ def default_profiles():
             "name": DEFAULT_STUDENT_NAME
         }
     ]
+
+
+def normalize_profile(profile):
+    if not isinstance(profile, dict):
+        profile = {}
+
+    student_id = slugify_student_id(str(profile.get("id") or profile.get("name") or "student"))
+    name = str(profile.get("name") or student_id).strip() or student_id
+    normalized = {
+        "id": student_id,
+        "name": name
+    }
+
+    for flag in OPTIONAL_PROFILE_FLAGS:
+        if profile.get(flag):
+            normalized[flag] = True
+
+    return normalized
 
 
 def load_profiles():
@@ -57,15 +76,12 @@ def load_profiles():
         if not isinstance(profile, dict):
             continue
 
-        student_id = slugify_student_id(str(profile.get("id") or profile.get("name") or "student"))
+        normalized_profile = normalize_profile(profile)
+        student_id = normalized_profile["id"]
         if student_id in seen:
             continue
 
-        name = str(profile.get("name") or student_id).strip() or student_id
-        normalized.append({
-            "id": student_id,
-            "name": name
-        })
+        normalized.append(normalized_profile)
         seen.add(student_id)
 
     for profile in load_student_profile_metadata():
@@ -111,12 +127,18 @@ def load_student_profile_metadata():
         if not isinstance(profile, dict):
             continue
 
-        student_id = slugify_student_id(str(profile.get("id") or profile_path.parent.name))
-        name = str(profile.get("name") or student_id).strip() or student_id
-        profiles.append({
+        loaded_profile = profile
+        student_id = slugify_student_id(str(loaded_profile.get("id") or profile_path.parent.name))
+        name = str(loaded_profile.get("name") or student_id).strip() or student_id
+        profile = {
             "id": student_id,
             "name": name
-        })
+        }
+        for flag in OPTIONAL_PROFILE_FLAGS:
+            if loaded_profile.get(flag):
+                profile[flag] = True
+
+        profiles.append(normalize_profile(profile))
 
     return profiles
 
@@ -129,10 +151,7 @@ def write_student_profile_metadata(profile):
     profile_path = student_dir(student_id) / PROFILE_METADATA
     profile_path.parent.mkdir(parents=True, exist_ok=True)
     profile_path.write_text(
-        json.dumps({
-            "id": student_id,
-            "name": str(profile.get("name") or student_id).strip() or student_id
-        }, indent=2, sort_keys=True),
+        json.dumps(normalize_profile(profile), indent=2, sort_keys=True),
         encoding="utf-8"
     )
 
@@ -176,6 +195,48 @@ def add_profile(name):
     ensure_student_storage(profile["id"])
     write_student_profile_metadata(profile)
     return profile
+
+
+def ensure_profiles(required_profiles):
+    profiles = load_profiles()
+    by_id = {profile["id"]: dict(profile) for profile in profiles}
+    changed = False
+
+    for required_profile in required_profiles:
+        normalized = normalize_profile(required_profile)
+        existing = by_id.get(normalized["id"])
+
+        if existing is None:
+            by_id[normalized["id"]] = normalized
+            changed = True
+            continue
+
+        for key, value in normalized.items():
+            if existing.get(key) != value:
+                existing[key] = value
+                changed = True
+
+        by_id[normalized["id"]] = existing
+
+    if changed:
+        ordered = []
+        seen = set()
+        for profile in profiles:
+            profile_id = profile["id"]
+            ordered.append(by_id[profile_id])
+            seen.add(profile_id)
+        for required_profile in required_profiles:
+            profile_id = normalize_profile(required_profile)["id"]
+            if profile_id not in seen:
+                ordered.append(by_id[profile_id])
+                seen.add(profile_id)
+        save_profiles(ordered)
+        profiles = load_profiles()
+
+    for profile in required_profiles:
+        ensure_student_storage(normalize_profile(profile)["id"])
+
+    return profiles
 
 
 def student_dir(student_id):

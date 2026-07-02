@@ -617,11 +617,16 @@ When asked to do the daily wrap-up, update:
 - Included placeholder-only CLI commands, S3 layout, per-station IAM policy template, Pi configuration steps, and Systems Manager role/activation notes.
 - Linked the setup reference from README, AWS design, remote deployment, and backup/status runbook docs.
 - Decision: keep real account IDs, access keys, secret keys, activation IDs/codes, and admin PINs out of GitHub.
+- Configured the active Pi with a real local admin PIN and verified the app recognizes it without exposing the PIN.
+- Decided deployed touch stations should use preloaded student rosters instead of an on-screen Add Student flow because the kids will not have a keyboard.
+- Added station-config roster support with `allow_student_create`, `students`, and disposable `guest_profile`.
+- Updated station config examples for Pappy, Astrid/Liara, Campbell/Olivea, and the active Pappy test station to include expected names plus disposable `Guest Operator`.
+- Hid the Add Student form on touch and desktop screens when station creation is disabled, while preserving admin/reset/recovery flows.
+- Added `student_disposable` to attempt metadata so future family summaries can ignore Guest practice.
 
 ### Ready Next
 
-- Decide and set the real adult admin PINs on each station before sending the grandkid units home.
-- Use the new station config examples for `pappy-station`, `astrid-liara-station`, and `campbell-olivea-station` when preparing the first deployed units.
+- Deploy/test the preloaded roster and disposable Guest flow on the active Pi.
 - Create the temporary AWS setup user/profile for `morsepi-setup-admin` using [AWS_SETUP_REFERENCE.md](AWS_SETUP_REFERENCE.md).
 - Confirm AWS Region and final bucket name, then create/configure the S3 bucket with public access blocked, encryption enabled, and versioning enabled.
 - Create one narrow station credential for `pappy-test-station` and test one backup upload plus one status upload from the active Pi.

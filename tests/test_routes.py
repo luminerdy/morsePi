@@ -355,6 +355,39 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(200, response.status_code)
         self.assertIn('name="next" value="/touch/daily"', html)
 
+    def test_touch_student_selection_uses_station_roster_and_hides_add(self):
+        self.write_station_config({
+            "station_id": "astrid-liara-station",
+            "allow_student_create": False,
+            "students": [
+                {"id": "astrid", "name": "Astrid"},
+                {"id": "liara", "name": "Liara"},
+            ],
+            "guest_profile": {
+                "id": "guest",
+                "name": "Guest Operator",
+                "guest": True,
+                "disposable": True,
+            },
+        })
+
+        response = self.client.get("/touch/students")
+        html = response.get_data(as_text=True)
+        profiles = student_profiles.load_profiles()
+        profile_ids = {profile["id"] for profile in profiles}
+        guest = next(profile for profile in profiles if profile["id"] == "guest")
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Astrid", html)
+        self.assertIn("Liara", html)
+        self.assertIn("Guest Operator", html)
+        self.assertNotIn("Pappy</strong>", html)
+        self.assertNotIn('name="action" value="create"', html)
+        self.assertIn("liara", profile_ids)
+        self.assertIn("guest", profile_ids)
+        self.assertTrue(guest["disposable"])
+        self.assertTrue(guest["guest"])
+
     def test_touch_student_selection_redirects_to_daily_after_select(self):
         response = self.client.post(
             "/touch/students",
@@ -363,6 +396,58 @@ class RouteRenderTests(unittest.TestCase):
 
         self.assertEqual(302, response.status_code)
         self.assertEqual("/touch/daily", response.headers["Location"])
+
+    def test_station_roster_blocks_student_creation(self):
+        self.write_station_config({
+            "station_id": "astrid-liara-station",
+            "allow_student_create": False,
+            "students": [
+                {"id": "astrid", "name": "Astrid"},
+                {"id": "liara", "name": "Liara"},
+            ],
+        })
+
+        response = self.client.post(
+            "/students",
+            data={
+                "action": "create",
+                "student_name": "New Student",
+            },
+        )
+        profile_ids = {profile["id"] for profile in student_profiles.load_profiles()}
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("reset_error=create-disabled", response.headers["Location"])
+        self.assertNotIn("new-student", profile_ids)
+
+    def test_guest_attempts_are_marked_disposable(self):
+        self.write_station_config({
+            "station_id": "pappy-station",
+            "students": [
+                {"id": "pappy", "name": "Pappy"},
+            ],
+            "guest_profile": {
+                "id": "guest",
+                "name": "Guest Operator",
+                "guest": True,
+                "disposable": True,
+            },
+        })
+        self.set_student_cookie("guest")
+
+        response = self.client.post(
+            "/practice/result",
+            json={
+                "mode": "send",
+                "target": "E",
+                "actual_morse": ".",
+            },
+        )
+        payload = response.get_json()
+
+        self.assertEqual(200, response.status_code)
+        self.assertTrue(payload["attempt"]["student_disposable"])
+        self.assertEqual("guest", payload["attempt"]["student_id"])
 
     def test_touch_daily_fresh_student_shows_no_learning_now(self):
         response = self.client.get("/touch/daily")

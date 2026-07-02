@@ -49,26 +49,36 @@
                 </div>
             </section>
 
-            <section class="panel">
-                <div class="section-heading">
-                    <h2>Add Student</h2>
-                    <span class="panel-meta">Local profile</span>
-                </div>
-
-                <form method="post" action="/students">
-                    <input type="hidden" name="action" value="create">
-                    <input type="hidden" name="next" value="{{ next_url }}">
-                    <label for="student_name">Name</label>
-                    <input id="student_name" name="student_name" type="text" autocomplete="off" placeholder="Student name">
-                    {% if admin_pin_required %}
-                        <label for="create_admin_pin">Admin PIN</label>
-                        <input id="create_admin_pin" name="admin_pin" type="password" autocomplete="current-password" inputmode="numeric" placeholder="PIN">
-                    {% endif %}
-                    <div class="action-row">
-                        <button class="button primary" type="submit">Add Student</button>
+            {% if student_creation_allowed %}
+                <section class="panel">
+                    <div class="section-heading">
+                        <h2>Add Student</h2>
+                        <span class="panel-meta">Local profile</span>
                     </div>
-                </form>
-            </section>
+
+                    <form method="post" action="/students">
+                        <input type="hidden" name="action" value="create">
+                        <input type="hidden" name="next" value="{{ next_url }}">
+                        <label for="student_name">Name</label>
+                        <input id="student_name" name="student_name" type="text" autocomplete="off" placeholder="Student name">
+                        {% if admin_pin_required %}
+                            <label for="create_admin_pin">Admin PIN</label>
+                            <input id="create_admin_pin" name="admin_pin" type="password" autocomplete="current-password" inputmode="numeric" placeholder="PIN">
+                        {% endif %}
+                        <div class="action-row">
+                            <button class="button primary" type="submit">Add Student</button>
+                        </div>
+                    </form>
+                </section>
+            {% else %}
+                <section class="panel">
+                    <div class="section-heading">
+                        <h2>Station Roster</h2>
+                        <span class="panel-meta">Configured</span>
+                    </div>
+                    <p class="empty-state">Student names are preloaded for this station. Guest Operator is disposable for demos.</p>
+                </section>
+            {% endif %}
 
             <section class="panel admin-panel">
                 <div class="section-heading">
@@ -84,6 +94,8 @@
                     <div class="feedback-box needs-practice inline-feedback">
                         {% if reset_error == "admin-pin" %}
                             Admin PIN is required.
+                        {% elif reset_error == "create-disabled" %}
+                            Student names are preloaded for this station.
                         {% else %}
                             Type RESET before clearing student progress.
                         {% endif %}

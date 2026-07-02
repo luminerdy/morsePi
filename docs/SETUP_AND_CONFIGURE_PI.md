@@ -181,11 +181,30 @@ Edit `data/station_config.json`:
 {
   "station_id": "astrid-liara-station",
   "backup_s3_uri": "s3://morsepi-backups",
-  "admin_pin": ""
+  "admin_pin": "",
+  "allow_student_create": false,
+  "students": [
+    {
+      "id": "astrid",
+      "name": "Astrid"
+    },
+    {
+      "id": "liara",
+      "name": "Liara"
+    }
+  ],
+  "guest_profile": {
+    "id": "guest",
+    "name": "Guest Operator",
+    "guest": true,
+    "disposable": true
+  }
 }
 ```
 
 Set `admin_pin` before a station leaves home to protect adult actions such as adding students, resetting progress, and changing timing or volume settings. Leave it blank only while the station is in local development or testing.
+
+Set `allow_student_create` to `false` for deployed touch stations. The touch student screen will show only the configured student buttons and the disposable `Guest Operator` profile, so students do not need a keyboard. Guest is intended for demos and should be excluded from future family progress summaries.
 
 Use a unique id for each station, such as:
 
