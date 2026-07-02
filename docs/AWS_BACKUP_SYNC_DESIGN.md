@@ -2,6 +2,8 @@
 
 This note captures the first cloud design for the family Morse stations.
 
+For the credential-free step-by-step setup reference, see [AWS_SETUP_REFERENCE.md](AWS_SETUP_REFERENCE.md).
+
 ## Goals
 
 - Back up every deployed Pi when it is online.

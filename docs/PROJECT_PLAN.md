@@ -610,11 +610,19 @@ When asked to do the daily wrap-up, update:
 - Added route tests for session listing, moving, discarding, admin PIN rejection, and progress rebuild behavior.
 - Deployed the recovery tool to the active Pi at `10.10.10.141`, restarted the user-level `morse-station.service`, verified `/admin/sessions` renders, and confirmed the Pi regression suite passed with 81 tests.
 
+### 2026-07-02
+
+- Added [AWS_SETUP_REFERENCE.md](AWS_SETUP_REFERENCE.md) as a credential-free setup document for the AWS foundation.
+- Captured the ordered setup flow: temporary setup identity, private/versioned/encrypted S3 bucket, one narrow credential per station, first backup/status upload, Systems Manager hybrid activation, and cleanup of setup credentials.
+- Included placeholder-only CLI commands, S3 layout, per-station IAM policy template, Pi configuration steps, and Systems Manager role/activation notes.
+- Linked the setup reference from README, AWS design, remote deployment, and backup/status runbook docs.
+- Decision: keep real account IDs, access keys, secret keys, activation IDs/codes, and admin PINs out of GitHub.
+
 ### Ready Next
 
 - Decide and set the real adult admin PINs on each station before sending the grandkid units home.
 - Use the new station config examples for `pappy-station`, `astrid-liara-station`, and `campbell-olivea-station` when preparing the first deployed units.
-- Create the temporary AWS setup user/profile for `morsepi-setup-admin` with the limited setup permissions listed in [AWS_BACKUP_SYNC_DESIGN.md](AWS_BACKUP_SYNC_DESIGN.md).
+- Create the temporary AWS setup user/profile for `morsepi-setup-admin` using [AWS_SETUP_REFERENCE.md](AWS_SETUP_REFERENCE.md).
 - Confirm AWS Region and final bucket name, then create/configure the S3 bucket with public access blocked, encryption enabled, and versioning enabled.
 - Create one narrow station credential for `pappy-test-station` and test one backup upload plus one status upload from the active Pi.
 - Prepare the Systems Manager hybrid activation steps for the first deployed Pi and decide whether to register the active test Pi first.

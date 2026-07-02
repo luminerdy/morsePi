@@ -4,6 +4,7 @@ This document describes the first remote-deployment plan for grandkid morsePi st
 
 For the operational checklist and commands, see [REMOTE_BACKUP_STATUS_RUNBOOK.md](REMOTE_BACKUP_STATUS_RUNBOOK.md).
 For preparing a station before it leaves Pappy's house, see [GRANDKID_STATION_DEPLOYMENT.md](GRANDKID_STATION_DEPLOYMENT.md).
+For credential-free AWS setup steps, see [AWS_SETUP_REFERENCE.md](AWS_SETUP_REFERENCE.md).
 
 Goal:
 

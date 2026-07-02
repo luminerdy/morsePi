@@ -1,0 +1,398 @@
+# AWS Setup Reference
+
+This document is the credential-free setup reference for the morsePi AWS foundation. It explains what to create and why, but it does not store account numbers, access keys, secret keys, activation codes, or passwords.
+
+Related docs:
+
+- [AWS_BACKUP_SYNC_DESIGN.md](AWS_BACKUP_SYNC_DESIGN.md)
+- [REMOTE_DEPLOYMENT_AWS.md](REMOTE_DEPLOYMENT_AWS.md)
+- [REMOTE_BACKUP_STATUS_RUNBOOK.md](REMOTE_BACKUP_STATUS_RUNBOOK.md)
+- [GRANDKID_STATION_DEPLOYMENT.md](GRANDKID_STATION_DEPLOYMENT.md)
+
+## Target Shape
+
+```text
+GitHub              source code
+S3                  backups, station status, progress snapshots, family summary
+Systems Manager     first remote-admin bridge
+AWS IoT Core         later lower-cost command/status/message layer
+Pi scripts           actual backup, status, update, and restart work
+```
+
+Use S3 first. Add Systems Manager for remote hands. Add AWS IoT later only after backup/status works reliably.
+
+## Setup Values
+
+Fill these in while setting up AWS. Do not commit the filled-in copy if it includes account-specific details.
+
+```text
+AWS account id:          <account-id>
+AWS region:              <region>
+S3 bucket name:          <bucket-name>
+Setup profile name:      morsepi-setup-admin
+SSM managed role name:   morsepi-ssm-hybrid-role
+```
+
+Recommended station ids:
+
+```text
+pappy-test-station
+pappy-station
+astrid-liara-station
+campbell-olivea-station
+```
+
+## Phase 1 Checklist
+
+1. Choose Region and final bucket name.
+2. Create temporary setup identity.
+3. Configure a temporary AWS CLI profile on Pappy's laptop.
+4. Create and harden the S3 bucket.
+5. Create one narrow station identity for `pappy-test-station`.
+6. Configure AWS CLI on the active Pi with only that station identity.
+7. Test one real backup upload.
+8. Test one real status upload.
+9. Create the Systems Manager hybrid role and first activation.
+10. Register the active Pi with Systems Manager if we decide to test SSM before sending units out.
+11. Disable or delete the temporary setup access key.
+
+## Temporary Setup Identity
+
+Use a temporary identity such as `morsepi-setup-admin` for provisioning only.
+
+It needs enough permission to:
+
+- verify identity with `sts:GetCallerIdentity`
+- create/configure the S3 bucket
+- create IAM users, policies, and access keys for station credentials
+- create the Systems Manager hybrid service role
+- create Systems Manager hybrid activations
+
+After setup, disable or delete its access key. Keep normal station operation on narrow per-station credentials.
+
+## AWS CLI Profile
+
+Configure the laptop with a temporary setup profile:
+
+```bash
+aws configure --profile morsepi-setup-admin
+```
+
+Verify the identity before making resources:
+
+```bash
+aws sts get-caller-identity --profile morsepi-setup-admin
+```
+
+Do not commit CLI config files or credentials. On Windows they normally live under `%USERPROFILE%\.aws\`. On Linux/Pi they normally live under `~/.aws/`.
+
+## S3 Bucket
+
+Create one private bucket for backups, status, snapshots, inbox files, and family summaries.
+
+```bash
+aws s3api create-bucket \
+  --bucket <bucket-name> \
+  --region <region> \
+  --create-bucket-configuration LocationConstraint=<region> \
+  --profile morsepi-setup-admin
+```
+
+For `us-east-1`, AWS uses a slightly different create-bucket call:
+
+```bash
+aws s3api create-bucket \
+  --bucket <bucket-name> \
+  --region us-east-1 \
+  --profile morsepi-setup-admin
+```
+
+Block public access:
+
+```bash
+aws s3api put-public-access-block \
+  --bucket <bucket-name> \
+  --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true \
+  --profile morsepi-setup-admin
+```
+
+Enable bucket versioning:
+
+```bash
+aws s3api put-bucket-versioning \
+  --bucket <bucket-name> \
+  --versioning-configuration Status=Enabled \
+  --profile morsepi-setup-admin
+```
+
+Set default encryption with S3-managed keys:
+
+```bash
+aws s3api put-bucket-encryption \
+  --bucket <bucket-name> \
+  --server-side-encryption-configuration '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"AES256"}}]}' \
+  --profile morsepi-setup-admin
+```
+
+Recommended S3 layout:
+
+```text
+s3://<bucket-name>/
+  stations/
+    <station-id>/
+      backups/
+      status/station_status.json
+      snapshots/
+      inbox/
+  family/
+    family_summary.json
+    recent_wins.json
+```
+
+## Station IAM Policy
+
+Each Pi gets its own station credential. Do not share credentials across stations.
+
+Policy intent for one station:
+
+- write only under `stations/<station-id>/`
+- read only its own `stations/<station-id>/inbox/`
+- read shared `family/`
+- no bucket creation
+- no IAM access
+- no broad delete
+
+Template policy for one station:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ListOnlyNeededPrefixes",
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::<bucket-name>",
+      "Condition": {
+        "StringLike": {
+          "s3:prefix": [
+            "stations/<station-id>/*",
+            "family/*"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "WriteOwnStationObjects",
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::<bucket-name>/stations/<station-id>/*"
+      ]
+    },
+    {
+      "Sid": "ReadFamilySummaryObjects",
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": [
+        "arn:aws:s3:::<bucket-name>/family/*"
+      ]
+    }
+  ]
+}
+```
+
+Create one IAM user per station:
+
+```bash
+aws iam create-user \
+  --user-name morsepi-<station-id> \
+  --profile morsepi-setup-admin
+```
+
+Create and attach the station policy:
+
+```bash
+aws iam create-policy \
+  --policy-name morsepi-<station-id>-s3 \
+  --policy-document file://station-policy.json \
+  --profile morsepi-setup-admin
+
+aws iam attach-user-policy \
+  --user-name morsepi-<station-id> \
+  --policy-arn arn:aws:iam::<account-id>:policy/morsepi-<station-id>-s3 \
+  --profile morsepi-setup-admin
+```
+
+Create one access key for that station user:
+
+```bash
+aws iam create-access-key \
+  --user-name morsepi-<station-id> \
+  --profile morsepi-setup-admin
+```
+
+Store the station key only on the matching Pi. AWS only shows the secret access key when it is created; if it is lost, delete the old key and create a new one.
+
+## Configure One Pi
+
+Install AWS CLI if needed:
+
+```bash
+sudo apt update
+sudo apt install -y awscli
+```
+
+Configure the station's own credential on the Pi:
+
+```bash
+aws configure
+```
+
+Set the station config:
+
+```bash
+cd /home/morse/morse-station
+cp config/stations/<station-id>.example.json data/station_config.json
+```
+
+Edit `data/station_config.json`:
+
+```json
+{
+  "station_id": "<station-id>",
+  "backup_s3_uri": "s3://<bucket-name>",
+  "admin_pin": ""
+}
+```
+
+Test identity:
+
+```bash
+aws sts get-caller-identity
+```
+
+Test S3 prefix access:
+
+```bash
+aws s3 ls s3://<bucket-name>/stations/<station-id>/
+```
+
+## Backup And Status Test
+
+Dry run first:
+
+```bash
+cd /home/morse/morse-station
+python3 scripts/backup_data.py --label aws-test --dry-run-s3
+python3 scripts/station_status.py --dry-run-s3
+```
+
+Real upload:
+
+```bash
+python3 scripts/backup_data.py --label aws-test --s3-uri s3://<bucket-name>
+python3 scripts/station_status.py --s3-uri s3://<bucket-name>
+```
+
+Expected paths:
+
+```text
+s3://<bucket-name>/stations/<station-id>/backups/<timestamp>-<station-id>-aws-test.zip
+s3://<bucket-name>/stations/<station-id>/status/station_status.json
+```
+
+Verify from laptop:
+
+```bash
+aws s3 ls s3://<bucket-name>/stations/<station-id>/backups/ --profile morsepi-setup-admin
+aws s3 cp s3://<bucket-name>/stations/<station-id>/status/station_status.json - --profile morsepi-setup-admin
+```
+
+## Systems Manager Hybrid Activation
+
+Systems Manager is for remote hands: shell access, manual update, backup/status checks, and troubleshooting.
+
+Create an IAM role for hybrid managed nodes. The role must trust `ssm.amazonaws.com` and needs the AWS managed policy for SSM managed instances.
+
+Trust policy shape:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ssm.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+```
+
+Create role and attach managed policy:
+
+```bash
+aws iam create-role \
+  --role-name morsepi-ssm-hybrid-role \
+  --assume-role-policy-document file://ssm-trust-policy.json \
+  --profile morsepi-setup-admin
+
+aws iam attach-role-policy \
+  --role-name morsepi-ssm-hybrid-role \
+  --policy-arn arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore \
+  --profile morsepi-setup-admin
+```
+
+Create one activation per station:
+
+```bash
+aws ssm create-activation \
+  --default-instance-name <station-id> \
+  --iam-role morsepi-ssm-hybrid-role \
+  --registration-limit 1 \
+  --tags Key=Project,Value=morsePi Key=StationId,Value=<station-id> \
+  --profile morsepi-setup-admin
+```
+
+Treat the activation id and activation code like temporary secrets. Do not commit them.
+
+On the Pi, install/register SSM Agent following the current AWS instructions for Raspberry Pi OS/Debian. Then verify the managed node appears in Systems Manager and can run a command while the station is online.
+
+Useful first SSM command after registration:
+
+```bash
+cd /home/morse/morse-station
+python3 scripts/station_status.py --s3-uri s3://<bucket-name>
+```
+
+## Cleanup
+
+After the first station works:
+
+1. Delete or disable the `morsepi-setup-admin` access key.
+2. Confirm each station has only its own credential.
+3. Confirm no credentials or activation codes were committed.
+4. Confirm the S3 bucket has public access blocked, versioning enabled, and encryption configured.
+5. Confirm at least one backup and one status file exist for the test station.
+
+## Later
+
+After backup/status is proven:
+
+- Create `family/family_summary.json`.
+- Add progress snapshot upload.
+- Add a small summarizer that combines station snapshots into family progress.
+- Evaluate AWS IoT Core for lower-cost command triggers and future family Morse messages.
+
+## Official References
+
+- AWS CLI `s3api put-public-access-block`: https://docs.aws.amazon.com/cli/latest/reference/s3api/put-public-access-block.html
+- AWS CLI `s3api put-bucket-encryption`: https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-encryption.html
+- AWS CLI `iam create-access-key`: https://docs.aws.amazon.com/cli/latest/reference/iam/create-access-key.html
+- AWS CLI `ssm create-activation`: https://docs.aws.amazon.com/cli/latest/reference/ssm/create-activation.html

@@ -2,6 +2,8 @@
 
 This runbook is for deployed grandkid stations that may be powered off most of the time.
 
+For credential-free AWS account/resource setup steps, see [AWS_SETUP_REFERENCE.md](AWS_SETUP_REFERENCE.md).
+
 Goal:
 
 ```text
