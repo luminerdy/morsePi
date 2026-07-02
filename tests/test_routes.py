@@ -449,6 +449,41 @@ class RouteRenderTests(unittest.TestCase):
         self.assertTrue(payload["attempt"]["student_disposable"])
         self.assertEqual("guest", payload["attempt"]["student_id"])
 
+    def test_guest_cannot_use_message_routes(self):
+        played = []
+        original_play = app_module.play_in_background
+        app_module.play_in_background = lambda morse: played.append(morse)
+        self.write_station_config({
+            "station_id": "pappy-station",
+            "students": [
+                {"id": "pappy", "name": "Pappy"},
+            ],
+            "guest_profile": {
+                "id": "guest",
+                "name": "Guest Operator",
+                "guest": True,
+                "disposable": True,
+            },
+        })
+        self.set_student_cookie("guest")
+
+        try:
+            home_response = self.client.post("/", data={"message": "HI"})
+            touch_response = self.client.get("/touch/message")
+            play_response = self.client.post("/play", data={"next": "/"})
+        finally:
+            app_module.play_in_background = original_play
+
+        home_html = home_response.get_data(as_text=True)
+        self.assertEqual(200, home_response.status_code)
+        self.assertIn("Guest can practice Morse", home_html)
+        self.assertNotIn(".... ..", home_html)
+        self.assertEqual(302, touch_response.status_code)
+        self.assertEqual("/touch/daily", touch_response.headers["Location"])
+        self.assertEqual(302, play_response.status_code)
+        self.assertEqual("/", play_response.headers["Location"])
+        self.assertEqual([], played)
+
     def test_touch_daily_fresh_student_shows_no_learning_now(self):
         response = self.client.get("/touch/daily")
         html = response.get_data(as_text=True)

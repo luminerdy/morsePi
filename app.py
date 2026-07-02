@@ -263,6 +263,14 @@ def student_creation_allowed():
     return not station_roster_configured()
 
 
+def current_student_disposable():
+    return bool(getattr(g, "current_student", {}).get("disposable"))
+
+
+def message_access_allowed():
+    return not current_student_disposable()
+
+
 def current_station_id():
     return str(load_station_config().get("station_id") or "unknown-station")
 
@@ -2390,12 +2398,14 @@ def update_message_from_request():
 
 
 def render_home_template(template_name):
-    update_message_from_request()
+    if message_access_allowed():
+        update_message_from_request()
 
     return render_template(
         template_name,
-        message=last_message,
-        morse=last_morse,
+        message=last_message if message_access_allowed() else "",
+        morse=last_morse if message_access_allowed() else "",
+        message_access_allowed=message_access_allowed(),
         station_volume_percent=station_volume_percent(),
         timing=get_morse_timing()
     )
@@ -2578,6 +2588,9 @@ def touch_students():
 
 @app.route("/touch/message", methods=["GET", "POST"])
 def touch_message():
+    if not message_access_allowed():
+        return redirect(url_for("touch_daily"))
+
     return render_home_template("touch_message.html")
 
 
@@ -2642,6 +2655,9 @@ def touch_timing():
 
 @app.route("/play", methods=["POST"])
 def play():
+    if not message_access_allowed():
+        return redirect(request.form.get("next") or url_for("index"))
+
     if last_morse:
         play_in_background(last_morse)
 

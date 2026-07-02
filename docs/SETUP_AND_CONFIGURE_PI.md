@@ -204,7 +204,7 @@ Edit `data/station_config.json`:
 
 Set `admin_pin` before a station leaves home to protect adult actions such as adding students, resetting progress, and changing timing or volume settings. Leave it blank only while the station is in local development or testing.
 
-Set `allow_student_create` to `false` for deployed touch stations. The touch student screen will show only the configured student buttons and the disposable `Guest Operator` profile, so students do not need a keyboard. Guest is intended for demos and should be excluded from future family progress summaries.
+Set `allow_student_create` to `false` for deployed touch stations. The touch student screen will show only the configured student buttons and the disposable `Guest Operator` profile, so students do not need a keyboard. Guest is intended for demos, cannot send or receive messages, and should be excluded from future family progress summaries.
 
 Use a unique id for each station, such as:
 

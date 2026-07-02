@@ -623,6 +623,7 @@ When asked to do the daily wrap-up, update:
 - Updated station config examples for Pappy, Astrid/Liara, Campbell/Olivea, and the active Pappy test station to include expected names plus disposable `Guest Operator`.
 - Hid the Add Student form on touch and desktop screens when station creation is disabled, while preserving admin/reset/recovery flows.
 - Added `student_disposable` to attempt metadata so future family summaries can ignore Guest practice.
+- Restricted disposable Guest from message routes so Guest can practice/demo Morse but cannot send or receive messages.
 
 ### Ready Next
 

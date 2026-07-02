@@ -30,71 +30,81 @@
         </header>
 
         <main class="dashboard-grid">
-            <section class="panel compose-panel">
-                <div class="section-heading">
-                    <h2>Message</h2>
-                    <span class="panel-meta">Text to Morse</span>
-                </div>
+            {% if message_access_allowed %}
+                <section class="panel compose-panel">
+                    <div class="section-heading">
+                        <h2>Message</h2>
+                        <span class="panel-meta">Text to Morse</span>
+                    </div>
 
-                <form method="post" action="/">
-                    <label class="sr-only" for="message">Message</label>
-                    <textarea id="message" name="message" autofocus placeholder="Type a message">{{ message }}</textarea>
+                    <form method="post" action="/">
+                        <label class="sr-only" for="message">Message</label>
+                        <textarea id="message" name="message" autofocus placeholder="Type a message">{{ message }}</textarea>
+
+                        <div class="action-row">
+                            <button type="submit" class="button primary">Convert</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="panel output-panel">
+                    <div class="section-heading">
+                        <h2>Morse Code</h2>
+                        <span class="panel-meta">Preview</span>
+                    </div>
+
+                    <div class="morse-box" id="morseBox">
+                        {% if morse %}
+                            {{ morse }}
+                        {% else %}
+                            Type a message above.
+                        {% endif %}
+                    </div>
 
                     <div class="action-row">
-                        <button type="submit" class="button primary">Convert</button>
-                    </div>
-                </form>
-            </section>
-
-            <section class="panel output-panel">
-                <div class="section-heading">
-                    <h2>Morse Code</h2>
-                    <span class="panel-meta">Preview</span>
-                </div>
-
-                <div class="morse-box" id="morseBox">
-                    {% if morse %}
-                        {{ morse }}
-                    {% else %}
-                        Type a message above.
-                    {% endif %}
-                </div>
-
-                <div class="action-row">
-                    <button type="button"
-                            class="button secondary"
-                            id="playHereButton"
-                            onclick="playInBrowser()"
-                            {% if not morse %}disabled{% endif %}>
-                        Play Here
-                    </button>
-
-                    <button type="button"
-                            class="button secondary"
-                            id="stopHereButton"
-                            disabled>
-                        Stop Here
-                    </button>
-
-                    <button type="button" class="button secondary" data-test-sound>
-                        Test Sound
-                    </button>
-
-                    <form method="post" action="/play" class="inline-form">
-                        <button type="submit"
-                                class="button primary"
+                        <button type="button"
+                                class="button secondary"
+                                id="playHereButton"
+                                onclick="playInBrowser()"
                                 {% if not morse %}disabled{% endif %}>
-                            Play Station
+                            Play Here
                         </button>
-                    </form>
 
-                    <form method="post" action="/stop-playback" class="inline-form">
-                        <button type="submit" class="button secondary">
-                            Stop Station
+                        <button type="button"
+                                class="button secondary"
+                                id="stopHereButton"
+                                disabled>
+                            Stop Here
                         </button>
-                    </form>
-                </div>
-            </section>
+
+                        <button type="button" class="button secondary" data-test-sound>
+                            Test Sound
+                        </button>
+
+                        <form method="post" action="/play" class="inline-form">
+                            <button type="submit"
+                                    class="button primary"
+                                    {% if not morse %}disabled{% endif %}>
+                                Play Station
+                            </button>
+                        </form>
+
+                        <form method="post" action="/stop-playback" class="inline-form">
+                            <button type="submit" class="button secondary">
+                                Stop Station
+                            </button>
+                        </form>
+                    </div>
+                </section>
+            {% else %}
+                <section class="panel compose-panel">
+                    <div class="section-heading">
+                        <h2>Guest Operator</h2>
+                        <span class="panel-meta">Practice only</span>
+                    </div>
+                    <p class="empty-state">Guest can practice Morse on this station, but cannot send or receive messages.</p>
+                </section>
+            {% endif %}
 
             <section class="panel key-panel">
                 <div class="section-heading">
