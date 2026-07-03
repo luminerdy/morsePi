@@ -2362,6 +2362,20 @@ def get_progress_mode_details():
     return details
 
 
+def practice_mode_score(letters, mode):
+    score = mode_score(letters, mode)
+
+    if mode == "learn":
+        state = get_practice_letter_state()
+        if state["learning_letters"] and list(letters) == state["learning_letters"]:
+            learning_focus = daily_learning_focus(state["learning_letters"])
+            score["mastery"] = learning_focus["progress"]
+            score["next_goal"] = learning_focus["next_need"] or score["next_goal"]
+            score["completion_label"] = f"{learning_focus['correct']}/{learning_focus['goal']} Learn"
+
+    return score
+
+
 def get_read_choices(target):
     choices = [target]
     practice_letters = get_practice_letters_for_mode(get_practice_mode())
@@ -2440,7 +2454,7 @@ def render_practice_template(template_name):
         read_choices=get_read_choices(practice_target),
         feedback=feedback,
         progress=progress_summary(practice_letters, mode),
-        score=mode_score(practice_letters, mode),
+        score=practice_mode_score(practice_letters, mode),
         overall=overall,
         word_practice=word_practice_summary(overall["active_letters"]),
         letter_morse=get_practice_letter_morse(),
@@ -2785,7 +2799,7 @@ def practice_next():
         "read_choices": get_read_choices(practice_target),
         "timing": get_practice_timing(mode, practice_target),
         "progress": progress_summary(practice_letters, mode),
-        "score": mode_score(practice_letters, mode),
+        "score": practice_mode_score(practice_letters, mode),
         "overall": get_learning_overall(practice_letters)
     })
 
@@ -2807,7 +2821,7 @@ def practice_retry():
         "read_choices": get_read_choices(practice_target),
         "timing": get_practice_timing(mode, practice_target),
         "progress": progress_summary(practice_letters, mode),
-        "score": mode_score(practice_letters, mode),
+        "score": practice_mode_score(practice_letters, mode),
         "overall": get_learning_overall(practice_letters)
     })
 
@@ -2971,7 +2985,7 @@ def practice_result():
             "status": "ignored",
             "timing": get_practice_timing(mode, letter),
             "progress": progress_summary(practice_letters, mode),
-            "score": mode_score(practice_letters, mode),
+            "score": practice_mode_score(practice_letters, mode),
             "overall": get_learning_overall(practice_letters)
         })
 
@@ -2993,7 +3007,7 @@ def practice_result():
         "attempt": attempt_record,
         "timing": get_practice_timing(mode, letter),
         "progress": progress_summary(practice_letters, mode),
-        "score": mode_score(practice_letters, mode),
+        "score": practice_mode_score(practice_letters, mode),
         "overall": get_learning_overall(practice_letters)
     })
 

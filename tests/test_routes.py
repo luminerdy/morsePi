@@ -703,6 +703,75 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("14/20 Learn", html)
         self.assertIn("current set", html)
 
+    def test_touch_learn_score_uses_learning_now_burn_in_not_strength_only(self):
+        completed_letters = app_module.starter_practice_letters + ["S", "O", "R", "K"]
+        self.complete_progress("pappy", completed_letters)
+        progress_path = self.student_file("pappy", "practice_progress.json")
+        progress = json.loads(progress_path.read_text(encoding="utf-8"))
+        progress["D"] = {
+            "learn": {
+                "attempts": 6,
+                "correct": 6,
+                "last_seen": "2026-06-21T00:00:00+00:00",
+                "streak": 6,
+                "strength": 1.0,
+            }
+        }
+        progress["U"] = {
+            "learn": {
+                "attempts": 8,
+                "correct": 7,
+                "last_seen": "2026-06-21T00:00:00+00:00",
+                "streak": 7,
+                "strength": 1.0,
+            }
+        }
+        progress_path.write_text(json.dumps(progress), encoding="utf-8")
+        self.set_learning_state(
+            "pappy",
+            {
+                "SO": {
+                    "first_learning_date": "2026-06-20",
+                    "letters": ["S", "O"],
+                },
+                "RK": {
+                    "first_learning_date": "2026-06-22",
+                    "letters": ["R", "K"],
+                },
+                "DU": {
+                    "first_learning_date": "2026-06-25",
+                    "letters": ["D", "U"],
+                }
+            },
+            last_learning_start_date="2026-06-25",
+        )
+
+        response = self.client.get("/touch/practice/run?mode=learn")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("65%</strong>", html)
+        self.assertIn("Learning Now", html)
+        self.assertIn("13/20", html)
+        self.assertIn("D needs 4 more correct Learn tries", html)
+        self.assertNotIn("Mode complete. Go to Daily for the next step.", html)
+
+        result = self.client.post(
+            "/practice/result",
+            json={
+                "mode": "learn",
+                "target": "D",
+                "actual_morse": "-..",
+            },
+        )
+        payload = result.get_json()
+
+        self.assertEqual(200, result.status_code)
+        self.assertEqual("recorded", payload["status"])
+        self.assertEqual(70, payload["score"]["mastery"])
+        self.assertEqual("14/20 Learn", payload["score"]["completion_label"])
+        self.assertEqual("D needs 3 more correct Learn tries", payload["score"]["next_goal"])
+
     def test_touch_learn_does_not_show_next_letters_before_gate(self):
         response = self.client.get("/touch/practice/run?mode=learn")
         html = response.get_data(as_text=True)
