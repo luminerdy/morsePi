@@ -671,9 +671,21 @@ When asked to do the daily wrap-up, update:
 - Sync direction decision: raw backups stay station-owned, while future safe progress snapshots should become student-owned so practice done on Pappy's station can later sync back to each grandkid's home station.
 - Deployment direction: build the Astrid/Liara station first, prove the checklist and S3 backup/status flow on a second unit, then repeat for Campbell/Olivea.
 
+### 2026-07-03
+
+- Hardened the remote app update path for grandkid stations.
+- Changed the station updater default from `main` to `release/pi` so deployed Pis pull from a deliberate release branch instead of active development.
+- Added a post-restart health check against `http://127.0.0.1:5000/touch` before the updater reports success.
+- Updated the user systemd update service to use `release/pi` and the new health-check settings.
+- Updated setup, AWS deployment, backup/status, and grandkid deployment docs to describe the release branch flow and timer rollout rules.
+- Decision: deployed stations should be cloned from GitHub and checked out to `release/pi`; the optional timer should be enabled only after a manual update works.
+- Decision: keep the active lab Pi file-deployed for now unless we intentionally rebuild it as a Git checkout; use the grandkid station builds to prove the real remote-update path.
+
 ### Ready Next
 
 - For future IoT work, prefer a narrow IoT setup identity; reactivate the broad `admin` access key only if truly needed, then deactivate it again after the task.
+- Create and push the `release/pi` branch, then use it as the pull-based update channel for deployed stations.
+- Test `scripts/update_station.sh` on the first Git-cloned station before enabling the optional systemd update timer.
 - Add input size caps for typed messages and Morse prompt payloads, with regression tests.
 - Route all `next` redirects through `safe_next_url()`, with regression tests for external URL rejection.
 - Add short-term concurrency protection for the active Pi serving mode, then plan the longer-term removal of path-global progress/attempt storage.

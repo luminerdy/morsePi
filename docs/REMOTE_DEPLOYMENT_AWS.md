@@ -201,12 +201,30 @@ The update script:
 1. Creates a pre-update backup.
 2. Uploads that backup if `MORSE_BACKUP_S3_URI` is set.
 3. Skips update if tracked local changes exist.
-4. Fetches `origin/main`.
+4. Fetches `origin/release/pi` by default.
 5. Applies only fast-forward updates.
 6. Compile-checks the app and support scripts.
 7. Restarts `morse-station.service`.
-8. Writes station status.
-9. Uploads status if `MORSE_BACKUP_S3_URI` is set.
+8. Verifies the local app responds at `http://127.0.0.1:5000/touch`.
+9. Writes station status.
+10. Uploads status if `MORSE_BACKUP_S3_URI` is set.
+
+Deployment branch model:
+
+```text
+main        development and tested work
+release/pi  deployed station update branch
+```
+
+Promote a tested release from the laptop:
+
+```bash
+git fetch origin
+git checkout release/pi
+git merge --ff-only main
+git push origin release/pi
+git checkout main
+```
 
 Useful environment variables:
 

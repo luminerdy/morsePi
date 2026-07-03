@@ -6,7 +6,9 @@ Wants=network-online.target
 [Service]
 Type=oneshot
 Environment=MORSE_APP_DIR=/home/morse/morse-station
-Environment=MORSE_UPDATE_BRANCH=main
+Environment=MORSE_UPDATE_BRANCH=release/pi
 Environment=MORSE_UPDATE_REMOTE=origin
 Environment=MORSE_UPDATE_SERVICE=morse-station.service
+Environment=MORSE_HEALTH_URL=http://127.0.0.1:5000/touch
+Environment=MORSE_HEALTH_TIMEOUT_SECONDS=30
 ExecStart=/home/morse/bin/update-morse-station.sh

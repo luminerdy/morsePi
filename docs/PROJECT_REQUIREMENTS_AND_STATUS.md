@@ -1084,7 +1084,7 @@ Remote update operations should:
 | Station identity config | Started with `data/station_config.json` |
 | Cloud backup upload | Started with S3 upload support in `scripts/backup_data.py` |
 | Station status report | Started with `scripts/station_status.py` |
-| Remote update foundation | Started with `scripts/update_station.sh` |
+| Remote update foundation | Started with `scripts/update_station.sh`; deployed stations pull from `release/pi` with post-restart health check |
 | Continuous Send practice loop | Complete |
 | Learn practice mode | Complete |
 | Read practice mode | Complete |

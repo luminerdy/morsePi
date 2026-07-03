@@ -393,9 +393,27 @@ For deployed stations at different homes, the Pi can periodically check GitHub f
 
 - It preserves local station data in `data/student_profiles.json`, `data/students/`, and `data/timing_settings.json` because those files are ignored by Git.
 - It skips updates if tracked files were changed locally on the Pi.
-- It only applies fast-forward updates from `origin/main`.
+- It only applies fast-forward updates from `origin/release/pi`.
 - It runs `python3 -m py_compile app.py practice_progress.py practice_attempts.py student_profiles.py` before restarting the app.
 - It restarts only the `morse-station.service` user service.
+- It checks that the local app responds at `http://127.0.0.1:5000/touch` before declaring the update successful.
+
+Release flow:
+
+```text
+main        development and tested work
+release/pi  deployed station update branch
+```
+
+Promote a tested release from the laptop:
+
+```bash
+git fetch origin
+git checkout release/pi
+git merge --ff-only main
+git push origin release/pi
+git checkout main
+```
 
 Install the updater script and timer:
 

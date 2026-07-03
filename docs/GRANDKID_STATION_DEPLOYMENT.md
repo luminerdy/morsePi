@@ -41,6 +41,7 @@ Recommended first station ids:
 - Run OS updates.
 - Install required packages from the setup guide.
 - Clone `https://github.com/luminerdy/morsePi` to `/home/morse/morse-station`.
+- Check out the deployed-station release branch with `git checkout release/pi`.
 - Reboot once after updates and package install.
 
 Validation commands:
@@ -212,15 +213,17 @@ scripts/update_station.sh
 Expected:
 
 - A pre-update backup is created.
-- Git fast-forwards only if GitHub has newer commits.
+- Git fast-forwards only if `origin/release/pi` has newer commits.
 - Python compile check passes.
 - `morse-station.service` restarts.
+- The health check confirms `/touch` responds.
 - Station status is written.
 
 Recommendation for first deployed units:
 
 - Keep automatic update timer disabled until the station has been tested in the new home.
 - Use manual update checks first.
+- Enable the optional timer only after a manual update works from a clean Git checkout.
 - Add AWS IoT command triggers later when cloud backup/status is proven.
 
 ## 9. Kid Readiness
