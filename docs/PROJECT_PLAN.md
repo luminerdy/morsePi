@@ -42,6 +42,42 @@ Completed:
 - Fresh Raspberry Pi setup guide added
 - Repository structure cleaned up
 
+## Codebase Review Triage
+
+A July 2026 codebase review correctly identified that the project has grown beyond its original single-file prototype shape. The main theme is valid: before expanding remote sync, messaging, or more stations too far, reduce the small security/reliability risks that come from `app.py` holding many routes and module-level mutable state.
+
+Address soon:
+
+- Add input size caps for typed messages and Morse prompt payloads. Reason: this is an easy, high-value protection against memory exhaustion on a small Pi.
+- Route all `next` redirects through `safe_next_url()`. Reason: this is a small mechanical fix that closes open redirect behavior.
+- Add short-term concurrency protection. Reason: current per-request path globals and practice globals are fragile if two browsers use the same station at once. Short-term mitigation can be single-thread serving; longer-term fix is passing student paths explicitly instead of mutating `set_progress_path()` and `set_attempts_path()`.
+- Unify the curriculum/progression tables. Reason: `letter_unlock_steps` and `LETTER_UNLOCKS` duplicate curriculum ideas and can drift.
+- Add dependency/tool checks for `speaker-test`, `aplay`, `aws`, `git`, and `systemctl`. Reason: the app and scripts depend on external binaries that should fail clearly during setup.
+
+Defer:
+
+- CSRF protection. Reason: valid concern for admin routes, but admin PINs are now configured on deployed stations and are not stored in cookies. Add after the simple safety fixes.
+- WSGI server replacement for the Flask dev server. Reason: worthwhile before wider deployment, but input caps/redirect fixes/concurrency decision come first.
+- Update-channel hardening with release branch, signed tags, and rollback. Reason: important before broad remote auto-update, less urgent while deployments are manual and S3 backup/status is the active remote milestone.
+- Splitting `app.py` into packages/blueprints. Reason: needed eventually, but do after safety fixes so we do not spread current bugs into new files.
+- Safe student progress snapshots and `family_summary.json`. Reason: still important, but design it after at least one more station exists so cross-station sync is grounded in real behavior.
+
+Low priority / ignore for now:
+
+- Rebuilding around a smaller MVP. Reason: true historically, but the current product value comes from the learning/progress layer.
+- Removing `archive/` and untracking generated PDFs. Reason: repo hygiene, not operational risk.
+- Treating the Flask dev server as an internet-production exposure. Reason: stations are LAN/kiosk devices, but serving should still be improved before grandkid deployment.
+- Making admin PIN mandatory in every example. Reason: blank PIN is useful for local development; deployment docs require a real local PIN before a station leaves home.
+
+Recommended remediation order:
+
+1. Add input caps.
+2. Fix unsafe redirects.
+3. Add short-term single-thread/concurrency protection and tests.
+4. Unify the curriculum tables.
+5. Add dependency/tool checks.
+6. Continue Astrid/Liara station build.
+
 ## Milestones
 
 ### MVP 1: Working Pi Morse Station
@@ -638,6 +674,11 @@ When asked to do the daily wrap-up, update:
 ### Ready Next
 
 - For future IoT work, prefer a narrow IoT setup identity; reactivate the broad `admin` access key only if truly needed, then deactivate it again after the task.
+- Add input size caps for typed messages and Morse prompt payloads, with regression tests.
+- Route all `next` redirects through `safe_next_url()`, with regression tests for external URL rejection.
+- Add short-term concurrency protection for the active Pi serving mode, then plan the longer-term removal of path-global progress/attempt storage.
+- Unify the duplicate curriculum/progression tables into one source of truth.
+- Add setup/runtime checks for required external tools: `speaker-test`, `aplay`, `aws`, `git`, and `systemctl`.
 - Build the Astrid/Liara station end to end with [GRANDKID_STATION_DEPLOYMENT.md](GRANDKID_STATION_DEPLOYMENT.md), including app install, touch kiosk, roster, admin PIN, AWS CLI, narrow station IAM user, and S3 backup/status test.
 - After Astrid/Liara is proven, build the Campbell/Olivea station with the same checklist.
 - Design the first safe student progress snapshot after at least one additional station exists, so cross-station student sync is grounded in real deployment behavior.
