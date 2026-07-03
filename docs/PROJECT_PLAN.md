@@ -631,13 +631,16 @@ When asked to do the daily wrap-up, update:
 - Verified least-privilege behavior: the active Pi can access `stations/pappy-test-station/` and is denied access to another station's raw prefix.
 - Uploaded and verified one real backup and one real status file from the active Pi to S3.
 - Created narrower setup IAM user `morsepi-setup-admin` with policy `morsepi-setup-admin-policy`, configured the laptop profile, verified it can manage MorsePi S3/IAM setup, and deactivated the broad default local `admin` access key.
+- Close-of-day decision: keep the broad `admin` access key deactivated but available as a last-resort setup key for future IoT work; prefer creating purpose-limited setup identities first.
+- Sync direction decision: raw backups stay station-owned, while future safe progress snapshots should become student-owned so practice done on Pappy's station can later sync back to each grandkid's home station.
+- Deployment direction: build the Astrid/Liara station first, prove the checklist and S3 backup/status flow on a second unit, then repeat for Campbell/Olivea.
 
 ### Ready Next
 
-- When setup work is done, delete the deactivated broad `admin` access key from AWS IAM after confirming no other workflow needs it.
 - For future IoT work, prefer a narrow IoT setup identity; reactivate the broad `admin` access key only if truly needed, then deactivate it again after the task.
-- Prepare the Systems Manager hybrid activation steps for the first deployed Pi and decide whether to register the active test Pi first.
-- Create the first `family_summary.json` shape focused on practice minutes, Daily Missions, new letters, words attempted, recent wins, and family totals.
-- After AWS backup/status works, prepare the first two grandkid stations end to end with [GRANDKID_STATION_DEPLOYMENT.md](GRANDKID_STATION_DEPLOYMENT.md).
+- Build the Astrid/Liara station end to end with [GRANDKID_STATION_DEPLOYMENT.md](GRANDKID_STATION_DEPLOYMENT.md), including app install, touch kiosk, roster, admin PIN, AWS CLI, narrow station IAM user, and S3 backup/status test.
+- After Astrid/Liara is proven, build the Campbell/Olivea station with the same checklist.
+- Design the first safe student progress snapshot after at least one additional station exists, so cross-station student sync is grounded in real deployment behavior.
+- Prepare the Systems Manager hybrid activation steps after S3 backup/status is proven on the first grandkid station, then decide whether SSM is worth enabling before devices leave home.
 - Keep testing Words/Daily with Astrid/Liara/Pappy, especially auto-advance, progress clarity, and whether Words should remain bonus-only or join Daily Mission.
 - Measure the 7-inch display/Pi stack with [CASE_MEASUREMENT_WORKSHEET.md](CASE_MEASUREMENT_WORKSHEET.md), then design a Bambu X1 Carbon test-fit plate.
