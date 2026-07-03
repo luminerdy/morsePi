@@ -84,6 +84,8 @@ Verified:
 
 Do not commit AWS access keys, secret keys, session tokens, activation IDs/codes, or real admin PINs.
 
+Reminder for later IoT work: keep the broad `admin` access key deactivated during normal operation. If AWS IoT setup needs permissions beyond `morsepi-setup-admin`, first prefer creating a purpose-limited IoT setup policy/user. Reactivate the broad `admin` key only if it is truly needed, and deactivate it again immediately after that setup task.
+
 ## Temporary Setup Identity
 
 Use a temporary identity such as `morsepi-setup-admin` for provisioning only.

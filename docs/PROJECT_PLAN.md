@@ -635,6 +635,7 @@ When asked to do the daily wrap-up, update:
 ### Ready Next
 
 - When setup work is done, delete the deactivated broad `admin` access key from AWS IAM after confirming no other workflow needs it.
+- For future IoT work, prefer a narrow IoT setup identity; reactivate the broad `admin` access key only if truly needed, then deactivate it again after the task.
 - Prepare the Systems Manager hybrid activation steps for the first deployed Pi and decide whether to register the active test Pi first.
 - Create the first `family_summary.json` shape focused on practice minutes, Daily Missions, new letters, words attempted, recent wins, and family totals.
 - After AWS backup/status works, prepare the first two grandkid stations end to end with [GRANDKID_STATION_DEPLOYMENT.md](GRANDKID_STATION_DEPLOYMENT.md).
