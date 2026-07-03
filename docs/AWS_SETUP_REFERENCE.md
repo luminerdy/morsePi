@@ -67,6 +67,9 @@ S3 bucket name:          morsepi-backups-luminerdy
 Active test station:     pappy-test-station
 Station IAM user:        morsepi-pappy-test-station
 Station IAM policy:      morsepi-pappy-test-station-s3
+Setup IAM user:          morsepi-setup-admin
+Setup IAM policy:        morsepi-setup-admin-policy
+Laptop setup profile:    morsepi-setup-admin
 ```
 
 Verified:
@@ -77,6 +80,7 @@ Verified:
 - active Pi can write to `stations/pappy-test-station/`
 - active Pi cannot list another station's raw prefix
 - active Pi uploaded one backup and one station status file
+- broad local `admin` access key used during initial setup was deactivated after `morsepi-setup-admin` was verified
 
 Do not commit AWS access keys, secret keys, session tokens, activation IDs/codes, or real admin PINs.
 
