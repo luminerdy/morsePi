@@ -56,6 +56,30 @@ campbell-olivea-station
 10. Register the active Pi with Systems Manager if we decide to test SSM before sending units out.
 11. Disable or delete the temporary setup access key.
 
+## Current AWS Foundation
+
+Created on 2026-07-02 local time:
+
+```text
+AWS account id:          674620572451
+AWS region:              us-east-1
+S3 bucket name:          morsepi-backups-luminerdy
+Active test station:     pappy-test-station
+Station IAM user:        morsepi-pappy-test-station
+Station IAM policy:      morsepi-pappy-test-station-s3
+```
+
+Verified:
+
+- bucket public access is blocked
+- bucket versioning is enabled
+- bucket default encryption uses AES256
+- active Pi can write to `stations/pappy-test-station/`
+- active Pi cannot list another station's raw prefix
+- active Pi uploaded one backup and one station status file
+
+Do not commit AWS access keys, secret keys, session tokens, activation IDs/codes, or real admin PINs.
+
 ## Temporary Setup Identity
 
 Use a temporary identity such as `morsepi-setup-admin` for provisioning only.

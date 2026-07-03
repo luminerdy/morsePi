@@ -624,13 +624,16 @@ When asked to do the daily wrap-up, update:
 - Hid the Add Student form on touch and desktop screens when station creation is disabled, while preserving admin/reset/recovery flows.
 - Added `student_disposable` to attempt metadata so future family summaries can ignore Guest practice.
 - Restricted disposable Guest from message routes so Guest can practice/demo Morse but cannot send or receive messages.
+- Created the AWS S3 backup foundation in `us-east-1` with bucket `morsepi-backups-luminerdy`.
+- Hardened the bucket with public access blocked, versioning enabled, AES256 default encryption, and project tags.
+- Created narrow station IAM user `morsepi-pappy-test-station` with policy `morsepi-pappy-test-station-s3`.
+- Configured the active Pi with the station IAM credential without printing the secret, updated its `backup_s3_uri`, and verified its AWS identity.
+- Verified least-privilege behavior: the active Pi can access `stations/pappy-test-station/` and is denied access to another station's raw prefix.
+- Uploaded and verified one real backup and one real status file from the active Pi to S3.
 
 ### Ready Next
 
-- Deploy/test the preloaded roster and disposable Guest flow on the active Pi.
-- Create the temporary AWS setup user/profile for `morsepi-setup-admin` using [AWS_SETUP_REFERENCE.md](AWS_SETUP_REFERENCE.md).
-- Confirm AWS Region and final bucket name, then create/configure the S3 bucket with public access blocked, encryption enabled, and versioning enabled.
-- Create one narrow station credential for `pappy-test-station` and test one backup upload plus one status upload from the active Pi.
+- Decide whether to replace the broad local AWS `admin` setup credential with a narrower temporary `morsepi-setup-admin` credential, then disable/delete setup access when no longer needed.
 - Prepare the Systems Manager hybrid activation steps for the first deployed Pi and decide whether to register the active test Pi first.
 - Create the first `family_summary.json` shape focused on practice minutes, Daily Missions, new letters, words attempted, recent wins, and family totals.
 - After AWS backup/status works, prepare the first two grandkid stations end to end with [GRANDKID_STATION_DEPLOYMENT.md](GRANDKID_STATION_DEPLOYMENT.md).

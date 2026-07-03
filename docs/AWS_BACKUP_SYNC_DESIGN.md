@@ -36,7 +36,7 @@ IoT can eventually replace most Systems Manager day-to-day command needs if it p
 ## S3 Layout
 
 ```text
-s3://morsepi-backups/
+s3://morsepi-backups-luminerdy/
   stations/
     <station-id>/
       backups/

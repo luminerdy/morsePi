@@ -180,7 +180,7 @@ Edit `data/station_config.json`:
 ```json
 {
   "station_id": "astrid-liara-station",
-  "backup_s3_uri": "s3://morsepi-backups",
+  "backup_s3_uri": "s3://morsepi-backups-luminerdy",
   "admin_pin": "",
   "allow_student_create": false,
   "students": [
@@ -320,13 +320,13 @@ python3 scripts/backup_data.py --label manual --keep 60
 If AWS CLI credentials are configured and `data/station_config.json` has `backup_s3_uri`, upload a backup to S3:
 
 ```bash
-python3 scripts/backup_data.py --label manual --s3-uri s3://morsepi-backups
+python3 scripts/backup_data.py --label manual --s3-uri s3://morsepi-backups-luminerdy
 ```
 
 Dry-run the S3 path without uploading:
 
 ```bash
-python3 scripts/backup_data.py --label manual --s3-uri s3://morsepi-backups --dry-run-s3
+python3 scripts/backup_data.py --label manual --s3-uri s3://morsepi-backups-luminerdy --dry-run-s3
 ```
 
 Write station status locally:
@@ -338,7 +338,7 @@ python3 scripts/station_status.py
 Upload station status to S3:
 
 ```bash
-python3 scripts/station_status.py --s3-uri s3://morsepi-backups
+python3 scripts/station_status.py --s3-uri s3://morsepi-backups-luminerdy
 ```
 
 Install the optional daily backup timer:

@@ -67,7 +67,7 @@ Use this effort-first model:
 Example S3 layout:
 
 ```text
-s3://morsepi-backups/
+s3://morsepi-backups-luminerdy/
   stations/
     pappy-test-station/
       backups/
@@ -122,7 +122,7 @@ Edit `data/station_config.json`:
 ```json
 {
   "station_id": "astrid-liara-station",
-  "backup_s3_uri": "s3://morsepi-backups",
+  "backup_s3_uri": "s3://morsepi-backups-luminerdy",
   "admin_pin": ""
 }
 ```
@@ -141,13 +141,13 @@ python3 scripts/backup_data.py --label manual
 Cloud upload:
 
 ```bash
-python3 scripts/backup_data.py --label manual --s3-uri s3://morsepi-backups
+python3 scripts/backup_data.py --label manual --s3-uri s3://morsepi-backups-luminerdy
 ```
 
 Expected S3 path:
 
 ```text
-s3://morsepi-backups/stations/<station-id>/backups/<timestamp>-<station-id>-manual.zip
+s3://morsepi-backups-luminerdy/stations/<station-id>/backups/<timestamp>-<station-id>-manual.zip
 ```
 
 The backup zip includes:
@@ -169,7 +169,7 @@ python3 scripts/station_status.py
 Cloud upload:
 
 ```bash
-python3 scripts/station_status.py --s3-uri s3://morsepi-backups
+python3 scripts/station_status.py --s3-uri s3://morsepi-backups-luminerdy
 ```
 
 Status includes:
@@ -184,7 +184,7 @@ Status includes:
 Expected S3 path:
 
 ```text
-s3://morsepi-backups/stations/<station-id>/status/station_status.json
+s3://morsepi-backups-luminerdy/stations/<station-id>/status/station_status.json
 ```
 
 ## Update Flow
@@ -212,7 +212,7 @@ Useful environment variables:
 
 ```bash
 export MORSE_STATION_ID=astrid-liara-station
-export MORSE_BACKUP_S3_URI=s3://morsepi-backups
+export MORSE_BACKUP_S3_URI=s3://morsepi-backups-luminerdy
 export MORSE_APP_DIR=/home/morse/morse-station
 ```
 
@@ -220,7 +220,7 @@ export MORSE_APP_DIR=/home/morse/morse-station
 
 First AWS pieces:
 
-- S3 bucket: `morsepi-backups`
+- S3 bucket: `morsepi-backups-luminerdy`
 - IAM setup user for initial provisioning only
 - IAM user or role per station with limited access to one station prefix
 - AWS CLI installed on each Pi

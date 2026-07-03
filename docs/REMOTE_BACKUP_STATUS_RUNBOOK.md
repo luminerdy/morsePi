@@ -36,7 +36,7 @@ Example:
 ```json
 {
   "station_id": "astrid-liara-station",
-  "backup_s3_uri": "s3://morsepi-backups",
+  "backup_s3_uri": "s3://morsepi-backups-luminerdy",
   "admin_pin": ""
 }
 ```
@@ -47,7 +47,7 @@ The shell update wrapper can also upload its pre-update backup/status, but it cu
 
 ```bash
 export MORSE_STATION_ID=astrid-liara-station
-export MORSE_BACKUP_S3_URI=s3://morsepi-backups
+export MORSE_BACKUP_S3_URI=s3://morsepi-backups-luminerdy
 ```
 
 ## Manual Local Backup
@@ -87,7 +87,7 @@ python3 scripts/backup_data.py --label manual
 Expected destination:
 
 ```text
-s3://morsepi-backups/stations/<station-id>/backups/<timestamp>-<station-id>-manual.zip
+s3://morsepi-backups-luminerdy/stations/<station-id>/backups/<timestamp>-<station-id>-manual.zip
 ```
 
 ## Manual Status
@@ -114,7 +114,7 @@ python3 scripts/station_status.py
 Expected destination:
 
 ```text
-s3://morsepi-backups/stations/<station-id>/status/station_status.json
+s3://morsepi-backups-luminerdy/stations/<station-id>/status/station_status.json
 ```
 
 Status should include:
@@ -151,7 +151,7 @@ Use environment variables when cloud upload is desired during update:
 
 ```bash
 MORSE_STATION_ID=astrid-liara-station \
-MORSE_BACKUP_S3_URI=s3://morsepi-backups \
+MORSE_BACKUP_S3_URI=s3://morsepi-backups-luminerdy \
 scripts/update_station.sh
 ```
 
