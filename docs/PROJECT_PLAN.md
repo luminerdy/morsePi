@@ -688,9 +688,20 @@ When asked to do the daily wrap-up, update:
 - Captured a presentation-oriented project prompt inventory covering the project arc from GitHub setup through Pi deployment, learning modes, AWS backup/update, and quality work.
 - Close-of-day GitHub status: remote update channel hardening and the Learning Now progress fix are committed and pushed to both `main` and `release/pi`; active Pi service is running.
 
+### 2026-07-04
+
+- Captured current app screenshots from the active Pi at `10.10.10.141` using the 800x480 touch layout for presentation use.
+- Added the screenshot set under [Current App Screenshots - 2026-07-04](screenshots/current-app-2026-07-04/README.md), including student selection, Daily, Progress, Words, Listen, Learn, and touch menu screens across Pappy, Astrid, and Liara.
+- Clarified the data-capture strategy for practice timing and Words rhythm.
+- Decision: keep raw timing events as the durable source of truth so future rhythm analysis can improve without losing historical student practice data.
+- Decision: Words attempts are important rhythm evidence because they capture whole-word timing, letter spacing, elapsed time, and consistency over a real short message.
+- Decision: future rhythm feedback should show progress over time and coach gently; it should not block correctness credit or make kids feel punished for imperfect timing.
+
 ### Ready Next
 
 - For future IoT work, prefer a narrow IoT setup identity; reactivate the broad `admin` access key only if truly needed, then deactivate it again after the task.
+- Add richer timing summaries for Practice, Words, and Signal Sprint, including separate symbol-gap and letter-gap metrics.
+- Add first admin-facing rhythm-over-time summary before adding kid-facing rhythm coaching.
 - Test `scripts/update_station.sh` on the first Git-cloned station before enabling the optional systemd update timer.
 - Add input size caps for typed messages and Morse prompt payloads, with regression tests.
 - Route all `next` redirects through `safe_next_url()`, with regression tests for external URL rejection.

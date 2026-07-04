@@ -688,6 +688,29 @@ Word practice attempts are appended per student to `data/students/<student-id>/w
 Attempt records include mode, target, expected Morse, actual Morse or selected answer, correctness, timing settings, raw key timing events, and timing summaries.
 ```
 
+Timing/rhythm data decision:
+
+- Keep raw timing events as the durable source of truth, not just a one-time score.
+- Preserve per-attempt dot, dash, and gap timing so future analysis can be improved without losing history.
+- Treat Words practice as especially valuable because it captures whole-word rhythm, letter spacing, and completion time over time.
+- Use timing trends to show progress: steadier dots, dashes closer to 3x dot length, clearer letter gaps, faster words without losing accuracy, and rhythm recovery after new letters are introduced.
+- Keep student-facing rhythm feedback encouraging and lightweight. Correctness should still come first; rhythm feedback should coach rather than block progress.
+- Use detailed rhythm charts first for adult/admin views, then introduce kid-friendly summaries once the metrics are trustworthy.
+
+Planned richer timing fields:
+
+```text
+avg_symbol_gap_ms
+avg_letter_gap_ms
+min_letter_gap_ms
+max_letter_gap_ms
+dot_consistency
+dash_consistency
+spacing_score
+overall_rhythm_score
+primary_rhythm_feedback
+```
+
 ---
 
 ### LOG-002: SQLite local storage
@@ -738,6 +761,8 @@ dash durations
 gap durations
 playback speed
 input threshold
+word elapsed time
+rhythm trend inputs
 hints used
 replays used
 timestamp

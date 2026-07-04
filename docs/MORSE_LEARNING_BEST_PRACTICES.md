@@ -125,9 +125,24 @@ Useful feedback targets:
 Suggested implementation path:
 
 1. Capture raw key down/up timestamps. Started with `data/practice_attempts.jsonl`.
-2. Compare student timing to current dot/dash/gap settings.
-3. Show simple coaching messages first.
-4. Add detailed timing charts only after the basic feedback is useful.
+2. Preserve raw timing events over time for Practice and Words attempts so later analysis can improve without losing history.
+3. Compare student timing to current dot/dash/gap settings.
+4. Split gap analysis into symbol gaps and letter gaps, especially for whole-word practice.
+5. Show simple coaching messages first.
+6. Add detailed timing charts only after the basic feedback is useful.
+
+Words practice is the best place to analyze rhythm over time because it captures a complete short message instead of a single isolated letter. For each word attempt, keep the raw events plus derived metrics such as dot consistency, dash consistency, symbol-gap average, letter-gap average, word elapsed time, and an overall rhythm score.
+
+Trend signals to preserve and eventually display:
+
+- Dots getting more consistent.
+- Dashes moving closer to 3x dot length.
+- Letter gaps becoming clearer.
+- Words getting faster without losing accuracy.
+- Rhythm recovering after new letters are introduced.
+- Listen accuracy improving after Send or Words practice.
+
+Design rule: rhythm feedback should be coaching, not punishment. A student can still get credit for a correct word while receiving one simple tip such as `Pause a little more between letters`.
 
 Kid-friendly examples:
 
