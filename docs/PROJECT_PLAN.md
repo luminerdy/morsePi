@@ -680,11 +680,17 @@ When asked to do the daily wrap-up, update:
 - Updated setup, AWS deployment, backup/status, and grandkid deployment docs to describe the release branch flow and timer rollout rules.
 - Decision: deployed stations should be cloned from GitHub and checked out to `release/pi`; the optional timer should be enabled only after a manual update works.
 - Decision: keep the active lab Pi file-deployed for now unless we intentionally rebuild it as a Git checkout; use the grandkid station builds to prove the real remote-update path.
+- Created and pushed the `release/pi` branch so deployed stations have a stable pull-based update channel.
+- Fixed a confusing Learning Now display issue where Learn mode could show `100%` from letter strength even though the burn-in rule still required more correct Learn tries.
+- Pappy's live D/U Learning Now state now correctly shows `65%`, `13/20 Learn`, and the next needed Learn tries instead of `100%`.
+- Added regression coverage so Learning Now Learn screens and JSON practice responses use burn-in progress rather than strength-only mastery.
+- Deployed the Learn progress display fix to the active Pi at `10.10.10.141`, restarted `morse-station.service`, and verified the Pi route suite passed with 52 tests.
+- Captured a presentation-oriented project prompt inventory covering the project arc from GitHub setup through Pi deployment, learning modes, AWS backup/update, and quality work.
+- Close-of-day GitHub status: remote update channel hardening and the Learning Now progress fix are committed and pushed to both `main` and `release/pi`; active Pi service is running.
 
 ### Ready Next
 
 - For future IoT work, prefer a narrow IoT setup identity; reactivate the broad `admin` access key only if truly needed, then deactivate it again after the task.
-- Create and push the `release/pi` branch, then use it as the pull-based update channel for deployed stations.
 - Test `scripts/update_station.sh` on the first Git-cloned station before enabling the optional systemd update timer.
 - Add input size caps for typed messages and Morse prompt payloads, with regression tests.
 - Route all `next` redirects through `safe_next_url()`, with regression tests for external URL rejection.
