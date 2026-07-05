@@ -1002,6 +1002,11 @@ def load_attempt_records(path, today_only=False):
 
 
 SESSION_RECOVERY_FILES = ("practice_attempts.jsonl", "word_attempts.jsonl", "bonus_attempts.jsonl")
+RHYTHM_ATTEMPT_FILES = {
+    "practice_attempts.jsonl": "Practice",
+    "word_attempts.jsonl": "Words",
+    "bonus_attempts.jsonl": "Sprint",
+}
 
 
 def write_attempt_records(path, attempts):
@@ -1089,6 +1094,119 @@ def summarize_practice_sessions(limit=20):
 
     normalized.sort(key=lambda item: item["ended_at"], reverse=True)
     return normalized[:limit]
+
+
+def attempt_rhythm_summary(attempt):
+    events = normalize_timing_events(attempt.get("timing_events", []))
+    if events:
+        return timing_summary(events)
+
+    summary = attempt.get("timing_summary")
+    if isinstance(summary, dict) and summary.get("symbol_count", 0):
+        return summary
+
+    return {}
+
+
+def average_metric(items, key):
+    values = [
+        item.get("summary", {}).get(key)
+        for item in items
+        if item.get("summary", {}).get(key) is not None
+    ]
+    if not values:
+        return None
+
+    return int(round(sum(values) / len(values)))
+
+
+def rhythm_trend_delta(items):
+    scored = [
+        item for item in items
+        if item.get("summary", {}).get("overall_rhythm_score") is not None
+    ]
+    if len(scored) < 4:
+        return None
+
+    window = min(10, len(scored) // 2)
+    early = scored[:window]
+    recent = scored[-window:]
+    early_average = average_metric(early, "overall_rhythm_score")
+    recent_average = average_metric(recent, "overall_rhythm_score")
+    if early_average is None or recent_average is None:
+        return None
+
+    return recent_average - early_average
+
+
+def rhythm_trend_label(delta):
+    if delta is None:
+        return "Need more data"
+    if delta >= 5:
+        return f"Improving +{delta}"
+    if delta <= -5:
+        return f"Watch trend {delta}"
+    return "Steady"
+
+
+def summarize_rhythm_over_time(recent_limit=12):
+    summaries = []
+
+    for profile in load_profiles():
+        student_id = profile["id"]
+        rhythm_items = []
+        source_counts = {label: 0 for label in RHYTHM_ATTEMPT_FILES.values()}
+        word_attempts = 0
+        word_correct = 0
+
+        for filename, label in RHYTHM_ATTEMPT_FILES.items():
+            for attempt in load_attempt_records(student_data_path(student_id, filename)):
+                if filename == "word_attempts.jsonl":
+                    word_attempts += 1
+                    if attempt.get("correct"):
+                        word_correct += 1
+
+                summary = attempt_rhythm_summary(attempt)
+                if not summary.get("symbol_count"):
+                    continue
+
+                source_counts[label] += 1
+                rhythm_items.append({
+                    "timestamp": str(attempt.get("timestamp", "")),
+                    "target": attempt.get("word") or attempt.get("target") or "",
+                    "source": label,
+                    "correct": bool(attempt.get("correct")),
+                    "summary": summary,
+                })
+
+        rhythm_items.sort(key=lambda item: item["timestamp"])
+        recent_items = rhythm_items[-recent_limit:]
+        latest = rhythm_items[-1] if rhythm_items else None
+        trend_delta = rhythm_trend_delta(rhythm_items)
+
+        summaries.append({
+            "student_id": student_id,
+            "student_name": profile["name"],
+            "disposable": bool(profile.get("disposable") or profile.get("guest")),
+            "rhythm_attempts": len(rhythm_items),
+            "latest_at": latest["timestamp"] if latest else "",
+            "latest_feedback": latest["summary"].get("primary_rhythm_feedback", "") if latest else "",
+            "avg_rhythm_score": average_metric(recent_items, "overall_rhythm_score"),
+            "avg_spacing_score": average_metric(recent_items, "spacing_score"),
+            "avg_dot_consistency": average_metric(recent_items, "dot_consistency"),
+            "avg_dash_consistency": average_metric(recent_items, "dash_consistency"),
+            "avg_symbol_gap_ms": average_metric(recent_items, "avg_symbol_gap_ms"),
+            "avg_letter_gap_ms": average_metric(recent_items, "avg_letter_gap_ms"),
+            "trend_delta": trend_delta,
+            "trend_label": rhythm_trend_label(trend_delta),
+            "source_counts": source_counts,
+            "word_attempts": word_attempts,
+            "word_accuracy": int(round((word_correct / word_attempts) * 100)) if word_attempts else None,
+            "recent": list(reversed(recent_items)),
+        })
+
+    summaries.sort(key=lambda item: (item["rhythm_attempts"] == 0, item["student_name"].lower()))
+    return summaries
 
 
 def rebuild_practice_progress_for_student(student_id):
@@ -1392,6 +1510,8 @@ def append_bonus_attempt(record):
     path.parent.mkdir(parents=True, exist_ok=True)
     normalized = dict(record)
     normalized["timestamp"] = datetime.now(timezone.utc).isoformat()
+    normalized["timing_events"] = normalize_timing_events(normalized.get("timing_events", []))
+    normalized["timing_summary"] = timing_summary(normalized["timing_events"])
 
     with path.open("a", encoding="utf-8") as attempts_file:
         attempts_file.write(json.dumps(normalized, sort_keys=True) + "\n")
@@ -2654,6 +2774,14 @@ def admin_sessions():
         recovery_status=request.args.get("recovery_status", ""),
         recovery_error=request.args.get("recovery_error", ""),
         count=request.args.get("count", "0"),
+    )
+
+
+@app.route("/admin/rhythm")
+def admin_rhythm():
+    return render_template(
+        "admin_rhythm.html",
+        rhythm=summarize_rhythm_over_time(),
     )
 
 

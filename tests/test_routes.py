@@ -930,7 +930,12 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual("pappy-station", attempt_record["station_id"])
         self.assertEqual("pappy", attempt_record["student_id"])
         self.assertEqual("0123456789abcdef0123456789abcdef", attempt_record["practice_session_id"])
-        self.assertEqual({"avg_dash_ms": None, "avg_dot_ms": 110, "avg_gap_ms": None, "dash_count": 0, "dot_count": 1, "gap_count": 0, "symbol_count": 1}, attempt_record["timing_summary"])
+        self.assertEqual(110, attempt_record["timing_summary"]["avg_dot_ms"])
+        self.assertIsNone(attempt_record["timing_summary"]["avg_dash_ms"])
+        self.assertEqual(1, attempt_record["timing_summary"]["dot_count"])
+        self.assertEqual(0, attempt_record["timing_summary"]["gap_count"])
+        self.assertIn("overall_rhythm_score", attempt_record["timing_summary"])
+        self.assertIn("primary_rhythm_feedback", attempt_record["timing_summary"])
 
     def test_practice_result_recomputes_keyed_correctness_server_side(self):
         response = self.client.post(
@@ -1174,6 +1179,9 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(100, payload["bonus"]["accuracy"])
         self.assertEqual(1, payload["bonus"]["streak"])
         self.assertEqual("sprint-1", bonus_record["session_id"])
+        self.assertIn("timing_summary", bonus_record)
+        self.assertEqual(1, bonus_record["timing_summary"]["dot_count"])
+        self.assertEqual(1, bonus_record["timing_summary"]["symbol_count"])
         self.assertFalse(self.student_file("pappy", "practice_progress.json").exists())
         self.assertFalse(self.student_file("pappy", "practice_attempts.jsonl").exists())
 
@@ -1326,6 +1334,68 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn(session_id, html)
         self.assertIn("Pappy", html)
         self.assertIn("pappy-station", html)
+
+    def test_admin_rhythm_summarizes_timing_across_attempt_logs(self):
+        self.write_text_file(
+            "pappy",
+            "practice_attempts.jsonl",
+            "\n".join([
+                json.dumps({
+                    "correct": True,
+                    "mode": "send",
+                    "student_id": "pappy",
+                    "target": "E",
+                    "timestamp": "2026-07-01T12:00:00+00:00",
+                    "timing_events": [
+                        {"type": "symbol", "symbol": ".", "duration_ms": 100},
+                        {"type": "gap", "gap_type": "symbol", "duration_ms": 100},
+                        {"type": "symbol", "symbol": "-", "duration_ms": 300},
+                        {"type": "gap", "gap_type": "letter", "duration_ms": 300},
+                        {"type": "symbol", "symbol": ".", "duration_ms": 110},
+                    ],
+                }, sort_keys=True),
+                json.dumps({
+                    "correct": True,
+                    "mode": "send",
+                    "student_id": "pappy",
+                    "target": "T",
+                    "timestamp": "2026-07-01T12:01:00+00:00",
+                    "timing_events": [
+                        {"type": "symbol", "symbol": "-", "duration_ms": 310},
+                        {"type": "gap", "gap_type": "symbol", "duration_ms": 100},
+                        {"type": "symbol", "symbol": ".", "duration_ms": 100},
+                    ],
+                }, sort_keys=True),
+            ]) + "\n",
+        )
+        self.write_text_file(
+            "pappy",
+            "word_attempts.jsonl",
+            json.dumps({
+                "correct": True,
+                "student_id": "pappy",
+                "timestamp": "2026-07-01T12:02:00+00:00",
+                "word": "AM",
+                "timing_events": [
+                    {"type": "symbol", "symbol": ".", "duration_ms": 100},
+                    {"type": "gap", "gap_type": "symbol", "duration_ms": 100},
+                    {"type": "symbol", "symbol": "-", "duration_ms": 300},
+                    {"type": "gap", "gap_type": "letter", "duration_ms": 300},
+                    {"type": "symbol", "symbol": "-", "duration_ms": 300},
+                ],
+            }, sort_keys=True) + "\n",
+        )
+
+        response = self.client.get("/admin/rhythm")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Rhythm Trends", html)
+        self.assertIn("Pappy", html)
+        self.assertIn("3 keyed attempts", html)
+        self.assertIn("Words 1", html)
+        self.assertIn("Practice 2", html)
+        self.assertIn("100%", html)
 
     def test_admin_sessions_move_session_updates_attempts_and_rebuilds_progress(self):
         session_id = "0123456789abcdef0123456789abcdef"

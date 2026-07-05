@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+<head>
+    <title>Rhythm Trends - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260705-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div class="app-shell">
+        <header class="app-header">
+            <div>
+                <p class="eyebrow">Admin</p>
+                <h1>Rhythm Trends</h1>
+                <a class="student-name student-switch-link" href="/students">{{ current_student.name }}</a>
+            </div>
+
+            <nav class="nav-row" aria-label="Primary navigation">
+                <a href="/">Home</a>
+                <a href="/practice">Practice</a>
+                <a href="/progress">Progress</a>
+                <a href="/students">Students</a>
+                <a href="/admin/sessions">Recovery</a>
+                <a class="active" href="/admin/rhythm">Rhythm</a>
+            </nav>
+        </header>
+
+        <main class="progress-page">
+            <section class="panel">
+                <div class="section-heading">
+                    <h2>Recent Rhythm Data</h2>
+                    <span class="panel-meta">{{ rhythm|length }} students</span>
+                </div>
+
+                <div class="rhythm-grid">
+                    {% for student in rhythm %}
+                        <article class="rhythm-card">
+                            <div class="session-summary">
+                                <div>
+                                    <strong>{{ student.student_name }}</strong>
+                                    <span>{{ student.rhythm_attempts }} keyed attempts{% if student.disposable %} · disposable{% endif %}</span>
+                                </div>
+                                <div class="session-stats">
+                                    <span>{% if student.avg_rhythm_score is not none %}{{ student.avg_rhythm_score }} rhythm{% else %}No score{% endif %}</span>
+                                    <span>{{ student.trend_label }}</span>
+                                </div>
+                            </div>
+
+                            {% if student.rhythm_attempts %}
+                                <div class="rhythm-metrics">
+                                    <span>Dots {% if student.avg_dot_consistency is not none %}{{ student.avg_dot_consistency }}{% else %}-{% endif %}</span>
+                                    <span>Dashes {% if student.avg_dash_consistency is not none %}{{ student.avg_dash_consistency }}{% else %}-{% endif %}</span>
+                                    <span>Spacing {% if student.avg_spacing_score is not none %}{{ student.avg_spacing_score }}{% else %}-{% endif %}</span>
+                                    <span>Symbol gap {% if student.avg_symbol_gap_ms is not none %}{{ student.avg_symbol_gap_ms }} ms{% else %}-{% endif %}</span>
+                                    <span>Letter gap {% if student.avg_letter_gap_ms is not none %}{{ student.avg_letter_gap_ms }} ms{% else %}-{% endif %}</span>
+                                    <span>Words {% if student.word_accuracy is not none %}{{ student.word_accuracy }}%{% else %}-{% endif %}</span>
+                                </div>
+
+                                {% if student.latest_feedback %}
+                                    <p class="rhythm-feedback">{{ student.latest_feedback }}</p>
+                                {% endif %}
+
+                                <div class="session-meta">
+                                    {% for label, count in student.source_counts.items() %}
+                                        <span>{{ label }} {{ count }}</span>
+                                    {% endfor %}
+                                    {% if student.latest_at %}
+                                        <span>Latest {{ student.latest_at[:19].replace("T", " ") }}</span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="rhythm-recent">
+                                    {% for item in student.recent[:5] %}
+                                        <div>
+                                            <span>{{ item.source }}</span>
+                                            <strong>{{ item.target or "Keyed" }}</strong>
+                                            <em>{% if item.summary.overall_rhythm_score is not none %}{{ item.summary.overall_rhythm_score }}{% else %}-{% endif %}</em>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="empty-state">No keyed rhythm timing recorded yet.</p>
+                            {% endif %}
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

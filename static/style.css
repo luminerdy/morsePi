@@ -284,6 +284,73 @@ h2 {
     grid-template-columns: minmax(120px, 170px) auto;
 }
 
+.rhythm-grid {
+    display: grid;
+    gap: 14px;
+}
+
+.rhythm-card {
+    display: grid;
+    gap: 12px;
+    padding: 14px;
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.rhythm-metrics,
+.rhythm-recent {
+    display: grid;
+    gap: 8px;
+}
+
+.rhythm-metrics {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+}
+
+.rhythm-metrics span,
+.rhythm-recent div {
+    min-height: 38px;
+    padding: 8px 10px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.rhythm-feedback {
+    margin: 0;
+    color: var(--primary);
+    font-size: 18px;
+    font-weight: 900;
+}
+
+.rhythm-recent {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.rhythm-recent div {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2px 8px;
+    align-items: center;
+}
+
+.rhythm-recent span {
+    grid-column: 1 / -1;
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.rhythm-recent strong,
+.rhythm-recent em {
+    color: var(--primary);
+    font-style: normal;
+}
+
 .volume-value {
     color: var(--primary);
     font-size: 18px;

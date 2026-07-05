@@ -711,6 +711,12 @@ overall_rhythm_score
 primary_rhythm_feedback
 ```
 
+Current rhythm trend implementation:
+
+- Practice, Words, and Signal Sprint attempts now normalize keyed timing events and store richer timing summaries.
+- The adult/admin `/admin/rhythm` page summarizes per-student rhythm data across Practice, Words, and Signal Sprint.
+- The first admin view is intentionally trend-oriented and adult-facing; kid-facing rhythm coaching should wait until the metrics have been tested with real student practice.
+
 ---
 
 ### LOG-002: SQLite local storage

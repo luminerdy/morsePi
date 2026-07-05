@@ -699,11 +699,19 @@ When asked to do the daily wrap-up, update:
 - Close-of-day GitHub status: screenshots and rhythm data strategy documentation are committed and pushed to both `main` and `release/pi`.
 - Close-of-day Pi status: no app code was changed today after the July 3 Learn progress fix; final SSH service check to `10.10.10.141` timed out, so active Pi service state was not re-verified during wrap-up.
 
+### 2026-07-05
+
+- Added richer timing summaries for keyed Practice and Words attempts.
+- Added the same timing-event normalization and timing summary generation for Signal Sprint attempts so all keyed activity captures comparable rhythm data.
+- New timing summary fields include separate symbol/letter/word gap counts and averages, min/max letter gaps, dot and dash consistency, dash-to-dot ratio, spacing score, overall rhythm score, and a primary rhythm feedback phrase.
+- Added an adult/admin rhythm trend page at `/admin/rhythm`.
+- The rhythm page summarizes each student's keyed attempts across Practice, Words, and Signal Sprint, including recent rhythm score, dot/dash consistency, spacing, average symbol/letter gap timing, Words accuracy, source counts, recent keyed attempts, and trend direction.
+- Added regression tests for richer timing summaries, Sprint timing summaries, and the admin rhythm page.
+- Deployed to the active Pi at `10.10.10.141`, restarted `morse-station.service`, verified `/admin/rhythm` returns 200, and confirmed the Pi regression suite passed with 55 tests.
+
 ### Ready Next
 
 - For future IoT work, prefer a narrow IoT setup identity; reactivate the broad `admin` access key only if truly needed, then deactivate it again after the task.
-- Add richer timing summaries for Practice, Words, and Signal Sprint, including separate symbol-gap and letter-gap metrics.
-- Add first admin-facing rhythm-over-time summary before adding kid-facing rhythm coaching.
 - Test `scripts/update_station.sh` on the first Git-cloned station before enabling the optional systemd update timer.
 - Add input size caps for typed messages and Morse prompt payloads, with regression tests.
 - Route all `next` redirects through `safe_next_url()`, with regression tests for external URL rejection.
