@@ -37,6 +37,8 @@ class RouteRenderTests(unittest.TestCase):
         self.original_station_config_path = app_module.STATION_CONFIG_PATH
         self.original_admin_pin_path = app_module.ADMIN_PIN_PATH
         self.original_play_daily = app_module.play_daily_celebration_in_background
+        self.original_last_message = app_module.last_message
+        self.original_last_morse = app_module.last_morse
 
         student_profiles.DATA_DIR = self.data_dir
         student_profiles.STUDENTS_DIR = self.students_dir
@@ -63,6 +65,8 @@ class RouteRenderTests(unittest.TestCase):
         app_module.STATION_CONFIG_PATH = self.original_station_config_path
         app_module.ADMIN_PIN_PATH = self.original_admin_pin_path
         app_module.play_daily_celebration_in_background = self.original_play_daily
+        app_module.last_message = self.original_last_message
+        app_module.last_morse = self.original_last_morse
         self.temp_dir.cleanup()
 
     def record_daily_celebration(self):
@@ -209,6 +213,30 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("<strong>Words</strong>", html)
         self.assertIn("Unlock after S O", html)
         self.assertIn('href="/touch/progress"', html)
+
+    def test_home_message_is_limited_before_encoding(self):
+        response = self.client.post("/", data={"message": "A" * (app_module.MAX_MESSAGE_CHARS + 25)})
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(app_module.MAX_MESSAGE_CHARS, len(app_module.last_message))
+
+    def test_safe_next_url_rejects_external_redirect(self):
+        response = self.client.post(
+            "/practice/new?mode=send",
+            data={"next": "https://example.com/not-local"},
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual("/practice?mode=send", response.headers["Location"])
+
+    def test_safe_next_url_allows_local_redirect(self):
+        response = self.client.post(
+            "/practice/new?mode=send",
+            data={"next": "/touch/daily"},
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual("/touch/daily", response.headers["Location"])
 
     def test_touch_words_unlocks_after_s_o_active(self):
         active_letters = app_module.starter_practice_letters + ["S", "O"]

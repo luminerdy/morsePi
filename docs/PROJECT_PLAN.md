@@ -708,16 +708,14 @@ When asked to do the daily wrap-up, update:
 - The rhythm page summarizes each student's keyed attempts across Practice, Words, and Signal Sprint, including recent rhythm score, dot/dash consistency, spacing, average symbol/letter gap timing, Words accuracy, source counts, recent keyed attempts, and trend direction.
 - Added regression tests for richer timing summaries, Sprint timing summaries, and the admin rhythm page.
 - Deployed to the active Pi at `10.10.10.141`, restarted `morse-station.service`, verified `/admin/rhythm` returns 200, and confirmed the Pi regression suite passed with 55 tests.
+- Added a hardening pass for the first multi-station rollout: request payload limit, typed message and Morse payload caps, timing-event caps, safe local-only `next` redirects, single-threaded Flask serving on the Pi, and one source of truth for the unlock curriculum.
+- Added `scripts/check_dependencies.py` so a fresh Pi can quickly report required runtime tools (`git`, `systemctl`, `aplay`, `speaker-test`, Flask, GPIO Zero) and optional cloud/messaging tools (`aws`, MQTT).
 
 ### Ready Next
 
 - For future IoT work, prefer a narrow IoT setup identity; reactivate the broad `admin` access key only if truly needed, then deactivate it again after the task.
 - Test `scripts/update_station.sh` on the first Git-cloned station before enabling the optional systemd update timer.
-- Add input size caps for typed messages and Morse prompt payloads, with regression tests.
-- Route all `next` redirects through `safe_next_url()`, with regression tests for external URL rejection.
-- Add short-term concurrency protection for the active Pi serving mode, then plan the longer-term removal of path-global progress/attempt storage.
-- Unify the duplicate curriculum/progression tables into one source of truth.
-- Add setup/runtime checks for required external tools: `speaker-test`, `aplay`, `aws`, `git`, and `systemctl`.
+- Plan the longer-term removal of path-global progress/attempt storage before enabling a multi-worker production server.
 - Build the Astrid/Liara station end to end with [GRANDKID_STATION_DEPLOYMENT.md](GRANDKID_STATION_DEPLOYMENT.md), including app install, touch kiosk, roster, admin PIN, AWS CLI, narrow station IAM user, and S3 backup/status test.
 - After Astrid/Liara is proven, build the Campbell/Olivea station with the same checklist.
 - Design the first safe student progress snapshot after at least one additional station exists, so cross-station student sync is grounded in real deployment behavior.

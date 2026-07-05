@@ -1,6 +1,6 @@
 import unittest
 
-from practice_attempts import timing_summary
+from practice_attempts import MAX_TIMING_EVENTS, normalize_timing_events, timing_summary
 
 
 class TimingSummaryTests(unittest.TestCase):
@@ -38,6 +38,16 @@ class TimingSummaryTests(unittest.TestCase):
         self.assertIsNone(summary["avg_letter_gap_ms"])
         self.assertIsNone(summary["spacing_score"])
         self.assertIsNotNone(summary["overall_rhythm_score"])
+
+    def test_normalize_timing_events_caps_large_browser_payloads(self):
+        events = [
+            {"type": "symbol", "symbol": ".", "duration_ms": 100}
+            for _ in range(MAX_TIMING_EVENTS + 25)
+        ]
+
+        normalized = normalize_timing_events(events)
+
+        self.assertEqual(MAX_TIMING_EVENTS, len(normalized))
 
 
 if __name__ == "__main__":

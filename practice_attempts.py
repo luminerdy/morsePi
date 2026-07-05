@@ -4,6 +4,7 @@ from pathlib import Path
 
 
 ATTEMPTS_PATH = Path("data/practice_attempts.jsonl")
+MAX_TIMING_EVENTS = 240
 
 
 def set_attempts_path(path):
@@ -150,7 +151,7 @@ def normalize_timing_events(events):
     if not isinstance(events, list):
         return normalized
 
-    for event in events:
+    for event in events[:MAX_TIMING_EVENTS]:
         if not isinstance(event, dict):
             continue
 

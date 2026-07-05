@@ -1116,6 +1116,7 @@ Remote update operations should:
 | Cloud backup upload | Started with S3 upload support in `scripts/backup_data.py` |
 | Station status report | Started with `scripts/station_status.py` |
 | Remote update foundation | Started with `scripts/update_station.sh`; deployed stations pull from `release/pi` with post-restart health check |
+| Fresh Pi dependency check | Started with `scripts/check_dependencies.py` |
 | Continuous Send practice loop | Complete |
 | Learn practice mode | Complete |
 | Read practice mode | Complete |
@@ -1221,6 +1222,7 @@ Confirm Progress details make sense after a few attempts.
 Confirm Operator Level and unlocked letters feel fun and encouraging.
 Confirm the 7-inch Raspberry Pi touchscreen layout avoids crowded controls and unreadable text.
 Confirm each student's `data/students/<student-id>/practice_attempts.jsonl` captures useful timing summaries after Send/Learn attempts.
+Confirm `python3 scripts/check_dependencies.py` passes required items on each newly built station before student testing.
 Confirm adaptive Listen playback feels easier early without becoming too slow.
 Confirm Listen stays recognition-only, without a keyer panel or keying score path.
 Confirm `S` and `O` appear after all five active practice modes reach 100% current-set mastery.

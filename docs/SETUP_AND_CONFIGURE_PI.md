@@ -111,6 +111,14 @@ git clone https://github.com/luminerdy/morsePi.git morse-station
 cd /home/morse/morse-station
 ```
 
+Run the dependency checker after cloning:
+
+```bash
+python3 scripts/check_dependencies.py
+```
+
+Required items should show `OK`. The AWS CLI and MQTT package may show as optional missing until cloud backup or future messaging is configured for that station.
+
 If the folder already exists, update it instead:
 
 ```bash
@@ -627,6 +635,7 @@ Make sure no other hardware test script is still running. The web app owns GPIO1
 - SSH enabled
 - User `morse` created
 - System packages installed
+- `python3 scripts/check_dependencies.py` shows required items as `OK`
 - Repo cloned to `/home/morse/morse-station`
 - Telegraph key wired to GPIO17
 - LED wired to GPIO27 with resistor

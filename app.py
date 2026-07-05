@@ -35,6 +35,14 @@ app = Flask(__name__)
 SESSION_COOKIE = "morse_practice_session_id"
 STATION_CONFIG_PATH = Path("data/station_config.json")
 ADMIN_PIN_PATH = Path("data/admin_pin.txt")
+MAX_REQUEST_BYTES = 16 * 1024
+MAX_MESSAGE_CHARS = 160
+MAX_MORSE_CHARS = 600
+MAX_ANSWER_CHARS = 20
+MAX_WORD_CHARS = 20
+MAX_STUDENT_NAME_CHARS = 40
+
+app.config["MAX_CONTENT_LENGTH"] = MAX_REQUEST_BYTES
 
 
 @app.before_request
@@ -143,12 +151,29 @@ learn_ready_strength = 70
 learn_ready_rest_hours = 3
 word_ready_correct_attempts = 5
 max_learning_groups_per_day = 2
-all_practice_letters = [
-    "E", "T", "A", "N", "I", "M",
-    "S", "O", "R", "K", "D", "U",
-    "C", "W", "H", "L", "P", "F", "Y", "G",
-    "B", "V", "J", "X", "Q", "Z",
-    "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"
+letter_unlock_groups = [
+    {"letters": ["S", "O"], "label": "Signal Builder"},
+    {"letters": ["R", "K"], "label": "Rhythm Builder"},
+    {"letters": ["D", "U"], "label": "Relay Builder"},
+    {"letters": ["C", "W", "H", "L"], "label": "Word Builder"},
+    {"letters": ["P", "F", "Y", "G"], "label": "Pattern Builder"},
+    {"letters": ["B", "V", "J", "X"], "label": "Code Builder"},
+    {"letters": ["Q", "Z"], "label": "Alphabet Builder"},
+    {"letters": ["1", "2", "3", "4", "5"], "label": "Number Builder"},
+    {"letters": ["6", "7", "8", "9", "0"], "label": "Full Station Operator"},
+]
+letter_unlock_steps = [
+    {
+        "threshold": 100,
+        "letters": group["letters"],
+        "label": group["label"]
+    }
+    for group in letter_unlock_groups
+]
+all_practice_letters = starter_practice_letters + [
+    letter
+    for group in letter_unlock_groups
+    for letter in group["letters"]
 ]
 alphabet_letters = [letter for letter in all_practice_letters if letter.isalpha()]
 word_practice_unlock_letters = ["S", "O"]
@@ -168,6 +193,10 @@ def new_practice_session_id():
 def is_practice_session_id(value):
     value = str(value or "").strip().lower()
     return len(value) == 32 and all(character in "0123456789abcdef" for character in value)
+
+
+def limited_text(value, max_chars):
+    return str(value or "").strip()[:max_chars]
 
 
 def safe_session_id(value):
@@ -311,53 +340,6 @@ def attempt_metadata():
     }
 
 
-letter_unlock_steps = [
-    {
-        "threshold": 100,
-        "letters": ["S", "O"],
-        "label": "Signal Builder"
-    },
-    {
-        "threshold": 100,
-        "letters": ["R", "K"],
-        "label": "Rhythm Builder"
-    },
-    {
-        "threshold": 100,
-        "letters": ["D", "U"],
-        "label": "Relay Builder"
-    },
-    {
-        "threshold": 100,
-        "letters": ["C", "W", "H", "L"],
-        "label": "Word Builder"
-    },
-    {
-        "threshold": 100,
-        "letters": ["P", "F", "Y", "G"],
-        "label": "Pattern Builder"
-    },
-    {
-        "threshold": 100,
-        "letters": ["B", "V", "J", "X"],
-        "label": "Code Builder"
-    },
-    {
-        "threshold": 100,
-        "letters": ["Q", "Z"],
-        "label": "Alphabet Builder"
-    },
-    {
-        "threshold": 100,
-        "letters": ["1", "2", "3", "4", "5"],
-        "label": "Number Builder"
-    },
-    {
-        "threshold": 100,
-        "letters": ["6", "7", "8", "9", "0"],
-        "label": "Full Station Operator"
-    }
-]
 practice_target = "E"
 practice_feedback = ""
 practice_modes = {
@@ -1994,7 +1976,8 @@ def word_practice_summary(active_letters=None):
 
 
 def normalize_word_morse(value):
-    cleaned = "".join(character for character in str(value).strip() if character in ".-/ ")
+    value = limited_text(value, MAX_MORSE_CHARS)
+    cleaned = "".join(character for character in value if character in ".-/ ")
     return " ".join(cleaned.split())
 
 
@@ -2527,7 +2510,7 @@ def update_message_from_request():
     global last_message, last_morse
 
     if request.method == "POST":
-        last_message = request.form.get("message", "")
+        last_message = limited_text(request.form.get("message", ""), MAX_MESSAGE_CHARS)
         last_morse = text_to_morse(last_message)
 
 
@@ -2583,13 +2566,13 @@ def render_practice_template(template_name):
     )
 
 
-def safe_next_url(default_endpoint="touch_index"):
+def safe_next_url(default_endpoint="touch_index", **default_values):
     next_url = request.form.get("next") or request.args.get("next") or ""
 
     if next_url.startswith("/") and not next_url.startswith("//"):
         return next_url
 
-    return url_for(default_endpoint)
+    return url_for(default_endpoint, **default_values)
 
 
 # -----------------------------
@@ -2687,7 +2670,7 @@ def students():
             if not admin_pin_valid(request.form.get("admin_pin", "")):
                 return redirect(url_for("students", reset_error="admin-pin"))
 
-            profile = add_profile(request.form.get("student_name", ""))
+            profile = add_profile(limited_text(request.form.get("student_name", ""), MAX_STUDENT_NAME_CHARS))
         else:
             profile = profile_for_id(slugify_student_id(request.form.get("student_id", "")))
 
@@ -2798,18 +2781,18 @@ def touch_timing():
 @app.route("/play", methods=["POST"])
 def play():
     if not message_access_allowed():
-        return redirect(request.form.get("next") or url_for("index"))
+        return redirect(safe_next_url("index"))
 
     if last_morse:
         play_in_background(last_morse)
 
-    return redirect(request.form.get("next") or url_for("index"))
+    return redirect(safe_next_url("index"))
 
 
 @app.route("/stop-playback", methods=["POST"])
 def stop_playback():
     stop_station_playback()
-    return redirect(request.form.get("next") or url_for("index"))
+    return redirect(safe_next_url("index"))
 
 
 @app.route("/audio-reset", methods=["POST"])
@@ -2833,7 +2816,7 @@ def set_station_volume():
     volume_percent = max(0, min(volume_percent, 100))
     station_volume = volume_percent / 100.0
 
-    return redirect(request.form.get("next") or url_for("index"))
+    return redirect(safe_next_url("index"))
 
 
 @app.route("/timing-settings", methods=["POST"])
@@ -2848,7 +2831,7 @@ def set_timing_settings():
     }))
     save_morse_timing_settings()
 
-    return redirect(request.form.get("next") or url_for("index"))
+    return redirect(safe_next_url("index"))
 
 
 @app.route("/live-key")
@@ -2911,7 +2894,7 @@ def touch_words():
 def practice_new():
     mode = get_practice_mode()
     choose_new_practice_target(mode)
-    return redirect(request.form.get("next") or url_for("practice", mode=mode))
+    return redirect(safe_next_url("practice", mode=mode))
 
 
 @app.route("/practice/next", methods=["POST"])
@@ -3002,7 +2985,7 @@ def words_stop():
 @app.route("/words/result", methods=["POST"])
 def words_result():
     data = request.get_json(silent=True) or {}
-    word = str(data.get("word", "")).upper()
+    word = limited_text(data.get("word", ""), MAX_WORD_CHARS).upper()
     actual_morse = normalize_word_morse(data.get("actual_morse", get_current_key_morse()))
     expected_morse, actual_morse, is_correct = server_checked_keying_result(word, actual_morse)
     decoded = morse_to_text(actual_morse).upper() if actual_morse else ""
@@ -3050,7 +3033,7 @@ def bonus_next():
 def bonus_result():
     data = request.get_json(silent=True) or {}
     session_id = str(data.get("session_id", "")).strip()
-    letter = str(data.get("target", practice_target)).upper()
+    letter = limited_text(data.get("target", practice_target), 1).upper()
     expected_morse, actual_morse, is_correct = server_checked_keying_result(
         letter,
         data.get("actual_morse") or get_current_key_morse().strip()
@@ -3089,9 +3072,9 @@ def bonus_result():
 @app.route("/practice/result", methods=["POST"])
 def practice_result():
     data = request.get_json(silent=True) or {}
-    letter = str(data.get("target", practice_target)).upper()
-    mode = data.get("mode", "send")
-    answer = data.get("answer", "")
+    letter = limited_text(data.get("target", practice_target), 1).upper()
+    mode = str(data.get("mode", "send"))
+    answer = limited_text(data.get("answer", ""), MAX_ANSWER_CHARS)
     actual_morse = data.get("actual_morse") or get_current_key_morse().strip()
     timing_events = data.get("timing_events") or get_current_key_events()
 
@@ -3162,7 +3145,7 @@ def practice_play():
     mode = get_practice_mode()
     expected_morse = text_to_morse(practice_target)
     play_in_background(expected_morse)
-    return redirect(request.form.get("next") or url_for("practice", mode=mode))
+    return redirect(safe_next_url("practice", mode=mode))
 
 
 @app.route("/practice/check", methods=["POST"])
@@ -3193,7 +3176,7 @@ def practice_check():
 
 if __name__ == "__main__":
     try:
-        app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)
+        app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False, threaded=False)
     finally:
         stop_key_tone()
         led_off()
