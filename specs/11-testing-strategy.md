@@ -1,0 +1,44 @@
+# 11 — Testing Strategy
+
+- **TEST-001** Unit tests for the pure domain: `morse.py` round-trips,
+  Farnsworth math (AC-006), dot/dash classification (AC-007), gate logic
+  (AC-008), strength formula, badge/coach derivations. Target ≥ 90% coverage
+  of `learning/` — this is where the product lives.
+- **TEST-002** Contract tests per API-* endpoint via Flask test client + mock
+  hardware: happy path, validation rejection, auth rejection, oversize
+  rejection. Every AC in
+  [10-acceptance-criteria.md](10-acceptance-criteria.md) encoded as a test.
+- **TEST-003** Concurrency test (AC-001) using a threaded test server — run
+  in CI on every PR, not just locally.
+- **TEST-004** Property-based tests (hypothesis) for `text→morse→text`
+  (round-trips for the supported alphabet) and for Morse-input cleaners
+  (never crash, output always within charset/length).
+- **TEST-005** Crash-safety test for atomic writes (AC-009) and torn-JSONL
+  tolerance.
+- **TEST-006** Golden-data migration test: a fixture copy of a real
+  anonymized `data/` tree (AC-010) checked into `tests/fixtures/`.
+- **TEST-007** Hardware-in-the-loop smoke script (manual, on-Pi): key press →
+  tone/LED, playback, volume — a one-command checklist runner replacing
+  today's ad-hoc `hardware_tests/` scripts; results appended to the status
+  document.
+- **TEST-008** Security checks in CI: pip-audit, secret scan, and a small
+  test asserting the dev server / debug mode cannot start from the packaged
+  entry point.
+- **TEST-009** *(V2)* Update-path test: container-based rehearsal that
+  `update_station.sh` refuses dirty trees, refuses non-fast-forward, and
+  rolls back on failed `/healthz`.
+- **TEST-010** Performance guard: summary endpoints under a 10k-attempt
+  fixture must stay < 500 ms (NFR-003) — asserted in CI with a generous 2×
+  margin for runner noise.
+
+## CI pipeline (per TR-011)
+
+On every PR and push to main:
+
+1. `ruff check` + `ruff format --check`
+2. `pytest` with coverage gate (≥ 80% on `learning/` and `morse.py`)
+3. Concurrency test (TEST-003)
+4. `pip-audit` + secret scan (TEST-008)
+5. Performance guard (TEST-010)
+
+Matrix: Linux (primary), plus Windows/macOS import-and-unit smoke for AC-012.

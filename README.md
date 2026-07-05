@@ -67,6 +67,7 @@ GPIO layout:
 
 ## Key Docs
 
+- [Rebuild specs](specs/README.md)
 - [Fresh Pi setup](docs/SETUP_AND_CONFIGURE_PI.md)
 - [Grandkid station deployment checklist](docs/GRANDKID_STATION_DEPLOYMENT.md)
 - [Remote backup, status, and update runbook](docs/REMOTE_BACKUP_STATUS_RUNBOOK.md)
@@ -103,10 +104,10 @@ Run the regression test bank on the Pi with mock GPIO:
 
 ```bash
 cd /home/morse/morse-station
-GPIOZERO_PIN_FACTORY=mock python3 -m unittest tests.test_backup_data tests.test_station_status tests.test_learning_gates tests.test_routes
+GPIOZERO_PIN_FACTORY=mock python3 -m unittest tests.test_backup_data tests.test_station_status tests.test_practice_attempts tests.test_learning_gates tests.test_routes
 ```
 
-These tests use temporary progress files and do not modify student practice data. The current bank covers data backups, station status reporting, learning gates, alphabet progress, stale Learning Now cleanup, Daily Mission summary rules, Practice Coach recommendations, derived badges, rendered touch pages, profile cookie separation, admin reset behavior, practice POST routes, Signal Sprint bonus routes, and the Daily celebration endpoint.
+These tests use temporary progress files and do not modify student practice data. The current bank covers data backups, station status reporting, timing summaries, learning gates, alphabet progress, stale Learning Now cleanup, Daily Mission summary rules, Practice Coach recommendations, derived badges, rendered touch pages, profile cookie separation, admin reset behavior, practice POST routes, Signal Sprint bonus routes, and the Daily celebration endpoint.
 
 ## Repository Layout
 
@@ -117,6 +118,7 @@ templates/              Flask HTML templates
 static/                 CSS and browser JavaScript
 tests/                  Regression tests for learning gates and progress rules
 scripts/                Maintenance scripts, including local data backups
+specs/                  Rebuild specifications and requirement IDs
 config.station.example.json  Example per-station deployment config
 hardware_tests/         Standalone GPIO/audio test scripts
 archive/                Earlier prototypes kept for reference

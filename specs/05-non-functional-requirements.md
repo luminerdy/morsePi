@@ -1,0 +1,35 @@
+# 05 — Non-Functional Requirements
+
+- **NFR-001** *(MVP)* Target hardware: Raspberry Pi 4 (1 GB worst case),
+  Raspberry Pi OS, Python ≥ 3.11. Steady-state RSS ≤ 200 MB.
+- **NFR-002** *(MVP)* Key press → sidetone start latency ≤ 50 ms; key press →
+  LED ≤ 50 ms. (This is the product's core feel.)
+- **NFR-003** *(MVP)* Any page or JSON endpoint SHALL respond in ≤ 500 ms with
+  5 students × 10,000 attempts of history. Summaries MUST NOT re-parse full
+  attempt logs per request (incremental or cached aggregation).
+- **NFR-004** *(MVP)* The app SHALL be correct under concurrent requests from
+  ≥ 2 clients (touchscreen + remote browser): no shared mutable module state
+  keyed to "the current request." *(Delta: the global-path design corrupts
+  cross-student data under threads; `7818254` mitigates by forcing the dev
+  server single-threaded (`threaded=False`), which serializes requests but
+  leaves the root cause — the requirement stands for the rebuild, since any
+  threaded WSGI server would regress.)*
+- **NFR-005** *(MVP)* The app SHALL run on non-Pi hosts (dev, CI) with a null
+  hardware backend selected automatically — no env-var incantations required.
+- **NFR-006** *(MVP)* Power loss at any moment SHALL NOT corrupt stored state:
+  all JSON writes atomic (write-temp + rename); JSONL appends are
+  line-atomic; a torn final line is skipped on read, not fatal.
+- **NFR-007** *(MVP)* The service SHALL auto-start on boot and auto-restart on
+  crash (systemd, `Restart=on-failure`).
+- **NFR-008** *(MVP)* Absence of speaker, LED, or key SHALL degrade gracefully
+  (feature disabled + logged) — never crash the web app.
+- **NFR-009** *(V1)* Touch UI: all tap targets ≥ 48 px, readable at 800×480,
+  usable by a non-reading 5-year-old for the daily flow.
+- **NFR-010** *(MVP)* Structured logging to journald: startup config summary,
+  hardware detection results, every admin action, every rejected request
+  (with reason).
+- **NFR-011** *(V2)* A station SHALL be remotely diagnosable from its uploaded
+  status document alone: app version, uptime, disk free, last backup time,
+  per-student attempt counts.
+- **NFR-012** *(MVP)* Kid-facing failure modes: any 4xx/5xx reachable from the
+  student UI renders a friendly retry page, never a stack trace.

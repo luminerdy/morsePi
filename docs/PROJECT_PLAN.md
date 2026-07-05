@@ -710,6 +710,7 @@ When asked to do the daily wrap-up, update:
 - Deployed to the active Pi at `10.10.10.141`, restarted `morse-station.service`, verified `/admin/rhythm` returns 200, and confirmed the Pi regression suite passed with 55 tests.
 - Added a hardening pass for the first multi-station rollout: request payload limit, typed message and Morse payload caps, timing-event caps, safe local-only `next` redirects, single-threaded Flask serving on the Pi, and one source of truth for the unlock curriculum.
 - Added `scripts/check_dependencies.py` so a fresh Pi can quickly report required runtime tools (`git`, `systemctl`, `aplay`, `speaker-test`, Flask, GPIO Zero) and optional cloud/messaging tools (`aws`, MQTT).
+- Added root `specs/` package for a future rebuild, including product overview, MVP scope, feature inventory, FR/NFR/SEC/API/TEST requirement IDs, acceptance criteria, testing strategy, rebuild roadmap, documentation plan, and legacy compliance status through `7818254`.
 
 ### Ready Next
 

@@ -622,7 +622,7 @@ hostname -I
 Make sure the app is listening on all interfaces. The current app uses:
 
 ```python
-app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)
+app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False, threaded=False)
 ```
 
 ### Hardware tests work, but web app does not
