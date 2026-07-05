@@ -696,6 +696,8 @@ When asked to do the daily wrap-up, update:
 - Decision: keep raw timing events as the durable source of truth so future rhythm analysis can improve without losing historical student practice data.
 - Decision: Words attempts are important rhythm evidence because they capture whole-word timing, letter spacing, elapsed time, and consistency over a real short message.
 - Decision: future rhythm feedback should show progress over time and coach gently; it should not block correctness credit or make kids feel punished for imperfect timing.
+- Close-of-day GitHub status: screenshots and rhythm data strategy documentation are committed and pushed to both `main` and `release/pi`.
+- Close-of-day Pi status: no app code was changed today after the July 3 Learn progress fix; final SSH service check to `10.10.10.141` timed out, so active Pi service state was not re-verified during wrap-up.
 
 ### Ready Next
 
