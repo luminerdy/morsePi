@@ -20,7 +20,7 @@ files only carry *(Delta: …)* notes, not status history.
 | `scripts/check_dependencies.py` (manual required/optional binary + module check) | `7818254` | TR-008 — partial (manual script, not startup detection) |
 | Rhythm timing summaries per attempt + `/admin/rhythm` trends page; timing events capped at 240 | `674fdd8` | New scope — now FR-036/FR-037, API-017, AC-013 |
 | Learn-mode score display fix; screenshots; doc updates | `89f73eb` etc. | No spec impact |
-| Touch System recovery page with Wi-Fi/IP status, admin-PIN-gated Wi-Fi restart, and admin-PIN-gated kiosk exit | after `3f20d03` | FR-038, API-018, AC-014 — met in legacy |
+| Touch System recovery page with Wi-Fi/IP status, on-screen keyboard availability/launch, admin-PIN-gated Wi-Fi restart, and admin-PIN-gated kiosk exit | after `3f20d03` | FR-038, API-018, AC-014 — met in legacy |
 
 **Note 1 (FR-012):** over-limit text is silently **truncated** (`limited_text`),
 not rejected; only bodies > 16 KB get a hard 413. The OOM DoS is closed
@@ -40,7 +40,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-022 single unlock table | 🟡 | Unified in `app.py`; `practice_progress.py:LETTER_UNLOCKS` duplicate remains |
 | FR-035 hardened updater | 🟡 | `release/pi` branch + health check; **no rollback**, py_compile only |
 | FR-036/FR-037 rhythm analysis | ✅ | New feature, spec'd retroactively |
-| FR-038 touch System recovery | ✅ | `/touch/system` shows local status; `/touch/system/action` gates recovery actions behind admin PIN |
+| FR-038 touch System recovery | ✅ | `/touch/system` shows local status and keyboard availability; `/touch/system/action` gates recovery actions behind admin PIN |
 | NFR-004 concurrency safety | 🟡 | `threaded=False` serializes requests; module-global state remains, will regress under any threaded server |
 | NFR-005 runs off-Pi w/o env vars | ❌ | Still needs `GPIOZERO_PIN_FACTORY=mock` |
 | NFR-006 atomic writes | ❌ | Plain `write_text`, no temp+rename |

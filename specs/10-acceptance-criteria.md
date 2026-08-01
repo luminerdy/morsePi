@@ -48,10 +48,12 @@ correctness checks. Each is encoded as an automated test per
   missing letter gaps produce no spurious spacing score. ***Passes today***
   (`tests/test_practice_attempts.py`); the rebuild ports these tests.
 - **AC-014** (FR-038) On an 800x480 touch station, `/touch/system` displays
-  hostname, IP address, Wi-Fi connection, and tool availability without a
-  keyboard. `POST /touch/system/action` rejects a bad admin PIN and does not
-  run the requested action; with a valid PIN it starts the requested local
-  recovery action and returns/redirects without exposing secrets.
+  hostname, IP address, Wi-Fi connection, Wi-Fi tool availability, and
+  on-screen keyboard availability without a physical keyboard. `POST
+  /touch/system/action` rejects a bad admin PIN and does not run the requested
+  action; with a valid PIN it starts the requested local recovery action,
+  including opening the on-screen keyboard, and returns/redirects without
+  exposing secrets.
 
 ## Coverage rule
 

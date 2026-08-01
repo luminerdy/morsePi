@@ -11,6 +11,7 @@ REQUIRED_COMMANDS = [
     ("systemctl", "User services for app, browser, backup, and update timers"),
     ("aplay", "Morse playback through ALSA"),
     ("speaker-test", "Key-down tone feedback through ALSA"),
+    ("matchbox-keyboard", "On-screen keyboard for touch recovery"),
 ]
 
 OPTIONAL_COMMANDS = [

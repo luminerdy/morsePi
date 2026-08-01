@@ -2610,6 +2610,8 @@ def system_status():
     wifi_ssid = first_command_line(["iwgetid", "-r"], "Not connected")
     nmcli_available = bool(shutil.which("nmcli"))
     iwgetid_available = bool(shutil.which("iwgetid"))
+    keyboard_commands = ["matchbox-keyboard", "onboard", "florence", "wvkbd-mobintl", "wvkbd"]
+    keyboard_command = next((command for command in keyboard_commands if shutil.which(command)), "")
     wifi_signal = "Unknown"
     wifi_state = "Unknown"
     connectivity = "Unknown"
@@ -2648,6 +2650,8 @@ def system_status():
         "connectivity": connectivity,
         "nmcli_available": nmcli_available,
         "iwgetid_available": iwgetid_available,
+        "keyboard_available": bool(keyboard_command),
+        "keyboard_command": keyboard_command or "Not installed",
     }
 
 
@@ -2666,6 +2670,27 @@ def exit_kiosk_in_background():
         run_system_command(["pkill", "-f", "chromium.*localhost:5000"], timeout=8)
 
     threading.Thread(target=worker, daemon=True).start()
+
+
+def launch_keyboard_in_background():
+    keyboard_commands = ["matchbox-keyboard", "onboard", "florence", "wvkbd-mobintl", "wvkbd"]
+    command_path = next((shutil.which(command) for command in keyboard_commands if shutil.which(command)), "")
+    if not command_path:
+        return False
+
+    def worker():
+        env = os.environ.copy()
+        env.setdefault("DISPLAY", ":0")
+        env.setdefault("XAUTHORITY", str(Path.home() / ".Xauthority"))
+        subprocess.Popen(
+            [command_path],
+            env=env,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+    threading.Thread(target=worker, daemon=True).start()
+    return True
 
 
 # -----------------------------
@@ -2897,6 +2922,11 @@ def touch_system_action():
     if action == "exit-kiosk":
         exit_kiosk_in_background()
         return redirect(url_for("touch_system", system_status="desktop-opening"))
+
+    if action == "open-keyboard":
+        if not launch_keyboard_in_background():
+            return redirect(url_for("touch_system", system_error="missing-keyboard"))
+        return redirect(url_for("touch_system", system_status="keyboard-opening"))
 
     return redirect(url_for("touch_system", system_error="unknown-action"))
 

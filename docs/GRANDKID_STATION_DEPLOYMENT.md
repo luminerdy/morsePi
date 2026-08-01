@@ -246,7 +246,7 @@ Recommendation for first deployed units:
 - LED flashes for system playback and keying.
 - Telegraph key input works.
 - Touchscreen fits without awkward scrolling on the main student flow.
-- Touch System page shows Wi-Fi/IP status, and the admin PIN can exit kiosk mode to the desktop.
+- Touch System page shows Wi-Fi/IP status and on-screen keyboard availability, and the admin PIN can open the keyboard, restart Wi-Fi, or exit kiosk mode to the desktop.
 - Student profile is created.
 - Local backup works.
 - Cloud backup/status works, or is intentionally deferred.

@@ -79,13 +79,14 @@ sudo apt install -y \
   python3-pip \
   git \
   alsa-utils \
+  matchbox-keyboard \
   python3-flask \
   python3-gpiozero \
   python3-lgpio \
   python3-rpi.gpio
 ```
 
-The current app uses `aplay` for station playback and `speaker-test` for the key-down tone. Both commands come from `alsa-utils`.
+The current app uses `aplay` for station playback and `speaker-test` for the key-down tone. Both commands come from `alsa-utils`. The touch System page can launch `matchbox-keyboard` when an adult needs to enter Wi-Fi settings or troubleshoot without a physical keyboard.
 
 Optional package for future MQTT messaging:
 
@@ -542,7 +543,7 @@ grep -qxF '/home/morse/bin/start-morse-browser.sh &' /home/morse/.config/labwc/a
 
 Do not also install the XDG desktop autostart entry on the same Pi, because Raspberry Pi OS may generate a second browser autostart service from it. The helper waits for `http://localhost:5000/touch` to answer before launching Chromium in kiosk mode. If graphical auto-login is disabled, Chromium opens after the `morse` user signs in to the desktop.
 
-The touch menu includes a `System` page for adult recovery. Use it to check hostname, IP address, Wi-Fi connection, Wi-Fi signal, and NetworkManager tool availability without a keyboard. The page also has admin-PIN-gated buttons to restart Wi-Fi and exit Chromium kiosk mode so the Raspberry Pi desktop is visible for troubleshooting.
+The touch menu includes a `System` page for adult recovery. Use it to check hostname, IP address, Wi-Fi connection, Wi-Fi signal, NetworkManager tool availability, and on-screen keyboard availability without a physical keyboard. The page also has admin-PIN-gated buttons to open the on-screen keyboard, restart Wi-Fi, and exit Chromium kiosk mode so the Raspberry Pi desktop is visible for troubleshooting.
 
 For a non-Labwc desktop environment only, use the fallback desktop autostart entry instead of the Labwc line:
 

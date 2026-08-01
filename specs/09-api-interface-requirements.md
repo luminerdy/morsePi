@@ -23,9 +23,9 @@ General rules:
   (FR-037). *(Delta: legacy page added in `674fdd8` is unauthenticated; the
   rebuild PIN-gates it.)*
 - **API-018** *(V1)* `POST /touch/system/action` 🔒 — local touchscreen
-  operations `{action: restart-wifi|exit-kiosk}` for FR-038. The response MAY
-  redirect back to `/touch/system` because these actions can interrupt the
-  browser or network.
+  operations `{action: restart-wifi|open-keyboard|exit-kiosk}` for FR-038. The
+  response MAY redirect back to `/touch/system` because these actions can
+  interrupt the browser or network.
 
 ## Station control (JSON unless noted)
 

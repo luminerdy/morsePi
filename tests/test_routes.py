@@ -42,6 +42,7 @@ class RouteRenderTests(unittest.TestCase):
         self.original_system_status = app_module.system_status
         self.original_restart_wifi = app_module.restart_wifi_in_background
         self.original_exit_kiosk = app_module.exit_kiosk_in_background
+        self.original_launch_keyboard = app_module.launch_keyboard_in_background
 
         student_profiles.DATA_DIR = self.data_dir
         student_profiles.STUDENTS_DIR = self.students_dir
@@ -73,6 +74,7 @@ class RouteRenderTests(unittest.TestCase):
         app_module.system_status = self.original_system_status
         app_module.restart_wifi_in_background = self.original_restart_wifi
         app_module.exit_kiosk_in_background = self.original_exit_kiosk
+        app_module.launch_keyboard_in_background = self.original_launch_keyboard
         self.temp_dir.cleanup()
 
     def record_daily_celebration(self):
@@ -255,6 +257,8 @@ class RouteRenderTests(unittest.TestCase):
             "connectivity": "full",
             "nmcli_available": True,
             "iwgetid_available": True,
+            "keyboard_available": True,
+            "keyboard_command": "matchbox-keyboard",
         }
 
         response = self.client.get("/touch/system")
@@ -266,6 +270,8 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("FamilyWifi", html)
         self.assertIn("10.10.10.141", html)
         self.assertIn("Restart Wi-Fi", html)
+        self.assertIn("Open Keyboard", html)
+        self.assertIn("matchbox-keyboard", html)
         self.assertIn("Exit Kiosk", html)
 
     def test_touch_system_action_requires_admin_pin(self):
@@ -295,6 +301,31 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(302, response.status_code)
         self.assertIn("system_status=desktop-opening", response.headers["Location"])
         self.assertTrue(called["exit"])
+
+    def test_touch_system_action_starts_keyboard_with_valid_pin(self):
+        self.write_station_config({"admin_pin": "1234"})
+        called = {"keyboard": False}
+        app_module.launch_keyboard_in_background = lambda: called.__setitem__("keyboard", True) or True
+
+        response = self.client.post(
+            "/touch/system/action",
+            data={"admin_pin": "1234", "action": "open-keyboard"},
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("system_status=keyboard-opening", response.headers["Location"])
+        self.assertTrue(called["keyboard"])
+
+    def test_touch_system_action_reports_missing_keyboard(self):
+        app_module.launch_keyboard_in_background = lambda: False
+
+        response = self.client.post(
+            "/touch/system/action",
+            data={"action": "open-keyboard"},
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("system_error=missing-keyboard", response.headers["Location"])
 
     def test_touch_words_unlocks_after_s_o_active(self):
         active_letters = app_module.starter_practice_letters + ["S", "O"]

@@ -133,8 +133,10 @@ from the current code (legacy status per requirement is tracked in
 - **FR-038** *(V1)* The 7-inch touch UI SHALL provide an adult System page
   reachable without a keyboard. It SHALL show Wi-Fi/network status useful for
   troubleshooting, and SHALL provide admin-PIN-gated actions to restart Wi-Fi
-  and exit the kiosk browser to the Raspberry Pi desktop. These controls SHALL
-  be available locally on the touchscreen even if internet access is down.
+  and exit the kiosk browser to the Raspberry Pi desktop. It SHALL also show
+  whether an on-screen keyboard tool is installed and provide an admin-PIN-gated
+  action to open it. These controls SHALL be available locally on the
+  touchscreen even if internet access is down.
 
 ## Rhythm analysis *(V2 — added retroactively; shipped in legacy `674fdd8`)*
 
