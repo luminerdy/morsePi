@@ -718,6 +718,8 @@ When asked to do the daily wrap-up, update:
 - Updated specs before implementation with FR-038, API-018, AC-014, and feature inventory entry F-23.
 - Deployed the change to the active Pi at `10.10.10.141`, restarted `morse-station.service`, verified `/touch/system` returns 200, and confirmed the Pi regression suite passed with 84 tests.
 - Extended the touch System page with on-screen keyboard availability and an admin-PIN-gated `Open Keyboard` action for Wi-Fi or desktop troubleshooting without a physical keyboard.
+- Started the Astrid/Liara station at `10.10.10.129`: installed required packages, cloned `release/pi`, configured station id `astrid-liara-station`, enabled the app service and local backup timer, verified the touch roster, and confirmed the Pi regression suite passed with 98 tests.
+- Hardened the browser helper for new Raspberry Pi OS Labwc/Wayland sessions by passing Chromium the Wayland platform flag when `WAYLAND_DISPLAY` is present.
 
 ### Ready Next
 
