@@ -130,6 +130,11 @@ from the current code (legacy status per requirement is tracked in
   report status; and roll back to the previous commit if the health check
   fails. *(Delta: `5e835d3` added the `release/pi` branch and a 30 s HTTP
   health check; still missing: rollback on failure and pre-restart tests.)*
+- **FR-038** *(V1)* The 7-inch touch UI SHALL provide an adult System page
+  reachable without a keyboard. It SHALL show Wi-Fi/network status useful for
+  troubleshooting, and SHALL provide admin-PIN-gated actions to restart Wi-Fi
+  and exit the kiosk browser to the Raspberry Pi desktop. These controls SHALL
+  be available locally on the touchscreen even if internet access is down.
 
 ## Rhythm analysis *(V2 — added retroactively; shipped in legacy `674fdd8`)*
 

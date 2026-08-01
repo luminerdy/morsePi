@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+<head>
+    <title>Touch System - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260621-4">
+    <link rel="stylesheet" href="/static/touch.css?v=20260801-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="touch-ui">
+    <div class="touch-screen">
+        <header class="touch-titlebar">
+            <div>
+                <p class="eyebrow">Adult System</p>
+                <h1><a class="touch-student-link" href="/touch/students?next=/touch/daily">{{ current_student.name }}</a></h1>
+            </div>
+            <a class="touch-top-link" href="/touch/menu">Menu</a>
+        </header>
+
+        <main class="touch-system-layout">
+            <section class="touch-system-status">
+                <div class="touch-system-card">
+                    <span>Host</span>
+                    <strong>{{ system.hostname }}</strong>
+                </div>
+                <div class="touch-system-card">
+                    <span>Wi-Fi</span>
+                    <strong>{{ system.wifi_ssid }}</strong>
+                    <em>{{ system.wifi_state }} · {{ system.wifi_signal }}</em>
+                </div>
+                <div class="touch-system-card wide">
+                    <span>IP Address</span>
+                    <strong>
+                        {% if system.ip_addresses %}
+                            {{ system.ip_addresses | join(" ") }}
+                        {% else %}
+                            No IP address
+                        {% endif %}
+                    </strong>
+                </div>
+                <div class="touch-system-card">
+                    <span>Internet</span>
+                    <strong>{{ system.connectivity }}</strong>
+                </div>
+                <div class="touch-system-card">
+                    <span>Tools</span>
+                    <strong>{% if system.nmcli_available %}nmcli{% else %}No nmcli{% endif %}</strong>
+                    <em>{% if system.iwgetid_available %}Wi-Fi check OK{% else %}No iwgetid{% endif %}</em>
+                </div>
+            </section>
+
+            <section class="touch-system-actions">
+                {% if system_status_message %}
+                    <div class="feedback-box success">
+                        {% if system_status_message == "wifi-restarting" %}
+                            Wi-Fi restart started.
+                        {% elif system_status_message == "desktop-opening" %}
+                            Closing kiosk. Desktop should appear.
+                        {% else %}
+                            Action started.
+                        {% endif %}
+                    </div>
+                {% endif %}
+                {% if system_error %}
+                    <div class="feedback-box error">
+                        {% if system_error == "admin-pin" %}
+                            Admin PIN needed.
+                        {% elif system_error == "missing-nmcli" %}
+                            Wi-Fi tool is missing.
+                        {% else %}
+                            Action not available.
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <form method="post" action="/touch/system/action" class="touch-system-form">
+                    {% if admin_pin_required %}
+                        <label for="system_admin_pin">Admin PIN</label>
+                        <input id="system_admin_pin" name="admin_pin" type="password" autocomplete="current-password" inputmode="numeric" placeholder="PIN">
+                    {% endif %}
+                    <button type="submit" name="action" value="restart-wifi" class="button secondary">Restart Wi-Fi</button>
+                    <button type="submit" name="action" value="exit-kiosk" class="button danger-button">Exit Kiosk</button>
+                </form>
+            </section>
+        </main>
+    </div>
+<script src="/static/app.js?v=20260623-1"></script>
+</body>
+</html>

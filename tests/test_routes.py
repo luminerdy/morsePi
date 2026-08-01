@@ -39,6 +39,9 @@ class RouteRenderTests(unittest.TestCase):
         self.original_play_daily = app_module.play_daily_celebration_in_background
         self.original_last_message = app_module.last_message
         self.original_last_morse = app_module.last_morse
+        self.original_system_status = app_module.system_status
+        self.original_restart_wifi = app_module.restart_wifi_in_background
+        self.original_exit_kiosk = app_module.exit_kiosk_in_background
 
         student_profiles.DATA_DIR = self.data_dir
         student_profiles.STUDENTS_DIR = self.students_dir
@@ -67,6 +70,9 @@ class RouteRenderTests(unittest.TestCase):
         app_module.play_daily_celebration_in_background = self.original_play_daily
         app_module.last_message = self.original_last_message
         app_module.last_morse = self.original_last_morse
+        app_module.system_status = self.original_system_status
+        app_module.restart_wifi_in_background = self.original_restart_wifi
+        app_module.exit_kiosk_in_background = self.original_exit_kiosk
         self.temp_dir.cleanup()
 
     def record_daily_celebration(self):
@@ -204,6 +210,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(200, response.status_code)
         self.assertIn("Touch Menu", html)
         self.assertIn("/touch/students?next=/touch/daily", html)
+        self.assertIn("/touch/system", html)
 
     def test_touch_practice_menu_shows_locked_words_for_fresh_student(self):
         response = self.client.get("/touch/practice")
@@ -237,6 +244,57 @@ class RouteRenderTests(unittest.TestCase):
 
         self.assertEqual(302, response.status_code)
         self.assertEqual("/touch/daily", response.headers["Location"])
+
+    def test_touch_system_shows_network_status(self):
+        app_module.system_status = lambda: {
+            "hostname": "PiMorse",
+            "ip_addresses": ["10.10.10.141"],
+            "wifi_ssid": "FamilyWifi",
+            "wifi_signal": "82%",
+            "wifi_state": "connected",
+            "connectivity": "full",
+            "nmcli_available": True,
+            "iwgetid_available": True,
+        }
+
+        response = self.client.get("/touch/system")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Adult System", html)
+        self.assertIn("PiMorse", html)
+        self.assertIn("FamilyWifi", html)
+        self.assertIn("10.10.10.141", html)
+        self.assertIn("Restart Wi-Fi", html)
+        self.assertIn("Exit Kiosk", html)
+
+    def test_touch_system_action_requires_admin_pin(self):
+        self.write_station_config({"admin_pin": "1234"})
+        called = {"restart": False}
+        app_module.restart_wifi_in_background = lambda: called.__setitem__("restart", True)
+
+        response = self.client.post(
+            "/touch/system/action",
+            data={"admin_pin": "0000", "action": "restart-wifi"},
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("system_error=admin-pin", response.headers["Location"])
+        self.assertFalse(called["restart"])
+
+    def test_touch_system_action_starts_exit_kiosk_with_valid_pin(self):
+        self.write_station_config({"admin_pin": "1234"})
+        called = {"exit": False}
+        app_module.exit_kiosk_in_background = lambda: called.__setitem__("exit", True)
+
+        response = self.client.post(
+            "/touch/system/action",
+            data={"admin_pin": "1234", "action": "exit-kiosk"},
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("system_status=desktop-opening", response.headers["Location"])
+        self.assertTrue(called["exit"])
 
     def test_touch_words_unlocks_after_s_o_active(self):
         active_letters = app_module.starter_practice_letters + ["S", "O"]

@@ -712,6 +712,12 @@ When asked to do the daily wrap-up, update:
 - Added `scripts/check_dependencies.py` so a fresh Pi can quickly report required runtime tools (`git`, `systemctl`, `aplay`, `speaker-test`, Flask, GPIO Zero) and optional cloud/messaging tools (`aws`, MQTT).
 - Added root `specs/` package for a future rebuild, including product overview, MVP scope, feature inventory, FR/NFR/SEC/API/TEST requirement IDs, acceptance criteria, testing strategy, rebuild roadmap, documentation plan, and legacy compliance status through `7818254`.
 
+### 2026-08-01
+
+- Added a touch System recovery page for local adult troubleshooting without a keyboard: Wi-Fi/IP status, NetworkManager tool visibility, admin-PIN-gated Wi-Fi restart, and admin-PIN-gated kiosk exit to the Raspberry Pi desktop.
+- Updated specs before implementation with FR-038, API-018, AC-014, and feature inventory entry F-23.
+- Deployed the change to the active Pi at `10.10.10.141`, restarted `morse-station.service`, verified `/touch/system` returns 200, and confirmed the Pi regression suite passed with 84 tests.
+
 ### Ready Next
 
 - For future IoT work, prefer a narrow IoT setup identity; reactivate the broad `admin` access key only if truly needed, then deactivate it again after the task.

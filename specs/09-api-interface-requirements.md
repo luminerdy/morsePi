@@ -16,11 +16,16 @@ General rules:
 - **API-001** *(MVP)* `GET /` message composer; `GET /practice?mode=`,
   `GET /progress`, `GET /students`
 - **API-002** *(V1)* `GET /touch`, `/touch/daily`, `/touch/practice`,
-  `/touch/words`, `/touch/progress`, `/touch/students`, `/touch/timing`
+  `/touch/words`, `/touch/progress`, `/touch/students`, `/touch/timing`,
+  `/touch/system`
 - **API-003** *(V2)* `GET /admin/sessions` 🔒
 - **API-017** *(V2)* `GET /admin/rhythm` 🔒 — per-student rhythm trend report
   (FR-037). *(Delta: legacy page added in `674fdd8` is unauthenticated; the
   rebuild PIN-gates it.)*
+- **API-018** *(V1)* `POST /touch/system/action` 🔒 — local touchscreen
+  operations `{action: restart-wifi|exit-kiosk}` for FR-038. The response MAY
+  redirect back to `/touch/system` because these actions can interrupt the
+  browser or network.
 
 ## Station control (JSON unless noted)
 

@@ -5,7 +5,7 @@ knows what it inherits. This file is updated on each re-review; requirement
 files only carry *(Delta: …)* notes, not status history.
 
 - **Baseline review:** `33df851` (2026-07-02)
-- **Latest legacy-code re-review:** `7818254` (2026-07-05)
+- **Latest legacy-code re-review:** working tree after `3f20d03` (2026-08-01)
 - **Spec package location:** root `specs/`
 
 ## Changes landed since baseline (`33df851..7818254`)
@@ -20,6 +20,7 @@ files only carry *(Delta: …)* notes, not status history.
 | `scripts/check_dependencies.py` (manual required/optional binary + module check) | `7818254` | TR-008 — partial (manual script, not startup detection) |
 | Rhythm timing summaries per attempt + `/admin/rhythm` trends page; timing events capped at 240 | `674fdd8` | New scope — now FR-036/FR-037, API-017, AC-013 |
 | Learn-mode score display fix; screenshots; doc updates | `89f73eb` etc. | No spec impact |
+| Touch System recovery page with Wi-Fi/IP status, admin-PIN-gated Wi-Fi restart, and admin-PIN-gated kiosk exit | after `3f20d03` | FR-038, API-018, AC-014 — met in legacy |
 
 **Note 1 (FR-012):** over-limit text is silently **truncated** (`limited_text`),
 not rejected; only bodies > 16 KB get a hard 413. The OOM DoS is closed
@@ -39,6 +40,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-022 single unlock table | 🟡 | Unified in `app.py`; `practice_progress.py:LETTER_UNLOCKS` duplicate remains |
 | FR-035 hardened updater | 🟡 | `release/pi` branch + health check; **no rollback**, py_compile only |
 | FR-036/FR-037 rhythm analysis | ✅ | New feature, spec'd retroactively |
+| FR-038 touch System recovery | ✅ | `/touch/system` shows local status; `/touch/system/action` gates recovery actions behind admin PIN |
 | NFR-004 concurrency safety | 🟡 | `threaded=False` serializes requests; module-global state remains, will regress under any threaded server |
 | NFR-005 runs off-Pi w/o env vars | ❌ | Still needs `GPIOZERO_PIN_FACTORY=mock` |
 | NFR-006 atomic writes | ❌ | Plain `write_text`, no temp+rename |
@@ -55,6 +57,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | TR-002 package layout | ❌ | `app.py` still a ~3,180-line monolith |
 | TR-008 binary detection | 🟡 | Manual `check_dependencies.py`; not run at app startup |
 | API-017 `/admin/rhythm` PIN gate | ❌ | Page is unauthenticated in legacy (read-only, but exposes practice data) |
+| API-018 touch system recovery action | ✅ | Implemented as `/touch/system/action` |
 
 ## Acceptance criteria at `7818254`
 
@@ -67,3 +70,4 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | AC-005 external redirect rejected | ❌ | ✅ | Covered by new legacy tests |
 | AC-006…AC-012 | n/a | n/a | Rebuild-phase criteria |
 | AC-013 rhythm scoring | — | ✅ | Covered by `tests/test_practice_attempts.py` |
+| AC-014 touch System recovery | — | ✅ | Covered by `tests/test_routes.py` |

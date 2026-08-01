@@ -2575,6 +2575,99 @@ def safe_next_url(default_endpoint="touch_index", **default_values):
     return url_for(default_endpoint, **default_values)
 
 
+def run_system_command(command, timeout=4):
+    try:
+        completed = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            check=False
+        )
+    except FileNotFoundError:
+        return {"ok": False, "stdout": "", "stderr": f"{command[0]} not found"}
+    except subprocess.TimeoutExpired:
+        return {"ok": False, "stdout": "", "stderr": "command timed out"}
+
+    return {
+        "ok": completed.returncode == 0,
+        "stdout": (completed.stdout or "").strip(),
+        "stderr": (completed.stderr or "").strip(),
+    }
+
+
+def first_command_line(command, default="Unknown"):
+    result = run_system_command(command)
+    if not result["ok"] or not result["stdout"]:
+        return default
+
+    return result["stdout"].splitlines()[0].strip() or default
+
+
+def system_status():
+    hostname = first_command_line(["hostname"], "Unknown")
+    ip_addresses = first_command_line(["hostname", "-I"], "No IP address").split()
+    wifi_ssid = first_command_line(["iwgetid", "-r"], "Not connected")
+    nmcli_available = bool(shutil.which("nmcli"))
+    iwgetid_available = bool(shutil.which("iwgetid"))
+    wifi_signal = "Unknown"
+    wifi_state = "Unknown"
+    connectivity = "Unknown"
+
+    if nmcli_available:
+        device_result = run_system_command(["nmcli", "-t", "-f", "DEVICE,TYPE,STATE,CONNECTION", "device", "status"])
+        if device_result["ok"]:
+            for line in device_result["stdout"].splitlines():
+                parts = line.split(":")
+                if len(parts) >= 4 and parts[1] == "wifi":
+                    wifi_state = parts[2] or "Unknown"
+                    if wifi_ssid == "Not connected" and parts[3]:
+                        wifi_ssid = parts[3]
+                    break
+
+        wifi_result = run_system_command(["nmcli", "-t", "-f", "ACTIVE,SSID,SIGNAL", "dev", "wifi"])
+        if wifi_result["ok"]:
+            for line in wifi_result["stdout"].splitlines():
+                parts = line.split(":")
+                if len(parts) >= 3 and parts[0] == "yes":
+                    wifi_signal = f"{parts[2]}%" if parts[2] else "Unknown"
+                    if parts[1]:
+                        wifi_ssid = parts[1]
+                    break
+
+        connectivity_result = run_system_command(["nmcli", "-t", "networking", "connectivity", "check"], timeout=8)
+        if connectivity_result["ok"] and connectivity_result["stdout"]:
+            connectivity = connectivity_result["stdout"].splitlines()[0].strip()
+
+    return {
+        "hostname": hostname,
+        "ip_addresses": ip_addresses,
+        "wifi_ssid": wifi_ssid,
+        "wifi_signal": wifi_signal,
+        "wifi_state": wifi_state,
+        "connectivity": connectivity,
+        "nmcli_available": nmcli_available,
+        "iwgetid_available": iwgetid_available,
+    }
+
+
+def restart_wifi_in_background():
+    def worker():
+        run_system_command(["nmcli", "radio", "wifi", "off"], timeout=8)
+        sleep(2)
+        run_system_command(["nmcli", "radio", "wifi", "on"], timeout=8)
+
+    threading.Thread(target=worker, daemon=True).start()
+
+
+def exit_kiosk_in_background():
+    def worker():
+        sleep(1)
+        run_system_command(["pkill", "-f", "chromium.*localhost:5000"], timeout=8)
+
+    threading.Thread(target=worker, daemon=True).start()
+
+
 # -----------------------------
 # Main routes
 # -----------------------------
@@ -2776,6 +2869,36 @@ def touch_key():
 @app.route("/touch/timing")
 def touch_timing():
     return render_home_template("touch_timing.html")
+
+
+@app.route("/touch/system")
+def touch_system():
+    return render_template(
+        "touch_system.html",
+        system=system_status(),
+        system_status_message=request.args.get("system_status", ""),
+        system_error=request.args.get("system_error", ""),
+    )
+
+
+@app.route("/touch/system/action", methods=["POST"])
+def touch_system_action():
+    if not admin_pin_valid(request.form.get("admin_pin", "")):
+        return redirect(url_for("touch_system", system_error="admin-pin"))
+
+    action = request.form.get("action", "")
+
+    if action == "restart-wifi":
+        if not shutil.which("nmcli"):
+            return redirect(url_for("touch_system", system_error="missing-nmcli"))
+        restart_wifi_in_background()
+        return redirect(url_for("touch_system", system_status="wifi-restarting"))
+
+    if action == "exit-kiosk":
+        exit_kiosk_in_background()
+        return redirect(url_for("touch_system", system_status="desktop-opening"))
+
+    return redirect(url_for("touch_system", system_error="unknown-action"))
 
 
 @app.route("/play", methods=["POST"])

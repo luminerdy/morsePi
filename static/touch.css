@@ -20,6 +20,7 @@
 .touch-screen:has(.touch-message-layout),
 .touch-screen:has(.touch-key-layout),
 .touch-screen:has(.touch-settings-layout),
+.touch-screen:has(.touch-system-layout),
 .touch-screen:has(.touch-words-layout),
 .touch-screen:has(.touch-words-locked),
 .touch-screen:has(.touch-drill) {
@@ -375,6 +376,100 @@
 .touch-timing-note strong {
     color: var(--primary);
     font-size: 28px;
+}
+
+.touch-system-layout {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 230px;
+    gap: 10px;
+}
+
+.touch-system-status {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr);
+    gap: 8px;
+}
+
+.touch-system-card {
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    padding: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(23, 33, 43, 0.08);
+}
+
+.touch-system-card.wide {
+    grid-column: span 2;
+}
+
+.touch-system-card span,
+.touch-system-card em {
+    color: var(--muted);
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 900;
+}
+
+.touch-system-card strong {
+    min-width: 0;
+    color: var(--primary);
+    font-size: 22px;
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+}
+
+.touch-system-actions {
+    min-width: 0;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 8px;
+}
+
+.touch-system-actions .feedback-box {
+    margin: 0;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    font-size: 15px;
+}
+
+.touch-system-form {
+    min-width: 0;
+    display: grid;
+    gap: 8px;
+    padding: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.touch-system-form label {
+    font-size: 14px;
+}
+
+.touch-system-form input {
+    width: 100%;
+    min-width: 0;
+    height: 42px;
+    padding: 0 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 18px;
+}
+
+.touch-system-form .button {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
 }
 
 .touch-words-layout {
