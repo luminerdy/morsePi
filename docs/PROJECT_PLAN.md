@@ -720,6 +720,7 @@ When asked to do the daily wrap-up, update:
 - Extended the touch System page with on-screen keyboard availability and an admin-PIN-gated `Open Keyboard` action for Wi-Fi or desktop troubleshooting without a physical keyboard.
 - Started the Astrid/Liara station at `10.10.10.129`: installed required packages, cloned `release/pi`, configured station id `astrid-liara-station`, enabled the app service and local backup timer, verified the touch roster, and confirmed the Pi regression suite passed with 98 tests.
 - Hardened the browser helper for new Raspberry Pi OS Labwc/Wayland sessions by passing Chromium the Wayland platform flag when `WAYLAND_DISPLAY` is present.
+- Configured the Astrid/Liara station AWS credential as `morsepi-astrid-liara-station`, restored its S3 backup URI, verified real backup/status uploads, confirmed the backup timer uploads successfully, and confirmed the station credential is denied access to the Pappy test station prefix.
 
 ### Ready Next
 
