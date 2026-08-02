@@ -721,6 +721,7 @@ When asked to do the daily wrap-up, update:
 - Started the Astrid/Liara station at `10.10.10.129`: installed required packages, cloned `release/pi`, configured station id `astrid-liara-station`, enabled the app service and local backup timer, verified the touch roster, and confirmed the Pi regression suite passed with 98 tests.
 - Hardened the browser helper for new Raspberry Pi OS Labwc/Wayland sessions by passing Chromium the Wayland platform flag when `WAYLAND_DISPLAY` is present.
 - Configured the Astrid/Liara station AWS credential as `morsepi-astrid-liara-station`, restored its S3 backup URI, verified real backup/status uploads, confirmed the backup timer uploads successfully, and confirmed the station credential is denied access to the Pappy test station prefix.
+- Built the Campbell/Olivea station at `10.10.10.157`: installed required packages, cloned `release/pi`, configured station id `campbell-olivea-station`, set admin PIN locally, enabled the app service and backup timer, configured AWS credential `morsepi-campbell-olivea-station`, verified S3 backup/status uploads and cross-station access denial, confirmed the Pi regression suite passed with 98 tests, and reboot-verified app/kiosk startup.
 
 ### Ready Next
 
