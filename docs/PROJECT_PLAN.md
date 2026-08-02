@@ -724,12 +724,18 @@ When asked to do the daily wrap-up, update:
 - Built the Campbell/Olivea station at `10.10.10.157`: installed required packages, cloned `release/pi`, configured station id `campbell-olivea-station`, set admin PIN locally, enabled the app service and backup timer, configured AWS credential `morsepi-campbell-olivea-station`, verified S3 backup/status uploads and cross-station access denial, confirmed the Pi regression suite passed with 98 tests, and reboot-verified app/kiosk startup.
 - Added a PIN-gated `Update App` action to the touch System page that starts the existing `morse-station-update.service`, letting an adult trigger the tested release update wrapper locally without a keyboard.
 - Confirmed the two new grandkid stations are physically working after hardware install: USB speakers detected, LEDs confirmed, and keyers confirmed.
+- Deployed and tested the `Update App` action on both grandkid stations. Each station created a pre-update backup, confirmed it was current on `release/pi`, kept the app active, and uploaded fresh S3 station status.
+- Close-of-day station status: Pappy/test (`10.10.10.141`), Astrid/Liara (`10.10.10.129`), and Campbell/Olivea (`10.10.10.157`) are online with active app services, running touch kiosks, working USB speakers, confirmed LEDs, and confirmed keyers.
+- Close-of-day GitHub status: touch System recovery/update work, specs, setup docs, and station deployment notes are committed and pushed to both `main` and `release/pi`.
+- Close-of-day decision: near-term deployed updates can be handled by a local PIN-gated `Update App` button; remote command triggering remains future work through AWS IoT or Systems Manager.
 
 ### Ready Next
 
 - For future IoT work, prefer a narrow IoT setup identity; reactivate the broad `admin` access key only if truly needed, then deactivate it again after the task.
 - Plan the longer-term removal of path-global progress/attempt storage before enabling a multi-worker production server.
-- Design the first safe student progress snapshot after at least one additional station exists, so cross-station student sync is grounded in real deployment behavior.
-- Prepare the Systems Manager hybrid activation steps after S3 backup/status is proven on the first grandkid station, then decide whether SSM is worth enabling before devices leave home.
-- Keep testing Words/Daily with Astrid/Liara/Pappy, especially auto-advance, progress clarity, and whether Words should remain bonus-only or join Daily Mission.
+- Run one kid-style smoke test on each grandkid unit before it leaves home: choose each student, complete one Daily/Learn/Send action with the physical keyer, verify progress sticks after switching users, then run a final backup/status upload.
+- Design the first safe cross-station student progress snapshot now that multiple stations exist. Start read-only and visibility-focused before any two-way sync or leaderboard behavior.
+- Decide whether to enable any automatic update timer on deployed stations, or keep updates as adult-triggered `Update App` only until the stations have been used at the grandkids' homes.
+- Prepare the future remote command path after the first home deployment: AWS IoT preferred for lower-cost commands; Systems Manager remains the practical fallback if remote shell access becomes necessary.
+- Keep testing Words/Daily with Astrid/Liara/Pappy/Campbell/Olivea, especially auto-advance, progress clarity, and whether Words should remain bonus-only or join Daily Mission.
 - Measure the 7-inch display/Pi stack with [CASE_MEASUREMENT_WORKSHEET.md](CASE_MEASUREMENT_WORKSHEET.md), then design a Bambu X1 Carbon test-fit plate.
