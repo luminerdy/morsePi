@@ -722,14 +722,13 @@ When asked to do the daily wrap-up, update:
 - Hardened the browser helper for new Raspberry Pi OS Labwc/Wayland sessions by passing Chromium the Wayland platform flag when `WAYLAND_DISPLAY` is present.
 - Configured the Astrid/Liara station AWS credential as `morsepi-astrid-liara-station`, restored its S3 backup URI, verified real backup/status uploads, confirmed the backup timer uploads successfully, and confirmed the station credential is denied access to the Pappy test station prefix.
 - Built the Campbell/Olivea station at `10.10.10.157`: installed required packages, cloned `release/pi`, configured station id `campbell-olivea-station`, set admin PIN locally, enabled the app service and backup timer, configured AWS credential `morsepi-campbell-olivea-station`, verified S3 backup/status uploads and cross-station access denial, confirmed the Pi regression suite passed with 98 tests, and reboot-verified app/kiosk startup.
+- Added a PIN-gated `Update App` action to the touch System page that starts the existing `morse-station-update.service`, letting an adult trigger the tested release update wrapper locally without a keyboard.
+- Confirmed the two new grandkid stations are physically working after hardware install: USB speakers detected, LEDs confirmed, and keyers confirmed.
 
 ### Ready Next
 
 - For future IoT work, prefer a narrow IoT setup identity; reactivate the broad `admin` access key only if truly needed, then deactivate it again after the task.
-- Test `scripts/update_station.sh` on the first Git-cloned station before enabling the optional systemd update timer.
 - Plan the longer-term removal of path-global progress/attempt storage before enabling a multi-worker production server.
-- Build the Astrid/Liara station end to end with [GRANDKID_STATION_DEPLOYMENT.md](GRANDKID_STATION_DEPLOYMENT.md), including app install, touch kiosk, roster, admin PIN, AWS CLI, narrow station IAM user, and S3 backup/status test.
-- After Astrid/Liara is proven, build the Campbell/Olivea station with the same checklist.
 - Design the first safe student progress snapshot after at least one additional station exists, so cross-station student sync is grounded in real deployment behavior.
 - Prepare the Systems Manager hybrid activation steps after S3 backup/status is proven on the first grandkid station, then decide whether SSM is worth enabling before devices leave home.
 - Keep testing Words/Daily with Astrid/Liara/Pappy, especially auto-advance, progress clarity, and whether Words should remain bonus-only or join Daily Mission.

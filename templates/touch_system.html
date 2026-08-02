@@ -51,6 +51,11 @@
                     <strong>{% if system.keyboard_available %}Ready{% else %}Missing{% endif %}</strong>
                     <em>{{ system.keyboard_command }}</em>
                 </div>
+                <div class="touch-system-card">
+                    <span>Update</span>
+                    <strong>{{ system.update_service_state }}</strong>
+                    <em>{{ system.update_service }}</em>
+                </div>
             </section>
 
             <section class="touch-system-actions">
@@ -62,6 +67,8 @@
                             Closing kiosk. Desktop should appear.
                         {% elif system_status_message == "keyboard-opening" %}
                             On-screen keyboard is opening.
+                        {% elif system_status_message == "update-started" %}
+                            Update started. The app may restart.
                         {% else %}
                             Action started.
                         {% endif %}
@@ -75,6 +82,8 @@
                             Wi-Fi tool is missing.
                         {% elif system_error == "missing-keyboard" %}
                             Keyboard app is missing.
+                        {% elif system_error == "update-start-failed" %}
+                            Update could not start.
                         {% else %}
                             Action not available.
                         {% endif %}
@@ -87,6 +96,7 @@
                         <input id="system_admin_pin" name="admin_pin" type="password" autocomplete="current-password" inputmode="numeric" placeholder="PIN">
                     {% endif %}
                     <button type="submit" name="action" value="open-keyboard" class="button secondary">Open Keyboard</button>
+                    <button type="submit" name="action" value="update-app" class="button secondary">Update App</button>
                     <button type="submit" name="action" value="restart-wifi" class="button secondary">Restart Wi-Fi</button>
                     <button type="submit" name="action" value="exit-kiosk" class="button danger-button">Exit Kiosk</button>
                 </form>

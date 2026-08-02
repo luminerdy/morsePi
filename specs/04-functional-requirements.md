@@ -135,8 +135,10 @@ from the current code (legacy status per requirement is tracked in
   troubleshooting, and SHALL provide admin-PIN-gated actions to restart Wi-Fi
   and exit the kiosk browser to the Raspberry Pi desktop. It SHALL also show
   whether an on-screen keyboard tool is installed and provide an admin-PIN-gated
-  action to open it. These controls SHALL be available locally on the
-  touchscreen even if internet access is down.
+  action to open it. When the local update service is installed, it SHALL
+  provide an admin-PIN-gated action to start the station update wrapper. These
+  controls SHALL be available locally on the touchscreen even if internet
+  access is down, though updating may require internet access.
 
 ## Rhythm analysis *(V2 — added retroactively; shipped in legacy `674fdd8`)*
 

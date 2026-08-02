@@ -2612,6 +2612,8 @@ def system_status():
     iwgetid_available = bool(shutil.which("iwgetid"))
     keyboard_commands = ["matchbox-keyboard", "onboard", "florence", "wvkbd-mobintl", "wvkbd"]
     keyboard_command = next((command for command in keyboard_commands if shutil.which(command)), "")
+    update_service = "morse-station-update.service"
+    update_service_state = first_command_line(["systemctl", "--user", "is-active", update_service], "unknown")
     wifi_signal = "Unknown"
     wifi_state = "Unknown"
     connectivity = "Unknown"
@@ -2652,6 +2654,9 @@ def system_status():
         "iwgetid_available": iwgetid_available,
         "keyboard_available": bool(keyboard_command),
         "keyboard_command": keyboard_command or "Not installed",
+        "update_service_available": bool(shutil.which("systemctl")),
+        "update_service": update_service,
+        "update_service_state": update_service_state,
     }
 
 
@@ -2691,6 +2696,14 @@ def launch_keyboard_in_background():
 
     threading.Thread(target=worker, daemon=True).start()
     return True
+
+
+def start_update_service():
+    if not shutil.which("systemctl"):
+        return False
+
+    result = run_system_command(["systemctl", "--user", "start", "morse-station-update.service"], timeout=8)
+    return result["ok"]
 
 
 # -----------------------------
@@ -2927,6 +2940,11 @@ def touch_system_action():
         if not launch_keyboard_in_background():
             return redirect(url_for("touch_system", system_error="missing-keyboard"))
         return redirect(url_for("touch_system", system_status="keyboard-opening"))
+
+    if action == "update-app":
+        if not start_update_service():
+            return redirect(url_for("touch_system", system_error="update-start-failed"))
+        return redirect(url_for("touch_system", system_status="update-started"))
 
     return redirect(url_for("touch_system", system_error="unknown-action"))
 

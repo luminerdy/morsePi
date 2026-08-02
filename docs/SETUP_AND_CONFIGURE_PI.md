@@ -543,7 +543,7 @@ grep -qxF '/home/morse/bin/start-morse-browser.sh &' /home/morse/.config/labwc/a
 
 Do not also install the XDG desktop autostart entry on the same Pi, because Raspberry Pi OS may generate a second browser autostart service from it. The helper waits for `http://localhost:5000/touch` to answer before launching Chromium in kiosk mode. On Labwc/Wayland sessions, the helper passes Chromium the Wayland platform flag. If graphical auto-login is disabled, Chromium opens after the `morse` user signs in to the desktop.
 
-The touch menu includes a `System` page for adult recovery. Use it to check hostname, IP address, Wi-Fi connection, Wi-Fi signal, NetworkManager tool availability, and on-screen keyboard availability without a physical keyboard. The page also has admin-PIN-gated buttons to open the on-screen keyboard, restart Wi-Fi, and exit Chromium kiosk mode so the Raspberry Pi desktop is visible for troubleshooting.
+The touch menu includes a `System` page for adult recovery. Use it to check hostname, IP address, Wi-Fi connection, Wi-Fi signal, NetworkManager tool availability, on-screen keyboard availability, and update service state without a physical keyboard. The page also has admin-PIN-gated buttons to open the on-screen keyboard, start the app update service, restart Wi-Fi, and exit Chromium kiosk mode so the Raspberry Pi desktop is visible for troubleshooting.
 
 For a non-Labwc desktop environment only, use the fallback desktop autostart entry instead of the Labwc line:
 

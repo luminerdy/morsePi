@@ -36,7 +36,7 @@ Pappy's Internet Telegraph is a Raspberry Pi Morse code learning station. It let
 - Optional 7-inch touchscreen flow at `/touch`
 - Touch start flow that opens student selection for multi-student stations and Daily Mission for single-student stations
 - Touch inactivity timeout that returns idle screens to the touch start flow after 10 minutes
-- Touch System page for adult Wi-Fi/IP status checks, on-screen keyboard launch, Wi-Fi restart, and PIN-gated kiosk exit
+- Touch System page for adult Wi-Fi/IP status checks, on-screen keyboard launch, app update, Wi-Fi restart, and PIN-gated kiosk exit
 - Touch Daily Mission page for a per-student daily practice goal
 - Practice-time effort tracking on Daily and Progress so students see that time spent learning matters
 - Daily Mission completion reward with station sound, LED flash, and next-action guidance

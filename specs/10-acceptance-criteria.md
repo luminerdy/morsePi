@@ -52,8 +52,8 @@ correctness checks. Each is encoded as an automated test per
   on-screen keyboard availability without a physical keyboard. `POST
   /touch/system/action` rejects a bad admin PIN and does not run the requested
   action; with a valid PIN it starts the requested local recovery action,
-  including opening the on-screen keyboard, and returns/redirects without
-  exposing secrets.
+  including opening the on-screen keyboard or starting the local update service,
+  and returns/redirects without exposing secrets.
 
 ## Coverage rule
 

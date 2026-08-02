@@ -1134,7 +1134,7 @@ Remote update operations should:
 | Touch message entry | Hidden from student-facing touch menu; desktop Home still supports typed message encoding |
 | Desktop-to-touch navigation | Complete with `Touch` link on desktop Home, Practice, and Progress |
 | Touch UI auto-selection | Started with browser-side small-screen/coarse-pointer redirect and desktop-view session opt-out |
-| Touch System recovery | Started with Wi-Fi/IP status, on-screen keyboard availability/launch, admin-PIN-gated Wi-Fi restart, and admin-PIN-gated kiosk exit |
+| Touch System recovery | Started with Wi-Fi/IP status, on-screen keyboard availability/launch, admin-PIN-gated app update, Wi-Fi restart, and admin-PIN-gated kiosk exit |
 | Farnsworth-style Morse timing settings | Started |
 | Morse learning best-practices notes | Started |
 

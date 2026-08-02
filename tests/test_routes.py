@@ -43,6 +43,7 @@ class RouteRenderTests(unittest.TestCase):
         self.original_restart_wifi = app_module.restart_wifi_in_background
         self.original_exit_kiosk = app_module.exit_kiosk_in_background
         self.original_launch_keyboard = app_module.launch_keyboard_in_background
+        self.original_start_update_service = app_module.start_update_service
 
         student_profiles.DATA_DIR = self.data_dir
         student_profiles.STUDENTS_DIR = self.students_dir
@@ -75,6 +76,7 @@ class RouteRenderTests(unittest.TestCase):
         app_module.restart_wifi_in_background = self.original_restart_wifi
         app_module.exit_kiosk_in_background = self.original_exit_kiosk
         app_module.launch_keyboard_in_background = self.original_launch_keyboard
+        app_module.start_update_service = self.original_start_update_service
         self.temp_dir.cleanup()
 
     def record_daily_celebration(self):
@@ -259,6 +261,9 @@ class RouteRenderTests(unittest.TestCase):
             "iwgetid_available": True,
             "keyboard_available": True,
             "keyboard_command": "matchbox-keyboard",
+            "update_service_available": True,
+            "update_service": "morse-station-update.service",
+            "update_service_state": "inactive",
         }
 
         response = self.client.get("/touch/system")
@@ -272,6 +277,8 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("Restart Wi-Fi", html)
         self.assertIn("Open Keyboard", html)
         self.assertIn("matchbox-keyboard", html)
+        self.assertIn("Update App", html)
+        self.assertIn("morse-station-update.service", html)
         self.assertIn("Exit Kiosk", html)
 
     def test_touch_system_action_requires_admin_pin(self):
@@ -326,6 +333,31 @@ class RouteRenderTests(unittest.TestCase):
 
         self.assertEqual(302, response.status_code)
         self.assertIn("system_error=missing-keyboard", response.headers["Location"])
+
+    def test_touch_system_action_starts_update_with_valid_pin(self):
+        self.write_station_config({"admin_pin": "1234"})
+        called = {"update": False}
+        app_module.start_update_service = lambda: called.__setitem__("update", True) or True
+
+        response = self.client.post(
+            "/touch/system/action",
+            data={"admin_pin": "1234", "action": "update-app"},
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("system_status=update-started", response.headers["Location"])
+        self.assertTrue(called["update"])
+
+    def test_touch_system_action_reports_update_start_failure(self):
+        app_module.start_update_service = lambda: False
+
+        response = self.client.post(
+            "/touch/system/action",
+            data={"action": "update-app"},
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("system_error=update-start-failed", response.headers["Location"])
 
     def test_touch_words_unlocks_after_s_o_active(self):
         active_letters = app_module.starter_practice_letters + ["S", "O"]

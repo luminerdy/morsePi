@@ -27,7 +27,7 @@ Tiers: **MVP** (Phase 1–3), **V1** (Phase 4), **V2** (Phase 5–6). See
 | F-20 | Unattended auto-update (release branch + health check) | V2 | `scripts/update_station.sh` |
 | F-21 | Rhythm timing analysis + admin trends view | V2 | `practice_attempts.timing_summary`, `/admin/rhythm` (added `674fdd8`) |
 | F-22 | Dependency preflight check | MVP | `scripts/check_dependencies.py` (added `7818254`; rebuild moves this to app startup per TR-008) |
-| F-23 | Touch System page for Wi-Fi status, on-screen keyboard launch, Wi-Fi restart, and kiosk escape | V1 | `/touch/system` |
+| F-23 | Touch System page for Wi-Fi status, on-screen keyboard launch, app update, Wi-Fi restart, and kiosk escape | V1 | `/touch/system` |
 
 Notes:
 
