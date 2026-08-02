@@ -59,8 +59,8 @@ correctness checks. Each is encoded as an automated test per
   another complete available word with natural letter pauses, see
   letter-over-Morse tiles grouped by word, replace and delete a tile, play the
   draft, return from Review to edit, and explicitly send it without a keyboard
-  or page scrolling. An incomplete, unknown, or unavailable keyed word is not
-  added.
+  or page scrolling. Primary message actions have centered labels. An
+  incomplete, unknown, or unavailable keyed word is not added.
 - **AC-016** (FR-044...FR-046) Opening a two-word fixture reveals no plaintext.
   Whole-message, word, and letter playback drive mock audio and LED together;
   correct four-choice answers fill only the selected slots; progressive hints

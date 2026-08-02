@@ -757,6 +757,8 @@ When asked to do the daily wrap-up, update:
   boundary together, and rejects single-letter or unknown keyed entries.
 - Changed composer Undo to remove the last complete word and removed the manual
   Space action; letter-tile correction remains available for fixing mistakes.
+- Centered the Choose Operator action label on the Messages hub and verified
+  its 42px touch target fits the 800x480 screen without scrolling.
 - Decision: Phase 7A remains local-only. Cross-house delivery will preserve the
   same message format in Phase 7B, using S3 for durable storage and AWS IoT only
   as an optional notification path.

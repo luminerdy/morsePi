@@ -336,6 +336,13 @@
     line-height: 1;
 }
 
+.touch-message-new .button {
+    display: grid;
+    place-items: center;
+    text-align: center;
+    text-decoration: none;
+}
+
 .touch-message-new p,
 .touch-message-list p,
 .touch-message-locked p {
