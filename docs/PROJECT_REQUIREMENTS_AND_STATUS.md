@@ -179,7 +179,7 @@ Completed:
 - Typed messages can be converted to Morse.
 - Morse can be played through LED and USB speaker.
 
-Example:
+Canonical ASCII data example (`.` means dot and `-` means dash):
 
 ```text
 Text:  HI
@@ -314,7 +314,7 @@ morse-station/
 
 The system shall convert typed text into Morse code.
 
-Example:
+Canonical ASCII data example (`.` means dot and `-` means dash):
 
 ```text
 HI PAPPY → .... .. / .--. .- .--. .--. -.--
@@ -406,11 +406,11 @@ The system shall provide a Practice Mode where students tap the Morse code for a
 
 The system shall provide encouraging feedback.
 
-Examples:
+Kid-facing feedback examples:
 
 ```text
 Great job! You tapped A correctly.
-Good try. I heard .., but A is .-. Try holding the dash longer.
+Good try. Clear, then follow the centered example for A. Try holding the dash longer.
 ```
 
 ---

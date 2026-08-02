@@ -3940,7 +3940,7 @@ def practice_check():
     else:
         record_attempt(practice_target, False, practice_letters, mode)
         practice_feedback = (
-            f"Good try. I heard {actual_morse}, but {practice_target} is {expected_morse}. "
+            f"Good try. Clear, then follow the centered example for {practice_target}. "
             "Try again and listen to the rhythm."
         )
 

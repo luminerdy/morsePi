@@ -100,7 +100,7 @@ Examples:
 
 ```text
 Correct: E. Next letter coming up.
-Try A again. I heard .., but A is .-.
+Try A again. Follow the centered example and keep your rhythm steady.
 Ready. Try it again.
 ```
 

@@ -44,6 +44,9 @@ class RouteRenderTests(unittest.TestCase):
         self.original_exit_kiosk = app_module.exit_kiosk_in_background
         self.original_launch_keyboard = app_module.launch_keyboard_in_background
         self.original_start_update_service = app_module.start_update_service
+        self.original_get_current_key_morse = app_module.get_current_key_morse
+        self.original_practice_target = app_module.practice_target
+        self.original_practice_feedback = app_module.practice_feedback
 
         student_profiles.DATA_DIR = self.data_dir
         student_profiles.STUDENTS_DIR = self.students_dir
@@ -78,6 +81,9 @@ class RouteRenderTests(unittest.TestCase):
         app_module.exit_kiosk_in_background = self.original_exit_kiosk
         app_module.launch_keyboard_in_background = self.original_launch_keyboard
         app_module.start_update_service = self.original_start_update_service
+        app_module.get_current_key_morse = self.original_get_current_key_morse
+        app_module.practice_target = self.original_practice_target
+        app_module.practice_feedback = self.original_practice_feedback
         self.temp_dir.cleanup()
 
     def record_daily_celebration(self):
@@ -410,6 +416,21 @@ class RouteRenderTests(unittest.TestCase):
         self.assertNotIn(">Read</a>", words_html)
         self.assertIn('class="morse-visual"', words_html)
         self.assertIn('aria-label="dot dash"', words_html)
+
+    def test_desktop_practice_retry_does_not_print_raw_morse(self):
+        app_module.practice_target = "A"
+        app_module.get_current_key_morse = lambda: ".."
+
+        response = self.client.post("/practice/check")
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(
+            "Good try. Clear, then follow the centered example for A. "
+            "Try again and listen to the rhythm.",
+            app_module.practice_feedback,
+        )
+        self.assertNotIn("..", app_module.practice_feedback)
+        self.assertNotIn(".-", app_module.practice_feedback)
 
     def test_touch_words_locked_before_s_o_active(self):
         response = self.client.get("/touch/words")

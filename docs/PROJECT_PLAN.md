@@ -749,7 +749,7 @@ When asked to do the daily wrap-up, update:
 - Added [MESSAGING.md](MESSAGING.md) and aligned README, setup, kid instructions,
   feature inventory, data requirements, and compliance status with the shipped
   Phase 7A boundary.
-- Verified the complete Pi regression bank passes with 122 tests and visually
+- Verified the complete Pi regression bank passes with 123 tests and visually
   rehearsed hub, compose, correction, review, playback, hints, and decode at
   the real 800x480 viewport on Pappy's test station.
 - Refined message composition after hands-on feedback: physical-key entry now
@@ -773,6 +773,10 @@ When asked to do the daily wrap-up, update:
   renderer test to GitHub Actions CI.
 - Updated the two-page Pappy's Operators handout to use the same centered Morse
   geometry, regenerated its letter-size PDF, and visually inspected both pages.
+- Completed a repository-wide Morse display audit: removed raw punctuation from
+  the remaining desktop practice retry, updated learning-document feedback,
+  labeled technical ASCII examples as canonical data, and marked the July 4
+  screenshots and archived prototypes as historical rather than current UI.
 - Decision: Phase 7A remains local-only. Cross-house delivery will preserve the
   same message format in Phase 7B, using S3 for durable storage and AWS IoT only
   as an optional notification path.

@@ -1,6 +1,10 @@
-# Current App Screenshots - 2026-07-04
+# Historical App Screenshots - 2026-07-04
 
 These screenshots were captured from the active Raspberry Pi station at `10.10.10.141` using the 800x480 touch layout.
+
+> Historical snapshot: these images document the July 4 interface and are not
+> the current visual reference. In particular, Morse dots and dashes shown here
+> predate the shared centered-symbol renderer added on August 2, 2026.
 
 | File | Screen | User | Notes |
 |---|---|---|---|
