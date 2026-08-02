@@ -510,9 +510,9 @@ async function updateLiveKey() {
             liveDecoded.innerText = "---";
         }
 
-        const messageKeyedMorse = document.getElementById("messageKeyedMorse");
-        if (messageKeyedMorse) {
-            messageKeyedMorse.value = data.morse || "";
+        const messageKeyedWordMorse = document.getElementById("messageKeyedWordMorse");
+        if (messageKeyedWordMorse) {
+            messageKeyedWordMorse.value = data.morse || "";
         }
 
         schedulePracticeAutoCheck(data.morse || "");
@@ -1519,7 +1519,7 @@ function initializeTouchIdleTimeout() {
 
 function initializeMessageControls() {
     const composer = document.querySelector("[data-message-compose]");
-    if (composer && document.getElementById("messageKeyedMorse")) {
+    if (composer && document.getElementById("messageKeyedWordMorse")) {
         fetch("/clear-key", { method: "POST" }).catch(error => {
             console.log("Unable to clear message key", error);
         });

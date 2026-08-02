@@ -2902,25 +2902,23 @@ def mutate_message_draft(draft, action, recipient):
             raise MessageValidationError("That word is not available.")
         text = f"{text} {word}" if text else word
         pending_space = False
-    elif action == "append-keyed-letter":
+    elif action == "append-keyed-word":
         raw_morse = normalize_word_morse(request.form.get("morse") or get_current_key_morse())
-        if not raw_morse or " " in raw_morse or "/" in raw_morse:
-            raise MessageValidationError("Key one letter, then try Add Letter again.")
-        letter = morse_to_text(raw_morse)
-        if len(letter) != 1 or not letter.isalpha():
-            raise MessageValidationError("That signal is not one letter yet.")
-        separator = " " if text and pending_space else ""
-        text = f"{text}{separator}{letter}"
+        if not raw_morse or "/" in raw_morse:
+            raise MessageValidationError("Key one complete word, then try Add Word again.")
+        word = morse_to_text(raw_morse).strip().upper()
+        available_words = available_message_words(word_practice_bank, allowed)
+        if not word.isalpha() or word not in available_words:
+            raise MessageValidationError("Key one of your available Words, then try again.")
+        text = f"{text} {word}" if text else word
         pending_space = False
         clear_key_state()
-    elif action == "space":
-        if text:
-            pending_space = True
     elif action == "undo":
         if pending_space:
             pending_space = False
         elif text:
-            text = text[:-1].rstrip()
+            words = text.split()
+            text = " ".join(words[:-1])
     elif action == "clear":
         text = ""
         pending_space = False

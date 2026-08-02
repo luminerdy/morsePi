@@ -168,8 +168,11 @@ from the current code (legacy status per requirement is tracked in
   station where that student is rostered.
 - **FR-041** The 800x480 composer SHALL work without a keyboard. It SHALL
   support (a) touch word tiles filtered to the allowable letters and (b)
-  physical-key entry that decodes each completed Morse character into the
-  draft. It SHALL provide touch controls for word space, undo, and clear.
+  physical-key entry that captures and decodes one complete word from the
+  student's available Words practice set before adding it to the draft. Word
+  boundaries SHALL be inserted automatically. It SHALL provide touch controls
+  for undo and clear. Letter-at-a-time construction SHALL NOT be the primary
+  message-keying flow.
 - **FR-042** A draft SHALL render as ordered letter tiles showing the plain
   letter with its Morse code directly underneath. Selecting a tile SHALL let
   the sender re-key it, replace it from the allowable-letter picker, or delete

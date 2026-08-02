@@ -32,7 +32,8 @@
   margin for runner noise.
 - **TEST-011** *(V2)* Message-domain unit tests: normalization and limits,
   sender/receiver active-letter intersection, filtered word tiles, immutable
-  records, state transitions, progressive hints, and duplicate-event credit.
+  records, complete keyed-word validation, state transitions, progressive
+  hints, and duplicate-event credit.
 - **TEST-012** *(V2)* Message route/template contract tests with mock key,
   audio, and LED backends cover AC-015...AC-017, including Guest denial and
   server-side rejection of forged eligibility.

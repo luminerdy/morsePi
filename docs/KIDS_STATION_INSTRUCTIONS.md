@@ -157,7 +157,8 @@ Messages unlock after you learn `S` and `O`.
 To send a message:
 
 1. Choose another operator.
-2. Build a short message with word tiles or key one letter at a time.
+2. Build a short message with word tiles or key one complete practiced word at
+   a time, then tap Add Word.
 3. Review each letter and its Morse code.
 4. Tap Play to hear and see the whole message.
 5. Tap Send when it looks right.

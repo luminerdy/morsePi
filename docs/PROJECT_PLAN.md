@@ -749,9 +749,14 @@ When asked to do the daily wrap-up, update:
 - Added [MESSAGING.md](MESSAGING.md) and aligned README, setup, kid instructions,
   feature inventory, data requirements, and compliance status with the shipped
   Phase 7A boundary.
-- Verified the complete Pi regression bank passes with 116 tests and visually
+- Verified the complete Pi regression bank passes with 118 tests and visually
   rehearsed hub, compose, correction, review, playback, hints, and decode at
   the real 800x480 viewport on Pappy's test station.
+- Refined message composition after hands-on feedback: physical-key entry now
+  captures one complete available Words-practice word, adds the word and its
+  boundary together, and rejects single-letter or unknown keyed entries.
+- Changed composer Undo to remove the last complete word and removed the manual
+  Space action; letter-tile correction remains available for fixing mistakes.
 - Decision: Phase 7A remains local-only. Cross-house delivery will preserve the
   same message format in Phase 7B, using S3 for durable storage and AWS IoT only
   as an optional notification path.

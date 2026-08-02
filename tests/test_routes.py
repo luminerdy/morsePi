@@ -453,18 +453,66 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(1, len(list((self.students_dir / "pappy" / "message_outbox").glob("*.json"))))
         self.assertEqual(1, len(list((self.students_dir / "astrid" / "message_inbox").glob("*.json"))))
 
-    def test_touch_message_keyed_letter_is_decoded_into_draft(self):
+    def test_touch_message_keyed_word_is_decoded_and_added_to_draft(self):
         self.unlock_messages("pappy")
         self.unlock_messages("astrid")
 
         response = self.client.post(
             "/touch/messages/draft",
-            data={"recipient_id": "astrid", "action": "append-keyed-letter", "morse": "--"},
+            data={"recipient_id": "astrid", "action": "append-keyed-word", "morse": "-- ."},
         )
         draft = json.loads(self.student_file("pappy", "message_draft.json").read_text(encoding="utf-8"))
 
         self.assertEqual(302, response.status_code)
-        self.assertEqual("M", draft["text"])
+        self.assertEqual("ME", draft["text"])
+
+        second_response = self.client.post(
+            "/touch/messages/draft",
+            data={"recipient_id": "astrid", "action": "append-keyed-word", "morse": "... ---"},
+        )
+        draft = json.loads(self.student_file("pappy", "message_draft.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(302, second_response.status_code)
+        self.assertEqual("ME SO", draft["text"])
+
+    def test_touch_message_rejects_keyed_letter_or_unknown_word(self):
+        self.unlock_messages("pappy")
+        self.unlock_messages("astrid")
+
+        letter_response = self.client.post(
+            "/touch/messages/draft",
+            data={"recipient_id": "astrid", "action": "append-keyed-word", "morse": "--"},
+        )
+        unknown_response = self.client.post(
+            "/touch/messages/draft",
+            data={"recipient_id": "astrid", "action": "append-keyed-word", "morse": "......"},
+        )
+        draft = json.loads(self.student_file("pappy", "message_draft.json").read_text(encoding="utf-8"))
+
+        self.assertIn("available+Words", letter_response.headers["Location"])
+        self.assertIn("available+Words", unknown_response.headers["Location"])
+        self.assertEqual("", draft["text"])
+
+    def test_touch_message_undo_removes_the_last_word(self):
+        self.unlock_messages("pappy")
+        self.unlock_messages("astrid")
+        self.client.post(
+            "/touch/messages/draft",
+            data={"recipient_id": "astrid", "action": "append-word", "word": "ME"},
+        )
+        self.client.post(
+            "/touch/messages/draft",
+            data={"recipient_id": "astrid", "action": "append-word", "word": "SO"},
+        )
+
+        response = self.client.post(
+            "/touch/messages/draft",
+            data={"recipient_id": "astrid", "action": "undo"},
+        )
+        draft = json.loads(self.student_file("pappy", "message_draft.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual("ME", draft["text"])
 
     def test_touch_message_send_revalidates_tampered_draft(self):
         self.unlock_messages("pappy")

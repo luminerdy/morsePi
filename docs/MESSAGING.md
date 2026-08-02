@@ -16,13 +16,16 @@ Guest Operator cannot send or receive messages.
 
 1. Open Messages from Daily or the touch menu.
 2. Choose an eligible recipient.
-3. Add short known words with touch tiles, or key one letter and tap Add Letter.
+3. Add short known words with touch tiles, or key one complete practiced word
+   and tap Add Word.
 4. Tap a letter tile to replace or remove it; Undo and Clear are also available.
 5. Review the letters and Morse code, then use Play to hear the message and see
    it on the station LED.
 6. Tap Send.
 
-The message is limited to three words and 20 letters. Every letter must be
+Keyed words must already be available in Words practice, and the composer adds
+the space between completed words automatically. Undo removes the most recently
+added word. The message is limited to three words and 20 letters. Every letter must be
 active for both the sender and receiver. The server repeats all validation at
 send time so a changed or tampered draft cannot bypass these rules.
 

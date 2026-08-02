@@ -21,7 +21,7 @@ files only carry *(Delta: …)* notes, not status history.
 | Rhythm timing summaries per attempt + `/admin/rhythm` trends page; timing events capped at 240 | `674fdd8` | New scope — now FR-036/FR-037, API-017, AC-013 |
 | Learn-mode score display fix; screenshots; doc updates | `89f73eb` etc. | No spec impact |
 | Touch System recovery page with Wi-Fi/IP status, on-screen keyboard availability/launch, admin-PIN-gated app update, Wi-Fi restart, and admin-PIN-gated kiosk exit | after `3f20d03` | FR-038, API-018, AC-014 — met in legacy |
-| Local family Morse messaging with shared-letter validation, touch/keyer composition, review, playback, inbox, guided decoding, effort, and badges | 2026-08-02 working tree | FR-039...FR-046 — met for Phase 7A; FR-047...FR-050 remain partial pending cross-station transport |
+| Local family Morse messaging with shared-letter validation, word-tile/whole-word keyer composition, review, playback, inbox, guided decoding, effort, and badges | 2026-08-02 working tree | FR-039...FR-046 — met for Phase 7A; FR-047...FR-050 remain partial pending cross-station transport |
 
 **Note 1 (FR-012):** over-limit text is silently **truncated** (`limited_text`),
 not rejected; only bodies > 16 KB get a hard 413. The OOM DoS is closed

@@ -3,7 +3,7 @@
 <head>
     <title>Build Message - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260621-4">
-    <link rel="stylesheet" href="/static/touch.css?v=20260802-1">
+    <link rel="stylesheet" href="/static/touch.css?v=20260802-2">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body class="touch-ui">
@@ -56,7 +56,7 @@
                             {% endfor %}
                             {% if draft.pending_space %}<i class="touch-letter-space pending" aria-label="Pending word space"></i>{% endif %}
                         {% else %}
-                            <p>Tap a word or key one letter.</p>
+                            <p>Tap a word or key a whole word.</p>
                         {% endif %}
                     </div>
                     {% if error %}<div class="touch-message-error">{{ error }}</div>{% endif %}
@@ -87,14 +87,14 @@
                     </section>
                 {% else %}
                     <section class="touch-message-panel touch-compose-keyer">
-                        <span>Use Your Key</span>
+                        <span>Key a Word</span>
                         <strong id="liveMorse">Waiting for key...</strong>
                         <small id="liveDecoded">---</small>
                         <form method="post" action="/touch/messages/draft">
                             <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
-                            <input type="hidden" name="action" value="append-keyed-letter">
-                            <input type="hidden" name="morse" id="messageKeyedMorse" value="">
-                            <button class="button primary" type="submit">Add Letter</button>
+                            <input type="hidden" name="action" value="append-keyed-word">
+                            <input type="hidden" name="morse" id="messageKeyedWordMorse" value="">
+                            <button class="button primary" type="submit">Add Word</button>
                         </form>
                     </section>
                 {% endif %}
@@ -114,7 +114,7 @@
                     </section>
 
                     <section class="touch-message-panel touch-compose-actions">
-                        {% for action, label in [("space", "Space"), ("undo", "Undo"), ("clear", "Clear")] %}
+                        {% for action, label in [("undo", "Undo Word"), ("clear", "Clear")] %}
                             <form method="post" action="/touch/messages/draft">
                                 <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
                                 <button class="button secondary" name="action" value="{{ action }}">{{ label }}</button>
@@ -126,6 +126,6 @@
             </main>
         {% endif %}
     </div>
-<script src="/static/app.js?v=20260802-1"></script>
+<script src="/static/app.js?v=20260802-2"></script>
 </body>
 </html>
