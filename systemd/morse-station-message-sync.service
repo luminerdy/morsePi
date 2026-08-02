@@ -1,0 +1,9 @@
+[Unit]
+Description=Synchronize morsePi family messages
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/morse/morse-station
+ExecStart=/usr/bin/python3 -m scripts.message_sync

@@ -218,3 +218,11 @@ from the current code (legacy status per requirement is tracked in
   message visibly queued on the sender station and retry later without child
   intervention. A child-friendly status SHALL distinguish Queued from Sent;
   technical failure details belong only in logs/admin status.
+- **FR-052** A station sync worker SHALL publish local learning snapshots and
+  immutable outbox records, download only inbox/status records addressed to
+  locally rostered students or the local station, and upload opened/decoded
+  receipts. It SHALL run safely after boot, on a five-minute timer, and on
+  adult demand; repeated runs SHALL be idempotent.
+- **FR-053** A cloud router SHALL independently validate outbox and receipt
+  records against the family directory and current minimal learning summaries
+  before writing inbox or status copies to approved station prefixes.

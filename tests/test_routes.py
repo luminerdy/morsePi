@@ -476,6 +476,31 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(1, len(list((self.students_dir / "pappy" / "message_outbox").glob("*.json"))))
         self.assertEqual(1, len(list((self.students_dir / "astrid" / "message_inbox").glob("*.json"))))
 
+    def test_cloud_enabled_message_starts_queued_and_writes_learning_summary(self):
+        self.unlock_messages("pappy")
+        self.unlock_messages("astrid")
+        self.write_station_config({
+            "station_id": "pappy-test-station",
+            "message_sync_enabled": True,
+            "students": [{"id": "pappy", "name": "Pappy"}, {"id": "astrid", "name": "Astrid"}],
+            "family_students": [{"id": "pappy", "name": "Pappy"}, {"id": "astrid", "name": "Astrid"}],
+        })
+        self.client.post(
+            "/touch/messages/draft",
+            data={"recipient_id": "astrid", "action": "append-word", "word": "ME"},
+        )
+
+        response = self.client.post("/touch/messages/send", data={"recipient_id": "astrid"})
+        messages_html = self.client.get("/touch/messages").get_data(as_text=True)
+        outbox_path = next((self.students_dir / "pappy" / "message_outbox").glob("*.json"))
+        message = json.loads(outbox_path.read_text(encoding="utf-8"))
+        summary_path = self.data_dir / "message_sync" / "local_summaries" / "pappy.json"
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual("queued", message["cloud_state"])
+        self.assertIn("Queued for delivery", messages_html)
+        self.assertTrue(summary_path.exists())
+
     def test_touch_message_keyed_word_is_decoded_and_added_to_draft(self):
         self.unlock_messages("pappy")
         self.unlock_messages("astrid")

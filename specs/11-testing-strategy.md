@@ -53,6 +53,10 @@
 - **TEST-016** Words curriculum tests verify the unlocked bank retains all
   eligible words, filters out unknown letters, and interleaves two- and
   three-letter prompts so `NOT` and `MOM` appear in the first six.
+- **TEST-017** Cloud-message contract tests use an in-memory S3 object store to
+  replay snapshots, outbox objects, inbox downloads, and receipts across all
+  three configured stations. They cover path/payload mismatches, family scope,
+  active-letter enforcement, forward-only states, and duplicate delivery.
 
 ## CI pipeline (per TR-011)
 

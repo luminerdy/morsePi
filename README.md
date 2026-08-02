@@ -31,6 +31,7 @@ Pappy's Internet Telegraph is a Raspberry Pi Morse code learning station. It let
 - JSONL word practice attempt logging under `data/students/<student>/word_attempts.jsonl`
 - Local family Morse messages with touch/keyer composition, review, speaker/LED playback, inbox, and guided letter-by-letter decoding
 - Message effort logging plus First Message Sent and Secret Message Decoded badges
+- Phase 7B cloud-message contract, station S3 sync worker, validated Lambda router, and idempotent cross-station receipts (disabled until AWS rehearsal completes)
 - Raw key timing events and timing summaries for practice and Words attempts, preserving dot/dash/gap rhythm history for future coaching
 - Adult/admin Rhythm Trends page for reviewing timing consistency and spacing trends over time
 - Local data backup script and optional daily systemd user timer
@@ -81,6 +82,8 @@ GPIO layout:
 - [7-inch case measurement worksheet](docs/CASE_MEASUREMENT_WORKSHEET.md)
 - [Kids station instructions](docs/KIDS_STATION_INSTRUCTIONS.md)
 - [Family Morse messaging](docs/MESSAGING.md)
+- [Cloud messaging design](docs/CLOUD_MESSAGING_DESIGN.md)
+- [Security and family data](SECURITY.md)
 - [Pappy's Operators handout](docs/KIDS_QUICK_START_HANDOUT.pdf)
 
 ## Quick Start on the Pi
@@ -109,10 +112,10 @@ Run the regression test bank on the Pi with mock GPIO:
 
 ```bash
 cd /home/morse/morse-station
-GPIOZERO_PIN_FACTORY=mock python3 -m unittest tests.test_backup_data tests.test_station_status tests.test_practice_attempts tests.test_learning_gates tests.test_morse_display tests.test_message_store tests.test_routes
+GPIOZERO_PIN_FACTORY=mock python3 -m unittest tests.test_backup_data tests.test_station_status tests.test_practice_attempts tests.test_learning_gates tests.test_morse_display tests.test_message_store tests.test_message_cloud tests.test_routes
 ```
 
-These tests use temporary progress files and do not modify student practice data. The current bank covers data backups, station status reporting, timing summaries, learning gates, alphabet progress, stale Learning Now cleanup, Daily Mission summary rules, Practice Coach recommendations, derived badges, rendered touch pages, profile cookie separation, admin reset behavior, practice POST routes, Signal Sprint bonus routes, Daily celebration, and local message validation, delivery, decoding, effort, and reset behavior.
+These tests use temporary progress files and do not modify student practice data. The current bank covers data backups, station status reporting, timing summaries, learning gates, alphabet progress, stale Learning Now cleanup, Daily Mission summary rules, Practice Coach recommendations, derived badges, rendered touch pages, profile cookie separation, admin reset behavior, practice POST routes, Signal Sprint bonus routes, Daily celebration, local messaging, and duplicate-safe three-station cloud delivery contracts.
 
 ## Repository Layout
 
@@ -121,6 +124,9 @@ app.py                  Current Flask application
 morse.py                Morse conversion helpers
 morse_display.py        Shared centered-dot/dash visual renderer
 message_store.py        Local message validation, drafts, inbox/outbox, and events
+message_cloud.py        Cloud message, summary, receipt, and validation contracts
+message_sync.py         Station-side S3 synchronization worker
+cloud/                  AWS message router, family directory, and IAM templates
 templates/              Flask HTML templates
 static/                 CSS and browser JavaScript
 tests/                  Regression tests for learning gates and progress rules
@@ -137,7 +143,7 @@ systemd/                Optional Linux service file
 
 See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) for milestones and next steps.
 
-Current next focus: kid-test local family messaging, then add durable cross-station delivery with student learning summaries in S3 and optional AWS IoT arrival notices. Remote update commands remain a parallel deployment priority.
+Current next focus: deploy and rehearse the implemented S3/Lambda cross-station message path, then decide whether AWS IoT arrival notices add enough value. Remote update commands remain a parallel deployment priority.
 
 ## License
 

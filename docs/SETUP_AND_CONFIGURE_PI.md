@@ -390,6 +390,31 @@ Check the timer:
 systemctl --user list-timers morse-station-backup.timer
 ```
 
+### Install the family message sync timer
+
+Leave `message_sync_enabled` set to `false` until the cloud router and the
+three-station rehearsal are complete. Install the worker now so enabling it
+later requires only the station config change:
+
+```bash
+mkdir -p /home/morse/.config/systemd/user
+install -m 0644 /home/morse/morse-station/systemd/morse-station-message-sync.service /home/morse/.config/systemd/user/morse-station-message-sync.service
+install -m 0644 /home/morse/morse-station/systemd/morse-station-message-sync.timer /home/morse/.config/systemd/user/morse-station-message-sync.timer
+systemctl --user daemon-reload
+systemctl --user enable --now morse-station-message-sync.timer
+systemctl --user list-timers morse-station-message-sync.timer
+```
+
+Run one manual check with:
+
+```bash
+cd /home/morse/morse-station
+python3 -m scripts.message_sync
+journalctl --user -u morse-station-message-sync.service -n 50 --no-pager
+```
+
+The disabled worker prints `Message sync disabled.` and exits successfully.
+
 Restore into a temporary folder for inspection:
 
 ```bash

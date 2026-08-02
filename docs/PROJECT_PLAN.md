@@ -749,7 +749,7 @@ When asked to do the daily wrap-up, update:
 - Added [MESSAGING.md](MESSAGING.md) and aligned README, setup, kid instructions,
   feature inventory, data requirements, and compliance status with the shipped
   Phase 7A boundary.
-- Verified the complete Pi regression bank passes with 124 tests and visually
+- Verified the complete Pi regression bank passes with 131 tests and visually
   rehearsed hub, compose, correction, review, playback, hints, and decode at
   the real 800x480 viewport on Pappy's test station.
 - Refined message composition after hands-on feedback: physical-key entry now
@@ -781,6 +781,11 @@ When asked to do the daily wrap-up, update:
   two-letter prompts felt like a hard length limit. The opening sequence now
   mixes two- and three-letter known words, including `NOT` third and `MOM`
   sixth, while retaining the same 42-word active-letter-filtered set.
+- Began Phase 7B with a documented station-prefix S3 design, privacy/retention
+  policy, minimal active-letter summaries, station sync worker, independently
+  validated Lambda router, deterministic receipts, and a three-station
+  in-memory replay test. Cloud sync remains disabled pending AWS deployment
+  and the real three-station rehearsal.
 - Decision: Phase 7A remains local-only. Cross-house delivery will preserve the
   same message format in Phase 7B, using S3 for durable storage and AWS IoT only
   as an optional notification path.

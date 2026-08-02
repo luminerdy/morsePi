@@ -3,9 +3,9 @@
 ## Current Scope
 
 Phase 7A provides kid-friendly Morse messages between students whose progress
-is available on the same station. It proves the complete learning experience
-without depending on the network or AWS. Phase 7B will carry the same message
-records between homes using durable cloud delivery.
+is available on the same station. Phase 7B adds an offline-friendly S3 worker
+and independently validated cloud router while preserving the same child flow.
+Cloud sync remains disabled until the three-station AWS rehearsal passes.
 
 Messaging unlocks after a student has unlocked Words practice (`S` and `O`).
 Guest Operator cannot send or receive messages.
@@ -71,16 +71,24 @@ Writes use a temporary file and atomic replacement. Delivery is duplicate-safe
 by message ID. Student reset backs up and removes this data, and normal station
 backups include it because the whole `data/` tree is archived.
 
-## Phase 7B Boundary
+## Phase 7B Transport
 
-Phase 7A does not deliver a message to another physical station. Phase 7B will
-add:
+The Phase 7B implementation adds:
 
 - minimal student learning summaries for eligibility checks;
 - durable S3 outbox, validated inbox, and receipt objects;
 - retry-safe upload and download while stations are intermittently powered;
 - optional AWS IoT notifications that prompt a station to check S3;
 - kid-friendly queued, available, opened, and decoded states across homes.
+
+Each Pi writes only under its existing station-owned S3 prefix and reads the
+sanitized family summary. The Lambda router validates outbox objects and writes
+inbox copies only to stations approved for the receiver. Opened and decoded
+receipts synchronize forward across the sender and all receiver stations.
+
+The worker is off unless `message_sync_enabled` is true. See
+[CLOUD_MESSAGING_DESIGN.md](CLOUD_MESSAGING_DESIGN.md) for paths, trust
+boundaries, duplicate handling, and the deployment rehearsal.
 
 S3 remains the durable source of truth. IoT notifications are an optimization,
 not the only delivery path.

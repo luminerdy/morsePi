@@ -420,6 +420,73 @@ After backup/status is proven:
 - Add a small summarizer that combines station snapshots into family progress.
 - Evaluate AWS IoT Core for lower-cost command triggers and future family Morse messages.
 
+## Phase 7B Message Router
+
+The message transport keeps every Pi on its existing station policy. A Pi
+writes snapshots, outbox messages, and receipts only below its own
+`stations/<station-id>/` prefix. The Lambda router independently validates and
+copies accepted inbox/status objects to other approved station prefixes.
+
+Repository assets:
+
+```text
+cloud/family_directory.json
+cloud/router-trust-policy.json
+cloud/router-policy.template.json
+cloud/s3-notification.template.json
+cloud/lambda_function.py
+cloud/message_router.py
+scripts/package_message_router.py
+```
+
+Package the router:
+
+```bash
+python3 scripts/package_message_router.py
+```
+
+The deployment identity needs only these additional setup capabilities:
+
+- create/get/tag/pass `morsepi-message-router-role`;
+- attach or put the router's narrow S3/CloudWatch policy;
+- create/get/update/invoke `morsepi-message-router` Lambda;
+- add an S3-scoped Lambda invoke permission; and
+- get/put the notification configuration on the MorsePi bucket.
+
+The current `morsepi-setup-admin` policy intentionally does **not** include
+Lambda creation, the new router role, or bucket-notification changes. Do not
+self-expand that identity. Temporarily reactivate the broad setup administrator
+or have an AWS administrator grant the exact capabilities above, deploy and
+verify the router, then deactivate the broad key again.
+
+Deployment order:
+
+1. Replace placeholders in `cloud/router-policy.template.json` and create the
+   `morsepi-message-router-role` with the trust policy.
+2. Package the Lambda and create `morsepi-message-router` in `us-east-1` with
+   handler `cloud.lambda_function.lambda_handler`, Python 3.13, 128 MB, a
+   15-second timeout, and `MORSEPI_BUCKET=morsepi-backups-luminerdy`.
+3. Upload `cloud/family_directory.json` to
+   `family/messaging/directory.json`.
+4. Grant `s3.amazonaws.com` permission to invoke the Lambda, restricted by
+   bucket ARN and AWS account.
+5. Preserve any existing bucket notifications, then add the three
+   non-overlapping station-prefix rules from
+   `cloud/s3-notification.template.json`.
+6. Install the disabled message-sync timer on each Pi.
+7. Upload current learning snapshots and verify sanitized family summaries.
+8. Run the three-station offline delivery/receipt rehearsal before setting
+   `message_sync_enabled` to true for normal use.
+
+The Lambda reads and writes the same bucket. Input and output sub-prefixes are
+different, and the router ignores inbox/status objects, so an output event can
+cause at most one ignored invocation rather than a recursive write loop. AWS
+documents both the same-bucket recursion risk and the requirement that S3
+notification prefixes for the same event type must not overlap:
+
+- https://docs.aws.amazon.com/lambda/latest/dg/with-s3-example.html
+- https://docs.aws.amazon.com/AmazonS3/latest/userguide/notification-how-to-filtering.html
+
 ## Official References
 
 - AWS CLI `s3api put-public-access-block`: https://docs.aws.amazon.com/cli/latest/reference/s3api/put-public-access-block.html

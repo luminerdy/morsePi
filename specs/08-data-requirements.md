@@ -60,9 +60,18 @@
   summary SHALL contain only student ID, active letters, curriculum version,
   and generated-at UTC time; stale or missing summaries SHALL disable sending
   to that student with a friendly Try Later message, not guess eligibility.
-- **DR-014** Cloud layout SHALL separate untrusted incoming objects from
-  validated inbox objects, for example
-  `family/messages/outbox/<station-id>/<message-id>.json` and
-  `family/messages/inbox/<student-id>/<message-id>.json`, with receipts under
-  a separate prefix. The router SHALL use non-overlapping event prefixes to
-  prevent recursive S3 notification loops.
+- **DR-014** Cloud layout SHALL separate untrusted station-owned outbox and
+  outgoing-receipt objects from router-validated station inbox and status
+  objects. Paths SHALL follow `stations/<station-id>/messages/{outbox,inbox,
+  receipts,status}/...`; minimal shared summaries and the family directory
+  live under `family/`. Router output SHALL never use an input sub-prefix,
+  preventing recursive routing.
+- **DR-015** Cloud learning summary format `morsepi-learning-summary-v1` SHALL
+  contain only stable student ID, source station ID, ordered active letters,
+  curriculum version, and generated-at UTC. The family aggregate SHALL union
+  only snapshots from directory-approved stations and SHALL contain no display
+  name, score, timing, attempt history, or rank.
+- **DR-016** Cloud receipt format `morsepi-message-receipt-v1` SHALL contain
+  message ID, sender station ID, recipient student ID, reporting station ID,
+  forward-only state (`available|opened|decoded`), and UTC time. Deterministic
+  state paths make retries idempotent.

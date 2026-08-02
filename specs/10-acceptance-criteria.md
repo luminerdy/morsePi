@@ -99,6 +99,13 @@ correctness checks. Each is encoded as an automated test per
 - **AC-022** (FR-051) With `E T A N I M S O` active, Words still exposes the
   complete 42-word set, starts with `AM`, and presents `NOT` and `MOM` within
   the first six prompts. Every available word contains only active letters.
+- **AC-023** (FR-052 / FR-053 / DR-014...DR-016) A three-station fixture
+  uploads one message, replays its outbox event ten times, and produces exactly
+  one validated inbox copy at each station hosting the recipient. An opened
+  then decoded receipt advances sender and receiver copies without regression;
+  replaying either receipt creates no duplicate local message or effort event.
+  A mismatched station path, unknown family ID, stale summary, altered required
+  letters, or unavailable letter is rejected.
 
 ## Coverage rule
 

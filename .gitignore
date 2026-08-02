@@ -13,3 +13,5 @@ data/station_status.json
 data/students/
 data/backups/
 data/student_backups/
+data/message_sync/
+dist/

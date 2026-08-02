@@ -1,0 +1,43 @@
+{
+  "LambdaFunctionConfigurations": [
+    {
+      "Id": "morsepi-pappy-message-events",
+      "LambdaFunctionArn": "arn:aws:lambda:<region>:<account-id>:function:morsepi-message-router",
+      "Events": ["s3:ObjectCreated:*"],
+      "Filter": {
+        "Key": {
+          "FilterRules": [
+            {"Name": "prefix", "Value": "stations/pappy-test-station/"},
+            {"Name": "suffix", "Value": ".json"}
+          ]
+        }
+      }
+    },
+    {
+      "Id": "morsepi-astrid-liara-message-events",
+      "LambdaFunctionArn": "arn:aws:lambda:<region>:<account-id>:function:morsepi-message-router",
+      "Events": ["s3:ObjectCreated:*"],
+      "Filter": {
+        "Key": {
+          "FilterRules": [
+            {"Name": "prefix", "Value": "stations/astrid-liara-station/"},
+            {"Name": "suffix", "Value": ".json"}
+          ]
+        }
+      }
+    },
+    {
+      "Id": "morsepi-campbell-olivea-message-events",
+      "LambdaFunctionArn": "arn:aws:lambda:<region>:<account-id>:function:morsepi-message-router",
+      "Events": ["s3:ObjectCreated:*"],
+      "Filter": {
+        "Key": {
+          "FilterRules": [
+            {"Name": "prefix", "Value": "stations/campbell-olivea-station/"},
+            {"Name": "suffix", "Value": ".json"}
+          ]
+        }
+      }
+    }
+  ]
+}

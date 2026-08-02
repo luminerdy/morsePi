@@ -58,7 +58,7 @@
                         {% for item in outbox[:3] %}
                             <div class="touch-message-row">
                                 <strong>{{ item.other_name }}</strong>
-                                <small>{% if item.state == 'decoded' %}Decoded{% elif item.state == 'opened' %}Opened{% else %}Ready to decode{% endif %}</small>
+                                <small>{% if item.state == 'decoded' %}Decoded{% elif item.state == 'opened' %}Opened{% elif item.cloud_state == 'queued' %}Queued for delivery{% else %}Ready to decode{% endif %}</small>
                             </div>
                         {% endfor %}
                     {% else %}

@@ -31,6 +31,7 @@ from message_store import (
     save_message_copy,
     validate_message_text,
 )
+from message_sync import load_family_learning_summary, refresh_local_learning_summary
 from practice_attempts import append_practice_attempt, normalize_timing_events, rounded_ms, set_attempts_path, timing_summary
 from practice_progress import all_mode_details, choose_next_letter, mode_score, overall_score, progress_summary, record_attempt, save_progress, set_progress_path
 import student_profiles as student_profile_store
@@ -97,6 +98,18 @@ def configure_student_storage():
 
 @app.after_request
 def persist_practice_session(response):
+    current_student = getattr(g, "current_student", {})
+    if current_student and not current_student.get("disposable"):
+        try:
+            refresh_local_learning_summary(
+                student_profile_store.DATA_DIR,
+                current_student["id"],
+                current_station_id(),
+                local_active_letters_for_student(current_student["id"]),
+            )
+        except (MessageValidationError, OSError, ValueError):
+            pass
+
     if not getattr(g, "practice_session_id", ""):
         g.practice_session_id = new_practice_session_id()
 
@@ -334,7 +347,7 @@ def load_student_json(student_id, filename, default):
     return loaded
 
 
-def active_letters_for_student(student_id):
+def local_active_letters_for_student(student_id):
     progress = load_student_json(student_id, "practice_progress.json", {})
     learning = load_student_json(student_id, "learning_state.json", {})
     groups = learning.get("groups", {}) if isinstance(learning, dict) else {}
@@ -361,6 +374,14 @@ def active_letters_for_student(student_id):
 
         active.extend(letter for letter in step["letters"] if letter not in active)
 
+    return [letter for letter in all_practice_letters if letter in active]
+
+
+def active_letters_for_student(student_id):
+    active = set(local_active_letters_for_student(student_id))
+    summary = load_family_learning_summary(student_profile_store.DATA_DIR, student_id)
+    if summary:
+        active.update(summary.get("active_letters", []))
     return [letter for letter in all_practice_letters if letter in active]
 
 
@@ -3293,6 +3314,9 @@ def touch_message_send():
         )
     except MessageValidationError as error:
         return redirect(url_for("touch_message_compose", to=recipient["id"], error=str(error)))
+
+    if load_station_config().get("message_sync_enabled", False):
+        message["cloud_state"] = "queued"
 
     deliver_local_message(student_profile_store.DATA_DIR, message)
     append_message_event(student_profile_store.DATA_DIR, g.current_student["id"], {
