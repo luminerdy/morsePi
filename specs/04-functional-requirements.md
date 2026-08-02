@@ -82,6 +82,10 @@ from the current code (legacy status per requirement is tracked in
   all features. *(Delta: `7818254` unified the table within `app.py`
   (`letter_unlock_groups` now generates steps and the letter list), but a
   second table `LETTER_UNLOCKS` still lives in `practice_progress.py`.)*
+- **FR-051** Once Words unlocks, its opening sequence SHALL mix familiar
+  two-letter and three-letter words instead of exhausting all two-letter words
+  first. The first six prompts SHALL include at least two three-letter words,
+  while every prompt remains limited to the student's active letters.
 
 ## Students & sessions *(V1)*
 

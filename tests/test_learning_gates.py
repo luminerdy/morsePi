@@ -145,6 +145,14 @@ class LearningGateTests(unittest.TestCase):
         self.assertEqual("AM", item["word"])
         self.assertEqual(".- --", item["morse"])
 
+    def test_word_practice_interleaves_meaningful_three_letter_words(self):
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        words = app_module.available_word_practice_words(active_letters)
+
+        self.assertEqual(42, len(words))
+        self.assertEqual(["AM", "ME", "NOT", "IN", "SO", "MOM"], words[:6])
+        self.assertTrue(all(set(word).issubset(active_letters) for word in words))
+
     def test_started_learning_group_continues_when_current_set_dips(self):
         self.write_progress(app_module.starter_practice_letters, self.all_modes(0.0))
         self.write_learning_state(

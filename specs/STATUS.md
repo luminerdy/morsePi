@@ -48,6 +48,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | NFR-005 runs off-Pi w/o env vars | ❌ | Still needs `GPIOZERO_PIN_FACTORY=mock` |
 | NFR-006 atomic writes | ❌ | Plain `write_text`, no temp+rename |
 | NFR-017 centered Morse display | ✅ | Shared server/browser renderer covers app displays and printable handout while preserving canonical ASCII Morse |
+| FR-051 mixed Words opening | ✅ | The opening bank interleaves familiar two- and three-letter words; eligibility remains active-letter filtered |
 | SEC-001 CSRF | ❌ | No tokens anywhere |
 | SEC-002/003 mandatory PIN + lockout | ❌ | PIN optional, `==` compare, no rate limit |
 | SEC-004 input validation | 🟡 | See FR-012 note |
@@ -82,3 +83,4 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | AC-017 guest/security rules | — | ✅ | Guest rejection and server-side tamper revalidation covered |
 | AC-018...AC-020 cross-station delivery | — | 🟡 | Local duplicate/offline behavior covered; S3 routing and three-station rehearsal remain Phase 7B |
 | AC-021 centered Morse geometry | — | ✅ | Unit/template tests plus 800x480 geometry measurement and two-page PDF inspection |
+| AC-022 mixed Words sequence | — | ✅ | Curriculum regression verifies 42 eligible words with `NOT` and `MOM` in the first six |

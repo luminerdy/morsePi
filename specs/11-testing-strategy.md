@@ -50,6 +50,9 @@
   only the shared centered-symbol classes, and representative Learn, Words,
   Progress, and Messages pages render that component. An 800x480 screenshot
   check and print-PDF inspection cover AC-021.
+- **TEST-016** Words curriculum tests verify the unlocked bank retains all
+  eligible words, filters out unknown letters, and interleaves two- and
+  three-letter prompts so `NOT` and `MOM` appear in the first six.
 
 ## CI pipeline (per TR-011)
 

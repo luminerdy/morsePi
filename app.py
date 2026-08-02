@@ -204,9 +204,9 @@ all_practice_letters = starter_practice_letters + [
 alphabet_letters = [letter for letter in all_practice_letters if letter.isalpha()]
 word_practice_unlock_letters = ["S", "O"]
 word_practice_bank = [
-    "AM", "AN", "AS", "AT", "IN", "IS", "IT", "ME", "NO", "ON", "SO", "TO",
-    "EAT", "SAT", "SIT", "SET", "SEE", "SEA", "TEA", "TEN", "NET", "MEN",
-    "MET", "MAT", "MAN", "SON", "NOT", "TOO", "ANT", "MOM", "MINE", "NAME",
+    "AM", "ME", "NOT", "IN", "SO", "MOM", "IT", "NO", "EAT", "ON", "IS", "SEE",
+    "AT", "TO", "SIT", "AN", "AS", "TEN", "SAT", "NET", "TEA", "MEN",
+    "SET", "SEA", "MET", "MAT", "MAN", "SON", "TOO", "ANT", "MINE", "NAME",
     "MEAN", "MEAT", "MOON", "SOON", "TEAM", "TONE", "NOTE", "SEAT", "STEM",
     "STONE"
 ]

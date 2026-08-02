@@ -96,6 +96,9 @@ correctness checks. Each is encoded as an automated test per
   and dash elements with accessible labels. At 800x480 the marks remain
   aligned, letter groups do not split internally, and the printable handout
   uses the same centered geometry.
+- **AC-022** (FR-051) With `E T A N I M S O` active, Words still exposes the
+  complete 42-word set, starts with `AM`, and presents `NOT` and `MOM` within
+  the first six prompts. Every available word contains only active letters.
 
 ## Coverage rule
 
