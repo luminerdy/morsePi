@@ -283,7 +283,7 @@
       line-height: 1;
     }
 
-    .morse-card span {
+    .morse-card > span {
       display: block;
       margin-top: 0.03in;
       font-family: "Courier New", monospace;
@@ -475,6 +475,51 @@
       line-height: 1;
       font-weight: 900;
       white-space: nowrap;
+    }
+
+    .handout-morse-visual {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.8em;
+      min-height: 1em;
+      color: inherit;
+      line-height: 1;
+      vertical-align: middle;
+    }
+
+    .handout-morse-word,
+    .handout-morse-letter {
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .handout-morse-word {
+      gap: 0.34em;
+    }
+
+    .handout-morse-letter {
+      gap: 0.14em;
+    }
+
+    .handout-morse-mark {
+      display: inline-block;
+      flex: 0 0 auto;
+      background: currentColor;
+    }
+
+    .handout-morse-dot {
+      width: 0.24em;
+      height: 0.24em;
+      border-radius: 50%;
+    }
+
+    .handout-morse-dash {
+      width: 0.72em;
+      height: 0.18em;
+      border-radius: 999px;
     }
 
     .roadmap-note {
@@ -704,5 +749,48 @@
       </footer>
     </div>
   </div>
+  <script>
+    document.querySelectorAll(".morse-card > span, .signal-code, .mini-logo").forEach(source => {
+      const canonical = source.textContent.trim().replace(/\s+/g, " ");
+      const visual = document.createElement("span");
+      visual.className = "handout-morse-visual";
+      visual.setAttribute("role", "img");
+
+      const labels = [];
+      canonical.split("/").forEach(rawWord => {
+        const word = document.createElement("span");
+        word.className = "handout-morse-word";
+        const letterLabels = [];
+
+        rawWord.trim().split(/\s+/).filter(Boolean).forEach(rawLetter => {
+          const letter = document.createElement("span");
+          letter.className = "handout-morse-letter";
+          const symbolLabels = [];
+
+          Array.from(rawLetter).filter(symbol => ".-".includes(symbol)).forEach(symbol => {
+            const mark = document.createElement("i");
+            mark.className = `handout-morse-mark ${symbol === "." ? "handout-morse-dot" : "handout-morse-dash"}`;
+            mark.setAttribute("aria-hidden", "true");
+            letter.appendChild(mark);
+            symbolLabels.push(symbol === "." ? "dot" : "dash");
+          });
+
+          if (letter.childElementCount) {
+            word.appendChild(letter);
+            letterLabels.push(symbolLabels.join(" "));
+          }
+        });
+
+        if (word.childElementCount) {
+          visual.appendChild(word);
+          labels.push(letterLabels.join(", "));
+        }
+      });
+
+      visual.setAttribute("aria-label", labels.join("; word gap; "));
+      source.dataset.morse = canonical;
+      source.replaceChildren(visual);
+    });
+  </script>
 </body>
 </html>

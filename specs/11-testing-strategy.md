@@ -45,6 +45,11 @@
   review, inbox, and decode flow at 800x480 with touch and the physical key.
   Assert no scrollbars or overlaps, minimum target sizes, visible identities,
   and synchronized speaker/LED playback before kid testing.
+- **TEST-015** Morse display unit/template tests verify canonical ASCII input
+  is unchanged, accessible labels name dots and dashes, generated markup uses
+  only the shared centered-symbol classes, and representative Learn, Words,
+  Progress, and Messages pages render that component. An 800x480 screenshot
+  check and print-PDF inspection cover AC-021.
 
 ## CI pipeline (per TR-011)
 

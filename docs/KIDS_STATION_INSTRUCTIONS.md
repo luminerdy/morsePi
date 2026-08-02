@@ -195,6 +195,8 @@ That is not a failure. It means your brain is getting time to remember the new c
 
 ## Good Practice Habits
 
+- Read each dot and dash across the same center line. Their shape and spacing
+  match everywhere on the station.
 - Keep your hand on the key during practice.
 - Listen before you tap.
 - Make dashes longer than dots.

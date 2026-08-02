@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Decode Message - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260621-4">
+    <link rel="stylesheet" href="/static/style.css?v=20260802-1">
     <link rel="stylesheet" href="/static/touch.css?v=20260802-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
@@ -28,7 +28,7 @@
                 <div class="touch-decoded-words">
                     {% for word in decoded_words %}<strong>{{ word }}</strong>{% endfor %}
                 </div>
-                {% if completed %}<p>Clear copy! You decoded {{ message.text }}.</p>{% elif hint_morse %}<p>Morse hint: <b>{{ hint_morse }}</b></p>{% else %}<p>Listen to the highlighted letter.</p>{% endif %}
+                {% if completed %}<p>Clear copy! You decoded {{ message.text }}.</p>{% elif hint_morse %}<p>Morse hint: <b>{{ hint_morse | morse_visual }}</b></p>{% else %}<p>Listen to the highlighted letter.</p>{% endif %}
                 {% if feedback %}<em class="{% if feedback.startswith('Correct') %}success{% endif %}">{{ feedback }}</em>{% endif %}
             </section>
 
@@ -61,6 +61,6 @@
             </section>
         </main>
     </div>
-<script src="/static/app.js?v=20260802-1"></script>
+<script src="/static/app.js?v=20260802-4"></script>
 </body>
 </html>

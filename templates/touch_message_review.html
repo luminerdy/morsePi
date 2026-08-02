@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Review Message - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260621-4">
+    <link rel="stylesheet" href="/static/style.css?v=20260802-1">
     <link rel="stylesheet" href="/static/touch.css?v=20260802-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
@@ -30,14 +30,14 @@
                         {% if tile.space %}
                             <i class="touch-letter-space"></i>
                         {% else %}
-                            <div class="touch-letter-tile"><strong>{{ tile.letter }}</strong><small>{{ tile.morse }}</small></div>
+                            <div class="touch-letter-tile"><strong>{{ tile.letter }}</strong><small>{{ tile.morse | morse_visual }}</small></div>
                         {% endif %}
                     {% endfor %}
                 </div>
             </section>
             <section class="touch-message-panel touch-review-morse">
                 <span>Whole Message</span>
-                <strong>{{ morse }}</strong>
+                <strong>{{ morse | morse_visual }}</strong>
             </section>
             <section class="touch-message-panel touch-review-actions">
                 <button class="button secondary" type="button" data-message-play-draft data-recipient-id="{{ recipient.id }}">Play</button>
@@ -48,6 +48,6 @@
             </section>
         </main>
     </div>
-<script src="/static/app.js?v=20260802-1"></script>
+<script src="/static/app.js?v=20260802-4"></script>
 </body>
 </html>

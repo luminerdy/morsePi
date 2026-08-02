@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260621-1">
+    <link rel="stylesheet" href="/static/style.css?v=20260802-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body data-tone-hz="{{ timing.tone_hz }}"
@@ -55,7 +55,7 @@
 
                     <div class="morse-box" id="morseBox">
                         {% if morse %}
-                            {{ morse }}
+                            {{ morse | morse_visual }}
                         {% else %}
                             Type a message above.
                         {% endif %}
@@ -225,6 +225,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260618-4"></script>
+<script src="/static/app.js?v=20260802-4"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 <html>
 <head>
     <title>Words - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260621-4">
+    <link rel="stylesheet" href="/static/style.css?v=20260802-1">
     <link rel="stylesheet" href="/static/touch.css?v=20260627-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
@@ -36,14 +36,14 @@
 
                 <section class="touch-word-card touch-word-morse">
                     <span>Morse</span>
-                    <strong>{{ word_item.morse }}</strong>
+                    <strong>{{ word_item.morse | morse_visual }}</strong>
                 </section>
 
                 <section class="touch-word-card touch-word-letters">
                     <span>Letters</span>
                     <div>
                         {% for item in word_item.letters %}
-                            <em><strong>{{ item.letter }}</strong><small>{{ item.morse }}</small></em>
+                            <em><strong>{{ item.letter }}</strong><small>{{ item.morse | morse_visual }}</small></em>
                         {% endfor %}
                     </div>
                 </section>
@@ -79,6 +79,6 @@
             </main>
         {% endif %}
     </div>
-<script src="/static/app.js?v=20260627-1"></script>
+<script src="/static/app.js?v=20260802-4"></script>
 </body>
 </html>

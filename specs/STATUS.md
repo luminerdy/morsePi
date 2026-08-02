@@ -47,6 +47,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | NFR-004 concurrency safety | 🟡 | `threaded=False` serializes requests; module-global state remains, will regress under any threaded server |
 | NFR-005 runs off-Pi w/o env vars | ❌ | Still needs `GPIOZERO_PIN_FACTORY=mock` |
 | NFR-006 atomic writes | ❌ | Plain `write_text`, no temp+rename |
+| NFR-017 centered Morse display | ✅ | Shared server/browser renderer covers app displays and printable handout while preserving canonical ASCII Morse |
 | SEC-001 CSRF | ❌ | No tokens anywhere |
 | SEC-002/003 mandatory PIN + lockout | ❌ | PIN optional, `==` compare, no rate limit |
 | SEC-004 input validation | 🟡 | See FR-012 note |
@@ -80,3 +81,4 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | AC-016 hidden decode/hints | — | ✅ | Route tests verify progressive reveal and effort events |
 | AC-017 guest/security rules | — | ✅ | Guest rejection and server-side tamper revalidation covered |
 | AC-018...AC-020 cross-station delivery | — | 🟡 | Local duplicate/offline behavior covered; S3 routing and three-station rehearsal remain Phase 7B |
+| AC-021 centered Morse geometry | — | ✅ | Unit/template tests plus 800x480 geometry measurement and two-page PDF inspection |

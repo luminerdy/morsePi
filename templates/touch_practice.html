@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Touch Practice - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260621-4">
+    <link rel="stylesheet" href="/static/style.css?v=20260802-1">
     <link rel="stylesheet" href="/static/touch.css?v=20260625-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
@@ -38,7 +38,7 @@
                 <div>
                     <div class="field-label">{% if mode in ['listen', 'echo'] %}Audio{% else %}Morse{% endif %}</div>
                     <div class="expected-morse {% if mode in ['send', 'listen', 'echo'] %}prompt-placeholder{% endif %}" id="expectedMorse">
-                        {% if mode in ['read', 'learn'] %}{{ expected_morse }}{% elif mode in ['listen', 'echo'] %}Play{% else %}?{% endif %}
+                        {% if mode in ['read', 'learn'] %}{{ expected_morse | morse_visual }}{% elif mode in ['listen', 'echo'] %}Play{% else %}?{% endif %}
                     </div>
                 </div>
             </section>
@@ -125,6 +125,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260621-4"></script>
+<script src="/static/app.js?v=20260802-4"></script>
 </body>
 </html>

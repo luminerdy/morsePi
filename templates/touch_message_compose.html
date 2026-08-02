@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Build Message - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260621-4">
+    <link rel="stylesheet" href="/static/style.css?v=20260802-1">
     <link rel="stylesheet" href="/static/touch.css?v=20260802-4">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
@@ -50,7 +50,7 @@
                                 {% else %}
                                     <a href="/touch/messages/compose?to={{ recipient.id }}&edit={{ tile.index }}" class="touch-letter-tile {% if edit_index == tile.index %}selected{% endif %}">
                                         <strong>{{ tile.letter }}</strong>
-                                        <small>{{ tile.morse }}</small>
+                                        <small>{{ tile.morse | morse_visual }}</small>
                                     </a>
                                 {% endif %}
                             {% endfor %}
@@ -129,6 +129,6 @@
             </main>
         {% endif %}
     </div>
-<script src="/static/app.js?v=20260802-3"></script>
+<script src="/static/app.js?v=20260802-4"></script>
 </body>
 </html>

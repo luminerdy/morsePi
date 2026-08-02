@@ -6,6 +6,7 @@ from uuid import uuid4
 from flask import Flask, render_template, request, redirect, url_for, jsonify, g, has_request_context
 from gpiozero import Button, LED
 from morse import text_to_morse, morse_to_text
+from morse_display import morse_visual
 from message_store import (
     MessageValidationError,
     advance_hint,
@@ -67,6 +68,7 @@ MAX_WORD_CHARS = 20
 MAX_STUDENT_NAME_CHARS = 40
 
 app.config["MAX_CONTENT_LENGTH"] = MAX_REQUEST_BYTES
+app.jinja_env.filters["morse_visual"] = morse_visual
 
 
 @app.before_request

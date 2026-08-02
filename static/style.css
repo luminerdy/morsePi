@@ -504,6 +504,59 @@ a:focus-visible {
     opacity: 0.45;
 }
 
+.morse-visual.morse-visual {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.9em;
+    min-height: 1em;
+    color: inherit;
+    margin: 0;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: 1;
+    text-transform: none;
+    vertical-align: middle;
+}
+
+.morse-visual .morse-word,
+.morse-visual .morse-letter {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    text-transform: none;
+    white-space: nowrap;
+}
+
+.morse-visual .morse-word {
+    gap: 0.38em;
+}
+
+.morse-visual .morse-letter {
+    gap: 0.16em;
+}
+
+.morse-mark {
+    display: inline-block;
+    flex: 0 0 auto;
+    background: currentColor;
+}
+
+.morse-dot {
+    width: 0.24em;
+    height: 0.24em;
+    border-radius: 50%;
+}
+
+.morse-dash {
+    width: 0.72em;
+    height: 0.18em;
+    border-radius: 999px;
+}
+
 .full-width {
     width: 100%;
 }

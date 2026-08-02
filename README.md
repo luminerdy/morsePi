@@ -49,6 +49,7 @@ Pappy's Internet Telegraph is a Raspberry Pi Morse code learning station. It let
 - Grit-focused motivation with Focused Practice and Try Again Champ badges plus short coach messages connecting effort to improvement
 - Clear current-set versus Learning Now progress so new letters do not look mastered too early
 - Beginner Morse timing controls using Farnsworth-style character/effective WPM settings
+- Centered geometric Morse dots and dashes across learning, Words, Messages, live keying, Progress, and the printable handout
 - Printable two-sided kid quick-start handout and student instructions under `docs/`
 - Grandkid station deployment checklist, remote backup/status runbook, and 3D printed case measurement worksheet under `docs/`
 
@@ -108,7 +109,7 @@ Run the regression test bank on the Pi with mock GPIO:
 
 ```bash
 cd /home/morse/morse-station
-GPIOZERO_PIN_FACTORY=mock python3 -m unittest tests.test_backup_data tests.test_station_status tests.test_practice_attempts tests.test_learning_gates tests.test_message_store tests.test_routes
+GPIOZERO_PIN_FACTORY=mock python3 -m unittest tests.test_backup_data tests.test_station_status tests.test_practice_attempts tests.test_learning_gates tests.test_morse_display tests.test_message_store tests.test_routes
 ```
 
 These tests use temporary progress files and do not modify student practice data. The current bank covers data backups, station status reporting, timing summaries, learning gates, alphabet progress, stale Learning Now cleanup, Daily Mission summary rules, Practice Coach recommendations, derived badges, rendered touch pages, profile cookie separation, admin reset behavior, practice POST routes, Signal Sprint bonus routes, Daily celebration, and local message validation, delivery, decoding, effort, and reset behavior.
@@ -118,6 +119,7 @@ These tests use temporary progress files and do not modify student practice data
 ```text
 app.py                  Current Flask application
 morse.py                Morse conversion helpers
+morse_display.py        Shared centered-dot/dash visual renderer
 message_store.py        Local message validation, drafts, inbox/outbox, and events
 templates/              Flask HTML templates
 static/                 CSS and browser JavaScript

@@ -46,3 +46,9 @@
 - **NFR-016** *(V2)* The primary messaging path SHALL require no physical or
   on-screen keyboard and no reading of technical status text. Color SHALL NOT
   be the only indicator of message state or a correct/incorrect answer.
+- **NFR-017** *(V1)* Kid-facing Morse SHALL render dots and dashes as
+  optically centered geometric marks on one horizontal axis, with consistent
+  symbol and letter spacing across Learn, practice, Words, Progress, Messages,
+  live key displays, and printable student materials. Canonical stored,
+  transmitted, and compared Morse SHALL remain ASCII `.` and `-`. The visual
+  renderer SHALL expose an accessible dot/dash text label.

@@ -503,10 +503,10 @@ async function updateLiveKey() {
         const data = await response.json();
 
         if (data.morse) {
-            liveMorse.innerText = data.morse;
+            renderMorseVisual(liveMorse, data.morse);
             liveDecoded.innerText = data.decoded || "---";
         } else {
-            liveMorse.innerText = "Waiting for key...";
+            renderMorseVisual(liveMorse, "", "Waiting for key...");
             liveDecoded.innerText = "---";
         }
 
@@ -565,6 +565,61 @@ function getPracticeMode() {
 
 function normalizeMorse(value) {
     return value.trim().replace(/\s+/g, " ");
+}
+
+function morseAccessibleLabel(value) {
+    return normalizeMorse(value)
+        .split("/")
+        .map(word => word.trim().split(/\s+/).filter(Boolean).map(letter => (
+            [...letter].filter(symbol => ".-".includes(symbol)).map(symbol => symbol === "." ? "dot" : "dash").join(" ")
+        )).filter(Boolean).join(", "))
+        .filter(Boolean)
+        .join("; word gap; ");
+}
+
+function renderMorseVisual(element, value, fallback = "") {
+    if (!element) {
+        return;
+    }
+
+    const normalized = normalizeMorse(value || "");
+    element.dataset.morse = normalized;
+    element.replaceChildren();
+
+    if (!normalized) {
+        element.innerText = fallback;
+        return;
+    }
+
+    const visual = document.createElement("span");
+    visual.className = "morse-visual";
+    visual.setAttribute("role", "img");
+    visual.setAttribute("aria-label", morseAccessibleLabel(normalized));
+
+    normalized.split("/").forEach(rawWord => {
+        const word = document.createElement("span");
+        word.className = "morse-word";
+
+        rawWord.trim().split(/\s+/).filter(Boolean).forEach(rawLetter => {
+            const letter = document.createElement("span");
+            letter.className = "morse-letter";
+            [...rawLetter].filter(symbol => ".-".includes(symbol)).forEach(symbol => {
+                const mark = document.createElement("i");
+                mark.className = `morse-mark ${symbol === "." ? "morse-dot" : "morse-dash"}`;
+                mark.setAttribute("aria-hidden", "true");
+                letter.appendChild(mark);
+            });
+            if (letter.childElementCount) {
+                word.appendChild(letter);
+            }
+        });
+
+        if (word.childElementCount) {
+            visual.appendChild(word);
+        }
+    });
+
+    element.appendChild(visual);
 }
 
 function countMorseSymbols(value) {
@@ -695,7 +750,7 @@ function checkWordAnswer(actualMorse, expectedMorse, target, decoded = "") {
     }
 
     const heard = decoded ? ` I read ${decoded}.` : "";
-    setWordFeedback(`Not yet. Tap Clear, then try ${target} again. ${target} is ${expectedMorse}. I heard ${actualMorse}.${heard}`);
+    setWordFeedback(`Not yet. Tap Clear, then try ${target} again.${heard}`);
 }
 
 async function recordWordResult(target, correct, actualMorse, expectedMorse, decoded, elapsedMs) {
@@ -803,7 +858,7 @@ function checkPracticeAnswer(actualMorse, expectedMorse, target) {
         const correct = actualMorse === expectedMorse;
         setPracticeFeedback(correct
             ? `Correct: ${target}.`
-            : `${target} is ${expectedMorse}. I heard ${actualMorse}.`
+            : `Try ${target} again. Follow the example and keep your rhythm steady.`
         );
         recordPracticeResult(target, correct).then(data => {
             const summary = data ? data.bonus : null;
@@ -827,10 +882,10 @@ function checkPracticeAnswer(actualMorse, expectedMorse, target) {
         });
     } else {
         const feedback = getPracticeMode() === "learn"
-            ? `Try ${target} again. Follow ${expectedMorse}; I heard ${actualMorse}.`
+            ? `Try ${target} again. Follow the example and keep your rhythm steady.`
             : getPracticeMode() === "echo"
-            ? `Listen again and echo ${target}: ${expectedMorse}. I heard ${actualMorse}.`
-            : `Try ${target} again. I heard ${actualMorse}, but ${target} is ${expectedMorse}.`;
+            ? `Listen again, then echo ${target}.`
+            : `Try ${target} again. Clear, then follow the example.`;
         setPracticeFeedback(feedback);
         recordPracticeResult(target, false).finally(() => {
             setTimeout(retryPracticePrompt, 1200);
@@ -845,7 +900,7 @@ async function recordPracticeResult(target, correct, answer = "") {
     const bonus = getBonusConfig();
     const actualMorse = ["read", "listen"].includes(mode)
         ? ""
-        : normalizeMorse(keyboardKeyerActive ? keyboardMorse : (liveMorse ? liveMorse.innerText : ""));
+        : normalizeMorse(keyboardKeyerActive ? keyboardMorse : (liveMorse ? (liveMorse.dataset.morse || "") : ""));
 
     try {
         const response = await fetch(bonus ? "/bonus/result" : "/practice/result", {
@@ -956,13 +1011,17 @@ function updatePracticePrompt(target, expectedMorse, readChoices = []) {
     panel.dataset.expectedMorse = expectedMorse;
     if (["send", "learn"].includes(getPracticeMode())) {
         targetLetter.innerText = target;
-        expected.innerText = getPracticeMode() === "learn" ? expectedMorse : "?";
+        if (getPracticeMode() === "learn") {
+            renderMorseVisual(expected, expectedMorse);
+        } else {
+            expected.innerText = "?";
+        }
     } else if (["listen", "echo"].includes(getPracticeMode())) {
         targetLetter.innerText = "?";
         expected.innerText = "Play Code";
     } else {
         targetLetter.innerText = "?";
-        expected.innerText = expectedMorse;
+        renderMorseVisual(expected, expectedMorse);
     }
 
     updateReadChoices(readChoices);
@@ -1224,7 +1283,7 @@ function submitReadAnswer(answer) {
     } else {
         const feedback = getPracticeMode() === "listen"
             ? `Try again. That was ${target}, not ${normalizedAnswer}.`
-            : `Try again. ${expectedMorse} is ${target}, not ${normalizedAnswer}.`;
+            : `Try again. That pattern is ${target}, not ${normalizedAnswer}.`;
         setPracticeFeedback(feedback);
         recordPracticeResult(target, false, normalizedAnswer).finally(() => {
             setTimeout(retryPracticePrompt, 1200);
@@ -1237,7 +1296,7 @@ function resetLiveKeyDisplay() {
     const liveDecoded = document.getElementById("liveDecoded");
 
     if (liveMorse) {
-        liveMorse.innerText = "Waiting for key...";
+        renderMorseVisual(liveMorse, "", "Waiting for key...");
     }
 
     if (liveDecoded) {
@@ -1278,7 +1337,7 @@ function updateVirtualKeyerDisplay() {
     const morse = normalizeMorse(keyboardMorse);
 
     if (liveMorse) {
-        liveMorse.innerText = morse || "Waiting for key...";
+        renderMorseVisual(liveMorse, morse, "Waiting for key...");
     }
 
     if (liveDecoded) {
@@ -1461,7 +1520,7 @@ function initializePracticeMode() {
     }
     if (panel && ["listen", "echo", "learn"].includes(getPracticeMode())) {
         setPracticeFeedback(getPracticeMode() === "learn"
-            ? `Follow ${panel.dataset.practiceTarget}: ${panel.dataset.expectedMorse}.`
+            ? `Follow the example for ${panel.dataset.practiceTarget}.`
             : getPracticeMode() === "echo"
             ? "Listen, then key it back."
             : "Listen and choose the letter.");

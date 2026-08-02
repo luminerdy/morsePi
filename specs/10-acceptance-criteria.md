@@ -90,6 +90,12 @@ correctness checks. Each is encoded as an automated test per
   cached Morse disagrees with normalized text is rejected or recomputed and
   never played as authoritative. Validated cloud records use stable student
   IDs and contain no display name, practice history, or detailed progress.
+- **AC-021** (NFR-017) A fixture containing `A`, `SOS`, and a two-word message
+  retains canonical `. -`, `... --- ...`, and `/` values in data attributes
+  and server comparisons while every kid-facing rendering uses centered dot
+  and dash elements with accessible labels. At 800x480 the marks remain
+  aligned, letter groups do not split internally, and the printable handout
+  uses the same centered geometry.
 
 ## Coverage rule
 

@@ -408,7 +408,8 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("data-word-clear", words_html)
         self.assertIn('/touch/words?i=1&autoplay=1', words_html)
         self.assertNotIn(">Read</a>", words_html)
-        self.assertIn("<small>.-</small>", words_html)
+        self.assertIn('class="morse-visual"', words_html)
+        self.assertIn('aria-label="dot dash"', words_html)
 
     def test_touch_words_locked_before_s_o_active(self):
         response = self.client.get("/touch/words")
@@ -447,7 +448,8 @@ class RouteRenderTests(unittest.TestCase):
         review_html = review_response.get_data(as_text=True)
         self.assertIn("Review For Astrid", review_html)
         self.assertIn("Send to Astrid", review_html)
-        self.assertIn("<small>--</small>", review_html)
+        self.assertIn('class="morse-visual"', review_html)
+        self.assertIn('aria-label="dash dash"', review_html)
         self.assertEqual(302, send_response.status_code)
         self.assertIn("sent=Astrid", send_response.headers["Location"])
         self.assertEqual(1, len(list((self.students_dir / "pappy" / "message_outbox").glob("*.json"))))

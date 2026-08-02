@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Progress - Pappy's Internet Telegraph</title>
-    <link rel="stylesheet" href="/static/style.css?v=20260621-4">
+    <link rel="stylesheet" href="/static/style.css?v=20260802-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -69,7 +69,7 @@
                             <div class="unlock-row">
                                 {% if overall.learning_letters %}
                                     {% for letter in overall.learning_letters %}
-                                        <span>{{ letter }} {{ letter_morse[letter] }}</span>
+                                        <span>{{ letter }} {{ letter_morse[letter] | morse_visual }}</span>
                                     {% endfor %}
                                 {% else %}
                                     <span>None</span>
@@ -160,7 +160,7 @@
                             <div class="progress-row">
                                 <div class="progress-letter-code">
                                     <strong>{{ item.letter }}</strong>
-                                    <span>{{ letter_morse[item.letter] }}</span>
+                                    <span>{{ letter_morse[item.letter] | morse_visual }}</span>
                                 </div>
                                 <span>{{ item.strength_percent }}%</span>
                             </div>
