@@ -150,6 +150,23 @@ key as many active letters as you can
 
 Try for good accuracy and a strong streak.
 
+## Messages
+
+Messages unlock after you learn `S` and `O`.
+
+To send a message:
+
+1. Choose another operator.
+2. Build a short message with word tiles or key one letter at a time.
+3. Review each letter and its Morse code.
+4. Tap Play to hear and see the whole message.
+5. Tap Send when it looks right.
+
+To read a message, open your Inbox, play it, and choose each letter. A hint can
+slow the signal, show its Morse code, and finally reveal the letter. Messages
+only use signals that both operators have unlocked. Guest Operator cannot send
+or receive messages.
+
 ## How New Letters Unlock
 
 New letters unlock when you show you are ready.

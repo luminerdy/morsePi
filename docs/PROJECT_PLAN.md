@@ -729,8 +729,39 @@ When asked to do the daily wrap-up, update:
 - Close-of-day GitHub status: touch System recovery/update work, specs, setup docs, and station deployment notes are committed and pushed to both `main` and `release/pi`.
 - Close-of-day decision: near-term deployed updates can be handled by a local PIN-gated `Update App` button; remote command triggering remains future work through AWS IoT or Systems Manager.
 
+### 2026-08-02
+
+- Implemented Phase 7A local family Morse messaging from the requirements added
+  before development.
+- Added server-validated drafts, shared active-letter eligibility, a three-word
+  and 20-letter limit, atomic message storage, duplicate-safe local delivery,
+  and separate per-student inbox/outbox/event data.
+- Added an 800x480 touch flow for recipient selection, word-tile and physical-key
+  composition, letter correction, Morse review, speaker/LED playback, sending,
+  inbox browsing, and guided letter-by-letter decoding.
+- Added progressive decode hints: slower playback, visible Morse, then letter
+  reveal. Message plaintext remains hidden until each position is solved or
+  revealed.
+- Added message effort logging and the `First Message Sent` and
+  `Secret Message Decoded` badges without changing letter mastery.
+- Added message files to student reset/backup handling and added an explicit
+  `family_students` station directory separate from the local sign-in roster.
+- Added [MESSAGING.md](MESSAGING.md) and aligned README, setup, kid instructions,
+  feature inventory, data requirements, and compliance status with the shipped
+  Phase 7A boundary.
+- Verified the complete Pi regression bank passes with 116 tests and visually
+  rehearsed hub, compose, correction, review, playback, hints, and decode at
+  the real 800x480 viewport on Pappy's test station.
+- Decision: Phase 7A remains local-only. Cross-house delivery will preserve the
+  same message format in Phase 7B, using S3 for durable storage and AWS IoT only
+  as an optional notification path.
+
 ### Ready Next
 
+- Kid-test the complete local message flow on Pappy's station: choose a recipient, build and correct a short message, review/play/send it, switch users, and decode it with and without hints.
+- Add the approved `family_students` directory to each real station config. Keep local sign-in rosters unchanged.
+- Deploy the Phase 7A release to both grandkid stations after the release regression pass, then repeat the local sibling message rehearsal on each station.
+- Begin Phase 7B only after the kid test: publish minimal active-letter summaries, add durable S3 outbox/inbox/receipts, and use AWS IoT only as an optional arrival notice.
 - For future IoT work, prefer a narrow IoT setup identity; reactivate the broad `admin` access key only if truly needed, then deactivate it again after the task.
 - Plan the longer-term removal of path-global progress/attempt storage before enabling a multi-worker production server.
 - Run one kid-style smoke test on each grandkid unit before it leaves home: choose each student, complete one Daily/Learn/Send action with the physical keyer, verify progress sticks after switching users, then run a final backup/status upload.

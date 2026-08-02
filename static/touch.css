@@ -18,6 +18,12 @@
 }
 
 .touch-screen:has(.touch-message-layout),
+.touch-screen:has(.touch-messages-hub),
+.touch-screen:has(.touch-message-locked),
+.touch-screen:has(.touch-recipient-grid),
+.touch-screen:has(.touch-compose-layout),
+.touch-screen:has(.touch-review-layout),
+.touch-screen:has(.touch-decode-layout),
 .touch-screen:has(.touch-key-layout),
 .touch-screen:has(.touch-settings-layout),
 .touch-screen:has(.touch-system-layout),
@@ -290,6 +296,512 @@
 
 .touch-button-grid.compact {
     grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.touch-message-panel {
+    min-width: 0;
+    min-height: 0;
+    padding: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(23, 33, 43, 0.08);
+}
+
+.touch-message-panel > span,
+.touch-compose-heading > span {
+    display: block;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.touch-messages-hub {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 250px repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.touch-message-new {
+    display: grid;
+    align-content: center;
+    gap: 12px;
+}
+
+.touch-message-new strong {
+    color: var(--primary);
+    font-size: 30px;
+    line-height: 1;
+}
+
+.touch-message-new p,
+.touch-message-list p,
+.touch-message-locked p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.touch-message-new em {
+    color: #155f36;
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 900;
+}
+
+.touch-message-list {
+    display: grid;
+    align-content: start;
+    gap: 7px;
+}
+
+.touch-message-row {
+    min-height: 74px;
+    display: grid;
+    align-content: center;
+    gap: 5px;
+    padding: 9px;
+    color: var(--text);
+    background: #f7f9fb;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+.touch-message-row.unread {
+    background: #e8f1ff;
+    border-color: #8fb0eb;
+}
+
+.touch-message-row strong {
+    color: var(--primary);
+    font-size: 21px;
+    line-height: 1;
+}
+
+.touch-message-row small {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.touch-message-locked {
+    min-height: 0;
+    display: grid;
+    place-items: stretch;
+}
+
+.touch-message-locked .touch-message-panel {
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 14px;
+}
+
+.touch-message-locked strong {
+    color: var(--primary);
+    font-size: 68px;
+}
+
+.touch-recipient-grid {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr);
+    gap: 8px;
+}
+
+.touch-recipient-card {
+    min-width: 0;
+    min-height: 0;
+    display: grid;
+    place-content: center;
+    gap: 10px;
+    padding: 12px;
+    color: var(--text);
+    background: #e8f1ff;
+    border: 1px solid #b9cef8;
+    border-radius: 8px;
+    text-align: center;
+    text-decoration: none;
+}
+
+.touch-recipient-card.disabled {
+    background: #f2f4f6;
+    border-color: var(--border);
+    color: var(--muted);
+}
+
+.touch-recipient-card strong {
+    color: var(--primary);
+    font-size: 30px;
+    line-height: 1;
+    overflow-wrap: anywhere;
+}
+
+.touch-recipient-card span {
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.touch-compose-layout {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 230px;
+    grid-template-rows: 176px 150px minmax(0, 1fr);
+    gap: 6px;
+}
+
+.touch-compose-draft {
+    grid-column: 1;
+    grid-row: 1;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 6px;
+}
+
+.touch-compose-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.touch-compose-heading small {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.touch-letter-tiles {
+    min-height: 0;
+    display: flex;
+    align-content: flex-start;
+    flex-wrap: wrap;
+    gap: 5px;
+    overflow: hidden;
+}
+
+.touch-letter-tiles.empty {
+    display: grid;
+    place-items: center;
+}
+
+.touch-letter-tiles.empty p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.touch-letter-tile {
+    width: 48px;
+    height: 58px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 3px;
+    color: var(--text);
+    background: #edf5f0;
+    border: 1px solid #c7dfd0;
+    border-radius: 7px;
+    text-decoration: none;
+}
+
+.touch-letter-tile.selected {
+    background: #fff2c7;
+    border-color: #e6bd54;
+}
+
+.touch-letter-tile strong {
+    color: var(--primary);
+    font-size: 22px;
+    line-height: 1;
+}
+
+.touch-letter-tile small {
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 16px;
+}
+
+.touch-letter-space {
+    width: 16px;
+    height: 58px;
+    display: block;
+    border-bottom: 4px solid #b8c3cc;
+}
+
+.touch-letter-space.pending {
+    border-color: var(--primary);
+}
+
+.touch-message-error {
+    color: #8b2d20;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.touch-compose-keyer {
+    grid-column: 2;
+    grid-row: 1 / 4;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) 70px 52px;
+    gap: 8px;
+}
+
+.touch-compose-keyer > strong,
+.touch-compose-keyer > small {
+    min-width: 0;
+    display: grid;
+    place-items: center;
+    overflow-wrap: anywhere;
+}
+
+.touch-compose-keyer > strong {
+    color: var(--text);
+    font-size: 28px;
+}
+
+.touch-compose-keyer > small {
+    color: var(--primary);
+    font-size: 48px;
+    font-weight: 900;
+}
+
+.touch-compose-keyer form,
+.touch-compose-keyer .button {
+    width: 100%;
+    height: 100%;
+}
+
+.touch-compose-words {
+    grid-column: 1;
+    grid-row: 2;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 6px;
+}
+
+.touch-compose-words > div {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(48px, 1fr));
+    gap: 5px;
+}
+
+.touch-compose-words form,
+.touch-compose-words button {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+}
+
+.touch-compose-words button,
+.touch-letter-picker button {
+    color: var(--primary);
+    background: #f7f9fb;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.touch-compose-actions {
+    grid-column: 1;
+    grid-row: 3;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    padding: 6px;
+}
+
+.touch-compose-actions form,
+.touch-compose-actions .button {
+    width: 100%;
+    height: 100%;
+}
+
+.touch-compose-layout.editing {
+    grid-template-columns: 1fr;
+    grid-template-rows: 176px minmax(0, 1fr);
+}
+
+.touch-compose-layout.editing .touch-compose-draft {
+    grid-column: 1;
+}
+
+.touch-compose-editor {
+    grid-column: 1;
+    grid-row: 2;
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr) 190px;
+    align-items: stretch;
+    gap: 8px;
+}
+
+.touch-compose-editor > span {
+    align-self: center;
+    font-size: 16px;
+}
+
+.touch-letter-picker {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(48px, 1fr));
+    grid-auto-rows: 48px;
+    align-content: center;
+    gap: 3px;
+}
+
+.touch-letter-picker form,
+.touch-letter-picker button {
+    width: 100%;
+    height: 100%;
+}
+
+.touch-editor-actions {
+    display: grid;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.touch-editor-actions form,
+.touch-editor-actions .button {
+    width: 100%;
+    height: 100%;
+}
+
+.touch-editor-actions .button,
+.touch-review-actions .button,
+.touch-decode-actions .button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.touch-review-layout {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 210px;
+    grid-template-rows: 238px minmax(0, 1fr);
+    gap: 8px;
+}
+
+.touch-review-letters,
+.touch-review-morse {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 8px;
+}
+
+.touch-review-morse strong {
+    color: var(--text);
+    font-size: 26px;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.touch-review-actions {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    display: grid;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.touch-review-actions form,
+.touch-review-actions .button {
+    width: 100%;
+    height: 100%;
+}
+
+.touch-decode-layout {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 210px;
+    grid-template-rows: 180px minmax(0, 1fr);
+    gap: 8px;
+}
+
+.touch-decode-copy {
+    display: grid;
+    align-content: center;
+    gap: 9px;
+}
+
+.touch-decoded-words {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.touch-decoded-words strong {
+    color: var(--primary);
+    font-size: 42px;
+    letter-spacing: 0;
+    line-height: 1;
+}
+
+.touch-decode-copy p,
+.touch-decode-copy em {
+    margin: 0;
+    color: var(--muted);
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 900;
+}
+
+.touch-decode-copy em.success {
+    color: #155f36;
+}
+
+.touch-decode-choices {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 8px;
+}
+
+.touch-decode-choices > div {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.touch-decode-choices form,
+.touch-decode-choices button {
+    width: 100%;
+    height: 100%;
+}
+
+.touch-decode-choices button {
+    color: var(--primary);
+    background: #e8f1ff;
+    border: 1px solid #b9cef8;
+    border-radius: 8px;
+    font-size: 40px;
+    font-weight: 900;
+}
+
+.touch-decode-actions {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    display: grid;
+    grid-auto-rows: minmax(0, 1fr);
+    gap: 7px;
+}
+
+.touch-decode-actions form,
+.touch-decode-actions .button {
+    width: 100%;
+    height: 100%;
+}
+
+.touch-decode-layout.complete .touch-decode-copy {
+    grid-row: 1 / 3;
 }
 
 .touch-key-layout {

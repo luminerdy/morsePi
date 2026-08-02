@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+    <title>Review Message - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260621-4">
+    <link rel="stylesheet" href="/static/touch.css?v=20260802-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="touch-ui"
+      data-tone-hz="{{ timing.tone_hz }}"
+      data-dot-ms="{{ timing.dot_ms }}"
+      data-dash-ms="{{ timing.dash_ms }}"
+      data-symbol-gap-ms="{{ timing.symbol_gap_ms }}"
+      data-letter-gap-ms="{{ timing.letter_gap_ms }}"
+      data-word-gap-ms="{{ timing.word_gap_ms }}">
+    <div class="touch-screen">
+        <header class="touch-titlebar compact">
+            <div>
+                <p class="eyebrow">Review For {{ recipient.name }}</p>
+                <h1>{{ text }}</h1>
+            </div>
+            <a class="touch-top-link" href="/touch/messages/compose?to={{ recipient.id }}">Change</a>
+        </header>
+
+        <main class="touch-review-layout">
+            <section class="touch-message-panel touch-review-letters">
+                <span>Check Every Signal</span>
+                <div class="touch-letter-tiles">
+                    {% for tile in tiles %}
+                        {% if tile.space %}
+                            <i class="touch-letter-space"></i>
+                        {% else %}
+                            <div class="touch-letter-tile"><strong>{{ tile.letter }}</strong><small>{{ tile.morse }}</small></div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </section>
+            <section class="touch-message-panel touch-review-morse">
+                <span>Whole Message</span>
+                <strong>{{ morse }}</strong>
+            </section>
+            <section class="touch-message-panel touch-review-actions">
+                <button class="button secondary" type="button" data-message-play-draft data-recipient-id="{{ recipient.id }}">Play</button>
+                <form method="post" action="/touch/messages/send">
+                    <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
+                    <button class="button primary" type="submit">Send to {{ recipient.name }}</button>
+                </form>
+            </section>
+        </main>
+    </div>
+<script src="/static/app.js?v=20260802-1"></script>
+</body>
+</html>

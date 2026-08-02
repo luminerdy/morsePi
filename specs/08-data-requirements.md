@@ -20,10 +20,13 @@
   from `timing_events` and fall back to the stored `timing_summary` for older
   records.
 - **DR-005** Station config schema: `station_id` (slug, required),
-  `timezone`, `students[]`, `guest_profile`, `allow_student_create`,
+  `timezone`, `students[]`, `family_students[]`, `guest_profile`, `allow_student_create`,
   `backup_s3_uri`. `admin_pin` **must not** be stored here in plaintext
   post-MVP (env/file per SEC-014) — the field is accepted for migration only
   and warned about.
+  `students[]` defines who can sign in locally; `family_students[]` defines the
+  approved messaging directory and MAY include students who normally use a
+  different station.
 - **DR-006** Backup archive: zip named `<UTCstamp>-<station>-<label>.zip`
   containing `data/…` relative paths + `manifest.json`
   (`format: morse-station-data-backup-v1`); restore SHALL validate the

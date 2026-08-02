@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+<head>
+    <title>Build Message - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260621-4">
+    <link rel="stylesheet" href="/static/touch.css?v=20260802-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="touch-ui">
+    <div class="touch-screen">
+        <header class="touch-titlebar compact">
+            <div>
+                <p class="eyebrow">{% if recipient %}Message To {{ recipient.name }}{% else %}Choose Operator{% endif %}</p>
+                <h1><a class="touch-student-link" href="/touch/students?next=/touch/daily">{{ current_student.name }}</a></h1>
+            </div>
+            <nav class="touch-top-actions">
+                <a class="touch-top-link" href="/touch/messages">Messages</a>
+                {% if recipient %}<a class="touch-top-link" href="/touch/messages/compose">Change</a>{% endif %}
+            </nav>
+        </header>
+
+        {% if not recipient %}
+            <main class="touch-recipient-grid">
+                {% for item in recipients %}
+                    {% if item.eligible %}
+                        <a class="touch-recipient-card" href="/touch/messages/compose?to={{ item.id }}">
+                            <strong>{{ item.name }}</strong>
+                            <span>{{ item.allowed_letters | length }} shared signals</span>
+                        </a>
+                    {% else %}
+                        <div class="touch-recipient-card disabled">
+                            <strong>{{ item.name }}</strong>
+                            <span>Messages not unlocked yet</span>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </main>
+        {% else %}
+            <main class="touch-compose-layout {% if edit_index is not none %}editing{% endif %}" data-message-compose>
+                <section class="touch-message-panel touch-compose-draft">
+                    <div class="touch-compose-heading">
+                        <span>Your Message</span>
+                        <small>{{ draft.text | replace(" ", "") | length }}/20 letters · 3 words max</small>
+                    </div>
+                    <div class="touch-letter-tiles {% if not tiles %}empty{% endif %}">
+                        {% if tiles %}
+                            {% for tile in tiles %}
+                                {% if tile.space %}
+                                    <i class="touch-letter-space" aria-label="Word space"></i>
+                                {% else %}
+                                    <a href="/touch/messages/compose?to={{ recipient.id }}&edit={{ tile.index }}" class="touch-letter-tile {% if edit_index == tile.index %}selected{% endif %}">
+                                        <strong>{{ tile.letter }}</strong>
+                                        <small>{{ tile.morse }}</small>
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+                            {% if draft.pending_space %}<i class="touch-letter-space pending" aria-label="Pending word space"></i>{% endif %}
+                        {% else %}
+                            <p>Tap a word or key one letter.</p>
+                        {% endif %}
+                    </div>
+                    {% if error %}<div class="touch-message-error">{{ error }}</div>{% endif %}
+                </section>
+
+                {% if edit_index is not none %}
+                    <section class="touch-message-panel touch-compose-editor">
+                        <span>Change {{ draft.text[edit_index] }}</span>
+                        <div class="touch-letter-picker">
+                            {% for letter in recipient.allowed_letters %}
+                                <form method="post" action="/touch/messages/draft">
+                                    <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
+                                    <input type="hidden" name="action" value="replace">
+                                    <input type="hidden" name="index" value="{{ edit_index }}">
+                                    <button name="letter" value="{{ letter }}">{{ letter }}</button>
+                                </form>
+                            {% endfor %}
+                        </div>
+                        <div class="touch-editor-actions">
+                            <form method="post" action="/touch/messages/draft">
+                                <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="index" value="{{ edit_index }}">
+                                <button class="button secondary" type="submit">Delete</button>
+                            </form>
+                            <a class="button secondary" href="/touch/messages/compose?to={{ recipient.id }}">Done</a>
+                        </div>
+                    </section>
+                {% else %}
+                    <section class="touch-message-panel touch-compose-keyer">
+                        <span>Use Your Key</span>
+                        <strong id="liveMorse">Waiting for key...</strong>
+                        <small id="liveDecoded">---</small>
+                        <form method="post" action="/touch/messages/draft">
+                            <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
+                            <input type="hidden" name="action" value="append-keyed-letter">
+                            <input type="hidden" name="morse" id="messageKeyedMorse" value="">
+                            <button class="button primary" type="submit">Add Letter</button>
+                        </form>
+                    </section>
+                {% endif %}
+
+                {% if edit_index is none %}
+                    <section class="touch-message-panel touch-compose-words">
+                        <span>Word Tiles</span>
+                        <div>
+                            {% for word in word_tiles %}
+                                <form method="post" action="/touch/messages/draft">
+                                    <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
+                                    <input type="hidden" name="action" value="append-word">
+                                    <button name="word" value="{{ word }}">{{ word }}</button>
+                                </form>
+                            {% endfor %}
+                        </div>
+                    </section>
+
+                    <section class="touch-message-panel touch-compose-actions">
+                        {% for action, label in [("space", "Space"), ("undo", "Undo"), ("clear", "Clear")] %}
+                            <form method="post" action="/touch/messages/draft">
+                                <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
+                                <button class="button secondary" name="action" value="{{ action }}">{{ label }}</button>
+                            </form>
+                        {% endfor %}
+                        {% if draft.text %}<a class="button primary" href="/touch/messages/review?to={{ recipient.id }}">Review</a>{% endif %}
+                    </section>
+                {% endif %}
+            </main>
+        {% endif %}
+    </div>
+<script src="/static/app.js?v=20260802-1"></script>
+</body>
+</html>

@@ -510,6 +510,11 @@ async function updateLiveKey() {
             liveDecoded.innerText = "---";
         }
 
+        const messageKeyedMorse = document.getElementById("messageKeyedMorse");
+        if (messageKeyedMorse) {
+            messageKeyedMorse.value = data.morse || "";
+        }
+
         schedulePracticeAutoCheck(data.morse || "");
         scheduleWordAutoCheck(data.morse || "", data.decoded || "");
     } catch (error) {
@@ -1512,11 +1517,53 @@ function initializeTouchIdleTimeout() {
     resetTimer();
 }
 
+function initializeMessageControls() {
+    const composer = document.querySelector("[data-message-compose]");
+    if (composer && document.getElementById("messageKeyedMorse")) {
+        fetch("/clear-key", { method: "POST" }).catch(error => {
+            console.log("Unable to clear message key", error);
+        });
+    }
+
+    document.querySelectorAll("[data-message-play-draft]").forEach(button => {
+        button.addEventListener("click", async () => {
+            button.disabled = true;
+            try {
+                await fetch("/touch/messages/play-draft", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({ recipient_id: button.dataset.recipientId || "" })
+                });
+            } finally {
+                button.disabled = false;
+            }
+        });
+    });
+
+    document.querySelectorAll("[data-message-play]").forEach(button => {
+        button.addEventListener("click", async () => {
+            const messageId = button.dataset.messageId || "";
+            const scope = button.dataset.scope || "message";
+            button.disabled = true;
+            try {
+                await fetch(`/touch/messages/inbox/${encodeURIComponent(messageId)}/play`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({ scope })
+                });
+            } finally {
+                button.disabled = false;
+            }
+        });
+    });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     initializeTouchRedirect();
     initializeTouchIdleTimeout();
     initializePracticeMode();
     initializeDailyMissionReward();
+    initializeMessageControls();
 
     if (document.getElementById("liveMorse") && document.getElementById("liveDecoded")) {
         updateLiveKey();

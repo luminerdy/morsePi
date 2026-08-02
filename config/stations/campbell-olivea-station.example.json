@@ -13,6 +13,13 @@
       "name": "Olivea"
     }
   ],
+  "family_students": [
+    {"id": "pappy", "name": "Pappy"},
+    {"id": "astrid", "name": "Astrid"},
+    {"id": "liara", "name": "Liara"},
+    {"id": "campbell", "name": "Campbell"},
+    {"id": "olivea", "name": "Olivea"}
+  ],
   "guest_profile": {
     "id": "guest",
     "name": "Guest Operator",

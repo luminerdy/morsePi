@@ -190,9 +190,9 @@ from the current code (legacy status per requirement is tracked in
   LED per FR-010. Correct choices fill their slot; the full word remains hidden
   until its letters are completed or revealed.
 - **FR-046** Completing a message SHALL preserve the decoded text, celebrate
-  once, and offer Play Again plus an optional Key It Back activity. Message
-  work SHALL count toward effort time and message badges but SHALL NOT change
-  core letter mastery until student testing supports a later spec change.
+  once, and offer Play Again. A later version MAY add a Key It Back activity.
+  Message work SHALL count toward effort time and message badges but SHALL NOT
+  change core letter mastery until student testing supports a later spec change.
 - **FR-047** Each message SHALL have durable states for `queued`, `available`,
   `opened`, and `decoded`. State transitions SHALL be idempotent and SHALL sync
   across approved stations so a message decoded at Pappy's station does not

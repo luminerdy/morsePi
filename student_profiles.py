@@ -15,7 +15,10 @@ STUDENT_FILES = [
     "practice_progress.json",
     "learning_state.json",
     "practice_attempts.jsonl",
-    "bonus_attempts.jsonl"
+    "word_attempts.jsonl",
+    "bonus_attempts.jsonl",
+    "message_draft.json",
+    "message_events.jsonl",
 ]
 PROFILE_METADATA = "profile.json"
 OPTIONAL_PROFILE_FLAGS = ("disposable", "guest")
@@ -280,6 +283,16 @@ def reset_student_storage(student_id):
 
     for filename in STUDENT_FILES:
         backup_and_remove(target_dir / filename, "student")
+
+    for dirname in ("message_inbox", "message_outbox"):
+        source_dir = target_dir / dirname
+        if not source_dir.exists():
+            continue
+        backup_dir = backup_root / "student" / dirname
+        backup_dir.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(source_dir, backup_dir)
+        shutil.rmtree(source_dir)
+        removed.append(str(source_dir))
 
     if student_id == DEFAULT_STUDENT_ID:
         for filename in STUDENT_FILES:

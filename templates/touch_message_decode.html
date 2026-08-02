@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head>
+    <title>Decode Message - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260621-4">
+    <link rel="stylesheet" href="/static/touch.css?v=20260802-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="touch-ui"
+      data-tone-hz="{{ timing.tone_hz }}"
+      data-dot-ms="{{ timing.dot_ms }}"
+      data-dash-ms="{{ timing.dash_ms }}"
+      data-symbol-gap-ms="{{ timing.symbol_gap_ms }}"
+      data-letter-gap-ms="{{ timing.letter_gap_ms }}"
+      data-word-gap-ms="{{ timing.word_gap_ms }}">
+    <div class="touch-screen">
+        <header class="touch-titlebar compact">
+            <div>
+                <p class="eyebrow">Message From {{ sender_name }}</p>
+                <h1><a class="touch-student-link" href="/touch/students?next=/touch/daily">{{ current_student.name }}</a></h1>
+            </div>
+            <a class="touch-top-link" href="/touch/messages">Inbox</a>
+        </header>
+
+        <main class="touch-decode-layout {% if completed %}complete{% endif %}">
+            <section class="touch-message-panel touch-decode-copy">
+                <span>{% if completed %}Message Decoded{% else %}Copy The Message{% endif %}</span>
+                <div class="touch-decoded-words">
+                    {% for word in decoded_words %}<strong>{{ word }}</strong>{% endfor %}
+                </div>
+                {% if completed %}<p>Clear copy! You decoded {{ message.text }}.</p>{% elif hint_morse %}<p>Morse hint: <b>{{ hint_morse }}</b></p>{% else %}<p>Listen to the highlighted letter.</p>{% endif %}
+                {% if feedback %}<em class="{% if feedback.startswith('Correct') %}success{% endif %}">{{ feedback }}</em>{% endif %}
+            </section>
+
+            {% if not completed %}
+                <section class="touch-message-panel touch-decode-choices">
+                    <span>Choose The Letter</span>
+                    <div>
+                        {% for letter in choices %}
+                            <form method="post" action="/touch/messages/inbox/{{ message.message_id }}/answer">
+                                <input type="hidden" name="position" value="{{ position }}">
+                                <button name="answer" value="{{ letter }}">{{ letter }}</button>
+                            </form>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+
+            <section class="touch-message-panel touch-decode-actions">
+                <button class="button primary" type="button" data-message-play data-message-id="{{ message.message_id }}" data-scope="message">Play Message</button>
+                {% if not completed %}
+                    <button class="button secondary" type="button" data-message-play data-message-id="{{ message.message_id }}" data-scope="word">Play Word</button>
+                    <button class="button secondary" type="button" data-message-play data-message-id="{{ message.message_id }}" data-scope="letter">Play Letter</button>
+                    <form method="post" action="/touch/messages/inbox/{{ message.message_id }}/hint">
+                        <input type="hidden" name="position" value="{{ position }}">
+                        <button class="button secondary" type="submit">{% if hint_level == 0 %}Slower Hint{% elif hint_level == 1 %}Show Morse{% else %}Reveal Letter{% endif %}</button>
+                    </form>
+                {% else %}
+                    <a class="button primary" href="/touch/messages">Done</a>
+                {% endif %}
+            </section>
+        </main>
+    </div>
+<script src="/static/app.js?v=20260802-1"></script>
+</body>
+</html>

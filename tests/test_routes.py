@@ -53,6 +53,7 @@ class RouteRenderTests(unittest.TestCase):
         app_module.ADMIN_PIN_PATH = self.data_dir / "admin_pin.txt"
         app_module.play_daily_celebration_in_background = self.record_daily_celebration
         self.daily_celebration_called = False
+        self.daily_celebration_count = 0
 
         student_profiles.save_profiles(
             [
@@ -81,6 +82,7 @@ class RouteRenderTests(unittest.TestCase):
 
     def record_daily_celebration(self):
         self.daily_celebration_called = True
+        self.daily_celebration_count += 1
 
     def student_file(self, student_id, filename):
         return self.students_dir / student_id / filename
@@ -175,6 +177,21 @@ class RouteRenderTests(unittest.TestCase):
 
         self.write_json(student_id, "practice_progress.json", progress)
         return progress
+
+    def unlock_messages(self, student_id):
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        self.complete_progress(student_id, active_letters)
+        self.set_learning_state(
+            student_id,
+            {
+                "SO": {
+                    "first_learning_date": "2000-01-01",
+                    "letters": ["S", "O"],
+                }
+            },
+            last_learning_start_date="2000-01-01",
+        )
+        return active_letters
 
     def set_learning_state(self, student_id, groups, last_learning_start_date="2026-06-23"):
         self.write_json(
@@ -400,6 +417,172 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(200, response.status_code)
         self.assertIn("Words Unlock", html)
         self.assertIn("Finish S and O", html)
+
+    def test_touch_messages_unlocks_and_lists_eligible_recipient(self):
+        self.unlock_messages("pappy")
+        self.unlock_messages("astrid")
+
+        menu_response = self.client.get("/touch/menu")
+        messages_response = self.client.get("/touch/messages")
+        compose_response = self.client.get("/touch/messages/compose")
+
+        self.assertEqual(200, messages_response.status_code)
+        self.assertIn("Messages", menu_response.get_data(as_text=True))
+        self.assertIn("New Message", messages_response.get_data(as_text=True))
+        self.assertIn("Astrid", compose_response.get_data(as_text=True))
+        self.assertIn("8 shared signals", compose_response.get_data(as_text=True))
+
+    def test_touch_message_draft_review_and_local_delivery(self):
+        self.unlock_messages("pappy")
+        self.unlock_messages("astrid")
+
+        add_response = self.client.post(
+            "/touch/messages/draft",
+            data={"recipient_id": "astrid", "action": "append-word", "word": "ME"},
+        )
+        review_response = self.client.get("/touch/messages/review?to=astrid")
+        send_response = self.client.post("/touch/messages/send", data={"recipient_id": "astrid"})
+
+        self.assertEqual(302, add_response.status_code)
+        review_html = review_response.get_data(as_text=True)
+        self.assertIn("Review For Astrid", review_html)
+        self.assertIn("Send to Astrid", review_html)
+        self.assertIn("<small>--</small>", review_html)
+        self.assertEqual(302, send_response.status_code)
+        self.assertIn("sent=Astrid", send_response.headers["Location"])
+        self.assertEqual(1, len(list((self.students_dir / "pappy" / "message_outbox").glob("*.json"))))
+        self.assertEqual(1, len(list((self.students_dir / "astrid" / "message_inbox").glob("*.json"))))
+
+    def test_touch_message_keyed_letter_is_decoded_into_draft(self):
+        self.unlock_messages("pappy")
+        self.unlock_messages("astrid")
+
+        response = self.client.post(
+            "/touch/messages/draft",
+            data={"recipient_id": "astrid", "action": "append-keyed-letter", "morse": "--"},
+        )
+        draft = json.loads(self.student_file("pappy", "message_draft.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual("M", draft["text"])
+
+    def test_touch_message_send_revalidates_tampered_draft(self):
+        self.unlock_messages("pappy")
+        self.unlock_messages("astrid")
+        self.write_json(
+            "pappy",
+            "message_draft.json",
+            {
+                "format": "morsepi-message-draft-v1",
+                "draft_id": "a" * 32,
+                "sender_student_id": "pappy",
+                "recipient_student_id": "astrid",
+                "text": "MORE",
+            },
+        )
+
+        response = self.client.post("/touch/messages/send", data={"recipient_id": "astrid"})
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("not+ready", response.headers["Location"])
+        self.assertFalse((self.students_dir / "pappy" / "message_outbox").exists())
+
+    def test_touch_message_decode_hides_text_and_records_effort(self):
+        self.unlock_messages("pappy")
+        self.unlock_messages("astrid")
+        self.client.post(
+            "/touch/messages/draft",
+            data={"recipient_id": "astrid", "action": "append-word", "word": "ME"},
+        )
+        self.client.post("/touch/messages/send", data={"recipient_id": "astrid"})
+        inbox_path = next((self.students_dir / "astrid" / "message_inbox").glob("*.json"))
+        message_id = inbox_path.stem
+        self.set_student_cookie("astrid")
+
+        open_response = self.client.get(f"/touch/messages/inbox/{message_id}")
+        open_html = open_response.get_data(as_text=True)
+        first_response = self.client.post(
+            f"/touch/messages/inbox/{message_id}/answer",
+            data={"position": "0", "answer": "M"},
+        )
+        second_response = self.client.post(
+            f"/touch/messages/inbox/{message_id}/answer",
+            data={"position": "1", "answer": "E"},
+        )
+        duplicate_response = self.client.post(
+            f"/touch/messages/inbox/{message_id}/answer",
+            data={"position": "1", "answer": "E"},
+        )
+        complete_response = self.client.get(f"/touch/messages/inbox/{message_id}")
+
+        self.assertEqual(200, open_response.status_code)
+        self.assertNotIn("You decoded ME", open_html)
+        self.assertIn("__", open_html)
+        self.assertEqual(302, first_response.status_code)
+        self.assertEqual(302, second_response.status_code)
+        self.assertEqual(302, duplicate_response.status_code)
+        complete_html = complete_response.get_data(as_text=True)
+        self.assertIn("You decoded ME", complete_html)
+        events = (self.students_dir / "astrid" / "message_events.jsonl").read_text(encoding="utf-8")
+        self.assertEqual(2, events.count('"event": "decode_attempt"'))
+        self.assertEqual(1, self.daily_celebration_count)
+        sender_copy = json.loads(next((self.students_dir / "pappy" / "message_outbox").glob("*.json")).read_text(encoding="utf-8"))
+        self.assertEqual("decoded", sender_copy["state"])
+
+    def test_touch_message_playback_uses_station_output(self):
+        self.unlock_messages("pappy")
+        self.unlock_messages("astrid")
+        self.client.post(
+            "/touch/messages/draft",
+            data={"recipient_id": "astrid", "action": "append-word", "word": "ME"},
+        )
+        self.client.post("/touch/messages/send", data={"recipient_id": "astrid"})
+        message_id = next((self.students_dir / "astrid" / "message_inbox").glob("*.json")).stem
+        self.set_student_cookie("astrid")
+        played = []
+        original_play = app_module.play_in_background
+        app_module.play_in_background = lambda morse: played.append(morse)
+        try:
+            response = self.client.post(
+                f"/touch/messages/inbox/{message_id}/play",
+                data={"scope": "message"},
+            )
+        finally:
+            app_module.play_in_background = original_play
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(["-- ."], played)
+
+    def test_touch_progress_shows_message_badges_from_events(self):
+        self.unlock_messages("pappy")
+        self.write_text_file(
+            "pappy",
+            "message_events.jsonl",
+            json.dumps({"event": "message_sent", "timestamp": "2026-08-02T12:00:00+00:00"}) + "\n"
+            + json.dumps({"event": "decode_attempt", "completed": True, "timestamp": "2026-08-02T12:01:00+00:00"}) + "\n",
+        )
+
+        response = self.client.get("/touch/progress")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("First Message Sent", html)
+        self.assertIn("Secret Message Decoded", html)
+
+    def test_guest_cannot_open_family_messages(self):
+        student_profiles.save_profiles(
+            [
+                {"id": "pappy", "name": "Pappy"},
+                {"id": "astrid", "name": "Astrid"},
+                {"id": "guest", "name": "Guest Operator", "guest": True, "disposable": True},
+            ]
+        )
+        self.set_student_cookie("guest")
+
+        response = self.client.get("/touch/messages")
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual("/touch/daily", response.headers["Location"])
 
     def test_word_station_prompt_plays_and_stops_station_output(self):
         played = []
@@ -1662,6 +1845,11 @@ class RouteRenderTests(unittest.TestCase):
         self.write_json("pappy", "practice_progress.json", {"E": {"send": {"attempts": 1}}})
         self.write_json("pappy", "learning_state.json", {"groups": {"SO": {}}, "last_learning_start_date": "2026-06-21"})
         self.write_text_file("pappy", "bonus_attempts.jsonl", "pappy bonus\n")
+        self.write_text_file("pappy", "word_attempts.jsonl", "pappy words\n")
+        self.write_text_file("pappy", "message_events.jsonl", "pappy message\n")
+        message_inbox = self.student_file("pappy", "message_inbox")
+        message_inbox.mkdir(parents=True, exist_ok=True)
+        (message_inbox / f"{'a' * 32}.json").write_text("{}", encoding="utf-8")
         self.write_text_file("astrid", "practice_attempts.jsonl", "astrid attempts\n")
         self.write_legacy_text_file("practice_attempts.jsonl", "legacy attempts\n")
         self.write_legacy_text_file("practice_progress.json", "{}")
@@ -1682,6 +1870,9 @@ class RouteRenderTests(unittest.TestCase):
         self.assertFalse(self.student_file("pappy", "practice_progress.json").exists())
         self.assertFalse(self.student_file("pappy", "learning_state.json").exists())
         self.assertFalse(self.student_file("pappy", "bonus_attempts.jsonl").exists())
+        self.assertFalse(self.student_file("pappy", "word_attempts.jsonl").exists())
+        self.assertFalse(self.student_file("pappy", "message_events.jsonl").exists())
+        self.assertFalse(self.student_file("pappy", "message_inbox").exists())
         self.assertFalse((self.data_dir / "practice_attempts.jsonl").exists())
         self.assertFalse((self.data_dir / "practice_progress.json").exists())
         self.assertFalse((self.data_dir / "learning_state.json").exists())
@@ -1694,6 +1885,9 @@ class RouteRenderTests(unittest.TestCase):
         self.assertTrue((backup / "student" / "practice_progress.json").exists())
         self.assertTrue((backup / "student" / "learning_state.json").exists())
         self.assertTrue((backup / "student" / "bonus_attempts.jsonl").exists())
+        self.assertTrue((backup / "student" / "word_attempts.jsonl").exists())
+        self.assertTrue((backup / "student" / "message_events.jsonl").exists())
+        self.assertTrue((backup / "student" / "message_inbox" / f"{'a' * 32}.json").exists())
         self.assertTrue((backup / "legacy" / "practice_attempts.jsonl").exists())
         self.assertTrue((backup / "legacy" / "practice_progress.json").exists())
         self.assertTrue((backup / "legacy" / "learning_state.json").exists())

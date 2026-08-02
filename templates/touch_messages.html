@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+    <title>Messages - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260621-4">
+    <link rel="stylesheet" href="/static/touch.css?v=20260802-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="touch-ui">
+    <div class="touch-screen">
+        <header class="touch-titlebar compact">
+            <div>
+                <p class="eyebrow">Secret Messages</p>
+                <h1><a class="touch-student-link" href="/touch/students?next=/touch/daily">{{ current_student.name }}</a></h1>
+            </div>
+            <nav class="touch-top-actions">
+                <a class="touch-top-link" href="/touch/daily">Daily</a>
+                <a class="touch-top-link" href="/touch/menu">Menu</a>
+            </nav>
+        </header>
+
+        {% if not unlocked %}
+            <main class="touch-message-locked">
+                <section class="touch-message-panel">
+                    <span>Messages Unlock</span>
+                    <strong>{{ unlock_letters | join(" ") }}</strong>
+                    <p>Finish these signals, then send secret Morse notes.</p>
+                    <a class="button primary" href="/touch/daily">Daily Mission</a>
+                </section>
+            </main>
+        {% else %}
+            <main class="touch-messages-hub">
+                <section class="touch-message-panel touch-message-new">
+                    <span>Send</span>
+                    <strong>New Message</strong>
+                    <p>Build a note from signals you both know.</p>
+                    <a class="button primary" href="/touch/messages/compose">Choose Operator</a>
+                    {% if sent %}<em>Message sent to {{ sent }}.</em>{% endif %}
+                </section>
+
+                <section class="touch-message-panel touch-message-list">
+                    <span>Inbox</span>
+                    {% if inbox %}
+                        {% for item in inbox[:3] %}
+                            <a href="/touch/messages/inbox/{{ item.message_id }}" class="touch-message-row {% if item.state == 'available' %}unread{% endif %}">
+                                <strong>{{ item.other_name }}</strong>
+                                <small>{% if item.state == 'decoded' %}Decoded{% elif item.state == 'opened' %}Keep decoding{% else %}New message{% endif %}</small>
+                            </a>
+                        {% endfor %}
+                    {% else %}
+                        <p>No messages yet.</p>
+                    {% endif %}
+                </section>
+
+                <section class="touch-message-panel touch-message-list">
+                    <span>Sent</span>
+                    {% if outbox %}
+                        {% for item in outbox[:3] %}
+                            <div class="touch-message-row">
+                                <strong>{{ item.other_name }}</strong>
+                                <small>{% if item.state == 'decoded' %}Decoded{% elif item.state == 'opened' %}Opened{% else %}Ready to decode{% endif %}</small>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No sent messages yet.</p>
+                    {% endif %}
+                </section>
+            </main>
+        {% endif %}
+    </div>
+<script src="/static/app.js?v=20260802-1"></script>
+</body>
+</html>

@@ -33,9 +33,9 @@
                 <strong>Key</strong>
                 <span>Watch tapped code</span>
             </a>
-            <a class="touch-menu-card" href="/touch/timing">
-                <strong>Timing</strong>
-                <span>{{ timing.character_wpm }}/{{ timing.effective_wpm }} WPM</span>
+            <a class="touch-menu-card {% if messages.unread %}primary{% endif %}" href="/touch/messages">
+                <strong>Messages</strong>
+                <span>{% if messages.unread %}{{ messages.unread }} new to decode{% elif messages.unlocked %}Send a secret note{% else %}Unlock after S O{% endif %}</span>
             </a>
             <a class="touch-menu-card" href="/touch/students?next=/touch/daily">
                 <strong>{{ current_student.name }}</strong>

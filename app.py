@@ -6,6 +6,30 @@ from uuid import uuid4
 from flask import Flask, render_template, request, redirect, url_for, jsonify, g, has_request_context
 from gpiozero import Button, LED
 from morse import text_to_morse, morse_to_text
+from message_store import (
+    MessageValidationError,
+    advance_hint,
+    answer_message,
+    append_event as append_message_event,
+    available_words as available_message_words,
+    choice_letters as message_choice_letters,
+    clear_draft as clear_message_draft,
+    create_message,
+    decode_state as message_decode_state,
+    decoded_words as message_decoded_words,
+    deliver_local_message,
+    inbox_dir as message_inbox_dir,
+    list_messages,
+    load_draft as load_message_draft,
+    load_message,
+    message_tiles,
+    next_unsolved_position,
+    open_message,
+    outbox_dir as message_outbox_dir,
+    save_draft as save_message_draft,
+    save_message_copy,
+    validate_message_text,
+)
 from practice_attempts import append_practice_attempt, normalize_timing_events, rounded_ms, set_attempts_path, timing_summary
 from practice_progress import all_mode_details, choose_next_letter, mode_score, overall_score, progress_summary, record_attempt, save_progress, set_progress_path
 import student_profiles as student_profile_store
@@ -298,6 +322,104 @@ def current_student_disposable():
 
 def message_access_allowed():
     return not current_student_disposable()
+
+
+def load_student_json(student_id, filename, default):
+    try:
+        loaded = json.loads(student_data_path(student_id, filename).read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return default
+    return loaded
+
+
+def active_letters_for_student(student_id):
+    progress = load_student_json(student_id, "practice_progress.json", {})
+    learning = load_student_json(student_id, "learning_state.json", {})
+    groups = learning.get("groups", {}) if isinstance(learning, dict) else {}
+    active = list(starter_practice_letters)
+
+    for step in letter_unlock_steps:
+        group_state = groups.get(step_key(step)) if isinstance(groups, dict) else None
+        if not isinstance(group_state, dict):
+            break
+
+        ready = True
+        for letter in step["letters"]:
+            letter_progress = progress.get(letter, {}) if isinstance(progress, dict) else {}
+            learn_record = letter_progress.get("learn", {}) if isinstance(letter_progress, dict) else {}
+            if int(learn_record.get("correct", 0)) < learn_ready_attempts:
+                ready = False
+            if float(learn_record.get("strength", 0)) * 100 < learn_ready_strength:
+                ready = False
+
+        if not learning_rest_status(group_state)["ready"]:
+            ready = False
+        if not ready:
+            break
+
+        active.extend(letter for letter in step["letters"] if letter not in active)
+
+    return [letter for letter in all_practice_letters if letter in active]
+
+
+def configured_family_profiles():
+    config = load_station_config()
+    raw_profiles = config.get("family_students", [])
+    profiles = []
+
+    if isinstance(raw_profiles, list):
+        for item in raw_profiles:
+            if isinstance(item, str):
+                profiles.append(normalize_profile({"id": item, "name": item}))
+            elif isinstance(item, dict):
+                profiles.append(normalize_profile(item))
+
+    if not profiles:
+        profiles = list(getattr(g, "all_student_profiles", load_profiles()))
+
+    by_id = {profile["id"]: profile for profile in profiles if not profile.get("disposable")}
+    return list(by_id.values())
+
+
+def message_recipient_options():
+    sender_id = g.current_student["id"]
+    sender_letters = get_unlocked_practice_letters()
+    recipients = []
+
+    for profile in configured_family_profiles():
+        if profile["id"] == sender_id:
+            continue
+        recipient_letters = active_letters_for_student(profile["id"])
+        allowed = [letter for letter in sender_letters if letter in recipient_letters and letter.isalpha()]
+        recipients.append({
+            **profile,
+            "active_letters": recipient_letters,
+            "allowed_letters": allowed,
+            "eligible": word_practice_unlocked(recipient_letters) and bool(allowed),
+        })
+
+    return recipients
+
+
+def message_recipient_for_id(student_id):
+    student_id = slugify_student_id(student_id)
+    return next((item for item in message_recipient_options() if item["id"] == student_id), None)
+
+
+def message_feature_summary():
+    if not message_access_allowed():
+        return {"unlocked": False, "unread": 0, "inbox": 0, "outbox": 0}
+
+    data_dir = student_profile_store.DATA_DIR
+    student_id = g.current_student["id"]
+    inbox = list_messages(message_inbox_dir(data_dir, student_id))
+    outbox = list_messages(message_outbox_dir(data_dir, student_id))
+    return {
+        "unlocked": word_practice_unlocked(get_unlocked_practice_letters()),
+        "unread": sum(1 for item in inbox if item.get("state") == "available"),
+        "inbox": len(inbox),
+        "outbox": len(outbox),
+    }
 
 
 def current_station_id():
@@ -1324,6 +1446,10 @@ def load_today_effort_attempts():
     attempts = []
     for filename in ("practice_attempts.jsonl", "word_attempts.jsonl", "bonus_attempts.jsonl"):
         attempts.extend(load_attempt_records(student_data_path(student_id, filename), today_only=True))
+    attempts.extend(
+        attempt for attempt in load_attempt_records(student_data_path(student_id, "message_events.jsonl"), today_only=True)
+        if attempt.get("effort")
+    )
     return attempts
 
 
@@ -1332,6 +1458,10 @@ def load_all_effort_attempts():
     attempts = []
     for filename in ("practice_attempts.jsonl", "word_attempts.jsonl", "bonus_attempts.jsonl"):
         attempts.extend(load_attempt_records(student_data_path(student_id, filename), today_only=False))
+    attempts.extend(
+        attempt for attempt in load_attempt_records(student_data_path(student_id, "message_events.jsonl"), today_only=False)
+        if attempt.get("effort")
+    )
     return attempts
 
 
@@ -1578,6 +1708,17 @@ def choose_bonus_sprint_target():
 
 def student_badges(overall, daily):
     earned = []
+    message_events = []
+    if has_request_context():
+        message_events = load_attempt_records(
+            student_data_path(g.current_student["id"], "message_events.jsonl"),
+            today_only=False,
+        )
+    sent_message = any(event.get("event") == "message_sent" for event in message_events)
+    decoded_message = any(event.get("completed") for event in message_events)
+    message_badges_available = word_practice_unlocked(overall.get("active_letters", []))
+    if has_request_context() and current_student_disposable():
+        message_badges_available = False
 
     def add_badge(badge_id, label, detail, earned_when):
         badge = {
@@ -1634,6 +1775,18 @@ def student_badges(overall, daily):
         "Master eight letters.",
         overall.get("alphabet_mastered", 0) >= 8,
     )
+    add_badge(
+        "first-message-sent",
+        "First Message Sent",
+        "Send your first family Morse message.",
+        sent_message,
+    )
+    add_badge(
+        "secret-message-decoded",
+        "Secret Message Decoded",
+        "Decode your first family Morse message.",
+        decoded_message,
+    )
 
     if (
         learning_focus.get("active")
@@ -1673,6 +1826,16 @@ def student_badges(overall, daily):
         next_badge = {
             "label": "Signal Builder",
             "detail": "Unlock and master the next signal group.",
+        }
+    elif message_badges_available and not sent_message:
+        next_badge = {
+            "label": "First Message Sent",
+            "detail": "Build and send a family Morse message.",
+        }
+    elif message_badges_available and not decoded_message:
+        next_badge = {
+            "label": "Secret Message Decoded",
+            "detail": "Decode a message from another operator.",
         }
     else:
         next_badge = {
@@ -2560,6 +2723,7 @@ def render_practice_template(template_name):
         score=practice_mode_score(practice_letters, mode),
         overall=overall,
         word_practice=word_practice_summary(overall["active_letters"]),
+        messages=message_feature_summary(),
         letter_morse=get_practice_letter_morse(),
         progress_label=practice_modes[mode]["progress_label"],
         timing=get_practice_timing(mode, practice_target)
@@ -2706,6 +2870,154 @@ def start_update_service():
     return result["ok"]
 
 
+def message_page_allowed():
+    return message_access_allowed() and word_practice_unlocked(get_unlocked_practice_letters())
+
+
+def message_draft_for_recipient(recipient):
+    data_dir = student_profile_store.DATA_DIR
+    sender_id = g.current_student["id"]
+    draft = load_message_draft(data_dir, sender_id)
+    if draft.get("recipient_student_id") != recipient["id"]:
+        draft = clear_message_draft(data_dir, sender_id, recipient["id"])
+    draft.setdefault("pending_space", False)
+    return draft
+
+
+def normalize_draft_candidate(value, allowed_letters):
+    value = " ".join(str(value or "").upper().split())
+    if not value:
+        return ""
+    return validate_message_text(value, allowed_letters)
+
+
+def mutate_message_draft(draft, action, recipient):
+    text = str(draft.get("text") or "")
+    pending_space = bool(draft.get("pending_space"))
+    allowed = recipient["allowed_letters"]
+
+    if action == "append-word":
+        word = str(request.form.get("word") or "").strip().upper()
+        if word not in available_message_words(word_practice_bank, allowed):
+            raise MessageValidationError("That word is not available.")
+        text = f"{text} {word}" if text else word
+        pending_space = False
+    elif action == "append-keyed-letter":
+        raw_morse = normalize_word_morse(request.form.get("morse") or get_current_key_morse())
+        if not raw_morse or " " in raw_morse or "/" in raw_morse:
+            raise MessageValidationError("Key one letter, then try Add Letter again.")
+        letter = morse_to_text(raw_morse)
+        if len(letter) != 1 or not letter.isalpha():
+            raise MessageValidationError("That signal is not one letter yet.")
+        separator = " " if text and pending_space else ""
+        text = f"{text}{separator}{letter}"
+        pending_space = False
+        clear_key_state()
+    elif action == "space":
+        if text:
+            pending_space = True
+    elif action == "undo":
+        if pending_space:
+            pending_space = False
+        elif text:
+            text = text[:-1].rstrip()
+    elif action == "clear":
+        text = ""
+        pending_space = False
+        clear_key_state()
+    elif action in ("replace", "delete"):
+        try:
+            index = int(request.form.get("index", "-1"))
+        except ValueError as error:
+            raise MessageValidationError("Choose a letter to change.") from error
+        if index < 0 or index >= len(text) or text[index] == " ":
+            raise MessageValidationError("Choose a letter to change.")
+        if action == "replace":
+            replacement = str(request.form.get("letter") or "").strip().upper()[:1]
+            if replacement not in allowed:
+                raise MessageValidationError("That letter is not available.")
+            text = f"{text[:index]}{replacement}{text[index + 1:]}"
+        else:
+            text = f"{text[:index]}{text[index + 1:]}"
+        text = " ".join(text.split())
+    else:
+        raise MessageValidationError("Choose a message action.")
+
+    draft["text"] = normalize_draft_candidate(text, allowed)
+    draft["pending_space"] = pending_space
+    return save_message_draft(student_profile_store.DATA_DIR, draft)
+
+
+def profile_name_map():
+    profiles = list(getattr(g, "all_student_profiles", load_profiles())) + configured_family_profiles()
+    return {profile["id"]: profile["name"] for profile in profiles}
+
+
+def message_list_items(messages, other_key):
+    names = profile_name_map()
+    return [
+        {
+            **message,
+            "other_name": names.get(message.get(other_key), message.get(other_key, "Operator")),
+        }
+        for message in messages
+    ]
+
+
+def current_inbox_message(message_id):
+    return load_message(
+        message_inbox_dir(student_profile_store.DATA_DIR, g.current_student["id"]),
+        message_id,
+    )
+
+
+def save_inbox_message(message):
+    return save_message_copy(
+        message_inbox_dir(student_profile_store.DATA_DIR, g.current_student["id"]),
+        message,
+    )
+
+
+def copy_message_state_to_sender(message):
+    sender_copy = load_message(
+        message_outbox_dir(student_profile_store.DATA_DIR, message["sender_student_id"]),
+        message["message_id"],
+    )
+    if not sender_copy:
+        return
+    sender_copy["state"] = message["state"]
+    sender_copy["opened_at"] = message.get("opened_at", "")
+    sender_copy["decoded_at"] = message.get("decoded_at", "")
+    save_message_copy(
+        message_outbox_dir(student_profile_store.DATA_DIR, message["sender_student_id"]),
+        sender_copy,
+    )
+
+
+def message_playback_text(message, scope):
+    position = next_unsolved_position(message)
+    text = message.get("text", "")
+    if scope == "message" or position is None:
+        return text
+    if scope == "letter":
+        return text[position]
+
+    start = text.rfind(" ", 0, position) + 1
+    end = text.find(" ", position)
+    if end < 0:
+        end = len(text)
+    return text[start:end]
+
+
+def slower_message_timing():
+    timing = dict(get_morse_timing())
+    for key in ("dot_seconds", "dash_seconds", "symbol_gap_seconds", "letter_gap_seconds", "word_gap_seconds"):
+        timing[key] *= 1.3
+    for key in ("dot_ms", "dash_ms", "symbol_gap_ms", "letter_gap_ms", "word_gap_ms"):
+        timing[key] = int(round(timing[key] * 1.3))
+    return timing
+
+
 # -----------------------------
 # Main routes
 # -----------------------------
@@ -2739,6 +3051,7 @@ def touch_daily():
         overall=overall,
         daily=daily,
         badges=student_badges(overall, daily),
+        messages=message_feature_summary(),
         timing=get_morse_timing()
     )
 
@@ -2840,6 +3153,295 @@ def touch_message():
         return redirect(url_for("touch_daily"))
 
     return render_home_template("touch_message.html")
+
+
+@app.route("/touch/messages")
+def touch_messages():
+    if not message_access_allowed():
+        return redirect(url_for("touch_daily"))
+
+    data_dir = student_profile_store.DATA_DIR
+    student_id = g.current_student["id"]
+    inbox = message_list_items(list_messages(message_inbox_dir(data_dir, student_id)), "sender_student_id")
+    outbox = message_list_items(list_messages(message_outbox_dir(data_dir, student_id)), "recipient_student_id")
+    return render_template(
+        "touch_messages.html",
+        unlocked=message_page_allowed(),
+        unlock_letters=word_practice_unlock_letters,
+        recipients=message_recipient_options() if message_page_allowed() else [],
+        inbox=inbox,
+        outbox=outbox,
+        sent=request.args.get("sent", ""),
+    )
+
+
+@app.route("/touch/messages/compose")
+def touch_message_compose():
+    if not message_page_allowed():
+        return redirect(url_for("touch_messages"))
+
+    recipient = message_recipient_for_id(request.args.get("to", ""))
+    if not recipient or not recipient["eligible"]:
+        return render_template(
+            "touch_message_compose.html",
+            recipient=None,
+            recipients=message_recipient_options(),
+            draft=None,
+            tiles=[],
+            word_tiles=[],
+            edit_index=None,
+            error=request.args.get("error", ""),
+        )
+
+    draft = message_draft_for_recipient(recipient)
+    try:
+        edit_index = int(request.args.get("edit", "-1"))
+    except ValueError:
+        edit_index = -1
+    if edit_index < 0 or edit_index >= len(draft.get("text", "")) or draft.get("text", "")[edit_index] == " ":
+        edit_index = None
+
+    return render_template(
+        "touch_message_compose.html",
+        recipient=recipient,
+        recipients=message_recipient_options(),
+        draft=draft,
+        tiles=message_tiles(draft.get("text", "")),
+        word_tiles=available_message_words(word_practice_bank, recipient["allowed_letters"])[:12],
+        edit_index=edit_index,
+        error=request.args.get("error", ""),
+    )
+
+
+@app.route("/touch/messages/draft", methods=["POST"])
+def touch_message_draft():
+    if not message_page_allowed():
+        return redirect(url_for("touch_messages"))
+
+    recipient = message_recipient_for_id(request.form.get("recipient_id", ""))
+    if not recipient or not recipient["eligible"]:
+        return redirect(url_for("touch_message_compose", error="Choose an available operator."))
+
+    draft = message_draft_for_recipient(recipient)
+    try:
+        mutate_message_draft(draft, request.form.get("action", ""), recipient)
+    except MessageValidationError as error:
+        return redirect(url_for("touch_message_compose", to=recipient["id"], error=str(error)))
+
+    return redirect(url_for("touch_message_compose", to=recipient["id"]))
+
+
+@app.route("/touch/messages/review")
+def touch_message_review():
+    if not message_page_allowed():
+        return redirect(url_for("touch_messages"))
+
+    recipient = message_recipient_for_id(request.args.get("to", ""))
+    if not recipient or not recipient["eligible"]:
+        return redirect(url_for("touch_message_compose"))
+
+    draft = message_draft_for_recipient(recipient)
+    try:
+        text = validate_message_text(draft.get("text", ""), recipient["allowed_letters"])
+    except MessageValidationError as error:
+        return redirect(url_for("touch_message_compose", to=recipient["id"], error=str(error)))
+
+    return render_template(
+        "touch_message_review.html",
+        recipient=recipient,
+        draft=draft,
+        text=text,
+        morse=text_to_morse(text),
+        tiles=message_tiles(text),
+        timing=get_morse_timing(),
+    )
+
+
+@app.route("/touch/messages/play-draft", methods=["POST"])
+def touch_message_play_draft():
+    if not message_page_allowed():
+        return jsonify({"status": "unavailable"}), 403
+
+    recipient = message_recipient_for_id(request.form.get("recipient_id", ""))
+    if not recipient or not recipient["eligible"]:
+        return jsonify({"status": "invalid-recipient"}), 400
+    draft = message_draft_for_recipient(recipient)
+    try:
+        text = validate_message_text(draft.get("text", ""), recipient["allowed_letters"])
+    except MessageValidationError as error:
+        return jsonify({"status": "invalid", "message": str(error)}), 400
+    play_in_background(text_to_morse(text))
+    return jsonify({"status": "playing"})
+
+
+@app.route("/touch/messages/send", methods=["POST"])
+def touch_message_send():
+    if not message_page_allowed():
+        return redirect(url_for("touch_messages"))
+
+    recipient = message_recipient_for_id(request.form.get("recipient_id", ""))
+    if not recipient or not recipient["eligible"]:
+        return redirect(url_for("touch_message_compose", error="Choose an available operator."))
+    draft = message_draft_for_recipient(recipient)
+    try:
+        message = create_message(
+            g.current_student["id"],
+            recipient["id"],
+            current_station_id(),
+            draft.get("text", ""),
+            recipient["allowed_letters"],
+        )
+    except MessageValidationError as error:
+        return redirect(url_for("touch_message_compose", to=recipient["id"], error=str(error)))
+
+    deliver_local_message(student_profile_store.DATA_DIR, message)
+    append_message_event(student_profile_store.DATA_DIR, g.current_student["id"], {
+        "event": "message_sent",
+        "message_id": message["message_id"],
+        "recipient_student_id": recipient["id"],
+        "station_id": current_station_id(),
+        "practice_session_id": g.practice_session_id,
+        "effort": False,
+    })
+    clear_message_draft(student_profile_store.DATA_DIR, g.current_student["id"])
+    return redirect(url_for("touch_messages", sent=recipient["name"]))
+
+
+@app.route("/touch/messages/inbox/<message_id>")
+def touch_message_inbox(message_id):
+    if not message_page_allowed():
+        return redirect(url_for("touch_messages"))
+
+    message = current_inbox_message(message_id)
+    if not message or message.get("recipient_student_id") != g.current_student["id"]:
+        return redirect(url_for("touch_messages"))
+
+    was_available = message.get("state") == "available"
+    message = open_message(message)
+    save_inbox_message(message)
+    copy_message_state_to_sender(message)
+    if was_available:
+        append_message_event(student_profile_store.DATA_DIR, g.current_student["id"], {
+            "event": "message_opened",
+            "message_id": message["message_id"],
+            "sender_student_id": message["sender_student_id"],
+            "station_id": current_station_id(),
+            "practice_session_id": g.practice_session_id,
+            "effort": False,
+        })
+
+    position = next_unsolved_position(message)
+    active_letters = get_unlocked_practice_letters()
+    state = message_decode_state(message)
+    hint_level = state["hint_levels"].get(str(position), 0) if position is not None else 0
+    names = profile_name_map()
+    return render_template(
+        "touch_message_decode.html",
+        message=message,
+        sender_name=names.get(message["sender_student_id"], message["sender_student_id"]),
+        decoded_words=message_decoded_words(message),
+        position=position,
+        choices=message_choice_letters(message["text"][position], active_letters, f"{message_id}:{position}") if position is not None else [],
+        hint_level=hint_level,
+        hint_morse=text_to_morse(message["text"][position]) if position is not None and hint_level >= 2 else "",
+        feedback=request.args.get("feedback", ""),
+        completed=position is None,
+        timing=get_morse_timing(),
+    )
+
+
+@app.route("/touch/messages/inbox/<message_id>/play", methods=["POST"])
+def touch_message_inbox_play(message_id):
+    message = current_inbox_message(message_id)
+    if not message or message.get("recipient_student_id") != g.current_student["id"]:
+        return jsonify({"status": "not-found"}), 404
+    scope = request.form.get("scope", "message")
+    if scope not in ("message", "word", "letter"):
+        return jsonify({"status": "invalid-scope"}), 400
+    text = message_playback_text(message, scope)
+    timing = slower_message_timing() if request.form.get("slower") == "1" else None
+    play_in_background(text_to_morse(text)) if timing is None else threading.Thread(
+        target=play_morse_on_station,
+        args=(text_to_morse(text), timing),
+        daemon=True,
+    ).start()
+    return jsonify({"status": "playing", "scope": scope})
+
+
+@app.route("/touch/messages/inbox/<message_id>/answer", methods=["POST"])
+def touch_message_inbox_answer(message_id):
+    message = current_inbox_message(message_id)
+    if not message or message.get("recipient_student_id") != g.current_student["id"]:
+        return redirect(url_for("touch_messages"))
+    if message.get("state") == "decoded":
+        return redirect(url_for("touch_message_inbox", message_id=message_id, feedback="Message already decoded."))
+    was_decoded = message.get("state") == "decoded"
+    try:
+        updated, result = answer_message(message, request.form.get("position", "-1"), request.form.get("answer", ""))
+    except (MessageValidationError, ValueError):
+        return redirect(url_for("touch_message_inbox", message_id=message_id, feedback="Try the highlighted letter."))
+
+    save_inbox_message(updated)
+    copy_message_state_to_sender(updated)
+    append_message_event(student_profile_store.DATA_DIR, g.current_student["id"], {
+        "event": "decode_attempt",
+        "message_id": message_id,
+        "position": result.get("position"),
+        "answer": result.get("answer", ""),
+        "correct": result.get("correct", False),
+        "completed": result.get("completed", False),
+        "station_id": current_station_id(),
+        "practice_session_id": g.practice_session_id,
+        "effort": True,
+    })
+    if result.get("completed") and not was_decoded:
+        play_daily_celebration_in_background()
+    feedback = "Correct!" if result.get("correct") else "Not yet. Play the letter and try again."
+    return redirect(url_for("touch_message_inbox", message_id=message_id, feedback=feedback))
+
+
+@app.route("/touch/messages/inbox/<message_id>/hint", methods=["POST"])
+def touch_message_inbox_hint(message_id):
+    message = current_inbox_message(message_id)
+    if not message or message.get("recipient_student_id") != g.current_student["id"]:
+        return redirect(url_for("touch_messages"))
+    if message.get("state") == "decoded":
+        return redirect(url_for("touch_message_inbox", message_id=message_id, feedback="Message already decoded."))
+    was_decoded = message.get("state") == "decoded"
+    try:
+        updated, result = advance_hint(message, request.form.get("position", "-1"))
+    except (MessageValidationError, ValueError):
+        return redirect(url_for("touch_message_inbox", message_id=message_id))
+
+    save_inbox_message(updated)
+    copy_message_state_to_sender(updated)
+    append_message_event(student_profile_store.DATA_DIR, g.current_student["id"], {
+        "event": "message_hint",
+        "message_id": message_id,
+        "position": result["position"],
+        "hint_level": result["level"],
+        "revealed": result["revealed"],
+        "completed": result.get("completed", False),
+        "correct": False,
+        "station_id": current_station_id(),
+        "practice_session_id": g.practice_session_id,
+        "effort": True,
+    })
+    if result.get("completed") and not was_decoded:
+        play_daily_celebration_in_background()
+    if result["level"] == 1:
+        timing = slower_message_timing()
+        threading.Thread(
+            target=play_morse_on_station,
+            args=(text_to_morse(message["text"][result["position"]]), timing),
+            daemon=True,
+        ).start()
+        feedback = "Played slower. Listen again."
+    elif result["level"] == 2:
+        feedback = "Morse hint shown."
+    else:
+        feedback = "Letter revealed. Keep going."
+    return redirect(url_for("touch_message_inbox", message_id=message_id, feedback=feedback))
 
 
 @app.route("/touch/progress")

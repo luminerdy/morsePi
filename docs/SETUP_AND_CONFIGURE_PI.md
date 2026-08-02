@@ -202,6 +202,13 @@ Edit `data/station_config.json`:
       "name": "Liara"
     }
   ],
+  "family_students": [
+    {"id": "pappy", "name": "Pappy"},
+    {"id": "astrid", "name": "Astrid"},
+    {"id": "liara", "name": "Liara"},
+    {"id": "campbell", "name": "Campbell"},
+    {"id": "olivea", "name": "Olivea"}
+  ],
   "guest_profile": {
     "id": "guest",
     "name": "Guest Operator",
@@ -214,6 +221,11 @@ Edit `data/station_config.json`:
 Set `admin_pin` before a station leaves home to protect adult actions such as adding students, resetting progress, and changing timing or volume settings. Leave it blank only while the station is in local development or testing.
 
 Set `allow_student_create` to `false` for deployed touch stations. The touch student screen will show only the configured student buttons and the disposable `Guest Operator` profile, so students do not need a keyboard. Guest is intended for demos, cannot send or receive messages, and should be excluded from future family progress summaries.
+
+`students` is the local sign-in roster. `family_students` is the approved
+message recipient directory. Phase 7A can deliver only when both students have
+progress on the same station; Phase 7B will synchronize the minimal active-letter
+summary needed to safely send between homes.
 
 Use a unique id for each station, such as:
 
@@ -306,6 +318,11 @@ Student progress is local to the Pi and is not committed to GitHub. Backups shou
 - `data/students/<student-id>/learning_state.json`
 - `data/students/<student-id>/practice_attempts.jsonl`
 - `data/students/<student-id>/bonus_attempts.jsonl`
+- `data/students/<student-id>/word_attempts.jsonl`
+- `data/students/<student-id>/message_draft.json`
+- `data/students/<student-id>/message_events.jsonl`
+- `data/students/<student-id>/message_inbox/`
+- `data/students/<student-id>/message_outbox/`
 
 Create a manual backup:
 

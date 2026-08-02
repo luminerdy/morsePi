@@ -5,7 +5,7 @@ knows what it inherits. This file is updated on each re-review; requirement
 files only carry *(Delta: …)* notes, not status history.
 
 - **Baseline review:** `33df851` (2026-07-02)
-- **Latest legacy-code re-review:** working tree after `3f20d03` (2026-08-01)
+- **Latest legacy-code re-review:** Phase 7A messaging working tree (2026-08-02)
 - **Spec package location:** root `specs/`
 
 ## Changes landed since baseline (`33df851..7818254`)
@@ -21,6 +21,7 @@ files only carry *(Delta: …)* notes, not status history.
 | Rhythm timing summaries per attempt + `/admin/rhythm` trends page; timing events capped at 240 | `674fdd8` | New scope — now FR-036/FR-037, API-017, AC-013 |
 | Learn-mode score display fix; screenshots; doc updates | `89f73eb` etc. | No spec impact |
 | Touch System recovery page with Wi-Fi/IP status, on-screen keyboard availability/launch, admin-PIN-gated app update, Wi-Fi restart, and admin-PIN-gated kiosk exit | after `3f20d03` | FR-038, API-018, AC-014 — met in legacy |
+| Local family Morse messaging with shared-letter validation, touch/keyer composition, review, playback, inbox, guided decoding, effort, and badges | 2026-08-02 working tree | FR-039...FR-046 — met for Phase 7A; FR-047...FR-050 remain partial pending cross-station transport |
 
 **Note 1 (FR-012):** over-limit text is silently **truncated** (`limited_text`),
 not rejected; only bodies > 16 KB get a hard 413. The OOM DoS is closed
@@ -41,7 +42,8 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-035 hardened updater | 🟡 | `release/pi` branch + health check; **no rollback**, py_compile only |
 | FR-036/FR-037 rhythm analysis | ✅ | New feature, spec'd retroactively |
 | FR-038 touch System recovery | ✅ | `/touch/system` shows local status, keyboard availability, and update state; `/touch/system/action` gates recovery/update actions behind admin PIN |
-| FR-039...FR-050 family Morse messages | — | Planned Phase 7; specified before implementation. The legacy desktop text composer is not family messaging. |
+| FR-039...FR-046 family Morse experience | ✅ | Phase 7A local flow implemented in `message_store.py` and `/touch/messages/*` |
+| FR-047...FR-050 durable delivery | 🟡 | Local state, duplicate-safe delivery, offline storage, effort, and badges exist; S3 routing, remote receipts, and cross-station retry remain Phase 7B |
 | NFR-004 concurrency safety | 🟡 | `threaded=False` serializes requests; module-global state remains, will regress under any threaded server |
 | NFR-005 runs off-Pi w/o env vars | ❌ | Still needs `GPIOZERO_PIN_FACTORY=mock` |
 | NFR-006 atomic writes | ❌ | Plain `write_text`, no temp+rename |
@@ -59,7 +61,8 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | TR-008 binary detection | 🟡 | Manual `check_dependencies.py`; not run at app startup |
 | API-017 `/admin/rhythm` PIN gate | ❌ | Page is unauthenticated in legacy (read-only, but exposes practice data) |
 | API-018 touch system recovery action | ✅ | Implemented as `/touch/system/action` |
-| API-019...API-023 family Morse messages | — | Planned Phase 7; not implemented |
+| API-019...API-022 family Morse messages | 🟡 | Equivalent server-validated touch form routes exist; the rebuild's versioned JSON API contract remains open |
+| API-023 cross-station sync | ❌ | Planned Phase 7B |
 
 ## Acceptance criteria at `7818254`
 
@@ -73,4 +76,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | AC-006…AC-012 | n/a | n/a | Rebuild-phase criteria |
 | AC-013 rhythm scoring | — | ✅ | Covered by `tests/test_practice_attempts.py` |
 | AC-014 touch System recovery | — | ✅ | Covered by `tests/test_routes.py` |
-| AC-015...AC-020 family Morse messages | — | — | Planned Phase 7; tests not implemented |
+| AC-015 compose/review/send | — | ✅ | Route tests plus 800x480 browser rehearsal on the Pappy station |
+| AC-016 hidden decode/hints | — | ✅ | Route tests verify progressive reveal and effort events |
+| AC-017 guest/security rules | — | ✅ | Guest rejection and server-side tamper revalidation covered |
+| AC-018...AC-020 cross-station delivery | — | 🟡 | Local duplicate/offline behavior covered; S3 routing and three-station rehearsal remain Phase 7B |
