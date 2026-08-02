@@ -764,6 +764,8 @@ When asked to do the daily wrap-up, update:
   and Clear Message explicitly starts the whole draft over.
 - Centered the composer Review link inside its full touch target to match the
   Choose Operator action and the adjacent message controls.
+- Centered the Daily Next Step action, including Learn and Signal Sprint, so
+  recommended practice buttons align consistently across the touch UI.
 - Decision: Phase 7A remains local-only. Cross-house delivery will preserve the
   same message format in Phase 7B, using S3 for durable storage and AWS IoT only
   as an optional notification path.

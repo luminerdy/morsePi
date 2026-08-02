@@ -105,7 +105,8 @@ from the current code (legacy status per requirement is tracked in
 
 - **FR-029** *(V1)* Daily Mission: 20 attempts in a day completes the
   mission; completion triggers a one-time celebration (station plays `...-`
-  and flashes LED) only when actually complete.
+  and flashes LED) only when actually complete. The recommended Next Step
+  action SHALL use a full-width touch target with its label centered.
 - **FR-030** *(V2)* Bonus sprint: after mission completion, an optional
   20-target random round over active letters with accuracy and streak
   scoring, tracked per sprint-session ID.

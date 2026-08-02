@@ -1342,6 +1342,10 @@
 .touch-daily-next .button {
     width: 100%;
     min-height: 42px;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    text-decoration: none;
 }
 
 .touch-daily-learning small {
