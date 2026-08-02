@@ -26,6 +26,10 @@ General rules:
   operations `{action: restart-wifi|open-keyboard|update-app|exit-kiosk}` for
   FR-038. The response MAY redirect back to `/touch/system` because these
   actions can interrupt the browser or network.
+- **API-019** *(V2)* `GET /touch/messages`, `/touch/messages/compose`,
+  `/touch/messages/review`, `/touch/messages/inbox/<message_id>` — student
+  message menu, no-keyboard composer, review, and guided decode pages for
+  FR-039...FR-046. Guest receives 403 or a kid-friendly unavailable page.
 
 ## Station control (JSON unless noted)
 
@@ -62,6 +66,26 @@ General rules:
 - **API-014** *(MVP)* `GET /healthz` — unauthenticated
   `{status, version, git_sha, hardware: {key, led, audio}}` for
   updater/monitoring
+
+## Family messages
+
+- **API-020** *(V2)* `GET /api/messages/recipients` returns configured eligible
+  recipients with active-letter availability; `POST /api/messages/draft`
+  performs `{create|append-word|append-keyed-letter|space|undo|clear|replace|
+  delete}` and returns the normalized draft plus letter/Morse tiles.
+- **API-021** *(V2)* `POST /api/messages/play-draft`; `POST
+  /api/messages/send` accepts the draft ID and recipient ID, revalidates
+  FR-039/SEC-018, freezes the record, and returns `queued` or `available`.
+- **API-022** *(V2)* `GET /api/messages/inbox`; `POST
+  /api/messages/<message_id>/open`; `POST
+  /api/messages/<message_id>/play` with scope `message|word|letter`; `POST
+  /api/messages/<message_id>/answer` with slot and letter; `POST
+  /api/messages/<message_id>/hint` with the requested progressive aid.
+  Responses SHALL reveal only text already decoded or explicitly revealed.
+- **API-023** *(V2)* The station message sync worker SHALL upload queued
+  outbox objects, download validated inbox objects for locally rostered
+  students, upload receipts, and optionally subscribe to its approved AWS IoT
+  arrival topic. Reprocessing the same cloud object SHALL be idempotent.
 
 ## Hardware interfaces
 

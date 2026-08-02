@@ -23,7 +23,9 @@ administered remotely by one maintainer ("Pappy").
 
 Immediate multi-sensory feedback (tone, LED, on-screen decode) plus a gated
 curriculum that introduces letters gradually and rewards consistent effort,
-not just accuracy.
+not just accuracy. As students gain letters, family Morse messages turn those
+skills into meaningful communication: the sender builds and reviews a note,
+and the receiver hears and decodes it one letter and word at a time.
 
 ## Deployment reality that shapes everything
 

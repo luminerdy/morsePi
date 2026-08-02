@@ -41,6 +41,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-035 hardened updater | 🟡 | `release/pi` branch + health check; **no rollback**, py_compile only |
 | FR-036/FR-037 rhythm analysis | ✅ | New feature, spec'd retroactively |
 | FR-038 touch System recovery | ✅ | `/touch/system` shows local status, keyboard availability, and update state; `/touch/system/action` gates recovery/update actions behind admin PIN |
+| FR-039...FR-050 family Morse messages | — | Planned Phase 7; specified before implementation. The legacy desktop text composer is not family messaging. |
 | NFR-004 concurrency safety | 🟡 | `threaded=False` serializes requests; module-global state remains, will regress under any threaded server |
 | NFR-005 runs off-Pi w/o env vars | ❌ | Still needs `GPIOZERO_PIN_FACTORY=mock` |
 | NFR-006 atomic writes | ❌ | Plain `write_text`, no temp+rename |
@@ -58,6 +59,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | TR-008 binary detection | 🟡 | Manual `check_dependencies.py`; not run at app startup |
 | API-017 `/admin/rhythm` PIN gate | ❌ | Page is unauthenticated in legacy (read-only, but exposes practice data) |
 | API-018 touch system recovery action | ✅ | Implemented as `/touch/system/action` |
+| API-019...API-023 family Morse messages | — | Planned Phase 7; not implemented |
 
 ## Acceptance criteria at `7818254`
 
@@ -71,3 +73,4 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | AC-006…AC-012 | n/a | n/a | Rebuild-phase criteria |
 | AC-013 rhythm scoring | — | ✅ | Covered by `tests/test_practice_attempts.py` |
 | AC-014 touch System recovery | — | ✅ | Covered by `tests/test_routes.py` |
+| AC-015...AC-020 family Morse messages | — | — | Planned Phase 7; tests not implemented |

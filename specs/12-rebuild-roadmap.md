@@ -55,6 +55,26 @@ stations until Phase 3 exit.
 - Hardened auto-update with health-check rollback (FR-035, SEC-010).
 - **Exit:** TEST-009 green; runbook (DOC-07) updated.
 
+## Phase 7A — Local family messages (V2)
+
+- Message domain, drafts, and local inbox/outbox (FR-039...FR-048).
+- No-keyboard touch composer with word tiles and physical-key entry.
+- Review/edit/play flow and guided receiver decoding with progressive hints.
+- Message effort and badge events remain separate from core mastery.
+- **Exit:** AC-015...AC-017 and TEST-014 pass on a real 800x480 station;
+  children can test the complete learning flow without AWS.
+
+## Phase 7B — Durable family delivery (V2)
+
+- Student-addressed family directory and minimal active-letter summaries.
+- Per-station least-privilege identities, S3 outbox/router/inbox/receipts, and
+  optional AWS IoT arrival notifications (FR-047...FR-050).
+- Offline queueing, retry, cross-station read state, audit/status reporting,
+  backup coverage, and a delivery runbook.
+- **Exit:** AC-018...AC-020 and TEST-013 pass with all three stations; a Pi
+  may remain off for several days and receive exactly one durable message when
+  it returns.
+
 ## Cutover rule
 
 A deployed station switches from legacy to rebuilt code only when: the phase's

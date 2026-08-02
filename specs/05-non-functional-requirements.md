@@ -33,3 +33,16 @@
   per-student attempt counts.
 - **NFR-012** *(MVP)* Kid-facing failure modes: any 4xx/5xx reachable from the
   student UI renders a friendly retry page, never a stack trace.
+- **NFR-013** *(V2)* Every message compose, review, inbox, and decode screen
+  SHALL fit 800x480 without page scrolling, use tap targets >= 48 px, and keep
+  the active student and sender/receiver identity visible in large text.
+- **NFR-014** *(V2)* A station SHALL retain queued outbound messages and
+  downloaded inbox messages through restart, network loss, and power loss;
+  cloud availability SHALL NOT be required to finish decoding a downloaded
+  message.
+- **NFR-015** *(V2)* Creating, editing, opening, or answering a local message
+  SHALL meet NFR-003. Send SHALL confirm local queuing within 1 second and
+  SHALL NOT block the child interface while waiting for cloud delivery.
+- **NFR-016** *(V2)* The primary messaging path SHALL require no physical or
+  on-screen keyboard and no reading of technical status text. Color SHALL NOT
+  be the only indicator of message state or a correct/incorrect answer.

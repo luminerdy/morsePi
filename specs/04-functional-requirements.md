@@ -155,3 +155,57 @@ from the current code (legacy status per requirement is tracked in
   "Need more data" below threshold), and the most recent attempts. This view
   SHALL be admin-PIN-protected. *(Delta: legacy `/admin/rhythm` is
   unauthenticated.)*
+
+## Family Morse messages *(V2)*
+
+- **FR-039** Messaging SHALL unlock for a non-guest student when Words
+  practice is unlocked. A message SHALL contain only uppercase A-Z letters
+  and single spaces, use at most 3 words and 20 letters, and use only letters
+  that have graduated into the active sets of both sender and receiver.
+- **FR-040** The sender SHALL choose a receiver from a preconfigured family
+  directory. Messages SHALL be addressed to a stable `student_id`, not to one
+  station, so the receiver may open the same inbox from any approved family
+  station where that student is rostered.
+- **FR-041** The 800x480 composer SHALL work without a keyboard. It SHALL
+  support (a) touch word tiles filtered to the allowable letters and (b)
+  physical-key entry that decodes each completed Morse character into the
+  draft. It SHALL provide touch controls for word space, undo, and clear.
+- **FR-042** A draft SHALL render as ordered letter tiles showing the plain
+  letter with its Morse code directly underneath. Selecting a tile SHALL let
+  the sender re-key it, replace it from the allowable-letter picker, or delete
+  it. The sender SHALL be able to play the complete draft through the speaker
+  and LED before sending.
+- **FR-043** Sending SHALL require a separate review screen that shows the
+  receiver, complete text, letter-by-letter Morse, and a Play action. The
+  message SHALL remain editable until an explicit receiver-named Send action;
+  a sent message is immutable.
+- **FR-044** The receiver inbox SHALL show sender, received time, and state
+  without revealing unopened message text. Opening a message SHALL first show
+  blank letter slots grouped into words and provide whole-message playback
+  through the speaker and LED.
+- **FR-045** Guided decoding SHALL advance one letter at a time. It SHALL offer
+  four large touch choices drawn from the receiver's active letters and these
+  progressive aids: replay letter, replay word, slower speaker/LED playback,
+  show Morse, then reveal letter. Every playback SHALL synchronize speaker and
+  LED per FR-010. Correct choices fill their slot; the full word remains hidden
+  until its letters are completed or revealed.
+- **FR-046** Completing a message SHALL preserve the decoded text, celebrate
+  once, and offer Play Again plus an optional Key It Back activity. Message
+  work SHALL count toward effort time and message badges but SHALL NOT change
+  core letter mastery until student testing supports a later spec change.
+- **FR-047** Each message SHALL have durable states for `queued`, `available`,
+  `opened`, and `decoded`. State transitions SHALL be idempotent and SHALL sync
+  across approved stations so a message decoded at Pappy's station does not
+  remain falsely unread at the receiver's home station.
+- **FR-048** The canonical message content SHALL be normalized plain text;
+  Morse SHALL be recomputed with FR-001 rather than trusted from a client or
+  cloud payload. Duplicate delivery of the same message ID SHALL create no
+  duplicate inbox item, celebration, or effort credit.
+- **FR-049** Local messaging SHALL function without AWS for UI and learning
+  tests. When family delivery is enabled, S3 SHALL hold the durable outbox,
+  inbox, and receipts so stations may remain powered off for days; AWS IoT MAY
+  provide arrival notifications but SHALL NOT be the only message copy.
+- **FR-050** A failed or unavailable internet connection SHALL leave the sent
+  message visibly queued on the sender station and retry later without child
+  intervention. A child-friendly status SHALL distinguish Queued from Sent;
+  technical failure details belong only in logs/admin status.

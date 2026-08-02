@@ -47,7 +47,9 @@ belongs in the rebuilt repo's `SECURITY.md` (DOC-04).
   access to that station's prefix; no long-lived admin keys on devices.
 - **SEC-012** *(V2)* Uploaded data SHALL minimize child PII: student display
   names MAY be uploaded only with explicit config opt-in; default uploads use
-  student IDs only.
+  student IDs only. Family message text MAY be uploaded only for the messaging
+  feature, SHALL be restricted to configured family recipients, and SHALL
+  follow the retention rules documented in `SECURITY.md` and DOC-13.
 - **SEC-013** *(MVP)* Cookies: `SameSite=Lax`, `HttpOnly` for session/student
   cookies; session IDs from `uuid4`, validated as 32-hex on receipt.
 - **SEC-014** *(MVP)* Secrets (PIN, any future tokens) SHALL live outside
@@ -55,3 +57,22 @@ belongs in the rebuilt repo's `SECURITY.md` (DOC-04).
   SHALL run a secret scanner.
 - **SEC-015** *(MVP)* Dependencies SHALL be audited in CI (`pip-audit`) and
   auto-update PRs enabled (Dependabot/Renovate).
+- **SEC-016** *(V2)* Students SHALL send only to recipients in the configured
+  family directory. The guest profile SHALL have no message pages, APIs,
+  inbox, outbox, or cloud permissions.
+- **SEC-017** *(V2)* Each station SHALL use its own AWS identity with least
+  privilege: write only its designated outbox, read only inboxes for students
+  rostered on that station, and read/write only the receipt paths required for
+  those students. No station SHALL list or read another family's unrelated
+  message content.
+- **SEC-018** *(V2)* The server and cloud router SHALL independently validate
+  sender, receiver, roster membership, content limits, allowed characters,
+  and the sender/receiver active-letter intersection. Client-supplied Morse,
+  delivery state, timestamps, and learned-letter claims SHALL not be trusted.
+- **SEC-019** *(V2)* Message IDs SHALL be unguessable UUIDs. Message objects
+  SHALL be immutable after acceptance; state changes and receipts SHALL be
+  separate append-only or versioned records with sender station and UTC time.
+- **SEC-020** *(V2)* Cloud message records SHALL contain stable student IDs,
+  not display names, and SHALL not include practice history or detailed
+  progress. The minimum active-letter snapshot needed for validation MAY be
+  synchronized separately under SEC-012 handling rules.

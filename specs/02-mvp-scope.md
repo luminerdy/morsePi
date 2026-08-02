@@ -29,6 +29,7 @@ Delivered in later tiers per [03-feature-inventory.md](03-feature-inventory.md):
 - Session recovery admin
 - S3 sync, status reporting
 - Unattended auto-update
+- Local and station-to-station family Morse messaging
 
 ## Rationale
 

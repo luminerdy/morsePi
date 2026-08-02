@@ -17,6 +17,7 @@ or freeze existing docs rather than writing from scratch.
 | DOC-10 | `CONTRIBUTING.md` | Dev setup without a Pi, test commands, style (ruff), how to add a requirement/AC before code. |
 | DOC-11 | `docs/journal/` | Today's `PROJECT_PLAN.md` and `PROJECT_REQUIREMENTS_AND_STATUS.md` move here as history, frozen. |
 | DOC-12 | `CHANGELOG.md` | Per-release; the updater's release-notes source. |
+| DOC-13 | `docs/MESSAGING.md` | Kid-facing flow, message state machine, family directory, S3/IoT delivery, IAM boundaries, schemas, offline behavior, and operator troubleshooting. |
 
 ## Disposition of current docs
 

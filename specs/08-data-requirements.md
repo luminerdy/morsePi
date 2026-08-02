@@ -37,6 +37,29 @@
 - **DR-009** All derived views (badges, coach, mission status, sprint
   summaries) SHALL be computable purely from DR-002/DR-004 data — no derived
   state stored, so bugs are fixable retroactively.
-- **DR-010** PII inventory: student display names and practice history are
-  the only personal data; documented with handling rules in `SECURITY.md`
-  (SEC-012).
+- **DR-010** PII inventory: student display names, practice history, and family
+  message content/metadata are personal data. Their collection, access,
+  retention, export, and deletion rules SHALL be documented in `SECURITY.md`
+  (SEC-012) before cloud messaging is enabled.
+- **DR-011** Message record format `morsepi-message-v1` SHALL contain:
+  `message_id`, `sender_student_id`, `sender_station_id`,
+  `recipient_student_id`, normalized `text`, `required_letters[]`,
+  `created_at` UTC, and `format`. Morse MAY be cached but is non-authoritative
+  and MUST match FR-001 when read. Message text is immutable after acceptance.
+- **DR-012** Per-student messaging data SHALL include atomic local draft and
+  inbox/outbox indexes plus an append-only message event log. Events SHALL
+  include `message_id`, state (`queued|available|opened|decoded`), station ID,
+  student ID, UTC time, decode attempts, aids used, elapsed effort time, and
+  optional Key It Back timing data. Duplicate `(message_id, state, station)`
+  events SHALL be ignored for derived credit.
+- **DR-013** The family directory SHALL map stable student IDs to approved
+  station IDs and messaging eligibility. A separately synchronized learning
+  summary SHALL contain only student ID, active letters, curriculum version,
+  and generated-at UTC time; stale or missing summaries SHALL disable sending
+  to that student with a friendly Try Later message, not guess eligibility.
+- **DR-014** Cloud layout SHALL separate untrusted incoming objects from
+  validated inbox objects, for example
+  `family/messages/outbox/<station-id>/<message-id>.json` and
+  `family/messages/inbox/<student-id>/<message-id>.json`, with receipts under
+  a separate prefix. The router SHALL use non-overlapping event prefixes to
+  prevent recursive S3 notification loops.

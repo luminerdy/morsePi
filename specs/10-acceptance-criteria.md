@@ -54,6 +54,38 @@ correctness checks. Each is encoded as an automated test per
   action; with a valid PIN it starts the requested local recovery action,
   including opening the on-screen keyboard or starting the local update service,
   and returns/redirects without exposing secrets.
+- **AC-015** (FR-039...FR-043 / NFR-013 / NFR-016) On an 800x480 fixture,
+  an eligible student can choose a family recipient, add a filtered word, key
+  another letter, see letter-over-Morse tiles, replace and delete a tile, play
+  the draft, return from Review to edit, and explicitly send it without a
+  keyboard or page scrolling.
+- **AC-016** (FR-044...FR-046) Opening a two-word fixture reveals no plaintext.
+  Whole-message, word, and letter playback drive mock audio and LED together;
+  correct four-choice answers fill only the selected slots; progressive hints
+  reveal Morse before the letter; completing all slots records one decoded
+  event and one celebration even after refresh or double-submit.
+- **AC-017** (FR-039 / SEC-016...SEC-018) Guest access is rejected. Attempts
+  to send to an unknown recipient, exceed 3 words or 20 letters, include
+  punctuation, or use a letter outside either student's active set fail
+  server-side without creating an outbox object, even when the browser payload
+  falsely claims the letter is allowed.
+- **AC-018** (FR-047...FR-050 / NFR-014 / NFR-015 / SEC-017) With cloud
+  access disabled, Send
+  returns queued within 1 second and survives restart. When cloud access is
+  restored, one validated inbox item appears; the receiver can disconnect and
+  finish decoding it offline; later synchronization updates the sender-visible
+  state without duplicate events or effort credit. A station identity cannot
+  read an inbox or write an outbox outside its configured IAM prefixes.
+- **AC-019** (FR-040 / FR-047) A message addressed to Astrid and downloaded at
+  Pappy's station appears for Astrid but not another local student. After she
+  decodes it there, her home station synchronizes the decoded receipt and does
+  not present it as a new unread message.
+- **AC-020** (FR-048 / SEC-019 / SEC-020 / DR-011...DR-014) Replaying the
+  same S3 event and inbox download ten times leaves exactly one immutable
+  message, one inbox entry, and one event per state/station. A payload whose
+  cached Morse disagrees with normalized text is rejected or recomputed and
+  never played as authoritative. Validated cloud records use stable student
+  IDs and contain no display name, practice history, or detailed progress.
 
 ## Coverage rule
 

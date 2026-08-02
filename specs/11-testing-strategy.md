@@ -30,6 +30,20 @@
 - **TEST-010** Performance guard: summary endpoints under a 10k-attempt
   fixture must stay < 500 ms (NFR-003) — asserted in CI with a generous 2×
   margin for runner noise.
+- **TEST-011** *(V2)* Message-domain unit tests: normalization and limits,
+  sender/receiver active-letter intersection, filtered word tiles, immutable
+  records, state transitions, progressive hints, and duplicate-event credit.
+- **TEST-012** *(V2)* Message route/template contract tests with mock key,
+  audio, and LED backends cover AC-015...AC-017, including Guest denial and
+  server-side rejection of forged eligibility.
+- **TEST-013** *(V2)* Offline/sync integration tests use a fake S3/IoT adapter
+  to cover AC-018...AC-020: queued restart recovery, delayed delivery,
+  duplicate object events, cross-station receipts, stale learning summaries,
+  and unauthorized-prefix rejection.
+- **TEST-014** *(V2, manual + screenshot regression)* Run the complete compose,
+  review, inbox, and decode flow at 800x480 with touch and the physical key.
+  Assert no scrollbars or overlaps, minimum target sizes, visible identities,
+  and synchronized speaker/LED playback before kid testing.
 
 ## CI pipeline (per TR-011)
 
@@ -40,5 +54,7 @@ On every PR and push to main:
 3. Concurrency test (TEST-003)
 4. `pip-audit` + secret scan (TEST-008)
 5. Performance guard (TEST-010)
+6. Message unit/contract tests (TEST-011/012 when Phase 7 begins)
+7. Message sync integration tests (TEST-013 when Phase 7B begins)
 
 Matrix: Linux (primary), plus Windows/macOS import-and-unit smoke for AC-012.
