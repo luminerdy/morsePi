@@ -789,13 +789,21 @@ When asked to do the daily wrap-up, update:
 - Decision: Phase 7A remains local-only. Cross-house delivery will preserve the
   same message format in Phase 7B, using S3 for durable storage and AWS IoT only
   as an optional notification path.
+- Completed the Phase 7B AWS foundation: narrow Lambda execution role, packaged
+  Python 3.13 router, family directory, S3 invoke permission, and three
+  non-overlapping station-prefix notification rules.
+- Installed and enabled the five-minute message-sync timer on all three Pis;
+  normal message sync remains disabled by configuration until activation.
+- Passed the live isolated three-station rehearsal: Pappy sent `ME` to Astrid,
+  both authorized stations received one copy, Campbell/Olivea received none,
+  Astrid decoded it, and Pappy's outbox advanced to decoded from the receipt.
 
 ### Ready Next
 
 - Kid-test the complete local message flow on Pappy's station: choose a recipient, build and correct a short message, review/play/send it, switch users, and decode it with and without hints.
-- Add the approved `family_students` directory to each real station config. Keep local sign-in rosters unchanged.
-- Deploy the Phase 7A release to both grandkid stations after the release regression pass, then repeat the local sibling message rehearsal on each station.
-- Begin Phase 7B only after the kid test: publish minimal active-letter summaries, add durable S3 outbox/inbox/receipts, and use AWS IoT only as an optional arrival notice.
+- Kid-test sibling message composition and decoding locally on each grandkid station before enabling cloud sync.
+- Publish current real active-letter summaries, clear the isolated rehearsal summaries, and enable `message_sync_enabled` one station at a time with a rollback check.
+- After activation, test a real delayed delivery with the receiving Pi powered off, then confirm exactly one message and one decoded receipt after it returns online.
 - For future IoT work, prefer a narrow IoT setup identity; reactivate the broad `admin` access key only if truly needed, then deactivate it again after the task.
 - Plan the longer-term removal of path-global progress/attempt storage before enabling a multi-worker production server.
 - Run one kid-style smoke test on each grandkid unit before it leaves home: choose each student, complete one Daily/Learn/Send action with the physical keyer, verify progress sticks after switching users, then run a final backup/status upload.

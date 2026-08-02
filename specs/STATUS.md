@@ -5,7 +5,7 @@ knows what it inherits. This file is updated on each re-review; requirement
 files only carry *(Delta: …)* notes, not status history.
 
 - **Baseline review:** `33df851` (2026-07-02)
-- **Latest legacy-code re-review:** Phase 7A messaging working tree (2026-08-02)
+- **Latest legacy-code re-review:** `29a665d` plus live Phase 7B AWS rehearsal (2026-08-02)
 - **Spec package location:** root `specs/`
 
 ## Changes landed since baseline (`33df851..7818254`)
@@ -22,6 +22,7 @@ files only carry *(Delta: …)* notes, not status history.
 | Learn-mode score display fix; screenshots; doc updates | `89f73eb` etc. | No spec impact |
 | Touch System recovery page with Wi-Fi/IP status, on-screen keyboard availability/launch, admin-PIN-gated app update, Wi-Fi restart, and admin-PIN-gated kiosk exit | after `3f20d03` | FR-038, API-018, AC-014 — met in legacy |
 | Local family Morse messaging with shared-letter validation, word-tile/whole-word keyer composition, review, playback, inbox, guided decoding, effort, and badges | 2026-08-02 working tree | FR-039...FR-046 — met for Phase 7A; FR-047...FR-050 remain partial pending cross-station transport |
+| Durable S3/Lambda message routing, station sync worker, remote receipts, and three-station rehearsal | `29a665d` | FR-047...FR-050, FR-052, FR-053, API-023, and AC-018...AC-020/AC-023 — met; normal station sync remains intentionally disabled pending activation |
 
 **Note 1 (FR-012):** over-limit text is silently **truncated** (`limited_text`),
 not rejected; only bodies > 16 KB get a hard 413. The OOM DoS is closed
@@ -43,14 +44,14 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-036/FR-037 rhythm analysis | ✅ | New feature, spec'd retroactively |
 | FR-038 touch System recovery | ✅ | `/touch/system` shows local status, keyboard availability, and update state; `/touch/system/action` gates recovery/update actions behind admin PIN |
 | FR-039...FR-046 family Morse experience | ✅ | Phase 7A local flow implemented in `message_store.py` and `/touch/messages/*` |
-| FR-047...FR-050 durable delivery | 🟡 | Local state, duplicate-safe delivery, offline storage, effort, and badges exist; S3 routing, remote receipts, and cross-station retry remain Phase 7B |
+| FR-047...FR-050 durable delivery | ✅ | S3 routing, duplicate-safe station download, durable offline storage, and decoded receipts passed the live three-station rehearsal |
 | NFR-004 concurrency safety | 🟡 | `threaded=False` serializes requests; module-global state remains, will regress under any threaded server |
 | NFR-005 runs off-Pi w/o env vars | ❌ | Still needs `GPIOZERO_PIN_FACTORY=mock` |
 | NFR-006 atomic writes | ❌ | Plain `write_text`, no temp+rename |
 | NFR-017 centered Morse display | ✅ | Shared server/browser renderer covers app displays and printable handout while preserving canonical ASCII Morse |
 | FR-051 mixed Words opening | ✅ | The opening bank interleaves familiar two- and three-letter words; eligibility remains active-letter filtered |
-| FR-052 station message sync | 🟡 | Contract and worker implementation in progress; cloud disabled until router/IAM rehearsal passes |
-| FR-053 cloud message router | 🟡 | Validated router contract in progress; AWS Lambda deployment remains gated |
+| FR-052 station message sync | ✅ | Five-minute worker/timer installed on all three stations; tested live with isolated data; normal sync remains an explicit configuration switch |
+| FR-053 cloud message router | ✅ | Narrow-role Lambda and three S3 notifications deployed in `us-east-1`; live routing and receipts verified |
 | SEC-001 CSRF | ❌ | No tokens anywhere |
 | SEC-002/003 mandatory PIN + lockout | ❌ | PIN optional, `==` compare, no rate limit |
 | SEC-004 input validation | 🟡 | See FR-012 note |
@@ -66,7 +67,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | API-017 `/admin/rhythm` PIN gate | ❌ | Page is unauthenticated in legacy (read-only, but exposes practice data) |
 | API-018 touch system recovery action | ✅ | Implemented as `/touch/system/action` |
 | API-019...API-022 family Morse messages | 🟡 | Equivalent server-validated touch form routes exist; the rebuild's versioned JSON API contract remains open |
-| API-023 cross-station sync | ❌ | Planned Phase 7B |
+| API-023 cross-station sync | ✅ | Versioned S3 object contract and station worker implemented and live-rehearsed |
 
 ## Acceptance criteria at `7818254`
 
@@ -83,7 +84,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | AC-015 compose/review/send | — | ✅ | Route tests plus 800x480 browser rehearsal on the Pappy station |
 | AC-016 hidden decode/hints | — | ✅ | Route tests verify progressive reveal and effort events |
 | AC-017 guest/security rules | — | ✅ | Guest rejection and server-side tamper revalidation covered |
-| AC-018...AC-020 cross-station delivery | — | 🟡 | Local duplicate/offline behavior covered; S3 routing and three-station rehearsal remain Phase 7B |
+| AC-018...AC-020 cross-station delivery | — | ✅ | Unit replay/tamper tests plus live Pappy-to-Astrid delivery and decoded receipt |
 | AC-021 centered Morse geometry | — | ✅ | Unit/template tests plus 800x480 geometry measurement and two-page PDF inspection |
 | AC-022 mixed Words sequence | — | ✅ | Curriculum regression verifies 42 eligible words with `NOT` and `MOM` in the first six |
-| AC-023 three-station cloud delivery | — | 🟡 | In-memory contract rehearsal pending, followed by real S3/Lambda rehearsal |
+| AC-023 three-station cloud delivery | — | ✅ | Intended Pappy and Astrid/Liara stations received one copy; Campbell/Olivea received none; receipt returned to sender |

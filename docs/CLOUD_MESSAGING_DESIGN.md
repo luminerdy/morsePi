@@ -82,7 +82,8 @@ to run manually. Cloud sync is disabled unless `message_sync_enabled` is true
 in the station configuration, so the local message experience remains usable
 during development and AWS outages.
 
-The first deployment rehearsal uses all three stations on the local network:
-send, power the receiver off, route the message, power it on, download exactly
-one copy, decode it, and verify the decoded receipt reaches the sender and the
-receiver's other station.
+The first deployment rehearsal completed on 2026-08-02 with isolated data on
+all three stations. Pappy sent `ME` to Astrid; S3 invoked the Lambda router;
+Pappy's station and Astrid/Liara's station received one copy; Campbell/Olivea's
+station received none; Astrid decoded the message; and the decoded receipt
+returned to Pappy. The normal station setting remains disabled until activation.

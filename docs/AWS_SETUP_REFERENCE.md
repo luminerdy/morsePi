@@ -478,6 +478,19 @@ Deployment order:
 8. Run the three-station offline delivery/receipt rehearsal before setting
    `message_sync_enabled` to true for normal use.
 
+Deployment status on 2026-08-02:
+
+- `morsepi-message-router-role` and `morsepi-message-router` are deployed in
+  `us-east-1` with the narrow router policy and bucket-scoped invoke permission.
+- The family directory and three non-overlapping station notification rules are
+  installed in `morsepi-backups-luminerdy`.
+- The five-minute message-sync timer is installed and enabled on all three Pis.
+- A live isolated Pappy-to-Astrid message completed routing, download, decode,
+  and receipt return; the unrelated Campbell/Olivea station received nothing.
+- `message_sync_enabled` remains false on normal station configurations. Enable
+  it only after current student summaries are published and activation is
+  approved.
+
 The Lambda reads and writes the same bucket. Input and output sub-prefixes are
 different, and the router ignores inbox/status objects, so an output event can
 cause at most one ignored invocation rather than a recursive write loop. AWS
