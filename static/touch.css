@@ -651,6 +651,13 @@
     height: 100%;
 }
 
+.touch-compose-actions .button {
+    display: grid;
+    place-items: center;
+    text-align: center;
+    text-decoration: none;
+}
+
 .touch-compose-layout.editing {
     grid-template-columns: 1fr;
     grid-template-rows: 176px minmax(0, 1fr);

@@ -762,6 +762,8 @@ When asked to do the daily wrap-up, update:
 - Separated message recovery controls after hands-on testing: Try Word Again
   clears only the live keyed word, Undo Word removes the last completed word,
   and Clear Message explicitly starts the whole draft over.
+- Centered the composer Review link inside its full touch target to match the
+  Choose Operator action and the adjacent message controls.
 - Decision: Phase 7A remains local-only. Cross-house delivery will preserve the
   same message format in Phase 7B, using S3 for durable storage and AWS IoT only
   as an optional notification path.
