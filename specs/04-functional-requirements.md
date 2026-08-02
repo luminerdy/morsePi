@@ -171,8 +171,9 @@ from the current code (legacy status per requirement is tracked in
   physical-key entry that captures and decodes one complete word from the
   student's available Words practice set before adding it to the draft. Word
   boundaries SHALL be inserted automatically. It SHALL provide touch controls
-  for undo and clear. Letter-at-a-time construction SHALL NOT be the primary
-  message-keying flow.
+  to retry the currently keyed word without changing the draft, undo the last
+  completed word, and clear the complete message as distinct actions.
+  Letter-at-a-time construction SHALL NOT be the primary message-keying flow.
 - **FR-042** A draft SHALL render as ordered letter tiles showing the plain
   letter with its Morse code directly underneath. Selecting a tile SHALL let
   the sender re-key it, replace it from the allowable-letter picker, or delete

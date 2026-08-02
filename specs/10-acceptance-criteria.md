@@ -61,6 +61,8 @@ correctness checks. Each is encoded as an automated test per
   draft, return from Review to edit, and explicitly send it without a keyboard
   or page scrolling. Primary message actions have centered labels. An
   incomplete, unknown, or unavailable keyed word is not added.
+  Retrying a partially keyed word clears only the live key buffer and preserves
+  every completed word already in the draft.
 - **AC-016** (FR-044...FR-046) Opening a two-word fixture reveals no plaintext.
   Whole-message, word, and letter playback drive mock audio and LED together;
   correct four-choice answers fill only the selected slots; progressive hints

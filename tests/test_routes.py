@@ -475,6 +475,18 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(302, second_response.status_code)
         self.assertEqual("ME SO", draft["text"])
 
+    def test_touch_message_composer_separates_word_retry_from_message_clear(self):
+        self.unlock_messages("pappy")
+        self.unlock_messages("astrid")
+
+        response = self.client.get("/touch/messages/compose?to=astrid")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("data-message-retry-word", html)
+        self.assertIn("Try Word Again", html)
+        self.assertIn("Clear Message", html)
+
     def test_touch_message_rejects_keyed_letter_or_unknown_word(self):
         self.unlock_messages("pappy")
         self.unlock_messages("astrid")

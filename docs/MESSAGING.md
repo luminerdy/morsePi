@@ -25,7 +25,9 @@ Guest Operator cannot send or receive messages.
 
 Keyed words must already be available in Words practice, and the composer adds
 the space between completed words automatically. Undo removes the most recently
-added word. The message is limited to three words and 20 letters. Every letter must be
+added word. Try Word Again clears only the word currently being keyed and keeps
+the completed message safe. Clear Message removes the entire draft. The message
+is limited to three words and 20 letters. Every letter must be
 active for both the sender and receiver. The server repeats all validation at
 send time so a changed or tampered draft cannot bypass these rules.
 

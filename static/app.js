@@ -1525,6 +1525,14 @@ function initializeMessageControls() {
         });
     }
 
+    document.querySelectorAll("[data-message-retry-word]").forEach(button => {
+        button.addEventListener("click", async () => {
+            button.disabled = true;
+            await clearKeyInput();
+            button.disabled = false;
+        });
+    });
+
     document.querySelectorAll("[data-message-play-draft]").forEach(button => {
         button.addEventListener("click", async () => {
             button.disabled = true;

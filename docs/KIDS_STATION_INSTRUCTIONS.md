@@ -163,6 +163,10 @@ To send a message:
 4. Tap Play to hear and see the whole message.
 5. Tap Send when it looks right.
 
+If you make a mistake while keying a word, tap Try Word Again. Words already in
+your message will stay. Undo Word removes the last word you added. Clear Message
+starts the whole message over.
+
 To read a message, open your Inbox, play it, and choose each letter. A hint can
 slow the signal, show its Morse code, and finally reveal the letter. Messages
 only use signals that both operators have unlocked. Guest Operator cannot send
