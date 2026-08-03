@@ -2584,6 +2584,7 @@ def get_learning_overall(letters):
     alphabet_total = len(alphabet_letters)
     alphabet_percent = int(round((active_alphabet_count / alphabet_total) * 100)) if alphabet_total else 100
     mode_masteries = [mode_score(state["active_letters"], mode)["mastery"] for mode in practice_modes]
+    learning_focus = daily_learning_focus(state["learning_letters"])
 
     overall["current_mastery"] = overall["mastery"]
     overall["current_set_complete"] = bool(mode_masteries) and all(mastery >= 100 for mastery in mode_masteries)
@@ -2601,10 +2602,19 @@ def get_learning_overall(letters):
     overall["max_learning_groups_per_day"] = state["max_learning_groups_per_day"]
     overall["learning_step"] = state["learning_step"]
     overall["learning_status"] = state["learning_status"]
-    overall["learning_focus"] = daily_learning_focus(state["learning_letters"])
+    overall["learning_focus"] = learning_focus
     overall["locked_until_tomorrow"] = state["locked_until_tomorrow"]
     overall["unlock_wait_status"] = state["unlock_wait_status"]
     overall["next_unlock"] = state["learning_step"] or state["next_step"] or get_next_letter_unlock(state["active_letters"])
+
+    if learning_focus["active"]:
+        overall["primary_mastery"] = learning_focus["progress"]
+        overall["primary_mastery_label"] = "Learning Now"
+        overall["primary_mastery_detail"] = f"{learning_focus['correct']}/{learning_focus['goal']} Learn"
+    else:
+        overall["primary_mastery"] = overall["current_mastery"]
+        overall["primary_mastery_label"] = "Current Set"
+        overall["primary_mastery_detail"] = f"{overall['alphabet_progress']} letters"
 
     if state["learning_step"]:
         status = state["learning_status"] or {}

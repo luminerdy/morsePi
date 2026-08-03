@@ -575,6 +575,51 @@ class LearningGateTests(unittest.TestCase):
         self.assertEqual("Current Set", details["send"]["scope_label"])
         self.assertEqual(100, details["send"]["score"]["mastery"])
 
+    def test_learning_now_becomes_primary_progress_context(self):
+        progress = {}
+
+        for letter in app_module.starter_practice_letters:
+            progress[letter] = {
+                mode: {
+                    "attempts": 10,
+                    "correct": 10,
+                    "last_seen": "2026-06-21T00:00:00+00:00",
+                    "streak": 10,
+                    "strength": 1.0,
+                }
+                for mode in app_module.practice_modes
+            }
+
+        for letter in ["S", "O"]:
+            progress[letter] = {
+                "learn": {
+                    "attempts": 7,
+                    "correct": 7,
+                    "last_seen": "2026-06-21T00:00:00+00:00",
+                    "streak": 7,
+                    "strength": 1.0,
+                }
+            }
+
+        self.progress_path.write_text(json.dumps(progress), encoding="utf-8")
+        self.write_learning_state(
+            {
+                "SO": {
+                    "first_learning_date": app_module.today_key(),
+                    "letters": ["S", "O"],
+                }
+            },
+            last_learning_start_date=app_module.today_key(),
+        )
+
+        overall = app_module.get_learning_overall(app_module.starter_practice_letters)
+
+        self.assertEqual(100, overall["current_mastery"])
+        self.assertEqual(["S", "O"], overall["learning_letters"])
+        self.assertEqual("Learning Now", overall["primary_mastery_label"])
+        self.assertEqual(70, overall["primary_mastery"])
+        self.assertEqual("14/20 Learn", overall["primary_mastery_detail"])
+
     def test_practice_coach_recommends_weakest_letter_and_mode(self):
         progress = {}
 

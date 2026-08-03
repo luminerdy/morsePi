@@ -30,7 +30,7 @@
             </a>
             <a class="touch-menu-card primary" href="/touch/progress">
                 <strong>Progress</strong>
-                <span>{{ overall.alphabet_progress }} letters · {{ overall.current_mastery }}% set</span>
+                <span>{{ overall.alphabet_progress }} letters · {{ overall.primary_mastery }}% {{ overall.primary_mastery_label }}</span>
             </a>
             <a class="touch-menu-card" href="/touch/key">
                 <strong>Key</strong>
@@ -48,7 +48,13 @@
 
         <footer class="touch-footer">
             <span>{{ current_student.name }} · Level {{ overall.level }}</span>
-            <span>{{ overall.alphabet_progress }} letters mastered</span>
+            <span>
+                {% if overall.learning_letters %}
+                    Learning {{ overall.learning_letters | join(" ") }}
+                {% else %}
+                    {{ overall.alphabet_progress }} letters mastered
+                {% endif %}
+            </span>
         </footer>
     </div>
 <script src="/static/app.js?v=20260623-1"></script>

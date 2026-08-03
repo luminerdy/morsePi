@@ -1190,10 +1190,11 @@ class RouteRenderTests(unittest.TestCase):
         html = response.get_data(as_text=True)
 
         self.assertEqual(200, response.status_code)
-        self.assertIn("100% current-set mastery", html)
+        self.assertIn("70% Learning Now", html)
         self.assertIn("Learning Now: S O", html)
         self.assertIn("14/20 Learn", html)
-        self.assertIn("current set", html)
+        self.assertIn("Current set is 100%, but S O are still Learn-only.", html)
+        self.assertIn("S O are not in Send, Read, Listen, or Echo yet.", html)
 
     def test_touch_learn_score_uses_learning_now_burn_in_not_strength_only(self):
         completed_letters = app_module.starter_practice_letters + ["S", "O", "R", "K"]

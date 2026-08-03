@@ -838,6 +838,13 @@ When asked to do the daily wrap-up, update:
 - Added a kid-facing safe shutdown flow from the touch menu with a confirmation
   screen and a wait-for-screen-dark instruction before turning off the CanaKit
   USB-C PiSwitch.
+- Clarified touch Progress/Menu top-level mastery during Learning Now: when new
+  letters such as `S O` are Learn-only, the prominent percentage now follows
+  Learning Now progress and labels the old current-set 100% as supporting
+  context instead of implying all new-letter work is complete.
+- Added regression coverage for the `S O` Learn-only state: starter set 100%,
+  S/O Learn in progress, Progress labels the primary percentage as
+  `Learning Now` and states that S/O are still Learn-only.
 
 ### Ready Next
 
