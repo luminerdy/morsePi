@@ -124,6 +124,14 @@ Stop each GPIO test with `Ctrl+C` before starting another test.
 
 Install the user service and browser autostart from the setup guide.
 
+Install the morsePi desktop wallpaper so the adult recovery desktop is clearly
+part of the station:
+
+```bash
+cd /home/morse/morse-station
+bash scripts/install_wallpaper.sh
+```
+
 Then reboot:
 
 ```bash
@@ -258,6 +266,7 @@ Recommendation for first deployed units:
 - LED flashes for system playback and keying.
 - Telegraph key input works.
 - Touchscreen fits without awkward scrolling on the main student flow.
+- Desktop wallpaper shows the morsePi cartoon background after exiting kiosk.
 - Touch System page shows Wi-Fi/IP status, on-screen keyboard availability, and update service state, and the admin PIN can open the keyboard, start an app update, restart Wi-Fi, or exit kiosk mode to the desktop.
 - Student profile is created.
 - Local backup works.

@@ -592,6 +592,18 @@ sudo systemctl stop morse-station
 
 The Pi desktop can also open Chromium directly to the Morse Station web app after login.
 
+Install the morsePi desktop wallpaper:
+
+```bash
+cd /home/morse/morse-station
+bash scripts/install_wallpaper.sh
+```
+
+The helper copies the wallpaper to `/home/morse/Pictures/morsePi/`, writes the
+Raspberry Pi desktop wallpaper config for the connected display, and asks
+PCManFM to reconfigure if it is running. This matters when an adult exits kiosk
+mode to troubleshoot Wi-Fi or updates.
+
 Install the browser helper script:
 
 ```bash

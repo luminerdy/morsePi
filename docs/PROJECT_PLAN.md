@@ -832,6 +832,9 @@ When asked to do the daily wrap-up, update:
 - Added `scripts/set_admin_pin.py`, a local helper that sets, prompts for, or
   clears the station admin PIN with a timestamped config backup and without
   printing the PIN.
+- Added a cartoon morsePi desktop wallpaper asset plus `scripts/install_wallpaper.sh`
+  so each Pi recovery desktop can show the project background after exiting
+  kiosk mode.
 
 ### Ready Next
 
