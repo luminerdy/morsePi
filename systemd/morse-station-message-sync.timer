@@ -1,9 +1,9 @@
 [Unit]
-Description=Check for morsePi family messages every five minutes
+Description=Check for morsePi family messages every ten minutes
 
 [Timer]
 OnBootSec=2min
-OnUnitActiveSec=5min
+OnUnitActiveSec=10min
 Persistent=true
 RandomizedDelaySec=30s
 

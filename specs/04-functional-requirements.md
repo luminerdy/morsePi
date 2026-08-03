@@ -221,7 +221,7 @@ from the current code (legacy status per requirement is tracked in
 - **FR-052** A station sync worker SHALL publish local learning snapshots and
   immutable outbox records, download only inbox/status records addressed to
   locally rostered students or the local station, and upload opened/decoded
-  receipts. It SHALL run safely after boot, on a five-minute timer, and on
+  receipts. It SHALL run safely after boot, on a ten-minute timer, and on
   adult demand; repeated runs SHALL be idempotent.
 - **FR-053** A cloud router SHALL independently validate outbox and receipt
   records against the family directory and current minimal learning summaries

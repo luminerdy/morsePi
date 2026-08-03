@@ -144,7 +144,7 @@ systemd/                Optional Linux service file
 
 See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) for milestones and next steps.
 
-Current next focus: kid-test local messaging, decide when to enable the verified five-minute cross-station sync, and then evaluate whether AWS IoT arrival notices add enough value. Remote update commands remain a parallel deployment priority.
+Current next focus: kid-test local messaging, decide when to enable the verified ten-minute cross-station sync, and then evaluate whether AWS IoT arrival notices add enough value. Remote update commands remain a parallel deployment priority.
 
 ## License
 

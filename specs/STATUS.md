@@ -51,7 +51,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | NFR-006 atomic writes | ❌ | Plain `write_text`, no temp+rename |
 | NFR-017 centered Morse display | ✅ | Shared server/browser renderer covers app displays and printable handout while preserving canonical ASCII Morse |
 | FR-051 mixed Words opening | ✅ | The opening bank interleaves familiar two- and three-letter words; eligibility remains active-letter filtered |
-| FR-052 station message sync | ✅ | Five-minute worker/timer installed on all three stations; tested live with isolated data; normal sync remains an explicit configuration switch |
+| FR-052 station message sync | ✅ | Ten-minute worker/timer prepared for all three stations; tested live with isolated data; normal sync remains an explicit configuration switch |
 | FR-053 cloud message router | ✅ | Narrow-role Lambda and three S3 notifications deployed in `us-east-1`; live routing and receipts verified |
 | SEC-001 CSRF | ❌ | No tokens anywhere |
 | SEC-002/003 mandatory PIN + lockout | ❌ | PIN optional, `==` compare, no rate limit |

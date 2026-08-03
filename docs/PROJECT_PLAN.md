@@ -800,6 +800,9 @@ When asked to do the daily wrap-up, update:
 - Added [ARCHITECTURE.md](ARCHITECTURE.md) with maintained project and AWS
   diagrams showing the three Pi stations, local hardware/software boundaries,
   S3 prefixes, Lambda routing, IAM boundaries, and optional future IoT/SSM paths.
+- Retuned the disabled-by-default message polling timer from five to ten minutes
+  for initial family testing, balancing delivery feedback with lower S3 request
+  cost; fifteen minutes remains a later option after the workflow is trusted.
 
 ### Ready Next
 

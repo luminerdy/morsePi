@@ -79,7 +79,7 @@ technical reason is retained in station/router logs.
 
 ## Operation
 
-The station worker runs shortly after boot and every five minutes. It is safe
+The station worker runs shortly after boot and every ten minutes. It is safe
 to run manually. Cloud sync is disabled unless `message_sync_enabled` is true
 in the station configuration, so the local message experience remains usable
 during development and AWS outages.
