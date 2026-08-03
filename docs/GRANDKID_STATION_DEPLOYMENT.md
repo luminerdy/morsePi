@@ -87,6 +87,18 @@ Expected:
 
 `data/station_config.json` is ignored by Git because it is station-specific.
 
+To set or reset the admin PIN safely:
+
+```bash
+cd /home/morse/morse-station
+python3 scripts/set_admin_pin.py
+systemctl --user restart morse-station.service
+```
+
+The helper creates a backup of the previous station config and does not print
+the PIN. Use the touch System page after restart to confirm the PIN unlocks
+`Update App`, `Restart Wi-Fi`, and `Exit Kiosk`.
+
 ## 3. Hardware Assembly
 
 - Attach the Raspberry Pi 4 to the back of the 7-inch touchscreen.

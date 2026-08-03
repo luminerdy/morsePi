@@ -55,7 +55,10 @@ correctness checks. Each is encoded as an automated test per
   /touch/system/action` rejects a bad admin PIN and does not run the requested
   action; with a valid PIN it starts the requested local recovery action,
   including opening the on-screen keyboard or starting the local update service,
-  and returns/redirects without exposing secrets.
+  and returns/redirects without exposing secrets. The local admin PIN helper
+  updates `data/station_config.json`, preserves unrelated config fields,
+  creates a timestamped backup, rejects non-numeric PINs, and does not print the
+  PIN.
 - **AC-015** (FR-039...FR-043 / NFR-013 / NFR-016) On an 800x480 fixture,
   an eligible student can choose a family recipient, add a filtered word, key
   another complete available word with natural letter pauses, see

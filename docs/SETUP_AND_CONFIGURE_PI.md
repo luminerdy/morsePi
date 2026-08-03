@@ -220,6 +220,30 @@ Edit `data/station_config.json`:
 
 Set `admin_pin` before a station leaves home to protect adult actions such as adding students, resetting progress, and changing timing or volume settings. Leave it blank only while the station is in local development or testing.
 
+To set or reset the PIN without hand-editing JSON:
+
+```bash
+cd /home/morse/morse-station
+python3 scripts/set_admin_pin.py
+systemctl --user restart morse-station.service
+```
+
+The helper prompts for the new PIN without showing it, writes
+`data/station_config.json`, and creates a timestamped backup beside the config.
+For unattended setup, pass the new numeric PIN as an argument:
+
+```bash
+python3 scripts/set_admin_pin.py 1234
+systemctl --user restart morse-station.service
+```
+
+For local development only, clear the PIN with:
+
+```bash
+python3 scripts/set_admin_pin.py --clear
+systemctl --user restart morse-station.service
+```
+
 Set `allow_student_create` to `false` for deployed touch stations. The touch student screen will show only the configured student buttons and the disposable `Guest Operator` profile, so students do not need a keyboard. Guest is intended for demos, cannot send or receive messages, and should be excluded from future family progress summaries.
 
 `students` is the local sign-in roster. `family_students` is the approved

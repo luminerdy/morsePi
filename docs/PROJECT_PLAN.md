@@ -829,6 +829,9 @@ When asked to do the daily wrap-up, update:
   restarted `morse-station.service`, verified `/touch/system` serves the keypad
   and fresh static versions, and confirmed the Pi regression suite passed with
   132 tests.
+- Added `scripts/set_admin_pin.py`, a local helper that sets, prompts for, or
+  clears the station admin PIN with a timestamped config backup and without
+  printing the PIN.
 
 ### Ready Next
 

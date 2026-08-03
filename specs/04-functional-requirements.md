@@ -147,7 +147,9 @@ from the current code (legacy status per requirement is tracked in
   controls SHALL be available locally on the touchscreen even if internet
   access is down, though updating may require internet access. Touch admin PIN
   entry SHALL be possible without a physical keyboard and SHALL NOT trigger the
-  speaker, LED, Morse playback, or keyer feedback.
+  speaker, LED, Morse playback, or keyer feedback. A local maintenance helper
+  SHALL allow an adult to set or reset the station admin PIN without
+  hand-editing JSON, creating a backup before changing the station config.
 
 ## Rhythm analysis *(V2 — added retroactively; shipped in legacy `674fdd8`)*
 
