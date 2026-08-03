@@ -803,6 +803,9 @@ When asked to do the daily wrap-up, update:
 - Retuned the disabled-by-default message polling timer from five to ten minutes
   for initial family testing, balancing delivery feedback with lower S3 request
   cost; fifteen minutes remains a later option after the workflow is trusted.
+- Hardened student reset for cloud messaging by backing up and removing both
+  local and cached family learning summaries, preventing old message eligibility
+  data from restoring letters after a deliberate family progress reset.
 
 ### Ready Next
 

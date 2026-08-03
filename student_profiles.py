@@ -294,6 +294,10 @@ def reset_student_storage(student_id):
         shutil.rmtree(source_dir)
         removed.append(str(source_dir))
 
+    for summary_group in ("local_summaries", "family_summaries"):
+        summary_path = DATA_DIR / "message_sync" / summary_group / f"{student_id}.json"
+        backup_and_remove(summary_path, f"message_sync/{summary_group}")
+
     if student_id == DEFAULT_STUDENT_ID:
         for filename in STUDENT_FILES:
             backup_and_remove(DATA_DIR / filename, "legacy")

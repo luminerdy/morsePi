@@ -71,6 +71,9 @@
   curriculum version, and generated-at UTC. The family aggregate SHALL union
   only snapshots from directory-approved stations and SHALL contain no display
   name, score, timing, attempt history, or rank.
+  Student reset SHALL back up and remove both
+  `message_sync/local_summaries/<student-id>.json` and
+  `message_sync/family_summaries/<student-id>.json` on that station.
 - **DR-016** Cloud receipt format `morsepi-message-receipt-v1` SHALL contain
   message ID, sender station ID, recipient student ID, reporting station ID,
   forward-only state (`available|opened|decoded`), and UTC time. Deterministic

@@ -103,7 +103,9 @@ from the current code (legacy status per requirement is tracked in
 - **FR-027** *(V2)* An admin SHALL be able to move all attempts of a session
   to another student or discard them, with a pre-operation backup.
 - **FR-028** *(V2)* Resetting a student SHALL back up all their files to a
-  timestamped directory before deletion.
+  timestamped directory before deletion. This SHALL include local and cached
+  cloud learning summaries so a reset student cannot regain old active letters
+  from message eligibility data.
 
 ## Missions & motivation
 

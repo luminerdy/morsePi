@@ -52,6 +52,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | NFR-017 centered Morse display | ✅ | Shared server/browser renderer covers app displays and printable handout while preserving canonical ASCII Morse |
 | FR-051 mixed Words opening | ✅ | The opening bank interleaves familiar two- and three-letter words; eligibility remains active-letter filtered |
 | FR-052 station message sync | ✅ | Ten-minute worker/timer prepared for all three stations; tested live with isolated data; normal sync remains an explicit configuration switch |
+| FR-028/DR-015 reset summary cleanup | ✅ | Student reset backs up and removes local and cached family learning summaries so old cloud eligibility cannot restore unlocked letters |
 | FR-053 cloud message router | ✅ | Narrow-role Lambda and three S3 notifications deployed in `us-east-1`; live routing and receipts verified |
 | SEC-001 CSRF | ❌ | No tokens anywhere |
 | SEC-002/003 mandatory PIN + lockout | ❌ | PIN optional, `==` compare, no rate limit |
