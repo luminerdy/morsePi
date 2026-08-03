@@ -7,7 +7,7 @@ or freeze existing docs rather than writing from scratch.
 |---|---|---|
 | DOC-01 | `README.md` | What it is, photo, quick start, links. One screen. |
 | DOC-02 | `specs/` | This spec package, one file per section, requirement IDs stable forever. |
-| DOC-03 | `docs/ARCHITECTURE.md` | Package map, request lifecycle, hardware interface, threading model, "why one worker." |
+| DOC-03 | `docs/ARCHITECTURE.md` | **Implemented in the legacy repository.** Project/component map, hardware interface, service boundaries, current AWS backup/message architecture, trust boundaries, and future remote-operation options. Expand with the rebuild package map, request lifecycle, threading model, and "why one worker." |
 | DOC-04 | `SECURITY.md` | Threat model (untrusted LAN, kids, remote update), SEC-* rationale, PII handling, reporting. |
 | DOC-05 | `docs/DEPLOYMENT.md` | Fresh-Pi to running station (merge of today's `SETUP_AND_CONFIGURE_PI.md` + `GRANDKID_STATION_DEPLOYMENT.md`), systemd units, config schema reference. |
 | DOC-06 | `docs/DATA.md` | Every file schema (DR-*), strength formula, versioning, migration notes. |

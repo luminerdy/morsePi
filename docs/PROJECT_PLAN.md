@@ -797,6 +797,9 @@ When asked to do the daily wrap-up, update:
 - Passed the live isolated three-station rehearsal: Pappy sent `ME` to Astrid,
   both authorized stations received one copy, Campbell/Olivea received none,
   Astrid decoded it, and Pappy's outbox advanced to decoded from the receipt.
+- Added [ARCHITECTURE.md](ARCHITECTURE.md) with maintained project and AWS
+  diagrams showing the three Pi stations, local hardware/software boundaries,
+  S3 prefixes, Lambda routing, IAM boundaries, and optional future IoT/SSM paths.
 
 ### Ready Next
 

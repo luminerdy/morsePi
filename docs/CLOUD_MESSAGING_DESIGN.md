@@ -1,5 +1,7 @@
 # Cloud Messaging Design
 
+For project and AWS diagrams, see [ARCHITECTURE.md](ARCHITECTURE.md).
+
 ## Purpose
 
 Phase 7B carries the existing local Morse message experience between family

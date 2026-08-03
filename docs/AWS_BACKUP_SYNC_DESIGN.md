@@ -3,6 +3,7 @@
 This note captures the first cloud design for the family Morse stations.
 
 For the credential-free step-by-step setup reference, see [AWS_SETUP_REFERENCE.md](AWS_SETUP_REFERENCE.md).
+For project and cloud diagrams, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Goals
 

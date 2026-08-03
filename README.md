@@ -73,6 +73,7 @@ GPIO layout:
 ## Key Docs
 
 - [Rebuild specs](specs/README.md)
+- [Project and AWS architecture](docs/ARCHITECTURE.md)
 - [Fresh Pi setup](docs/SETUP_AND_CONFIGURE_PI.md)
 - [Grandkid station deployment checklist](docs/GRANDKID_STATION_DEPLOYMENT.md)
 - [Remote backup, status, and update runbook](docs/REMOTE_BACKUP_STATUS_RUNBOOK.md)
