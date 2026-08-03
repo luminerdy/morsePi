@@ -304,6 +304,20 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("morse-station-update.service", html)
         self.assertIn("Exit Kiosk", html)
 
+    def test_touch_system_shows_silent_touch_pin_pad_when_pin_required(self):
+        self.write_station_config({"admin_pin": "1234"})
+
+        response = self.client.get("/touch/system")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("data-touch-pin-pad", html)
+        self.assertIn("data-touch-pin-input", html)
+        self.assertIn("data-touch-pin-digit=\"1\"", html)
+        self.assertIn("data-touch-pin-clear", html)
+        self.assertIn("data-touch-pin-back", html)
+        self.assertNotIn("data-test-sound", html)
+
     def test_touch_system_action_requires_admin_pin(self):
         self.write_station_config({"admin_pin": "1234"})
         called = {"restart": False}

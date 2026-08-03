@@ -49,7 +49,9 @@ correctness checks. Each is encoded as an automated test per
   (`tests/test_practice_attempts.py`); the rebuild ports these tests.
 - **AC-014** (FR-038) On an 800x480 touch station, `/touch/system` displays
   hostname, IP address, Wi-Fi connection, Wi-Fi tool availability, and
-  on-screen keyboard availability without a physical keyboard. `POST
+  on-screen keyboard availability without a physical keyboard. It provides a
+  silent touch PIN pad for admin actions; entering the PIN updates only the form
+  field/display and does not call speaker, LED, playback, or keyer controls. `POST
   /touch/system/action` rejects a bad admin PIN and does not run the requested
   action; with a valid PIN it starts the requested local recovery action,
   including opening the on-screen keyboard or starting the local update service,

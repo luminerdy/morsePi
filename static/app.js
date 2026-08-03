@@ -1625,12 +1625,60 @@ function initializeMessageControls() {
     });
 }
 
+function updateTouchPinDisplay(input, display) {
+    if (!display) {
+        return;
+    }
+
+    const length = (input.value || "").length;
+    display.innerText = length ? "•".repeat(length) : "PIN";
+}
+
+function initializeTouchPinPads() {
+    document.querySelectorAll("[data-touch-pin-pad]").forEach(pad => {
+        const form = pad.closest("form");
+        const input = form ? form.querySelector("[data-touch-pin-input]") : null;
+        const display = form ? form.querySelector("[data-touch-pin-display]") : null;
+
+        if (!input) {
+            return;
+        }
+
+        input.tabIndex = -1;
+        updateTouchPinDisplay(input, display);
+
+        pad.querySelectorAll("[data-touch-pin-digit]").forEach(button => {
+            button.addEventListener("click", () => {
+                input.value = `${input.value || ""}${button.dataset.touchPinDigit || ""}`.slice(0, 32);
+                updateTouchPinDisplay(input, display);
+            });
+        });
+
+        const clearButton = pad.querySelector("[data-touch-pin-clear]");
+        if (clearButton) {
+            clearButton.addEventListener("click", () => {
+                input.value = "";
+                updateTouchPinDisplay(input, display);
+            });
+        }
+
+        const backButton = pad.querySelector("[data-touch-pin-back]");
+        if (backButton) {
+            backButton.addEventListener("click", () => {
+                input.value = (input.value || "").slice(0, -1);
+                updateTouchPinDisplay(input, display);
+            });
+        }
+    });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     initializeTouchRedirect();
     initializeTouchIdleTimeout();
     initializePracticeMode();
     initializeDailyMissionReward();
     initializeMessageControls();
+    initializeTouchPinPads();
 
     if (document.getElementById("liveMorse") && document.getElementById("liveDecoded")) {
         updateLiveKey();

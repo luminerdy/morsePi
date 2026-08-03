@@ -3,7 +3,7 @@
 <head>
     <title>Touch System - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260621-4">
-    <link rel="stylesheet" href="/static/touch.css?v=20260801-1">
+    <link rel="stylesheet" href="/static/touch.css?v=20260803-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body class="touch-ui">
@@ -93,16 +93,27 @@
                 <form method="post" action="/touch/system/action" class="touch-system-form">
                     {% if admin_pin_required %}
                         <label for="system_admin_pin">Admin PIN</label>
-                        <input id="system_admin_pin" name="admin_pin" type="password" autocomplete="current-password" inputmode="numeric" placeholder="PIN">
+                        <input id="system_admin_pin" name="admin_pin" type="password" autocomplete="off" inputmode="numeric" class="touch-pin-input" data-touch-pin-input>
+                        <div class="touch-pin-display" data-touch-pin-display aria-live="polite">PIN</div>
+                        <div class="touch-pin-pad" data-touch-pin-pad aria-label="Admin PIN keypad">
+                            {% for digit in ["1", "2", "3", "4", "5", "6", "7", "8", "9"] %}
+                                <button type="button" class="touch-pin-key" data-touch-pin-digit="{{ digit }}">{{ digit }}</button>
+                            {% endfor %}
+                            <button type="button" class="touch-pin-key utility" data-touch-pin-clear>Clear</button>
+                            <button type="button" class="touch-pin-key" data-touch-pin-digit="0">0</button>
+                            <button type="button" class="touch-pin-key utility" data-touch-pin-back>Back</button>
+                        </div>
                     {% endif %}
-                    <button type="submit" name="action" value="open-keyboard" class="button secondary">Open Keyboard</button>
-                    <button type="submit" name="action" value="update-app" class="button secondary">Update App</button>
-                    <button type="submit" name="action" value="restart-wifi" class="button secondary">Restart Wi-Fi</button>
-                    <button type="submit" name="action" value="exit-kiosk" class="button danger-button">Exit Kiosk</button>
+                    <div class="touch-system-action-grid">
+                        <button type="submit" name="action" value="open-keyboard" class="button secondary">Open Keyboard</button>
+                        <button type="submit" name="action" value="update-app" class="button secondary">Update App</button>
+                        <button type="submit" name="action" value="restart-wifi" class="button secondary">Restart Wi-Fi</button>
+                        <button type="submit" name="action" value="exit-kiosk" class="button danger-button">Exit Kiosk</button>
+                    </div>
                 </form>
             </section>
         </main>
     </div>
-<script src="/static/app.js?v=20260623-1"></script>
+<script src="/static/app.js?v=20260803-1"></script>
 </body>
 </html>

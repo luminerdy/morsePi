@@ -3,7 +3,7 @@
 <head>
     <title>Touch Timing - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260621-1">
-    <link rel="stylesheet" href="/static/touch.css?v=20260625-1">
+    <link rel="stylesheet" href="/static/touch.css?v=20260803-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body class="touch-ui">
@@ -30,7 +30,16 @@
                 <input type="range" id="tone_hz" name="tone_hz" min="400" max="1000" step="25" value="{{ timing.tone_hz }}">
                 {% if admin_pin_required %}
                     <label for="touch_timing_admin_pin">Admin PIN</label>
-                    <input id="touch_timing_admin_pin" name="admin_pin" type="password" autocomplete="current-password" inputmode="numeric" placeholder="PIN">
+                    <input id="touch_timing_admin_pin" name="admin_pin" type="password" autocomplete="off" inputmode="numeric" class="touch-pin-input" data-touch-pin-input>
+                    <div class="touch-pin-display" data-touch-pin-display aria-live="polite">PIN</div>
+                    <div class="touch-pin-pad compact" data-touch-pin-pad aria-label="Admin PIN keypad">
+                        {% for digit in ["1", "2", "3", "4", "5", "6", "7", "8", "9"] %}
+                            <button type="button" class="touch-pin-key" data-touch-pin-digit="{{ digit }}">{{ digit }}</button>
+                        {% endfor %}
+                        <button type="button" class="touch-pin-key utility" data-touch-pin-clear>Clear</button>
+                        <button type="button" class="touch-pin-key" data-touch-pin-digit="0">0</button>
+                        <button type="button" class="touch-pin-key utility" data-touch-pin-back>Back</button>
+                    </div>
                 {% endif %}
 
                 <button type="submit" class="button primary full-width">Save Timing</button>
@@ -43,6 +52,6 @@
             </section>
         </main>
     </div>
-<script src="/static/app.js?v=20260623-1"></script>
+<script src="/static/app.js?v=20260803-1"></script>
 </body>
 </html>

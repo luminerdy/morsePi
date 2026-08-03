@@ -215,6 +215,19 @@
     border-radius: 8px;
 }
 
+.touch-add-student:has(.touch-pin-pad) {
+    grid-template-columns: 42px minmax(0, 1fr) 82px;
+    grid-template-rows: auto auto;
+}
+
+.touch-add-student:has(.touch-pin-pad) .touch-pin-pad {
+    grid-column: 1 / span 2;
+}
+
+.touch-add-student:has(.touch-pin-pad) .button {
+    height: 100%;
+}
+
 .touch-add-student label {
     color: var(--muted);
     font-size: 15px;
@@ -926,7 +939,7 @@
 .touch-system-layout {
     min-height: 0;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 230px;
+    grid-template-columns: minmax(0, 1fr) 260px;
     gap: 10px;
 }
 
@@ -990,8 +1003,8 @@
 .touch-system-form {
     min-width: 0;
     display: grid;
-    gap: 8px;
-    padding: 10px;
+    gap: 6px;
+    padding: 8px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -1001,7 +1014,7 @@
     font-size: 14px;
 }
 
-.touch-system-form input {
+.touch-system-form input:not(.touch-pin-input) {
     width: 100%;
     min-width: 0;
     height: 42px;
@@ -1011,10 +1024,75 @@
     font-size: 18px;
 }
 
+.touch-pin-input {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.touch-pin-display {
+    min-height: 34px;
+    display: grid;
+    place-items: center;
+    color: var(--primary);
+    background: #f7f9fb;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: 0;
+}
+
+.touch-pin-pad {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+}
+
+.touch-pin-key {
+    min-width: 0;
+    min-height: 34px;
+    display: grid;
+    place-items: center;
+    color: var(--primary);
+    background: #e8f1ff;
+    border: 1px solid #b9cef8;
+    border-radius: 8px;
+    font-size: 19px;
+    font-weight: 900;
+}
+
+.touch-pin-key.utility {
+    color: var(--text);
+    background: #f7f9fb;
+    border-color: var(--border);
+    font-size: 13px;
+}
+
+.touch-pin-pad.compact {
+    gap: 4px;
+}
+
+.touch-pin-pad.compact .touch-pin-key {
+    min-height: 30px;
+    font-size: 16px;
+}
+
+.touch-system-action-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+}
+
 .touch-system-form .button {
     width: 100%;
     min-height: 44px;
     justify-content: center;
+    padding: 0 6px;
+    font-size: 13px;
+    line-height: 15px;
 }
 
 .touch-words-layout {

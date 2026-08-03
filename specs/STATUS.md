@@ -5,7 +5,7 @@ knows what it inherits. This file is updated on each re-review; requirement
 files only carry *(Delta: …)* notes, not status history.
 
 - **Baseline review:** `33df851` (2026-07-02)
-- **Latest legacy-code re-review:** `29a665d` plus live Phase 7B AWS rehearsal (2026-08-02)
+- **Latest legacy-code re-review:** touch admin PIN keypad update (2026-08-03)
 - **Spec package location:** root `specs/`
 
 ## Changes landed since baseline (`33df851..7818254`)
@@ -21,6 +21,7 @@ files only carry *(Delta: …)* notes, not status history.
 | Rhythm timing summaries per attempt + `/admin/rhythm` trends page; timing events capped at 240 | `674fdd8` | New scope — now FR-036/FR-037, API-017, AC-013 |
 | Learn-mode score display fix; screenshots; doc updates | `89f73eb` etc. | No spec impact |
 | Touch System recovery page with Wi-Fi/IP status, on-screen keyboard availability/launch, admin-PIN-gated app update, Wi-Fi restart, and admin-PIN-gated kiosk exit | after `3f20d03` | FR-038, API-018, AC-014 — met in legacy |
+| Silent touch keypad for admin PIN entry | 2026-08-03 working tree | FR-038, AC-014 — touch admin actions can be unlocked without a physical keyboard and without speaker/LED feedback |
 | Local family Morse messaging with shared-letter validation, word-tile/whole-word keyer composition, review, playback, inbox, guided decoding, effort, and badges | 2026-08-02 working tree | FR-039...FR-046 — met for Phase 7A; FR-047...FR-050 remain partial pending cross-station transport |
 | Durable S3/Lambda message routing, station sync worker, remote receipts, and three-station rehearsal | `29a665d`; activated 2026-08-02 | FR-047...FR-050, FR-052, FR-053, API-023, and AC-018...AC-020/AC-023 — met; Pappy and Astrid/Liara enabled at ten minutes, Campbell/Olivea remains disabled |
 | Project and AWS architecture diagrams | 2026-08-02 working tree | DOC-03 — implemented for the current three-station system, deployed AWS services, trust boundaries, and future optional services |
@@ -43,7 +44,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-022 single unlock table | 🟡 | Unified in `app.py`; `practice_progress.py:LETTER_UNLOCKS` duplicate remains |
 | FR-035 hardened updater | 🟡 | `release/pi` branch + health check; **no rollback**, py_compile only |
 | FR-036/FR-037 rhythm analysis | ✅ | New feature, spec'd retroactively |
-| FR-038 touch System recovery | ✅ | `/touch/system` shows local status, keyboard availability, and update state; `/touch/system/action` gates recovery/update actions behind admin PIN |
+| FR-038 touch System recovery | ✅ | `/touch/system` shows local status, keyboard availability, update state, and a silent touch keypad; `/touch/system/action` gates recovery/update actions behind admin PIN |
 | FR-039...FR-046 family Morse experience | ✅ | Phase 7A local flow implemented in `message_store.py` and `/touch/messages/*` |
 | FR-047...FR-050 durable delivery | ✅ | S3 routing, duplicate-safe station download, durable offline storage, and decoded receipts passed the live three-station rehearsal |
 | NFR-004 concurrency safety | 🟡 | `threaded=False` serializes requests; module-global state remains, will regress under any threaded server |

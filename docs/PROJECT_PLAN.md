@@ -815,6 +815,21 @@ When asked to do the daily wrap-up, update:
 - Enabled ten-minute message sync on Pappy and Astrid/Liara only. Both completed
   clean manual syncs with no messages or receipts; Campbell/Olivea stays off.
 
+### 2026-08-03
+
+- Added a silent touch number keypad for admin PIN entry so adult System,
+  Timing, and touch Add Student admin actions can be used without a physical
+  keyboard.
+- Kept PIN entry out of the Morse learning/audio path: keypad taps only update a
+  hidden form field and masked display; they do not trigger speaker, LED,
+  playback, or keyer feedback.
+- Bumped touch CSS/JavaScript version tags on the affected pages so Chromium
+  kiosk loads the new keypad behavior instead of stale cached files.
+- Deployed the runtime change to the Pappy test station at `10.10.10.141`,
+  restarted `morse-station.service`, verified `/touch/system` serves the keypad
+  and fresh static versions, and confirmed the Pi regression suite passed with
+  132 tests.
+
 ### Ready Next
 
 - Kid-test the complete local message flow on Pappy's station: choose a recipient, build and correct a short message, review/play/send it, switch users, and decode it with and without hints.

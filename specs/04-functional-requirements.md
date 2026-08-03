@@ -145,7 +145,9 @@ from the current code (legacy status per requirement is tracked in
   action to open it. When the local update service is installed, it SHALL
   provide an admin-PIN-gated action to start the station update wrapper. These
   controls SHALL be available locally on the touchscreen even if internet
-  access is down, though updating may require internet access.
+  access is down, though updating may require internet access. Touch admin PIN
+  entry SHALL be possible without a physical keyboard and SHALL NOT trigger the
+  speaker, LED, Morse playback, or keyer feedback.
 
 ## Rhythm analysis *(V2 — added retroactively; shipped in legacy `674fdd8`)*
 
