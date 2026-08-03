@@ -17,7 +17,7 @@ General rules:
   `GET /progress`, `GET /students`
 - **API-002** *(V1)* `GET /touch`, `/touch/daily`, `/touch/practice`,
   `/touch/words`, `/touch/progress`, `/touch/students`, `/touch/timing`,
-  `/touch/system`
+  `/touch/system`, `/touch/shutdown`
 - **API-003** *(V2)* `GET /admin/sessions` 🔒
 - **API-017** *(V2)* `GET /admin/rhythm` 🔒 — per-student rhythm trend report
   (FR-037). *(Delta: legacy page added in `674fdd8` is unauthenticated; the
@@ -26,6 +26,10 @@ General rules:
   operations `{action: restart-wifi|open-keyboard|update-app|exit-kiosk}` for
   FR-038. The response MAY redirect back to `/touch/system` because these
   actions can interrupt the browser or network.
+- **API-024** *(V1)* `GET /touch/shutdown`, `POST /touch/shutdown` —
+  kid-facing safe shutdown confirmation. POST starts OS shutdown only when the
+  confirmation token is present and then renders the wait-for-screen-dark
+  message.
 - **API-019** *(V2)* `GET /touch/messages`, `/touch/messages/compose`,
   `/touch/messages/review`, `/touch/messages/inbox/<message_id>` — student
   message menu, no-keyboard composer, review, and guided decode pages for

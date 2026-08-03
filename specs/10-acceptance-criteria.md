@@ -58,7 +58,10 @@ correctness checks. Each is encoded as an automated test per
   and returns/redirects without exposing secrets. The local admin PIN helper
   updates `data/station_config.json`, preserves unrelated config fields,
   creates a timestamped backup, rejects non-numeric PINs, and does not print the
-  PIN.
+  PIN. The touch menu exposes a `Power` action; `GET /touch/shutdown` renders a
+  confirmation page, POST without confirmation returns to the menu, and POST
+  with confirmation starts the shutdown worker and tells the student to wait for
+  the screen to go dark before using the station power switch.
 - **AC-015** (FR-039...FR-043 / NFR-013 / NFR-016) On an 800x480 fixture,
   an eligible student can choose a family recipient, add a filtered word, key
   another complete available word with natural letter pauses, see

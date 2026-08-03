@@ -835,6 +835,9 @@ When asked to do the daily wrap-up, update:
 - Added a cartoon morsePi desktop wallpaper asset plus `scripts/install_wallpaper.sh`
   so each Pi recovery desktop can show the project background after exiting
   kiosk mode.
+- Added a kid-facing safe shutdown flow from the touch menu with a confirmation
+  screen and a wait-for-screen-dark instruction before turning off the CanaKit
+  USB-C PiSwitch.
 
 ### Ready Next
 

@@ -256,6 +256,8 @@ Recommendation for first deployed units:
   - press Play Again
   - use Clear
   - get back to Daily
+  - open Power, cancel once, then understand to wait for the screen to go dark
+    before turning off the CanaKit USB-C PiSwitch when they really shut down
   - stop practicing without needing a keyboard
 
 ## 10. Final Leave-The-House Checklist
@@ -266,6 +268,7 @@ Recommendation for first deployed units:
 - LED flashes for system playback and keying.
 - Telegraph key input works.
 - Touchscreen fits without awkward scrolling on the main student flow.
+- Touch menu has a kid-facing Power button with a confirmation screen.
 - Desktop wallpaper shows the morsePi cartoon background after exiting kiosk.
 - Touch System page shows Wi-Fi/IP status, on-screen keyboard availability, and update service state, and the admin PIN can open the keyboard, start an app update, restart Wi-Fi, or exit kiosk mode to the desktop.
 - Student profile is created.

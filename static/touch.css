@@ -27,6 +27,7 @@
 .touch-screen:has(.touch-key-layout),
 .touch-screen:has(.touch-settings-layout),
 .touch-screen:has(.touch-system-layout),
+.touch-screen:has(.touch-shutdown-layout),
 .touch-screen:has(.touch-words-layout),
 .touch-screen:has(.touch-words-locked),
 .touch-screen:has(.touch-drill) {
@@ -92,6 +93,11 @@
     color: var(--primary);
     font-size: 16px;
     font-weight: 900;
+}
+
+.touch-top-link.danger-link {
+    border-color: #c95c5c;
+    color: #8f2424;
 }
 
 .touch-footer {
@@ -941,6 +947,83 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) 260px;
     gap: 10px;
+}
+
+.touch-shutdown-layout {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 230px;
+    gap: 10px;
+}
+
+.touch-shutdown-layout.active {
+    grid-template-columns: 1fr;
+}
+
+.touch-shutdown-card,
+.touch-shutdown-actions {
+    min-height: 0;
+    padding: 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(23, 33, 43, 0.08);
+}
+
+.touch-shutdown-card {
+    display: grid;
+    align-content: center;
+    gap: 14px;
+}
+
+.touch-shutdown-card span {
+    color: var(--muted);
+    font-size: 18px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.touch-shutdown-card strong {
+    color: var(--primary);
+    font-size: 52px;
+    line-height: 1;
+}
+
+.touch-shutdown-layout.active .touch-shutdown-card {
+    justify-items: center;
+    text-align: center;
+}
+
+.touch-shutdown-layout.active .touch-shutdown-card strong {
+    font-size: 58px;
+}
+
+.touch-shutdown-card p {
+    margin: 0;
+    color: var(--text);
+    font-size: 25px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.touch-shutdown-actions {
+    display: grid;
+    gap: 10px;
+}
+
+.touch-shutdown-actions form,
+.touch-shutdown-actions .button {
+    width: 100%;
+    height: 100%;
+}
+
+.touch-shutdown-actions .button {
+    min-height: 0;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    text-decoration: none;
+    font-size: 20px;
 }
 
 .touch-system-status {

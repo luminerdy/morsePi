@@ -149,7 +149,10 @@ from the current code (legacy status per requirement is tracked in
   entry SHALL be possible without a physical keyboard and SHALL NOT trigger the
   speaker, LED, Morse playback, or keyer feedback. A local maintenance helper
   SHALL allow an adult to set or reset the station admin PIN without
-  hand-editing JSON, creating a backup before changing the station config.
+  hand-editing JSON, creating a backup before changing the station config. The
+  student-facing touch menu SHALL also provide a non-PIN shutdown flow with a
+  confirmation screen and a clear instruction to wait until the display goes
+  dark before using the station power switch.
 
 ## Rhythm analysis *(V2 — added retroactively; shipped in legacy `674fdd8`)*
 

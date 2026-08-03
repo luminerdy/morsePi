@@ -2864,6 +2864,16 @@ def exit_kiosk_in_background():
     threading.Thread(target=worker, daemon=True).start()
 
 
+def shutdown_pi_in_background():
+    def worker():
+        sleep(2)
+        result = run_system_command(["systemctl", "poweroff"], timeout=8)
+        if not result["ok"]:
+            run_system_command(["shutdown", "-h", "now"], timeout=8)
+
+    threading.Thread(target=worker, daemon=True).start()
+
+
 def launch_keyboard_in_background():
     keyboard_commands = ["matchbox-keyboard", "onboard", "florence", "wvkbd-mobintl", "wvkbd"]
     command_path = next((shutil.which(command) for command in keyboard_commands if shutil.which(command)), "")
@@ -3058,6 +3068,18 @@ def touch_index():
 @app.route("/touch/menu", methods=["GET", "POST"])
 def touch_menu():
     return render_practice_template("touch_menu.html")
+
+
+@app.route("/touch/shutdown", methods=["GET", "POST"])
+def touch_shutdown():
+    if request.method == "POST":
+        if request.form.get("confirm") == "shutdown":
+            shutdown_pi_in_background()
+            return render_template("touch_shutdown.html", shutting_down=True)
+
+        return redirect(url_for("touch_menu"))
+
+    return render_template("touch_shutdown.html", shutting_down=False)
 
 
 @app.route("/touch/daily")

@@ -42,6 +42,7 @@ class RouteRenderTests(unittest.TestCase):
         self.original_system_status = app_module.system_status
         self.original_restart_wifi = app_module.restart_wifi_in_background
         self.original_exit_kiosk = app_module.exit_kiosk_in_background
+        self.original_shutdown_pi = app_module.shutdown_pi_in_background
         self.original_launch_keyboard = app_module.launch_keyboard_in_background
         self.original_start_update_service = app_module.start_update_service
         self.original_get_current_key_morse = app_module.get_current_key_morse
@@ -79,6 +80,7 @@ class RouteRenderTests(unittest.TestCase):
         app_module.system_status = self.original_system_status
         app_module.restart_wifi_in_background = self.original_restart_wifi
         app_module.exit_kiosk_in_background = self.original_exit_kiosk
+        app_module.shutdown_pi_in_background = self.original_shutdown_pi
         app_module.launch_keyboard_in_background = self.original_launch_keyboard
         app_module.start_update_service = self.original_start_update_service
         app_module.get_current_key_morse = self.original_get_current_key_morse
@@ -238,6 +240,42 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("Touch Menu", html)
         self.assertIn("/touch/students?next=/touch/daily", html)
         self.assertIn("/touch/system", html)
+        self.assertIn("/touch/shutdown", html)
+
+    def test_touch_shutdown_confirm_page_does_not_require_admin_pin(self):
+        self.write_station_config({"admin_pin": "1234"})
+
+        response = self.client.get("/touch/shutdown")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Power Off Station", html)
+        self.assertIn("Keep Practicing", html)
+        self.assertIn('name="confirm" value="shutdown"', html)
+        self.assertNotIn("data-touch-pin-pad", html)
+
+    def test_touch_shutdown_cancel_does_not_start_shutdown(self):
+        called = {"shutdown": False}
+        app_module.shutdown_pi_in_background = lambda: called.__setitem__("shutdown", True)
+
+        response = self.client.post("/touch/shutdown", data={"confirm": "no"})
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual("/touch/menu", response.headers["Location"])
+        self.assertFalse(called["shutdown"])
+
+    def test_touch_shutdown_confirm_starts_shutdown_worker(self):
+        called = {"shutdown": False}
+        app_module.shutdown_pi_in_background = lambda: called.__setitem__("shutdown", True)
+
+        response = self.client.post("/touch/shutdown", data={"confirm": "shutdown"})
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertTrue(called["shutdown"])
+        self.assertIn("Powering Off", html)
+        self.assertIn("Wait for the screen to go dark", html)
+        self.assertIn("PiSwitch", html)
 
     def test_touch_practice_menu_shows_locked_words_for_fresh_student(self):
         response = self.client.get("/touch/practice")
