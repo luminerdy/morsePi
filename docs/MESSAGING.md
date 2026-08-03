@@ -5,7 +5,9 @@
 Phase 7A provides kid-friendly Morse messages between students whose progress
 is available on the same station. Phase 7B adds an offline-friendly S3 worker
 and independently validated cloud router while preserving the same child flow.
-Cloud sync remains disabled until the three-station AWS rehearsal passes.
+The S3/Lambda transport passed its three-station rehearsal. Ten-minute polling
+is enabled for Pappy and Astrid/Liara; Campbell/Olivea remains disabled during
+the initial live test.
 
 Messaging unlocks after a student has unlocked Words practice (`S` and `O`).
 Guest Operator cannot send or receive messages.

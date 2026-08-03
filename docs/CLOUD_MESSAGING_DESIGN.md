@@ -88,4 +88,6 @@ The first deployment rehearsal completed on 2026-08-02 with isolated data on
 all three stations. Pappy sent `ME` to Astrid; S3 invoked the Lambda router;
 Pappy's station and Astrid/Liara's station received one copy; Campbell/Olivea's
 station received none; Astrid decoded the message; and the decoded receipt
-returned to Pappy. The normal station setting remains disabled until activation.
+returned to Pappy. On 2026-08-02 the family reset active progress, cleared the
+current cloud test records, published fresh six-letter summaries, and enabled
+ten-minute sync on Pappy and Astrid/Liara. Campbell/Olivea remains disabled.

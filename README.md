@@ -31,7 +31,7 @@ Pappy's Internet Telegraph is a Raspberry Pi Morse code learning station. It let
 - JSONL word practice attempt logging under `data/students/<student>/word_attempts.jsonl`
 - Local family Morse messages with touch/keyer composition, review, speaker/LED playback, inbox, and guided letter-by-letter decoding
 - Message effort logging plus First Message Sent and Secret Message Decoded badges
-- Phase 7B cloud-message contract, station S3 sync worker, deployed Lambda router, and live-rehearsed idempotent cross-station receipts (normal sync remains disabled until activation)
+- Phase 7B cloud-message contract, station S3 sync worker, deployed Lambda router, and idempotent cross-station receipts (Pappy and Astrid/Liara enabled for testing)
 - Raw key timing events and timing summaries for practice and Words attempts, preserving dot/dash/gap rhythm history for future coaching
 - Adult/admin Rhythm Trends page for reviewing timing consistency and spacing trends over time
 - Local data backup script and optional daily systemd user timer
@@ -144,7 +144,7 @@ systemd/                Optional Linux service file
 
 See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) for milestones and next steps.
 
-Current next focus: kid-test local messaging, decide when to enable the verified ten-minute cross-station sync, and then evaluate whether AWS IoT arrival notices add enough value. Remote update commands remain a parallel deployment priority.
+Current next focus: practice from the clean family reset until Pappy and Astrid unlock Messages through `S` and `O`, then run the first live ten-minute S3 delivery and decoded-receipt test. Remote update commands remain a parallel deployment priority.
 
 ## License
 

@@ -806,13 +806,22 @@ When asked to do the daily wrap-up, update:
 - Hardened student reset for cloud messaging by backing up and removing both
   local and cached family learning summaries, preventing old message eligibility
   data from restoring letters after a deliberate family progress reset.
+- Created and uploaded named pre-reset backups for all three stations, then
+  reset every permanent profile everywhere it was stored while preserving local
+  timestamped reset backups and S3 version history.
+- Cleared current cloud snapshots and test-message records without touching
+  backups or station status, then published clean `E T A N I M` summaries for
+  Pappy and Astrid.
+- Enabled ten-minute message sync on Pappy and Astrid/Liara only. Both completed
+  clean manual syncs with no messages or receipts; Campbell/Olivea stays off.
 
 ### Ready Next
 
 - Kid-test the complete local message flow on Pappy's station: choose a recipient, build and correct a short message, review/play/send it, switch users, and decode it with and without hints.
-- Kid-test sibling message composition and decoding locally on each grandkid station before enabling cloud sync.
-- Publish current real active-letter summaries, clear the isolated rehearsal summaries, and enable `message_sync_enabled` one station at a time with a rollback check.
-- After activation, test a real delayed delivery with the receiving Pi powered off, then confirm exactly one message and one decoded receipt after it returns online.
+- Let Pappy and Astrid progress naturally through `S` and `O`, which unlocks the
+  Messages UI, then send the first live S3 message and verify its decoded receipt.
+- After the first online delivery passes, test delayed delivery with the
+  receiving Pi powered off and confirm exactly one message after it returns.
 - For future IoT work, prefer a narrow IoT setup identity; reactivate the broad `admin` access key only if truly needed, then deactivate it again after the task.
 - Plan the longer-term removal of path-global progress/attempt storage before enabling a multi-worker production server.
 - Run one kid-style smoke test on each grandkid unit before it leaves home: choose each student, complete one Daily/Learn/Send action with the physical keyer, verify progress sticks after switching users, then run a final backup/status upload.

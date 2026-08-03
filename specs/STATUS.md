@@ -22,7 +22,7 @@ files only carry *(Delta: …)* notes, not status history.
 | Learn-mode score display fix; screenshots; doc updates | `89f73eb` etc. | No spec impact |
 | Touch System recovery page with Wi-Fi/IP status, on-screen keyboard availability/launch, admin-PIN-gated app update, Wi-Fi restart, and admin-PIN-gated kiosk exit | after `3f20d03` | FR-038, API-018, AC-014 — met in legacy |
 | Local family Morse messaging with shared-letter validation, word-tile/whole-word keyer composition, review, playback, inbox, guided decoding, effort, and badges | 2026-08-02 working tree | FR-039...FR-046 — met for Phase 7A; FR-047...FR-050 remain partial pending cross-station transport |
-| Durable S3/Lambda message routing, station sync worker, remote receipts, and three-station rehearsal | `29a665d` | FR-047...FR-050, FR-052, FR-053, API-023, and AC-018...AC-020/AC-023 — met; normal station sync remains intentionally disabled pending activation |
+| Durable S3/Lambda message routing, station sync worker, remote receipts, and three-station rehearsal | `29a665d`; activated 2026-08-02 | FR-047...FR-050, FR-052, FR-053, API-023, and AC-018...AC-020/AC-023 — met; Pappy and Astrid/Liara enabled at ten minutes, Campbell/Olivea remains disabled |
 | Project and AWS architecture diagrams | 2026-08-02 working tree | DOC-03 — implemented for the current three-station system, deployed AWS services, trust boundaries, and future optional services |
 
 **Note 1 (FR-012):** over-limit text is silently **truncated** (`limited_text`),

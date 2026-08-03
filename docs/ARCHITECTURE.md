@@ -44,7 +44,7 @@ flowchart TB
 
     GitHub -->|"PIN-gated update"| Services
     Services -->|"narrow station identity"| AWS
-    AWS -.->|"message sync disabled<br/>until activation"| Services
+    AWS -->|"ten-minute sync<br/>on two test stations"| Services
 ```
 
 There are three stations using the same application and release:
@@ -119,8 +119,8 @@ flowchart LR
   learned letters, and object paths before routing.
 - The bucket blocks public access, uses encryption, and retains versions.
 - Broad AWS administration is temporary and should be disabled after setup.
-- Normal cross-station message sync is currently off even though the router,
-  notifications, timers, and three-station rehearsal are complete.
+- Cross-station message sync is enabled on Pappy and Astrid/Liara for testing;
+  Campbell/Olivea remains disabled until deliberately added.
 
 ## Data Flows
 

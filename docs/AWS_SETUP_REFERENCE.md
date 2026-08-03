@@ -487,9 +487,9 @@ Deployment status on 2026-08-02:
 - The ten-minute message-sync timer is installed and enabled on all three Pis.
 - A live isolated Pappy-to-Astrid message completed routing, download, decode,
   and receipt return; the unrelated Campbell/Olivea station received nothing.
-- `message_sync_enabled` remains false on normal station configurations. Enable
-  it only after current student summaries are published and activation is
-  approved.
+- `message_sync_enabled` is true on Pappy and Astrid/Liara for the initial
+  ten-minute live test. It remains false on Campbell/Olivea until that station
+  joins the test.
 
 The Lambda reads and writes the same bucket. Input and output sub-prefixes are
 different, and the router ignores inbox/status objects, so an output event can
