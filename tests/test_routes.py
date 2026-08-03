@@ -1962,7 +1962,14 @@ class RouteRenderTests(unittest.TestCase):
         family_summary = self.data_dir / "message_sync" / "family_summaries" / "pappy.json"
         local_summary.parent.mkdir(parents=True, exist_ok=True)
         family_summary.parent.mkdir(parents=True, exist_ok=True)
-        local_summary.write_text("{}", encoding="utf-8")
+        local_summary.write_text(json.dumps({
+            "format": "morsepi-learning-summary-v1",
+            "student_id": "pappy",
+            "station_id": "morsepi-station",
+            "active_letters": app_module.starter_practice_letters + ["S", "O"],
+            "curriculum_version": "morsepi-curriculum-v1",
+            "generated_at": "2026-08-02T00:00:00+00:00",
+        }), encoding="utf-8")
         family_summary.write_text("{}", encoding="utf-8")
         self.write_text_file("astrid", "practice_attempts.jsonl", "astrid attempts\n")
         self.write_legacy_text_file("practice_attempts.jsonl", "legacy attempts\n")
@@ -1987,7 +1994,11 @@ class RouteRenderTests(unittest.TestCase):
         self.assertFalse(self.student_file("pappy", "word_attempts.jsonl").exists())
         self.assertFalse(self.student_file("pappy", "message_events.jsonl").exists())
         self.assertFalse(self.student_file("pappy", "message_inbox").exists())
-        self.assertFalse(local_summary.exists())
+        self.assertTrue(local_summary.exists())
+        reset_summary = json.loads(local_summary.read_text(encoding="utf-8"))
+        self.assertEqual(app_module.starter_practice_letters, reset_summary["active_letters"])
+        self.assertNotIn("S", reset_summary["active_letters"])
+        self.assertNotIn("O", reset_summary["active_letters"])
         self.assertFalse(family_summary.exists())
         self.assertFalse((self.data_dir / "practice_attempts.jsonl").exists())
         self.assertFalse((self.data_dir / "practice_progress.json").exists())
