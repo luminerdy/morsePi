@@ -41,8 +41,10 @@ from the current code (legacy status per requirement is tracked in
 - **FR-010** *(MVP)* The station SHALL play any valid Morse string through the
   USB speaker and LED simultaneously using current timing settings; playback
   SHALL be stoppable mid-stream.
-- **FR-011** *(MVP)* Station volume SHALL be adjustable 0–100% (default 35%)
-  and require admin authorization to change.
+- **FR-011** *(MVP)* Station volume SHALL be adjustable 0–100% (default 35%),
+  persist across app restarts, and require admin authorization to change.
+  The 7-inch touch UI SHALL expose parent-friendly presets for Mute, Quiet,
+  Normal, and Loud without requiring a physical keyboard.
 - **FR-012** *(MVP)* Playback input length SHALL be capped: message text
   ≤ 160 characters, Morse ≤ 600 characters after normalization, request body
   ≤ 16 KB (limits adopted from the legacy hardening at `7818254`). Over-limit

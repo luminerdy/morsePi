@@ -1634,6 +1634,12 @@ function updateTouchPinDisplay(input, display) {
     display.innerText = length ? "•".repeat(length) : "PIN";
 }
 
+function syncTouchPinCopies(input) {
+    document.querySelectorAll("[data-touch-pin-copy]").forEach(copy => {
+        copy.value = input.value || "";
+    });
+}
+
 function initializeTouchPinPads() {
     document.querySelectorAll("[data-touch-pin-pad]").forEach(pad => {
         const form = pad.closest("form");
@@ -1646,11 +1652,13 @@ function initializeTouchPinPads() {
 
         input.tabIndex = -1;
         updateTouchPinDisplay(input, display);
+        syncTouchPinCopies(input);
 
         pad.querySelectorAll("[data-touch-pin-digit]").forEach(button => {
             button.addEventListener("click", () => {
                 input.value = `${input.value || ""}${button.dataset.touchPinDigit || ""}`.slice(0, 32);
                 updateTouchPinDisplay(input, display);
+                syncTouchPinCopies(input);
             });
         });
 
@@ -1659,6 +1667,7 @@ function initializeTouchPinPads() {
             clearButton.addEventListener("click", () => {
                 input.value = "";
                 updateTouchPinDisplay(input, display);
+                syncTouchPinCopies(input);
             });
         }
 
@@ -1667,6 +1676,7 @@ function initializeTouchPinPads() {
             backButton.addEventListener("click", () => {
                 input.value = (input.value || "").slice(0, -1);
                 updateTouchPinDisplay(input, display);
+                syncTouchPinCopies(input);
             });
         }
     });

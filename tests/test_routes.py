@@ -34,11 +34,13 @@ class RouteRenderTests(unittest.TestCase):
             "PROFILES_PATH": student_profiles.PROFILES_PATH,
         }
         self.original_timing_path = app_module.TIMING_SETTINGS_PATH
+        self.original_volume_path = app_module.VOLUME_SETTINGS_PATH
         self.original_station_config_path = app_module.STATION_CONFIG_PATH
         self.original_admin_pin_path = app_module.ADMIN_PIN_PATH
         self.original_play_daily = app_module.play_daily_celebration_in_background
         self.original_last_message = app_module.last_message
         self.original_last_morse = app_module.last_morse
+        self.original_station_volume = app_module.station_volume
         self.original_system_status = app_module.system_status
         self.original_restart_wifi = app_module.restart_wifi_in_background
         self.original_exit_kiosk = app_module.exit_kiosk_in_background
@@ -53,8 +55,10 @@ class RouteRenderTests(unittest.TestCase):
         student_profiles.STUDENTS_DIR = self.students_dir
         student_profiles.PROFILES_PATH = self.data_dir / "student_profiles.json"
         app_module.TIMING_SETTINGS_PATH = self.data_dir / "timing_settings.json"
+        app_module.VOLUME_SETTINGS_PATH = self.data_dir / "volume_settings.json"
         app_module.STATION_CONFIG_PATH = self.data_dir / "station_config.json"
         app_module.ADMIN_PIN_PATH = self.data_dir / "admin_pin.txt"
+        app_module.station_volume = app_module.DEFAULT_STATION_VOLUME
         app_module.play_daily_celebration_in_background = self.record_daily_celebration
         self.daily_celebration_called = False
         self.daily_celebration_count = 0
@@ -72,11 +76,13 @@ class RouteRenderTests(unittest.TestCase):
         student_profiles.STUDENTS_DIR = self.original_student_paths["STUDENTS_DIR"]
         student_profiles.PROFILES_PATH = self.original_student_paths["PROFILES_PATH"]
         app_module.TIMING_SETTINGS_PATH = self.original_timing_path
+        app_module.VOLUME_SETTINGS_PATH = self.original_volume_path
         app_module.STATION_CONFIG_PATH = self.original_station_config_path
         app_module.ADMIN_PIN_PATH = self.original_admin_pin_path
         app_module.play_daily_celebration_in_background = self.original_play_daily
         app_module.last_message = self.original_last_message
         app_module.last_morse = self.original_last_morse
+        app_module.station_volume = self.original_station_volume
         app_module.system_status = self.original_system_status
         app_module.restart_wifi_in_background = self.original_restart_wifi
         app_module.exit_kiosk_in_background = self.original_exit_kiosk
@@ -241,6 +247,19 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("/touch/students?next=/touch/daily", html)
         self.assertIn("/touch/system", html)
         self.assertIn("/touch/shutdown", html)
+
+    def test_touch_timing_includes_speaker_volume_presets(self):
+        self.write_station_config({"admin_pin": "1234"})
+
+        response = self.client.get("/touch/timing")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Speaker", html)
+        self.assertIn('action="/station-volume"', html)
+        self.assertIn('name="station_volume" value="0"', html)
+        self.assertIn('name="station_volume" value="35"', html)
+        self.assertIn("data-touch-pin-copy", html)
 
     def test_touch_shutdown_confirm_page_does_not_require_admin_pin(self):
         self.write_station_config({"admin_pin": "1234"})
@@ -1788,6 +1807,14 @@ class RouteRenderTests(unittest.TestCase):
                 "admin_pin": "9999",
             },
         )
+        allowed_volume = self.client.post(
+            "/station-volume",
+            data={
+                "station_volume": "15",
+                "admin_pin": "1234",
+                "next": "/touch/timing",
+            },
+        )
         allowed_timing = self.client.post(
             "/timing-settings",
             data={
@@ -1799,6 +1826,11 @@ class RouteRenderTests(unittest.TestCase):
         )
 
         self.assertEqual(403, denied_volume.status_code)
+        self.assertEqual(302, allowed_volume.status_code)
+        self.assertEqual("/touch/timing", allowed_volume.headers["Location"])
+        self.assertEqual(15, app_module.station_volume_percent())
+        saved_volume = json.loads(app_module.VOLUME_SETTINGS_PATH.read_text(encoding="utf-8"))
+        self.assertEqual(15, saved_volume["station_volume"])
         self.assertEqual(302, allowed_timing.status_code)
         saved_timing = json.loads(app_module.TIMING_SETTINGS_PATH.read_text(encoding="utf-8"))
         self.assertEqual(10, saved_timing["character_wpm"])

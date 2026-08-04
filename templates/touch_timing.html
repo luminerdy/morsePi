@@ -45,10 +45,28 @@
                 <button type="submit" class="button primary full-width">Save Timing</button>
             </form>
 
-            <section class="touch-timing-note">
-                <strong>Beginner</strong>
-                <span>{{ timing.character_wpm }} / {{ timing.effective_wpm }} WPM</span>
-                <span>{{ timing.tone_hz }} Hz</span>
+            <section class="touch-volume-panel">
+                <div class="touch-volume-heading">
+                    <span>Speaker</span>
+                    <strong>{{ station_volume_percent }}%</strong>
+                </div>
+                <form method="post" action="/station-volume" class="touch-volume-form">
+                    <input type="hidden" name="next" value="/touch/timing">
+                    {% if admin_pin_required %}
+                        <input name="admin_pin" type="hidden" data-touch-pin-copy>
+                    {% endif %}
+                    <div class="touch-volume-grid">
+                        <button type="submit" name="station_volume" value="0" class="button secondary">Mute</button>
+                        <button type="submit" name="station_volume" value="15" class="button secondary">Quiet</button>
+                        <button type="submit" name="station_volume" value="35" class="button secondary">Normal</button>
+                        <button type="submit" name="station_volume" value="60" class="button secondary">Loud</button>
+                    </div>
+                </form>
+                <div class="touch-timing-note">
+                    <strong>Beginner</strong>
+                    <span>{{ timing.character_wpm }} / {{ timing.effective_wpm }} WPM</span>
+                    <span>{{ timing.tone_hz }} Hz</span>
+                </div>
             </section>
         </main>
     </div>

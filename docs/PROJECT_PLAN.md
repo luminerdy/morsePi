@@ -845,6 +845,9 @@ When asked to do the daily wrap-up, update:
 - Added regression coverage for the `S O` Learn-only state: starter set 100%,
   S/O Learn in progress, Progress labels the primary percentage as
   `Learning Now` and states that S/O are still Learn-only.
+- Added parent-friendly speaker volume controls to the touch Timing screen:
+  Mute, Quiet, Normal, and Loud presets use the existing adult PIN keypad and
+  save to `data/volume_settings.json` so the chosen level survives app restarts.
 
 ### Ready Next
 

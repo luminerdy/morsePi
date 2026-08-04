@@ -2,6 +2,7 @@
 
 - **DR-001** Data root: `data/` beside the app. Layout:
   `data/station_config.json`, `data/timing_settings.json`,
+  `data/volume_settings.json`,
   `data/student_profiles.json`, `data/students/<id>/…`, `data/backups/`,
   `data/student_backups/`.
 - **DR-002** Per-student files: `profile.json`, `practice_progress.json`,

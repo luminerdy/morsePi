@@ -143,6 +143,7 @@ DEFAULT_CHARACTER_WPM = 12
 DEFAULT_EFFECTIVE_WPM = 6
 DEFAULT_TONE_HZ = 700
 TIMING_SETTINGS_PATH = Path("data/timing_settings.json")
+VOLUME_SETTINGS_PATH = Path("data/volume_settings.json")
 KEY_TONE_RETRY_SECONDS = 1.25
 
 LETTER_GAP_THRESHOLD_SECONDS = 0.80
@@ -635,6 +636,33 @@ def clamp_int(value, default, minimum, maximum):
     return max(minimum, min(parsed, maximum))
 
 
+def normalize_station_volume(value):
+    return clamp_int(value, int(DEFAULT_STATION_VOLUME * 100), 0, 100)
+
+
+def load_station_volume_percent():
+    if VOLUME_SETTINGS_PATH.exists():
+        try:
+            loaded = json.loads(VOLUME_SETTINGS_PATH.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            loaded = {}
+    else:
+        loaded = {}
+
+    if isinstance(loaded, dict):
+        return normalize_station_volume(loaded.get("station_volume"))
+
+    return normalize_station_volume(None)
+
+
+def save_station_volume_settings():
+    VOLUME_SETTINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    VOLUME_SETTINGS_PATH.write_text(
+        json.dumps({"station_volume": station_volume_percent()}, indent=2, sort_keys=True),
+        encoding="utf-8"
+    )
+
+
 def default_morse_timing_settings():
     return {
         "character_wpm": DEFAULT_CHARACTER_WPM,
@@ -756,6 +784,7 @@ def get_practice_timing(mode, target=None):
     return timing
 
 
+station_volume = load_station_volume_percent() / 100.0
 morse_timing = load_morse_timing_settings()
 
 
@@ -3637,13 +3666,9 @@ def set_station_volume():
     if not admin_pin_valid(request.form.get("admin_pin", "")):
         return "Admin PIN required", 403
 
-    try:
-        volume_percent = int(request.form.get("station_volume", "35"))
-    except ValueError:
-        volume_percent = 35
-
-    volume_percent = max(0, min(volume_percent, 100))
+    volume_percent = normalize_station_volume(request.form.get("station_volume"))
     station_volume = volume_percent / 100.0
+    save_station_volume_settings()
 
     return redirect(safe_next_url("index"))
 

@@ -5,7 +5,7 @@ knows what it inherits. This file is updated on each re-review; requirement
 files only carry *(Delta: …)* notes, not status history.
 
 - **Baseline review:** `33df851` (2026-07-02)
-- **Latest legacy-code re-review:** touch admin PIN keypad update (2026-08-03)
+- **Latest legacy-code re-review:** touch speaker volume update (2026-08-03)
 - **Spec package location:** root `specs/`
 
 ## Changes landed since baseline (`33df851..7818254`)
@@ -24,6 +24,7 @@ files only carry *(Delta: …)* notes, not status history.
 | Silent touch keypad for admin PIN entry | 2026-08-03 working tree | FR-038, AC-014 — touch admin actions can be unlocked without a physical keyboard and without speaker/LED feedback |
 | Local admin PIN reset helper | 2026-08-03 working tree | FR-038, AC-014 — adult can reset the station PIN with a config backup and no JSON hand-editing |
 | Kid-facing safe shutdown flow | 2026-08-03 working tree | FR-038, API-024, AC-014 — students can safely power off from the touch menu after a confirmation page |
+| Touch speaker volume presets | 2026-08-03 working tree | FR-011 — parent-friendly Mute/Quiet/Normal/Loud controls are available from the touch Timing screen, require the adult PIN when configured, and persist in `data/volume_settings.json` |
 | Local family Morse messaging with shared-letter validation, word-tile/whole-word keyer composition, review, playback, inbox, guided decoding, effort, and badges | 2026-08-02 working tree | FR-039...FR-046 — met for Phase 7A; FR-047...FR-050 remain partial pending cross-station transport |
 | Durable S3/Lambda message routing, station sync worker, remote receipts, and three-station rehearsal | `29a665d`; activated 2026-08-02 | FR-047...FR-050, FR-052, FR-053, API-023, and AC-018...AC-020/AC-023 — met; Pappy and Astrid/Liara enabled at ten minutes, Campbell/Olivea remains disabled |
 | Project and AWS architecture diagrams | 2026-08-02 working tree | DOC-03 — implemented for the current three-station system, deployed AWS services, trust boundaries, and future optional services |
@@ -40,7 +41,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 
 | Requirement | Status | Notes |
 |---|---|---|
-| FR-001…FR-011 | ✅ | Long-standing behavior, unchanged |
+| FR-001…FR-011 | ✅ | Volume now includes persisted touch presets behind the adult PIN |
 | FR-012 input caps | 🟡 | Caps exist; truncates instead of rejecting |
 | FR-013…FR-021, FR-023…FR-034 | ✅ | Implemented in legacy (tiering is for the rebuild) |
 | FR-022 single unlock table | 🟡 | Unified in `app.py`; `practice_progress.py:LETTER_UNLOCKS` duplicate remains |

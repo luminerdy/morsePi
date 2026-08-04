@@ -898,7 +898,7 @@
 .touch-settings-layout {
     min-height: 0;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 180px;
+    grid-template-columns: minmax(0, 1fr) 200px;
     gap: 8px;
 }
 
@@ -923,23 +923,65 @@
     height: 52px;
 }
 
-.touch-timing-note {
+.touch-volume-panel {
+    min-height: 0;
     display: grid;
-    align-content: center;
-    gap: 12px;
-    padding: 16px;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    gap: 8px;
+}
+
+.touch-volume-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 8px;
     color: var(--muted);
-    font-size: 20px;
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.touch-volume-heading strong {
+    color: var(--primary);
+    font-size: 24px;
+}
+
+.touch-volume-form {
+    min-height: 0;
+}
+
+.touch-volume-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.touch-volume-grid .button {
+    min-height: 52px;
+    width: 100%;
+    padding: 8px;
+    font-size: 15px;
+}
+
+.touch-timing-note {
+    display: grid;
+    align-content: center;
+    gap: 8px;
+    padding: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 18px;
     font-weight: 900;
     text-align: center;
 }
 
 .touch-timing-note strong {
     color: var(--primary);
-    font-size: 28px;
+    font-size: 24px;
 }
 
 .touch-system-layout {
