@@ -928,6 +928,15 @@ When asked to do the daily wrap-up, update:
   roster, backs up attempt/progress files, rewrites merged logs, rebuilds
   `practice_progress.json`, and refuses to apply changes when cloud errors or
   conflicts exist.
+- First real full-sync test completed on Pappy's station. The initial bulk
+  upload moved 216 Pappy attempts to S3, then the batched download/rebuild pass
+  read 216 cloud attempts, found zero conflicts, wrote a local backup at
+  `data/sync_backups/20260804-160949`, rebuilt practice progress, and left
+  `Would upload: 0`.
+- Lesson from the first sync: one-object-per-attempt upload is acceptable for
+  small daily deltas but slow for a first bulk load; download is now batched by
+  student prefix. Before enabling a timer, add an idle/race guard so sync does
+  not rewrite logs while a student is actively practicing.
 
 ### Ready Next
 
@@ -937,6 +946,8 @@ When asked to do the daily wrap-up, update:
 - Test the manual `scripts/student_attempt_sync.py --sync` path first on Pappy,
   then rerun cloud-aware reports on all stations and confirm uploaded attempts
   are counted as existing rather than pending.
+- Add a safe automatic sync trigger: run only when app is idle, keep backups,
+  report status, and avoid starting if another sync/update/backup is active.
 - After upload-only passes with real station data, design the adult-controlled
   download/rebuild step with backups and before/after summaries.
 - Decide the away-from-home command trigger after the stations leave Pappy's
