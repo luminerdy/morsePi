@@ -29,10 +29,14 @@ Implemented:
   attempt records that would upload, cloud keys that already exist, duplicate
   local IDs, conflicts, malformed records, and cloud access errors without
   changing student files.
+- The same script has a manual `--upload` mode that uploads missing local
+  attempts as immutable `morsepi-student-attempt-v1` objects only after a clean
+  cloud check. It refuses to upload if cloud access errors or local attempt ID
+  conflicts exist.
 
 Not implemented:
 
-- Cross-station practice attempt upload/download.
+- Automatic cross-station practice attempt upload/download.
 - Automatic merge back to home stations.
 - Rebuild of Words or Sprint progress from a merged cloud log.
 - Conflict resolution UI.
@@ -184,11 +188,13 @@ cloud-existing-key checks.
   access errors.
 - Do not write student files yet.
 
-Phase C: upload-only.
+Phase C: upload-only. Manual mode implemented, not scheduled.
 
 - Upload attempts for the local station's local students.
 - Use idempotent object keys.
 - Keep local files unchanged.
+- Refuse upload when the dry-run detects cloud access errors or local attempt ID
+  conflicts.
 
 Phase D: download and rebuild behind adult action.
 

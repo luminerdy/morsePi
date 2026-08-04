@@ -4,11 +4,25 @@ import unittest
 from pathlib import Path
 
 from scripts.student_attempt_sync import build_report, write_report
+from scripts.student_attempt_sync import upload_attempts
 
 
 class MemoryStoreUnavailable:
     def list_keys(self, prefix):
         raise RuntimeError(f"denied {prefix}")
+
+
+class MemoryStore:
+    def __init__(self, keys=None):
+        self.objects = {}
+        for key in keys or []:
+            self.objects[key] = {}
+
+    def list_keys(self, prefix):
+        return [key for key in self.objects if key.startswith(prefix)]
+
+    def put_json(self, key, value):
+        self.objects[key] = value
 
 
 class StudentAttemptSyncTests(unittest.TestCase):
@@ -134,6 +148,41 @@ class StudentAttemptSyncTests(unittest.TestCase):
         self.assertTrue(output.exists())
         saved = json.loads(output.read_text(encoding="utf-8"))
         self.assertEqual("morsepi-attempt-sync-dry-run-v1", saved["format"])
+
+    def test_upload_attempts_writes_missing_objects(self):
+        attempt_id = "d" * 32
+        self.write_jsonl("practice_attempts.jsonl", [
+            {
+                "attempt_id": attempt_id,
+                "correct": True,
+                "mode": "read",
+                "target": "E",
+                "timestamp": "2026-08-04T12:00:00+00:00",
+            },
+        ])
+        store = MemoryStore()
+
+        result = upload_attempts(self.data_dir, self.config, store=store)
+
+        key = f"students/astrid/attempts/practice/{attempt_id}.json"
+        self.assertEqual(1, result["uploaded"])
+        self.assertIn(key, store.objects)
+        self.assertEqual("morsepi-student-attempt-v1", store.objects[key]["format"])
+        self.assertEqual("astrid", store.objects[key]["student_id"])
+
+    def test_upload_attempts_refuses_cloud_errors(self):
+        self.write_jsonl("practice_attempts.jsonl", [
+            {
+                "attempt_id": "e" * 32,
+                "correct": True,
+                "mode": "read",
+                "target": "E",
+                "timestamp": "2026-08-04T12:00:00+00:00",
+            },
+        ])
+
+        with self.assertRaises(RuntimeError):
+            upload_attempts(self.data_dir, self.config, store=MemoryStoreUnavailable())
 
 
 if __name__ == "__main__":

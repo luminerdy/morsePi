@@ -197,7 +197,7 @@ def cloud_existing_keys(store, students):
     return existing, errors
 
 
-def build_report(data_dir=DEFAULT_DATA_DIR, config_path=DEFAULT_CONFIG_PATH, check_cloud=True, store=None):
+def sync_state(data_dir=DEFAULT_DATA_DIR, config_path=DEFAULT_CONFIG_PATH, check_cloud=True, store=None):
     data_dir = Path(data_dir)
     config = load_station_config(config_path)
     station_id = str(config.get("station_id") or "unknown-station")
@@ -209,27 +209,72 @@ def build_report(data_dir=DEFAULT_DATA_DIR, config_path=DEFAULT_CONFIG_PATH, che
         store = AwsCliObjectStore(s3_uri)
     existing, cloud_errors = cloud_existing_keys(store, students)
     upload_keys = sorted(key for key in by_key if key not in existing)
-
     return {
-        "app": "morsePi",
-        "cloud_checked": bool(store),
+        "attempts_by_key": by_key,
         "cloud_errors": cloud_errors,
+        "cloud_checked": bool(store),
         "conflicts": conflicts,
         "duplicate_local_records": duplicates,
-        "format": "morsepi-attempt-sync-dry-run-v1",
-        "generated_at": utc_now(),
+        "existing": existing,
         "malformed_records": malformed,
         "station_id": station_id,
         "students": by_student,
+        "upload_keys": upload_keys,
+    }
+
+
+def build_report(data_dir=DEFAULT_DATA_DIR, config_path=DEFAULT_CONFIG_PATH, check_cloud=True, store=None):
+    state = sync_state(data_dir, config_path, check_cloud, store)
+
+    return {
+        "app": "morsePi",
+        "cloud_checked": state["cloud_checked"],
+        "cloud_errors": state["cloud_errors"],
+        "conflicts": state["conflicts"],
+        "duplicate_local_records": state["duplicate_local_records"],
+        "format": "morsepi-attempt-sync-dry-run-v1",
+        "generated_at": utc_now(),
+        "malformed_records": state["malformed_records"],
+        "station_id": state["station_id"],
+        "students": state["students"],
         "summary": {
-            "cloud_existing": len(existing),
-            "local_conflicts": len(conflicts),
-            "local_duplicates": len(duplicates),
-            "local_unique_attempts": len(by_key),
-            "malformed_records": len(malformed),
-            "would_upload": len(upload_keys),
+            "cloud_existing": len(state["existing"]),
+            "local_conflicts": len(state["conflicts"]),
+            "local_duplicates": len(state["duplicate_local_records"]),
+            "local_unique_attempts": len(state["attempts_by_key"]),
+            "malformed_records": len(state["malformed_records"]),
+            "would_upload": len(state["upload_keys"]),
         },
-        "would_upload": upload_keys[:200],
+        "would_upload": state["upload_keys"][:200],
+    }
+
+
+def upload_attempts(data_dir=DEFAULT_DATA_DIR, config_path=DEFAULT_CONFIG_PATH, store=None):
+    state = sync_state(data_dir, config_path, check_cloud=True, store=store)
+    if not state["cloud_checked"]:
+        raise RuntimeError("Cloud store is not configured; cannot upload attempts.")
+    if state["cloud_errors"]:
+        raise RuntimeError("Cloud access errors must be fixed before uploading attempts.")
+    if state["conflicts"]:
+        raise RuntimeError("Local attempt ID conflicts must be fixed before uploading attempts.")
+
+    uploaded = []
+    uploaded_at = utc_now()
+    for key in state["upload_keys"]:
+        attempt = state["attempts_by_key"][key]
+        store.put_json(key, {
+            "attempt": attempt["payload"],
+            "format": "morsepi-student-attempt-v1",
+            "kind": attempt["kind"],
+            "student_id": attempt["student_id"],
+            "uploaded_at": uploaded_at,
+        })
+        uploaded.append(key)
+    return {
+        "cloud_existing": len(state["existing"]),
+        "local_unique_attempts": len(state["attempts_by_key"]),
+        "uploaded": len(uploaded),
+        "uploaded_keys": uploaded[:200],
     }
 
 
@@ -246,6 +291,7 @@ def parse_args():
     parser.add_argument("--data-dir", default=str(DEFAULT_DATA_DIR), help="Data directory to inspect.")
     parser.add_argument("--no-cloud", action="store_true", help="Do not query S3; report local upload candidates only.")
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT_PATH), help="Report JSON output path.")
+    parser.add_argument("--upload", action="store_true", help="Upload missing local attempts after a clean cloud check.")
     return parser.parse_args()
 
 
@@ -260,6 +306,11 @@ def main():
     print(f"Would upload: {report['summary']['would_upload']}")
     print(f"Cloud errors: {len(report['cloud_errors'])}")
     print(f"Conflicts: {report['summary']['local_conflicts']}")
+    if args.upload:
+        if args.no_cloud:
+            raise SystemExit("--upload cannot be combined with --no-cloud")
+        result = upload_attempts(args.data_dir, args.config)
+        print(f"Uploaded attempts: {result['uploaded']}")
 
 
 if __name__ == "__main__":

@@ -897,6 +897,10 @@ When asked to do the daily wrap-up, update:
   zero local attempts after clean setup. Cloud-aware mode shows current station
   IAM credentials do not yet have access to the future `students/.../attempts/`
   prefixes, so the next AWS step is a narrow student-sync read/write policy.
+- Added a manual upload-only mode to `scripts/student_attempt_sync.py`. It
+  uploads immutable attempt objects only after a clean cloud check, refuses to
+  run when cloud access errors or local ID conflicts are present, and does not
+  download, merge, rebuild, or overwrite student progress.
 
 ### Ready Next
 
@@ -905,8 +909,9 @@ When asked to do the daily wrap-up, update:
   `/admin/family` and confirm all three stations appear as available.
 - Add narrow AWS permissions for station-rostered student attempt sync prefixes,
   then rerun `scripts/student_attempt_sync.py` cloud-aware on all three stations
-  and expect zero cloud access errors before enabling upload/download merge
-  behavior.
+  and expect zero cloud access errors before testing the manual `--upload` path.
+- After upload-only passes with real station data, design the adult-controlled
+  download/rebuild step with backups and before/after summaries.
 - Run one kid-style smoke test on each grandkid unit before it leaves home:
   choose each student, complete one Daily/Learn/Send action with the physical
   keyer, verify progress sticks after switching users, then run a final
