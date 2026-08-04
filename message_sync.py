@@ -98,6 +98,18 @@ class AwsCliObjectStore:
             keys.append(key)
         return keys
 
+    def download_prefix(self, prefix, destination):
+        destination = Path(destination)
+        destination.mkdir(parents=True, exist_ok=True)
+        self._run([
+            "s3",
+            "cp",
+            self._uri(prefix),
+            str(destination),
+            "--recursive",
+            "--only-show-errors",
+        ])
+
 
 def local_summary_path(data_dir, student_id):
     return Path(data_dir) / "message_sync" / "local_summaries" / f"{student_id}.json"

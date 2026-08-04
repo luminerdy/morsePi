@@ -40,6 +40,18 @@ class RecordingStore:
         return []
 
 
+class PrefixDownloadStore(MemoryStore):
+    def download_prefix(self, prefix, destination):
+        destination.mkdir(parents=True, exist_ok=True)
+        for key, value in self.objects.items():
+            if not key.startswith(prefix):
+                continue
+            relative = key[len(prefix):]
+            target = destination / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(json.dumps(value), encoding="utf-8")
+
+
 class StudentAttemptSyncTests(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
@@ -235,7 +247,7 @@ class StudentAttemptSyncTests(unittest.TestCase):
             },
         ])
         cloud_key = f"students/astrid/attempts/practice/{cloud_id}.json"
-        store = MemoryStore({
+        store = PrefixDownloadStore({
             cloud_key: {
                 "attempt": {
                     "attempt_id": cloud_id,

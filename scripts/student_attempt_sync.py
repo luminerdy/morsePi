@@ -3,6 +3,7 @@ import hashlib
 import json
 import shutil
 import sys
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -233,6 +234,9 @@ def normalize_cloud_attempt(key, value):
 
 
 def download_cloud_attempts(store, students):
+    if hasattr(store, "download_prefix"):
+        return download_cloud_attempts_by_prefix(store, students)
+
     attempts = []
     errors = []
     keys, list_errors = cloud_existing_keys(store, students)
@@ -272,6 +276,59 @@ def download_cloud_attempts(store, students):
             "payload": payload,
             "student_id": student_id,
         })
+
+    return attempts, errors
+
+
+def download_cloud_attempts_by_prefix(store, students):
+    attempts = []
+    errors = []
+
+    with tempfile.TemporaryDirectory() as temporary_dir:
+        root = Path(temporary_dir)
+        for student in students:
+            student_id = student["id"]
+            prefix = f"students/{student_id}/attempts/"
+            destination = root / student_id
+            try:
+                store.download_prefix(prefix, destination)
+            except Exception as exc:
+                errors.append({
+                    "student_id": student_id,
+                    "error": str(exc).splitlines()[-1][:240],
+                })
+                continue
+
+            for kind, filename in ATTEMPT_FILES.items():
+                kind_dir = destination / kind
+                if not kind_dir.exists():
+                    continue
+                for path in sorted(kind_dir.glob("*.json")):
+                    key = f"students/{student_id}/attempts/{kind}/{path.name}"
+                    try:
+                        value = json.loads(path.read_text(encoding="utf-8"))
+                        payload = normalize_cloud_attempt(key, value)
+                    except (json.JSONDecodeError, OSError) as exc:
+                        errors.append({
+                            "key": key,
+                            "error": str(exc).splitlines()[-1][:240],
+                        })
+                        continue
+                    if payload is None:
+                        errors.append({
+                            "key": key,
+                            "error": "Invalid cloud attempt payload.",
+                        })
+                        continue
+                    payload.setdefault("student_id", student_id)
+                    payload.setdefault("attempt_id", path.stem)
+                    attempts.append({
+                        "canonical": canonical_payload(payload),
+                        "kind": kind,
+                        "key": key,
+                        "payload": payload,
+                        "student_id": student_id,
+                    })
 
     return attempts, errors
 
