@@ -25,10 +25,14 @@ Implemented:
   per student by `latest_activity_at`.
 - New Practice, Words, and Signal Sprint attempts include `attempt_id`,
   `station_id`, `student_id`, and `practice_session_id`.
+- `scripts/student_attempt_sync.py` writes a dry-run report showing local
+  attempt records that would upload, cloud keys that already exist, duplicate
+  local IDs, conflicts, malformed records, and cloud access errors without
+  changing student files.
 
 Not implemented:
 
-- Cross-station practice attempt sync.
+- Cross-station practice attempt upload/download.
 - Automatic merge back to home stations.
 - Rebuild of Words or Sprint progress from a merged cloud log.
 - Conflict resolution UI.
@@ -171,10 +175,13 @@ Phase A: attempt ID foundation.
 - Document the merge design.
 - Do not upload/merge attempts yet.
 
-Phase B: dry-run merge report.
+Phase B: dry-run merge report. Implemented for local upload candidates and
+cloud-existing-key checks.
 
 - Add a script that reads local attempts and prints what would upload.
-- Add a script that reads downloaded cloud attempts and prints what would merge.
+- Add cloud key checks so existing attempt objects are not counted as uploads.
+- Show malformed records, duplicate local attempt IDs, ID conflicts, and cloud
+  access errors.
 - Do not write student files yet.
 
 Phase C: upload-only.

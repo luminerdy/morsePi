@@ -888,15 +888,18 @@ When asked to do the daily wrap-up, update:
   but now compile-checks, runs the full Pi test suite before restart, refreshes
   station status/progress snapshots, and rolls back to the previous commit if
   tests or the post-restart health check fail.
+- Added `scripts/student_attempt_sync.py`, a no-write progress-sync dry run that
+  reports local student attempts that would upload, duplicate/conflicting attempt
+  IDs, malformed records, and cloud access errors before any real merge is
+  enabled.
 
 ### Ready Next
 
 - Update AWS permissions so Pappy's station credential can read the three
   `stations/*/snapshots/latest_progress.json` files, then refresh
   `/admin/family` and confirm all three stations appear as available.
-- Build a dry-run student attempt sync report: list local attempts that would
-  upload, cloud attempts that would download, and any duplicate/conflict cases
-  without writing student files.
+- Run the dry-run student attempt sync report on all three stations and review
+  the results before enabling any upload/download merge behavior.
 - Run one kid-style smoke test on each grandkid unit before it leaves home:
   choose each student, complete one Daily/Learn/Send action with the physical
   keyer, verify progress sticks after switching users, then run a final
