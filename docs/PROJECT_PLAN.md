@@ -892,14 +892,21 @@ When asked to do the daily wrap-up, update:
   reports local student attempts that would upload, duplicate/conflicting attempt
   IDs, malformed records, and cloud access errors before any real merge is
   enabled.
+- Ran the dry-run report on all three active Pis. Pappy has 216 local attempt
+  records ready for future upload and no conflicts; both grandkid stations have
+  zero local attempts after clean setup. Cloud-aware mode shows current station
+  IAM credentials do not yet have access to the future `students/.../attempts/`
+  prefixes, so the next AWS step is a narrow student-sync read/write policy.
 
 ### Ready Next
 
 - Update AWS permissions so Pappy's station credential can read the three
   `stations/*/snapshots/latest_progress.json` files, then refresh
   `/admin/family` and confirm all three stations appear as available.
-- Run the dry-run student attempt sync report on all three stations and review
-  the results before enabling any upload/download merge behavior.
+- Add narrow AWS permissions for station-rostered student attempt sync prefixes,
+  then rerun `scripts/student_attempt_sync.py` cloud-aware on all three stations
+  and expect zero cloud access errors before enabling upload/download merge
+  behavior.
 - Run one kid-style smoke test on each grandkid unit before it leaves home:
   choose each student, complete one Daily/Learn/Send action with the physical
   keyer, verify progress sticks after switching users, then run a final
