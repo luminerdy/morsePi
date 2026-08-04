@@ -267,6 +267,45 @@ aws iam create-access-key \
 
 Store the station key only on the matching Pi. AWS only shows the secret access key when it is created; if it is lost, delete the old key and create a new one.
 
+## Station Progress Sync Policy
+
+After the three station identities exist, apply the additional narrow progress
+sync policy from the laptop setup profile:
+
+```bash
+python scripts/apply_station_sync_policies.py --dry-run
+python scripts/apply_station_sync_policies.py
+```
+
+The script uses `iam put-user-policy` to attach one inline policy named
+`morsepi-station-progress-sync` to each existing station IAM user:
+
+- `morsepi-pappy-test-station`
+- `morsepi-astrid-liara-station`
+- `morsepi-campbell-olivea-station`
+
+The policy allows:
+
+- listing the three station progress snapshot prefixes
+- reading only each station's `snapshots/latest_progress.json`
+- listing, reading, and writing immutable attempt objects for the students
+  rostered on that station
+
+The policy does not allow:
+
+- deleting S3 objects
+- reading raw backups from other stations
+- writing another station's station-owned prefix
+- managing IAM
+
+Rostered student attempt access:
+
+| Station user | Student attempt prefixes |
+|---|---|
+| `morsepi-pappy-test-station` | `pappy`, `astrid`, `liara`, `campbell`, `olivea` |
+| `morsepi-astrid-liara-station` | `astrid`, `liara` |
+| `morsepi-campbell-olivea-station` | `campbell`, `olivea` |
+
 ## Configure One Pi
 
 Install AWS CLI if needed:

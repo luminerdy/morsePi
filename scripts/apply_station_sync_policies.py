@@ -1,0 +1,143 @@
+import argparse
+import json
+import subprocess
+import sys
+
+
+BUCKET = "morsepi-backups-luminerdy"
+POLICY_NAME = "morsepi-station-progress-sync"
+STATIONS = {
+    "pappy-test-station": {
+        "user": "morsepi-pappy-test-station",
+        "students": ["pappy", "astrid", "liara", "campbell", "olivea"],
+    },
+    "astrid-liara-station": {
+        "user": "morsepi-astrid-liara-station",
+        "students": ["astrid", "liara"],
+    },
+    "campbell-olivea-station": {
+        "user": "morsepi-campbell-olivea-station",
+        "students": ["campbell", "olivea"],
+    },
+}
+
+
+def snapshot_list_prefixes():
+    return [f"stations/{station_id}/snapshots/*" for station_id in STATIONS]
+
+
+def snapshot_object_arns(bucket):
+    return [
+        f"arn:aws:s3:::{bucket}/stations/{station_id}/snapshots/latest_progress.json"
+        for station_id in STATIONS
+    ]
+
+
+def student_list_prefixes(student_ids):
+    prefixes = []
+    for student_id in student_ids:
+        prefixes.append(f"students/{student_id}/attempts/*")
+    return prefixes
+
+
+def student_object_arns(bucket, student_ids):
+    arns = []
+    for student_id in student_ids:
+        arns.append(f"arn:aws:s3:::{bucket}/students/{student_id}/attempts/*")
+    return arns
+
+
+def build_policy(bucket, student_ids):
+    return {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "ListFamilySnapshotsAndRosteredStudentAttempts",
+                "Effect": "Allow",
+                "Action": "s3:ListBucket",
+                "Resource": f"arn:aws:s3:::{bucket}",
+                "Condition": {
+                    "StringLike": {
+                        "s3:prefix": snapshot_list_prefixes() + student_list_prefixes(student_ids)
+                    }
+                },
+            },
+            {
+                "Sid": "ReadFamilyProgressSnapshots",
+                "Effect": "Allow",
+                "Action": "s3:GetObject",
+                "Resource": snapshot_object_arns(bucket),
+            },
+            {
+                "Sid": "ReadWriteRosteredStudentAttempts",
+                "Effect": "Allow",
+                "Action": ["s3:GetObject", "s3:PutObject"],
+                "Resource": student_object_arns(bucket, student_ids),
+            },
+        ],
+    }
+
+
+def put_user_policy(station_id, station, bucket, profile, dry_run=False, runner=subprocess.run):
+    policy = build_policy(bucket, station["students"])
+    command = [
+        "aws",
+        "iam",
+        "put-user-policy",
+        "--user-name",
+        station["user"],
+        "--policy-name",
+        POLICY_NAME,
+        "--policy-document",
+        json.dumps(policy, separators=(",", ":")),
+        "--profile",
+        profile,
+    ]
+    if dry_run:
+        return {"command": command, "policy": policy, "station_id": station_id, "skipped": True}
+    result = runner(command, capture_output=True, text=True)
+    return {
+        "command": command,
+        "policy": policy,
+        "returncode": result.returncode,
+        "skipped": False,
+        "station_id": station_id,
+        "stderr": result.stderr,
+        "stdout": result.stdout,
+    }
+
+
+def parse_args(argv=None):
+    parser = argparse.ArgumentParser(
+        description="Apply narrow S3 snapshot and student-attempt sync policies to MorsePi station users."
+    )
+    parser.add_argument("--bucket", default=BUCKET, help="S3 bucket name.")
+    parser.add_argument("--profile", default="morsepi-setup-admin", help="AWS CLI setup profile.")
+    parser.add_argument("--dry-run", action="store_true", help="Print policies without changing AWS.")
+    return parser.parse_args(argv)
+
+
+def main(argv=None):
+    args = parse_args(argv)
+    failures = 0
+    for station_id, station in STATIONS.items():
+        print(f"== {station_id} -> {station['user']} ==")
+        result = put_user_policy(station_id, station, args.bucket, args.profile, args.dry_run)
+        if result["skipped"]:
+            print(json.dumps(result["policy"], indent=2, sort_keys=True))
+            continue
+        if result["stdout"]:
+            print(result["stdout"].rstrip())
+        if result["stderr"]:
+            print(result["stderr"].rstrip(), file=sys.stderr)
+        if result["returncode"] != 0:
+            failures += 1
+            print(f"FAILED: {station_id} returned {result['returncode']}", file=sys.stderr)
+        else:
+            print(f"OK: policy applied to {station['user']}")
+
+    return 1 if failures else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -143,10 +143,12 @@ The update wrapper:
 4. Fetches `origin/release/pi` by default.
 5. Applies only fast-forward updates.
 6. Compile-checks the app and support scripts.
-7. Restarts `morse-station.service`.
-8. Verifies the local app responds at `http://127.0.0.1:5000/touch`.
-9. Writes station status.
-10. Uploads status if `MORSE_BACKUP_S3_URI` is set.
+7. Runs the Pi regression tests.
+8. Restarts `morse-station.service`.
+9. Verifies the local app responds at `http://127.0.0.1:5000/touch`.
+10. Rolls back to the previous commit if tests or health check fail.
+11. Writes station status and progress snapshots.
+12. Uploads status/snapshots if `MORSE_BACKUP_S3_URI` is set.
 
 Release flow:
 
@@ -198,6 +200,32 @@ MORSE_STATION_ID=astrid-liara-station \
 MORSE_BACKUP_S3_URI=s3://morsepi-backups-luminerdy \
 scripts/update_station.sh
 ```
+
+## Progress Sync Permission Check
+
+Before enabling student attempt upload or download, confirm the station IAM
+users have the narrow progress-sync policy:
+
+```bash
+python scripts/apply_station_sync_policies.py --dry-run
+python scripts/apply_station_sync_policies.py
+```
+
+Then run the cloud-aware dry-run report on each station:
+
+```bash
+ssh morse@10.10.10.141 "cd /home/morse/morse-station && python3 scripts/student_attempt_sync.py"
+ssh morse@10.10.10.129 "cd /home/morse/morse-station && python3 scripts/student_attempt_sync.py"
+ssh morse@10.10.10.157 "cd /home/morse/morse-station && python3 scripts/student_attempt_sync.py"
+```
+
+Expected before upload-only testing:
+
+- `Cloud errors: 0`
+- `Conflicts: 0`
+- Pappy may show existing local attempts that would upload
+- new or clean grandkid stations may show `Would upload: 0` until students
+  practice there
 
 ## Optional Backup Timer
 

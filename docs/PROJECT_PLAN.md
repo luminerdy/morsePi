@@ -909,6 +909,12 @@ When asked to do the daily wrap-up, update:
   ran its installed updater, created/uploaded a pre-update backup, confirmed it
   was current at `1890ee9`, uploaded fresh status/progress snapshots, and kept
   the app service active.
+- Added `scripts/apply_station_sync_policies.py`, a repeatable AWS IAM helper
+  for the next progress-sync permission step. It applies one narrow inline
+  policy per existing station user so stations can read the three family
+  progress snapshots and read/write immutable attempt objects only for their
+  rostered students. Dry-run and unit tests pass; actual AWS application is
+  pending because this Codex task cannot see the laptop's `aws` CLI/profile.
 
 ### Ready Next
 
