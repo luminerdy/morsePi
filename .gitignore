@@ -10,6 +10,10 @@ data/timing_settings.json
 data/student_profiles.json
 data/station_config.json
 data/station_status.json
+data/app_activity.json
+data/sync_reports/
+data/sync_backups/
+data/sync_conflicts/
 data/students/
 data/backups/
 data/student_backups/

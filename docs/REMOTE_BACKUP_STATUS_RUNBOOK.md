@@ -238,6 +238,34 @@ backs up local attempt/progress files under `data/sync_backups/`, rewrites the
 merged attempt logs, and rebuilds `practice_progress.json`. It refuses to apply
 merged logs if cloud errors or attempt ID conflicts are found.
 
+Guarded sync behavior:
+
+- normal `--sync` skips when `data/app_activity.json` shows app use in the last
+  10 minutes
+- adult/manual maintenance can use `--sync --force`
+- `data/sync_reports/latest_sync_status.json` records completed, skipped, or
+  error status
+- `data/sync_reports/student_attempt_sync.lock` prevents two syncs from running
+  at the same time
+
+Optional automatic sync timer:
+
+```bash
+mkdir -p /home/morse/.config/systemd/user
+install -m 0644 /home/morse/morse-station/systemd/morse-station-sync.service /home/morse/.config/systemd/user/morse-station-sync.service
+install -m 0644 /home/morse/morse-station/systemd/morse-station-sync.timer /home/morse/.config/systemd/user/morse-station-sync.timer
+systemctl --user daemon-reload
+systemctl --user enable --now morse-station-sync.timer
+```
+
+Test once:
+
+```bash
+systemctl --user start morse-station-sync.service
+journalctl --user -u morse-station-sync.service -n 80 --no-pager
+cat /home/morse/morse-station/data/sync_reports/latest_sync_status.json
+```
+
 ## Optional Backup Timer
 
 Install after the station is tested locally:

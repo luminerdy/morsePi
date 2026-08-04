@@ -37,12 +37,16 @@ Implemented:
   downloads the cloud attempt union for the station roster, backs up local
   attempt/progress files, rewrites merged attempt logs, quarantines conflicts,
   and rebuilds `practice_progress.json` from merged Practice attempts.
+- The app writes `data/app_activity.json` as a lightweight activity heartbeat.
+  Guarded sync skips by default when app use occurred in the last 10 minutes,
+  records status in `data/sync_reports/latest_sync_status.json`, and uses a
+  lock file to prevent overlapping sync runs.
 
 Not implemented:
 
 - Automatic cross-station practice attempt upload/download.
 - Automatic merge back to home stations.
-- Timer/idle integration for full sync.
+- Production soak of timer-based automatic sync.
 - Conflict resolution UI.
 
 ## Core Rule
@@ -216,6 +220,9 @@ Phase E: safe automatic sync.
 - Run only when app is idle.
 - Keep backups.
 - Report status on `/admin/family`.
+- Current foundation: optional `morse-station-sync.service` and timer run the
+  guarded sync every 30 minutes while powered on. The timer is available but
+  should be enabled only after manual station testing.
 
 ## Why Not Newest Wins
 

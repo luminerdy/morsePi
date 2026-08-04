@@ -1,0 +1,9 @@
+[Unit]
+Description=Sync Pappy's Internet Telegraph student attempt data
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/morse/morse-station
+ExecStart=/usr/bin/python3 /home/morse/morse-station/scripts/student_attempt_sync.py --sync

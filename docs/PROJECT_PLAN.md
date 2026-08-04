@@ -937,6 +937,14 @@ When asked to do the daily wrap-up, update:
   small daily deltas but slow for a first bulk load; download is now batched by
   student prefix. Before enabling a timer, add an idle/race guard so sync does
   not rewrite logs while a student is actively practicing.
+- Added the automatic-sync safety layer: the app writes
+  `data/app_activity.json`, guarded sync skips recent app activity unless
+  `--force` is used, a lock prevents overlapping runs, and
+  `data/sync_reports/latest_sync_status.json` records completed/skipped/error
+  results.
+- Added optional `morse-station-sync.service` and `morse-station-sync.timer`
+  files for a future 30-minute guarded sync cadence. Do not enable broadly until
+  the guard has been tested on real stations while students are using the app.
 
 ### Ready Next
 
@@ -946,8 +954,11 @@ When asked to do the daily wrap-up, update:
 - Test the manual `scripts/student_attempt_sync.py --sync` path first on Pappy,
   then rerun cloud-aware reports on all stations and confirm uploaded attempts
   are counted as existing rather than pending.
-- Add a safe automatic sync trigger: run only when app is idle, keep backups,
-  report status, and avoid starting if another sync/update/backup is active.
+- Test guarded sync behavior on Pappy: confirm normal `--sync` skips while the
+  app is recently active, `--sync --force` completes, and the status file is
+  clear enough for troubleshooting.
+- If Pappy testing is good, enable the sync timer on Pappy only for a short soak
+  before enabling it on the two grandkid units.
 - After upload-only passes with real station data, design the adult-controlled
   download/rebuild step with backups and before/after summaries.
 - Decide the away-from-home command trigger after the stations leave Pappy's

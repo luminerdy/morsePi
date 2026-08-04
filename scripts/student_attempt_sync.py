@@ -1,10 +1,11 @@
 import argparse
 import hashlib
 import json
+import os
 import shutil
 import sys
 import tempfile
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 if __package__ in (None, ""):
@@ -16,6 +17,10 @@ from scripts.backup_data import DEFAULT_CONFIG_PATH, load_station_config
 
 DEFAULT_DATA_DIR = Path("data")
 DEFAULT_OUTPUT_PATH = DEFAULT_DATA_DIR / "sync_reports" / "latest_attempt_sync.json"
+DEFAULT_STATUS_PATH = DEFAULT_DATA_DIR / "sync_reports" / "latest_sync_status.json"
+DEFAULT_ACTIVITY_PATH = DEFAULT_DATA_DIR / "app_activity.json"
+DEFAULT_LOCK_PATH = DEFAULT_DATA_DIR / "sync_reports" / "student_attempt_sync.lock"
+DEFAULT_IDLE_MINUTES = 10
 ATTEMPT_FILES = {
     "practice": "practice_attempts.jsonl",
     "words": "word_attempts.jsonl",
@@ -26,6 +31,16 @@ PRACTICE_MODES = {"send", "read", "listen", "echo", "learn"}
 
 def utc_now():
     return datetime.now(timezone.utc).isoformat()
+
+
+def parse_utc(value):
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
 
 
 def read_json(path, default):
@@ -39,6 +54,83 @@ def read_json(path, default):
         return default
 
     return loaded
+
+
+def write_json(path, value):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, indent=2, sort_keys=True), encoding="utf-8")
+    return path
+
+
+def write_sync_status(data_dir, status, output_path=None):
+    payload = {
+        "app": "morsePi",
+        "format": "morsepi-student-sync-status-v1",
+        "updated_at": utc_now(),
+    }
+    payload.update(status)
+    return write_json(output_path or Path(data_dir) / "sync_reports" / "latest_sync_status.json", payload)
+
+
+def activity_status(data_dir, idle_minutes=DEFAULT_IDLE_MINUTES, now=None):
+    activity = read_json(Path(data_dir) / "app_activity.json", {})
+    last_activity_at = parse_utc(activity.get("last_activity_at", ""))
+    now = now or datetime.now(timezone.utc)
+    if last_activity_at is None:
+        return {
+            "active": False,
+            "idle_minutes": None,
+            "last_activity_at": "",
+            "reason": "no-activity-marker",
+        }
+    idle_for = now - last_activity_at
+    idle_minutes_actual = max(0, int(idle_for.total_seconds() // 60))
+    active = idle_for < timedelta(minutes=max(0, idle_minutes))
+    return {
+        "active": active,
+        "idle_minutes": idle_minutes_actual,
+        "last_activity_at": last_activity_at.isoformat(),
+        "reason": "recent-activity" if active else "idle",
+    }
+
+
+class SyncSkipped(RuntimeError):
+    def __init__(self, status):
+        self.status = status
+        super().__init__(status.get("reason", "sync-skipped"))
+
+
+class SyncLock:
+    def __init__(self, path):
+        self.path = Path(path)
+        self.fd = None
+
+    def __enter__(self):
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            self.fd = os.open(str(self.path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            os.write(self.fd, json.dumps({
+                "pid": os.getpid(),
+                "started_at": utc_now(),
+            }, sort_keys=True).encode("utf-8"))
+        except FileExistsError as exc:
+            raise SyncSkipped({
+                "status": "skipped",
+                "reason": "sync-lock-active",
+                "lock_path": str(self.path),
+            }) from exc
+        return self
+
+    def __exit__(self, exc_type, exc, traceback):
+        if self.fd is not None:
+            os.close(self.fd)
+            self.fd = None
+        try:
+            self.path.unlink()
+        except OSError:
+            pass
+        return False
 
 
 def load_profiles(data_dir):
@@ -577,6 +669,50 @@ def full_sync_attempts(data_dir=DEFAULT_DATA_DIR, config_path=DEFAULT_CONFIG_PAT
     }
 
 
+def guarded_full_sync(
+    data_dir=DEFAULT_DATA_DIR,
+    config_path=DEFAULT_CONFIG_PATH,
+    store=None,
+    force=False,
+    idle_minutes=DEFAULT_IDLE_MINUTES,
+    lock_path=None,
+):
+    data_dir = Path(data_dir)
+    lock_path = lock_path or data_dir / "sync_reports" / "student_attempt_sync.lock"
+    with SyncLock(lock_path):
+        activity = activity_status(data_dir, idle_minutes)
+        if activity["active"] and not force:
+            status = {
+                "activity": activity,
+                "force": force,
+                "status": "skipped",
+                "reason": "recent-activity",
+            }
+            write_sync_status(data_dir, status)
+            raise SyncSkipped(status)
+
+        try:
+            result = full_sync_attempts(data_dir, config_path, store)
+        except Exception as exc:
+            status = {
+                "activity": activity,
+                "error": str(exc),
+                "force": force,
+                "status": "error",
+            }
+            write_sync_status(data_dir, status)
+            raise
+
+        status = {
+            "activity": activity,
+            "force": force,
+            "result": result,
+            "status": "completed",
+        }
+        write_sync_status(data_dir, status)
+        return result
+
+
 def write_report(report, output_path=DEFAULT_OUTPUT_PATH):
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -592,6 +728,8 @@ def parse_args():
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT_PATH), help="Report JSON output path.")
     parser.add_argument("--upload", action="store_true", help="Upload missing local attempts after a clean cloud check.")
     parser.add_argument("--sync", action="store_true", help="Upload, download, merge, and rebuild local derived progress.")
+    parser.add_argument("--force", action="store_true", help="Run sync even if recent app activity is detected.")
+    parser.add_argument("--idle-minutes", type=int, default=DEFAULT_IDLE_MINUTES, help="Minutes without app activity required for sync.")
     return parser.parse_args()
 
 
@@ -616,7 +754,16 @@ def main():
         result = upload_attempts(args.data_dir, args.config)
         print(f"Uploaded attempts: {result['uploaded']}")
     if args.sync:
-        result = full_sync_attempts(args.data_dir, args.config)
+        try:
+            result = guarded_full_sync(
+                args.data_dir,
+                args.config,
+                force=args.force,
+                idle_minutes=args.idle_minutes,
+            )
+        except SyncSkipped as exc:
+            print(f"Sync skipped: {exc.status['reason']}")
+            return
         print(f"Uploaded attempts: {result['uploaded']}")
         print(f"Cloud attempts read: {result['cloud_attempts']}")
         print(f"Downloaded attempts added: {result['downloaded']}")

@@ -1,9 +1,11 @@
 import json
 import tempfile
 import unittest
+from datetime import datetime, timezone
 from pathlib import Path
 
-from scripts.student_attempt_sync import build_report, full_sync_attempts, write_report
+from scripts.student_attempt_sync import build_report, full_sync_attempts, guarded_full_sync, write_report
+from scripts.student_attempt_sync import SyncLock, SyncSkipped
 from scripts.student_attempt_sync import upload_attempts
 
 
@@ -311,6 +313,46 @@ class StudentAttemptSyncTests(unittest.TestCase):
 
         self.assertEqual(original, (self.student_dir / "practice_attempts.jsonl").read_text(encoding="utf-8"))
         self.assertTrue((self.data_dir / "sync_conflicts").exists())
+
+    def test_guarded_full_sync_skips_recent_activity(self):
+        (self.data_dir / "app_activity.json").write_text(
+            json.dumps({"last_activity_at": datetime.now(timezone.utc).isoformat()}),
+            encoding="utf-8",
+        )
+
+        with self.assertRaises(SyncSkipped):
+            guarded_full_sync(self.data_dir, self.config, store=MemoryStore(), idle_minutes=10)
+
+        status = json.loads((self.data_dir / "sync_reports" / "latest_sync_status.json").read_text(encoding="utf-8"))
+        self.assertEqual("skipped", status["status"])
+        self.assertEqual("recent-activity", status["reason"])
+
+    def test_guarded_full_sync_force_writes_completed_status(self):
+        self.write_jsonl("practice_attempts.jsonl", [
+            {
+                "attempt_id": "i" * 32,
+                "correct": True,
+                "mode": "send",
+                "station_id": "pappy-test-station",
+                "student_id": "astrid",
+                "target": "E",
+                "timestamp": "2026-08-04T12:00:00+00:00",
+            },
+        ])
+
+        result = guarded_full_sync(self.data_dir, self.config, store=MemoryStore(), force=True)
+
+        status = json.loads((self.data_dir / "sync_reports" / "latest_sync_status.json").read_text(encoding="utf-8"))
+        self.assertEqual(1, result["uploaded"])
+        self.assertEqual("completed", status["status"])
+        self.assertTrue(status["force"])
+
+    def test_guarded_full_sync_skips_when_lock_exists(self):
+        lock_path = self.data_dir / "sync_reports" / "student_attempt_sync.lock"
+
+        with SyncLock(lock_path):
+            with self.assertRaises(SyncSkipped):
+                guarded_full_sync(self.data_dir, self.config, store=MemoryStore(), force=True, lock_path=lock_path)
 
 
 if __name__ == "__main__":

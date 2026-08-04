@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Morse station student sync while idle
+
+[Timer]
+OnBootSec=10min
+OnUnitActiveSec=30min
+RandomizedDelaySec=5min
+Persistent=false
+
+[Install]
+WantedBy=timers.target

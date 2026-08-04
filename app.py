@@ -63,6 +63,7 @@ SESSION_COOKIE = "morse_practice_session_id"
 STATION_CONFIG_PATH = Path("data/station_config.json")
 ADMIN_PIN_PATH = Path("data/admin_pin.txt")
 FAMILY_PROGRESS_PATH = Path("data/family_progress/latest.json")
+APP_ACTIVITY_PATH = Path("data/app_activity.json")
 MAX_REQUEST_BYTES = 16 * 1024
 MAX_MESSAGE_CHARS = 160
 MAX_MORSE_CHARS = 600
@@ -74,10 +75,28 @@ app.config["MAX_CONTENT_LENGTH"] = MAX_REQUEST_BYTES
 app.jinja_env.filters["morse_visual"] = morse_visual
 
 
+def mark_app_activity():
+    if request.path.startswith("/static/"):
+        return
+    try:
+        APP_ACTIVITY_PATH.parent.mkdir(parents=True, exist_ok=True)
+        APP_ACTIVITY_PATH.write_text(
+            json.dumps({
+                "last_activity_at": datetime.now(timezone.utc).isoformat(),
+                "method": request.method,
+                "path": request.path,
+            }, indent=2, sort_keys=True),
+            encoding="utf-8",
+        )
+    except OSError:
+        pass
+
+
 @app.before_request
 def configure_student_storage():
     global learning_state_path
 
+    mark_app_activity()
     ensure_station_configured_profiles()
     profiles = load_profiles()
     visible_profiles = visible_student_profiles(profiles)
