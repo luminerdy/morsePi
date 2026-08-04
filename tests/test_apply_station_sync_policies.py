@@ -48,10 +48,11 @@ class ApplyStationSyncPoliciesTests(unittest.TestCase):
             "example-bucket",
             "setup-profile",
             dry_run=True,
+            aws_executable="C:/tools/aws.cmd",
         )
 
         self.assertTrue(result["skipped"])
-        self.assertEqual("aws", result["command"][0])
+        self.assertEqual("C:/tools/aws.cmd", result["command"][0])
         self.assertIn("put-user-policy", result["command"])
         self.assertIn("morsepi-astrid-liara-station", result["command"])
 

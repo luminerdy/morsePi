@@ -59,6 +59,21 @@ def load_profiles(data_dir):
     return normalized
 
 
+def load_station_students(config, fallback_profiles):
+    configured = []
+    for profile in config.get("students", []):
+        if not isinstance(profile, dict):
+            continue
+        student_id = str(profile.get("id") or "").strip()
+        if not student_id or student_id == "guest":
+            continue
+        configured.append({
+            "id": student_id,
+            "name": str(profile.get("name") or student_id).strip() or student_id,
+        })
+    return configured or fallback_profiles
+
+
 def iter_jsonl(path):
     path = Path(path)
     if not path.exists():
@@ -109,11 +124,11 @@ def cloud_key(student_id, kind, attempt_id):
     return f"students/{student_id}/attempts/{kind}/{attempt_id}.json"
 
 
-def local_attempts(data_dir, station_id):
+def local_attempts(data_dir, station_id, students):
     attempts = []
     malformed = []
 
-    for profile in load_profiles(data_dir):
+    for profile in students:
         student_id = profile["id"]
         student_dir = Path(data_dir) / "students" / student_id
 
@@ -201,9 +216,10 @@ def sync_state(data_dir=DEFAULT_DATA_DIR, config_path=DEFAULT_CONFIG_PATH, check
     data_dir = Path(data_dir)
     config = load_station_config(config_path)
     station_id = str(config.get("station_id") or "unknown-station")
-    attempts, malformed = local_attempts(data_dir, station_id)
+    all_profiles = load_profiles(data_dir)
+    students = load_station_students(config, all_profiles)
+    attempts, malformed = local_attempts(data_dir, station_id, students)
     by_key, by_student, duplicates, conflicts = summarize_local(attempts)
-    students = load_profiles(data_dir)
     s3_uri = config.get("progress_s3_uri") or config.get("backup_s3_uri") or ""
     if store is None and check_cloud and s3_uri:
         store = AwsCliObjectStore(s3_uri)

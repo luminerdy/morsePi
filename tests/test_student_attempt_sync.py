@@ -25,6 +25,15 @@ class MemoryStore:
         self.objects[key] = value
 
 
+class RecordingStore:
+    def __init__(self):
+        self.prefixes = []
+
+    def list_keys(self, prefix):
+        self.prefixes.append(prefix)
+        return []
+
+
 class StudentAttemptSyncTests(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
@@ -42,6 +51,7 @@ class StudentAttemptSyncTests(unittest.TestCase):
         )
         (self.data_dir / "student_profiles.json").write_text(
             json.dumps([
+                {"id": "pappy", "name": "Pappy"},
                 {"id": "astrid", "name": "Astrid"},
                 {"id": "guest", "name": "Guest", "disposable": True},
             ]),
@@ -89,6 +99,26 @@ class StudentAttemptSyncTests(unittest.TestCase):
         self.assertEqual(1, report["students"]["astrid"]["words"])
         self.assertEqual(1, report["students"]["astrid"]["legacy_identity"])
 
+    def test_build_report_uses_station_roster_for_cloud_checks(self):
+        self.config.write_text(
+            json.dumps({
+                "station_id": "astrid-liara-station",
+                "backup_s3_uri": "s3://morsepi-backups-luminerdy",
+                "students": [
+                    {"id": "astrid", "name": "Astrid"},
+                    {"id": "liara", "name": "Liara"},
+                ],
+            }),
+            encoding="utf-8",
+        )
+        store = RecordingStore()
+
+        build_report(self.data_dir, self.config, check_cloud=True, store=store)
+
+        self.assertIn("students/astrid/attempts/practice/", store.prefixes)
+        self.assertIn("students/liara/attempts/practice/", store.prefixes)
+        self.assertNotIn("students/pappy/attempts/practice/", store.prefixes)
+
     def test_build_report_detects_duplicate_id_conflict(self):
         self.write_jsonl("practice_attempts.jsonl", [
             {
@@ -129,7 +159,7 @@ class StudentAttemptSyncTests(unittest.TestCase):
         report = build_report(self.data_dir, self.config, check_cloud=True, store=MemoryStoreUnavailable())
 
         self.assertTrue(report["cloud_checked"])
-        self.assertEqual(3, len(report["cloud_errors"]))
+        self.assertEqual(6, len(report["cloud_errors"]))
         self.assertEqual(1, report["summary"]["would_upload"])
 
     def test_write_report_creates_file(self):

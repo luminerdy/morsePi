@@ -78,10 +78,18 @@ def build_policy(bucket, student_ids):
     }
 
 
-def put_user_policy(station_id, station, bucket, profile, dry_run=False, runner=subprocess.run):
+def put_user_policy(
+    station_id,
+    station,
+    bucket,
+    profile,
+    dry_run=False,
+    runner=subprocess.run,
+    aws_executable="aws",
+):
     policy = build_policy(bucket, station["students"])
     command = [
-        "aws",
+        aws_executable,
         "iam",
         "put-user-policy",
         "--user-name",
@@ -113,6 +121,7 @@ def parse_args(argv=None):
     )
     parser.add_argument("--bucket", default=BUCKET, help="S3 bucket name.")
     parser.add_argument("--profile", default="morsepi-setup-admin", help="AWS CLI setup profile.")
+    parser.add_argument("--aws-executable", default="aws", help="AWS CLI executable path.")
     parser.add_argument("--dry-run", action="store_true", help="Print policies without changing AWS.")
     return parser.parse_args(argv)
 
@@ -122,7 +131,14 @@ def main(argv=None):
     failures = 0
     for station_id, station in STATIONS.items():
         print(f"== {station_id} -> {station['user']} ==")
-        result = put_user_policy(station_id, station, args.bucket, args.profile, args.dry_run)
+        result = put_user_policy(
+            station_id,
+            station,
+            args.bucket,
+            args.profile,
+            args.dry_run,
+            aws_executable=args.aws_executable,
+        )
         if result["skipped"]:
             print(json.dumps(result["policy"], indent=2, sort_keys=True))
             continue
