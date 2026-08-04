@@ -5,3 +5,5 @@ Description=Back up Pappy's Internet Telegraph student data
 Type=oneshot
 WorkingDirectory=/home/morse/morse-station
 ExecStart=/usr/bin/python3 /home/morse/morse-station/scripts/backup_data.py --label timer --keep 30
+ExecStart=/usr/bin/python3 /home/morse/morse-station/scripts/station_status.py
+ExecStart=/usr/bin/python3 /home/morse/morse-station/scripts/progress_snapshot.py

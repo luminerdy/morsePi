@@ -34,6 +34,10 @@ class BackupDataTests(unittest.TestCase):
             json.dumps({"character_wpm": 12}),
             encoding="utf-8",
         )
+        (self.data_dir / "volume_settings.json").write_text(
+            json.dumps({"station_volume": 35}),
+            encoding="utf-8",
+        )
         (self.student_dir / "practice_progress.json").write_text("{}", encoding="utf-8")
         (self.student_dir / "learning_state.json").write_text("{}", encoding="utf-8")
         (self.student_dir / "practice_attempts.jsonl").write_text("attempt\n", encoding="utf-8")
@@ -58,6 +62,7 @@ class BackupDataTests(unittest.TestCase):
 
         self.assertIn("data/student_profiles.json", names)
         self.assertIn("data/timing_settings.json", names)
+        self.assertIn("data/volume_settings.json", names)
         self.assertIn("data/students/pappy/practice_progress.json", names)
         self.assertIn("data/students/pappy/learning_state.json", names)
         self.assertIn("data/students/pappy/practice_attempts.jsonl", names)

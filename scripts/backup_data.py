@@ -15,6 +15,7 @@ DEFAULT_CONFIG_PATH = DEFAULT_DATA_DIR / "station_config.json"
 INCLUDE_PATHS = [
     "student_profiles.json",
     "timing_settings.json",
+    "volume_settings.json",
     "students",
 ]
 

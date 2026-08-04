@@ -25,6 +25,7 @@ files only carry *(Delta: …)* notes, not status history.
 | Local admin PIN reset helper | 2026-08-03 working tree | FR-038, AC-014 — adult can reset the station PIN with a config backup and no JSON hand-editing |
 | Kid-facing safe shutdown flow | 2026-08-03 working tree | FR-038, API-024, AC-014 — students can safely power off from the touch menu after a confirmation page |
 | Touch speaker volume presets | 2026-08-03 working tree | FR-011 — parent-friendly Mute/Quiet/Normal/Loud controls are available from the touch Timing screen, require the adult PIN when configured, and persist in `data/volume_settings.json` |
+| Read-only station progress snapshots | 2026-08-03 working tree | FR-034, DR-017 — daily backup service now also writes/uploads `morsepi-progress-snapshot-v1` to the station snapshot prefix for family visibility; no cross-station merge yet |
 | Local family Morse messaging with shared-letter validation, word-tile/whole-word keyer composition, review, playback, inbox, guided decoding, effort, and badges | 2026-08-02 working tree | FR-039...FR-046 — met for Phase 7A; FR-047...FR-050 remain partial pending cross-station transport |
 | Durable S3/Lambda message routing, station sync worker, remote receipts, and three-station rehearsal | `29a665d`; activated 2026-08-02 | FR-047...FR-050, FR-052, FR-053, API-023, and AC-018...AC-020/AC-023 — met; Pappy and Astrid/Liara enabled at ten minutes, Campbell/Olivea remains disabled |
 | Project and AWS architecture diagrams | 2026-08-02 working tree | DOC-03 — implemented for the current three-station system, deployed AWS services, trust boundaries, and future optional services |
@@ -57,6 +58,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-051 mixed Words opening | ✅ | The opening bank interleaves familiar two- and three-letter words; eligibility remains active-letter filtered |
 | FR-052 station message sync | ✅ | Ten-minute worker/timer prepared for all three stations; tested live with isolated data; normal sync remains an explicit configuration switch |
 | FR-028/DR-015 reset summary cleanup | ✅ | Student reset backs up and removes local and cached family learning summaries so old cloud eligibility cannot restore unlocked letters |
+| DR-017 read-only progress snapshots | ✅ | `scripts/progress_snapshot.py` writes a safe station snapshot and the daily backup service uploads it; two-way student data merge remains future work |
 | FR-053 cloud message router | ✅ | Narrow-role Lambda and three S3 notifications deployed in `us-east-1`; live routing and receipts verified |
 | SEC-001 CSRF | ❌ | No tokens anywhere |
 | SEC-002/003 mandatory PIN + lockout | ❌ | PIN optional, `==` compare, no rate limit |

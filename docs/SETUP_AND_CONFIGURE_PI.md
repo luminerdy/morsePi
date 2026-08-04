@@ -391,7 +391,9 @@ Upload station status to S3:
 python3 scripts/station_status.py --s3-uri s3://morsepi-backups-luminerdy
 ```
 
-Install the optional daily backup timer:
+Install the optional daily backup timer. The service creates a local/S3 backup,
+uploads station status, and uploads a read-only progress snapshot for family
+visibility:
 
 ```bash
 mkdir -p /home/morse/.config/systemd/user
@@ -401,7 +403,7 @@ systemctl --user daemon-reload
 systemctl --user enable --now morse-station-backup.timer
 ```
 
-Run one backup immediately:
+Run one backup/status/snapshot cycle immediately:
 
 ```bash
 systemctl --user start morse-station-backup.service

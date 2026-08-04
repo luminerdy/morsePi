@@ -848,6 +848,14 @@ When asked to do the daily wrap-up, update:
 - Added parent-friendly speaker volume controls to the touch Timing screen:
   Mute, Quiet, Normal, and Loud presets use the existing adult PIN keypad and
   save to `data/volume_settings.json` so the chosen level survives app restarts.
+- Enabled Pappy's station to match the grandkid stations for user-service boot:
+  `morse-station.service` is enabled/active and `Linger=yes`.
+- Added `scripts/progress_snapshot.py`, a read-only station progress snapshot
+  writer/uploader for family visibility. The daily backup service now runs
+  backup, station status, and progress snapshot upload together.
+- Installed the daily backup/status/snapshot timer on Pappy so all three
+  stations have the same daily safety net. This does not yet merge practice
+  data between stations.
 
 ### Ready Next
 
@@ -859,7 +867,9 @@ When asked to do the daily wrap-up, update:
 - For future IoT work, prefer a narrow IoT setup identity; reactivate the broad `admin` access key only if truly needed, then deactivate it again after the task.
 - Plan the longer-term removal of path-global progress/attempt storage before enabling a multi-worker production server.
 - Run one kid-style smoke test on each grandkid unit before it leaves home: choose each student, complete one Daily/Learn/Send action with the physical keyer, verify progress sticks after switching users, then run a final backup/status upload.
-- Design the first safe cross-station student progress snapshot now that multiple stations exist. Start read-only and visibility-focused before any two-way sync or leaderboard behavior.
+- Build the next family visibility step: a simple Pappy-side reader for the
+  latest station progress snapshots in S3, still read-only and encouragement
+  focused.
 - Decide whether to enable any automatic update timer on deployed stations, or keep updates as adult-triggered `Update App` only until the stations have been used at the grandkids' homes.
 - Prepare the future remote command path after the first home deployment: AWS IoT preferred for lower-cost commands; Systems Manager remains the practical fallback if remote shell access becomes necessary.
 - Keep testing Words/Daily with Astrid/Liara/Pappy/Campbell/Olivea, especially auto-advance, progress clarity, and whether Words should remain bonus-only or join Daily Mission.

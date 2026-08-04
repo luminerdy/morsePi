@@ -79,3 +79,9 @@
   message ID, sender station ID, recipient student ID, reporting station ID,
   forward-only state (`available|opened|decoded`), and UTC time. Deterministic
   state paths make retries idempotent.
+- **DR-017** Station progress snapshot format `morsepi-progress-snapshot-v1`
+  SHALL be a read-only visibility record, not a merge source. It MAY include
+  station ID, hostname, generated-at UTC, student ID/name, active letters,
+  learning-state summary, mode totals, word totals, bonus totals, and latest
+  activity timestamps. It SHALL NOT include raw key timing events or detailed
+  answer histories.
