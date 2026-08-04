@@ -562,16 +562,20 @@ def write_conflicts(data_dir, conflicts):
 def write_merged_attempt_logs(data_dir, students, merged_attempts):
     by_student_kind = {}
     roster_ids = {student["id"] for student in students}
+    touched_students = set()
     for attempt in merged_attempts.values():
         student_id = attempt["student_id"]
         kind = attempt["kind"]
         if student_id not in roster_ids or kind not in ATTEMPT_FILES:
             continue
+        touched_students.add(student_id)
         by_student_kind.setdefault((student_id, kind), []).append(attempt["payload"])
 
     written = {}
     for student in students:
         student_id = student["id"]
+        if student_id not in touched_students:
+            continue
         student_dir = Path(data_dir) / "students" / student_id
         student_dir.mkdir(parents=True, exist_ok=True)
         for kind, filename in ATTEMPT_FILES.items():
@@ -611,6 +615,8 @@ def rebuild_practice_progress(data_dir, students):
         for _, record in iter_jsonl(student_dir / "practice_attempts.jsonl"):
             if record is not None:
                 attempts.append(record)
+        if not attempts:
+            continue
         attempts.sort(key=lambda item: str(item.get("timestamp", "")))
 
         for attempt in attempts:

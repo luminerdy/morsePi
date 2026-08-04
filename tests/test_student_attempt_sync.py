@@ -347,6 +347,39 @@ class StudentAttemptSyncTests(unittest.TestCase):
         self.assertEqual("completed", status["status"])
         self.assertTrue(status["force"])
 
+    def test_full_sync_leaves_no_attempt_students_unchanged(self):
+        self.config.write_text(
+            json.dumps({
+                "station_id": "pappy-test-station",
+                "backup_s3_uri": "s3://morsepi-backups-luminerdy",
+                "students": [
+                    {"id": "astrid", "name": "Astrid"},
+                    {"id": "liara", "name": "Liara"},
+                ],
+            }),
+            encoding="utf-8",
+        )
+        liara_dir = self.data_dir / "students" / "liara"
+        liara_dir.mkdir(parents=True)
+        liara_progress = {"E": {"send": {"attempts": 5, "correct": 5, "streak": 5, "strength": 1}}}
+        (liara_dir / "practice_progress.json").write_text(json.dumps(liara_progress), encoding="utf-8")
+        self.write_jsonl("practice_attempts.jsonl", [
+            {
+                "attempt_id": "j" * 32,
+                "correct": True,
+                "mode": "send",
+                "station_id": "pappy-test-station",
+                "student_id": "astrid",
+                "target": "E",
+                "timestamp": "2026-08-04T12:00:00+00:00",
+            },
+        ])
+
+        full_sync_attempts(self.data_dir, self.config, store=MemoryStore())
+
+        saved = json.loads((liara_dir / "practice_progress.json").read_text(encoding="utf-8"))
+        self.assertEqual(liara_progress, saved)
+
     def test_guarded_full_sync_skips_when_lock_exists(self):
         lock_path = self.data_dir / "sync_reports" / "student_attempt_sync.lock"
 
