@@ -289,6 +289,104 @@ h2 {
     gap: 14px;
 }
 
+.family-refresh-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin: 12px 0;
+}
+
+.family-refresh-form input {
+    max-width: 140px;
+}
+
+.family-station-grid,
+.family-progress-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+}
+
+.family-station-card,
+.family-progress-card {
+    padding: 14px;
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.family-station-card {
+    display: grid;
+    gap: 4px;
+}
+
+.family-station-card strong {
+    color: var(--text);
+}
+
+.family-station-card span {
+    color: var(--success);
+    font-weight: 900;
+}
+
+.family-station-card.offline span {
+    color: var(--warning);
+}
+
+.family-station-card em,
+.family-mode-grid em {
+    color: var(--muted);
+    font-style: normal;
+}
+
+.family-letter-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.family-letter-row strong {
+    color: var(--text);
+    text-align: right;
+}
+
+.family-mode-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 6px;
+    margin-top: 12px;
+}
+
+.family-mode-grid div {
+    min-width: 0;
+    padding: 8px 6px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.family-mode-grid span,
+.family-mode-grid strong,
+.family-mode-grid em {
+    display: block;
+}
+
+.family-mode-grid span {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.family-mode-grid strong {
+    color: var(--primary);
+    font-size: 18px;
+}
+
 .rhythm-card {
     display: grid;
     gap: 12px;

@@ -35,6 +35,7 @@ class RouteRenderTests(unittest.TestCase):
         }
         self.original_timing_path = app_module.TIMING_SETTINGS_PATH
         self.original_volume_path = app_module.VOLUME_SETTINGS_PATH
+        self.original_family_progress_path = app_module.FAMILY_PROGRESS_PATH
         self.original_station_config_path = app_module.STATION_CONFIG_PATH
         self.original_admin_pin_path = app_module.ADMIN_PIN_PATH
         self.original_play_daily = app_module.play_daily_celebration_in_background
@@ -56,6 +57,7 @@ class RouteRenderTests(unittest.TestCase):
         student_profiles.PROFILES_PATH = self.data_dir / "student_profiles.json"
         app_module.TIMING_SETTINGS_PATH = self.data_dir / "timing_settings.json"
         app_module.VOLUME_SETTINGS_PATH = self.data_dir / "volume_settings.json"
+        app_module.FAMILY_PROGRESS_PATH = self.data_dir / "family_progress" / "latest.json"
         app_module.STATION_CONFIG_PATH = self.data_dir / "station_config.json"
         app_module.ADMIN_PIN_PATH = self.data_dir / "admin_pin.txt"
         app_module.station_volume = app_module.DEFAULT_STATION_VOLUME
@@ -77,6 +79,7 @@ class RouteRenderTests(unittest.TestCase):
         student_profiles.PROFILES_PATH = self.original_student_paths["PROFILES_PATH"]
         app_module.TIMING_SETTINGS_PATH = self.original_timing_path
         app_module.VOLUME_SETTINGS_PATH = self.original_volume_path
+        app_module.FAMILY_PROGRESS_PATH = self.original_family_progress_path
         app_module.STATION_CONFIG_PATH = self.original_station_config_path
         app_module.ADMIN_PIN_PATH = self.original_admin_pin_path
         app_module.play_daily_celebration_in_background = self.original_play_daily
@@ -2032,6 +2035,58 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(302, response.status_code)
         self.assertIn("recovery_error=admin-pin", response.headers["Location"])
         self.assertTrue(self.student_file("pappy", "practice_attempts.jsonl").exists())
+
+    def test_admin_family_renders_latest_progress_snapshot(self):
+        app_module.FAMILY_PROGRESS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        app_module.FAMILY_PROGRESS_PATH.write_text(
+            json.dumps({
+                "format": "morsepi-family-progress-v1",
+                "generated_at": "2026-08-04T02:30:00+00:00",
+                "station_status": [
+                    {
+                        "available": True,
+                        "generated_at": "2026-08-04T02:20:00+00:00",
+                        "station_id": "pappy-test-station",
+                    },
+                ],
+                "students": [
+                    {
+                        "active_letters": ["E", "T"],
+                        "bonus": {"attempts": 1},
+                        "latest_activity_at": "2026-08-04T02:25:00+00:00",
+                        "learning_letters": ["S", "O"],
+                        "modes": [
+                            {"label": "Learn", "mastery": 80, "attempts": 10},
+                        ],
+                        "name": "Astrid",
+                        "source_count": 2,
+                        "source_station_id": "pappy-test-station",
+                        "words": {"attempts": 3},
+                    },
+                ],
+            }),
+            encoding="utf-8",
+        )
+
+        response = self.client.get("/admin/family")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Family Progress", html)
+        self.assertIn("Astrid", html)
+        self.assertIn("pappy-test-station", html)
+        self.assertIn("S O", html)
+
+    def test_admin_family_refresh_requires_admin_pin_when_configured(self):
+        self.write_station_config({"admin_pin": "1234"})
+
+        response = self.client.post(
+            "/admin/family",
+            data={"admin_pin": "9999"},
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("refresh_error=admin-pin", response.headers["Location"])
 
     def test_reset_pappy_backs_up_student_and_legacy_without_touching_other_students(self):
         self.write_text_file("pappy", "practice_attempts.jsonl", "pappy attempts\n")

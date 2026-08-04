@@ -856,6 +856,10 @@ When asked to do the daily wrap-up, update:
 - Installed the daily backup/status/snapshot timer on Pappy so all three
   stations have the same daily safety net. This does not yet merge practice
   data between stations.
+- Added `scripts/family_progress.py` and `/admin/family`, a read-only family
+  progress view that combines station snapshots into one latest-per-student
+  page. It reports unavailable station snapshots instead of blocking the page
+  and does not write to student practice files.
 
 ### Ready Next
 
@@ -867,9 +871,9 @@ When asked to do the daily wrap-up, update:
 - For future IoT work, prefer a narrow IoT setup identity; reactivate the broad `admin` access key only if truly needed, then deactivate it again after the task.
 - Plan the longer-term removal of path-global progress/attempt storage before enabling a multi-worker production server.
 - Run one kid-style smoke test on each grandkid unit before it leaves home: choose each student, complete one Daily/Learn/Send action with the physical keyer, verify progress sticks after switching users, then run a final backup/status upload.
-- Build the next family visibility step: a simple Pappy-side reader for the
-  latest station progress snapshots in S3, still read-only and encouragement
-  focused.
+- Update AWS permissions so Pappy's station credential can read the three
+  `stations/*/snapshots/latest_progress.json` files, then refresh
+  `/admin/family` and confirm all three stations appear as available.
 - Decide whether to enable any automatic update timer on deployed stations, or keep updates as adult-triggered `Update App` only until the stations have been used at the grandkids' homes.
 - Prepare the future remote command path after the first home deployment: AWS IoT preferred for lower-cost commands; Systems Manager remains the practical fallback if remote shell access becomes necessary.
 - Keep testing Words/Daily with Astrid/Liara/Pappy/Campbell/Olivea, especially auto-advance, progress clarity, and whether Words should remain bonus-only or join Daily Mission.

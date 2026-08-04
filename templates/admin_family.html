@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+<head>
+    <title>Family Progress - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260803-2">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div class="app-shell">
+        <header class="app-header">
+            <div>
+                <p class="eyebrow">Admin</p>
+                <h1>Family Progress</h1>
+                <a class="student-name student-switch-link" href="/students">{{ current_student.name }}</a>
+            </div>
+
+            <nav class="nav-row" aria-label="Primary navigation">
+                <a href="/">Home</a>
+                <a href="/practice">Practice</a>
+                <a href="/progress">Progress</a>
+                <a href="/students">Students</a>
+                <a href="/admin/sessions">Recovery</a>
+                <a href="/admin/rhythm">Rhythm</a>
+                <a class="active" href="/admin/family">Family</a>
+            </nav>
+        </header>
+
+        <main class="progress-page">
+            <section class="panel">
+                <div class="section-heading">
+                    <h2>Latest Station Snapshots</h2>
+                    <span class="panel-meta">
+                        {% if family_progress.generated_at %}
+                            {{ family_progress.generated_at[:19].replace("T", " ") }}
+                        {% else %}
+                            Not refreshed yet
+                        {% endif %}
+                    </span>
+                </div>
+
+                {% if refresh_status == "updated" %}
+                    <div class="feedback-box success inline-feedback">Family progress refreshed.</div>
+                {% elif refresh_error %}
+                    <div class="feedback-box needs-practice inline-feedback">
+                        {% if refresh_error == "admin-pin" %}
+                            Admin PIN is required.
+                        {% else %}
+                            Family progress could not refresh. Showing the latest local copy.
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <form method="post" action="/admin/family" class="family-refresh-form">
+                    {% if admin_pin_required %}
+                        <input name="admin_pin" type="password" autocomplete="current-password" inputmode="numeric" placeholder="PIN">
+                    {% endif %}
+                    <button type="submit" class="button primary">Refresh Family Progress</button>
+                </form>
+
+                <div class="family-station-grid">
+                    {% for station in family_progress.station_status %}
+                        <article class="family-station-card {% if not station.available %}offline{% endif %}">
+                            <strong>{{ station.station_id }}</strong>
+                            <span>{% if station.available %}Available{% else %}Unavailable{% endif %}</span>
+                            <em>
+                                {% if station.generated_at %}
+                                    {{ station.generated_at[:19].replace("T", " ") }}
+                                {% else %}
+                                    No snapshot
+                                {% endif %}
+                            </em>
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="section-heading">
+                    <h2>Students</h2>
+                    <span class="panel-meta">{{ family_progress.students|length }} shown</span>
+                </div>
+
+                {% if not family_progress.students %}
+                    <p class="empty-state">No family progress snapshots have been loaded yet.</p>
+                {% else %}
+                    <div class="family-progress-grid">
+                        {% for student in family_progress.students %}
+                            <article class="family-progress-card">
+                                <div class="session-summary">
+                                    <div>
+                                        <strong>{{ student.name }}</strong>
+                                        <span>{{ student.source_station_id }}</span>
+                                    </div>
+                                    <div class="session-stats">
+                                        <span>{{ student.active_letters|length }} letters</span>
+                                        <span>{{ student.source_count }} source{% if student.source_count != 1 %}s{% endif %}</span>
+                                    </div>
+                                </div>
+
+                                <div class="family-letter-row">
+                                    <span>Active</span>
+                                    <strong>{{ student.active_letters|join(" ") if student.active_letters else "None yet" }}</strong>
+                                </div>
+                                <div class="family-letter-row">
+                                    <span>Learning</span>
+                                    <strong>{{ student.learning_letters|join(" ") if student.learning_letters else "None" }}</strong>
+                                </div>
+
+                                <div class="family-mode-grid">
+                                    {% for mode in student.modes %}
+                                        <div>
+                                            <span>{{ mode.label }}</span>
+                                            <strong>{{ mode.mastery }}%</strong>
+                                            <em>{{ mode.attempts }} tries</em>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="session-meta">
+                                    <span>Words {{ student.words.attempts or 0 }}</span>
+                                    <span>Sprint {{ student.bonus.attempts or 0 }}</span>
+                                    {% if student.latest_activity_at %}
+                                        <span>Latest {{ student.latest_activity_at[:19].replace("T", " ") }}</span>
+                                    {% endif %}
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </section>
+        </main>
+    </div>
+</body>
+</html>

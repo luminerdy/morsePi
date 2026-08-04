@@ -393,7 +393,8 @@ python3 scripts/station_status.py --s3-uri s3://morsepi-backups-luminerdy
 
 Install the optional daily backup timer. The service creates a local/S3 backup,
 uploads station status, and uploads a read-only progress snapshot for family
-visibility:
+visibility. It also refreshes `data/family_progress/latest.json` from any
+station snapshots this Pi is allowed to read:
 
 ```bash
 mkdir -p /home/morse/.config/systemd/user

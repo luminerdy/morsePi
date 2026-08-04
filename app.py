@@ -53,6 +53,7 @@ import wave
 import math
 import tempfile
 import subprocess
+import sys
 import os
 import random
 import shutil
@@ -61,6 +62,7 @@ app = Flask(__name__)
 SESSION_COOKIE = "morse_practice_session_id"
 STATION_CONFIG_PATH = Path("data/station_config.json")
 ADMIN_PIN_PATH = Path("data/admin_pin.txt")
+FAMILY_PROGRESS_PATH = Path("data/family_progress/latest.json")
 MAX_REQUEST_BYTES = 16 * 1024
 MAX_MESSAGE_CHARS = 160
 MAX_MORSE_CHARS = 600
@@ -2822,6 +2824,38 @@ def run_system_command(command, timeout=4):
     }
 
 
+def load_family_progress_view():
+    try:
+        loaded = json.loads(FAMILY_PROGRESS_PATH.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        loaded = {}
+
+    if not isinstance(loaded, dict):
+        loaded = {}
+
+    return {
+        "app": loaded.get("app", "morsePi"),
+        "format": loaded.get("format", ""),
+        "generated_at": loaded.get("generated_at", ""),
+        "station_status": loaded.get("station_status", []) if isinstance(loaded.get("station_status"), list) else [],
+        "students": loaded.get("students", []) if isinstance(loaded.get("students"), list) else [],
+    }
+
+
+def refresh_family_progress_view():
+    command = [
+        sys.executable,
+        "scripts/family_progress.py",
+        "--data-dir",
+        "data",
+        "--config",
+        str(STATION_CONFIG_PATH),
+        "--output",
+        str(FAMILY_PROGRESS_PATH),
+    ]
+    return run_system_command(command, timeout=30)
+
+
 def first_command_line(command, default="Unknown"):
     result = run_system_command(command)
     if not result["ok"] or not result["stdout"]:
@@ -3583,6 +3617,29 @@ def admin_rhythm():
     return render_template(
         "admin_rhythm.html",
         rhythm=summarize_rhythm_over_time(),
+    )
+
+
+@app.route("/admin/family", methods=["GET", "POST"])
+def admin_family():
+    refresh_status = request.args.get("refresh_status", "")
+    refresh_error = request.args.get("refresh_error", "")
+
+    if request.method == "POST":
+        if not admin_pin_valid(request.form.get("admin_pin", "")):
+            return redirect(url_for("admin_family", refresh_error="admin-pin"))
+
+        result = refresh_family_progress_view()
+        if result["ok"]:
+            return redirect(url_for("admin_family", refresh_status="updated"))
+
+        return redirect(url_for("admin_family", refresh_error="refresh-failed"))
+
+    return render_template(
+        "admin_family.html",
+        family_progress=load_family_progress_view(),
+        refresh_status=refresh_status,
+        refresh_error=refresh_error,
     )
 
 

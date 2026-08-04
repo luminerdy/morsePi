@@ -22,6 +22,9 @@ General rules:
 - **API-017** *(V2)* `GET /admin/rhythm` 🔒 — per-student rhythm trend report
   (FR-037). *(Delta: legacy page added in `674fdd8` is unauthenticated; the
   rebuild PIN-gates it.)*
+- **API-025** *(V2)* `GET /admin/family`; `POST /admin/family` 🔒 — read the
+  latest local family progress file and refresh it from cloud station
+  snapshots on adult demand.
 - **API-018** *(V1)* `POST /touch/system/action` 🔒 — local touchscreen
   operations `{action: restart-wifi|open-keyboard|update-app|exit-kiosk}` for
   FR-038. The response MAY redirect back to `/touch/system` because these

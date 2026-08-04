@@ -85,3 +85,8 @@
   learning-state summary, mode totals, word totals, bonus totals, and latest
   activity timestamps. It SHALL NOT include raw key timing events or detailed
   answer histories.
+- **DR-018** Family progress format `morsepi-family-progress-v1` SHALL combine
+  station progress snapshots into one read-only visibility file. For each
+  student, the default row SHALL use the latest `latest_activity_at` snapshot
+  while preserving source-station metadata. Missing or unauthorized station
+  snapshots SHALL be reported as unavailable instead of blocking the view.
