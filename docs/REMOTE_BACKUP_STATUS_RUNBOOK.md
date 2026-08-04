@@ -165,6 +165,32 @@ git push origin release/pi
 git checkout main
 ```
 
+Trigger reachable grandkid stations from the laptop:
+
+```bash
+python scripts/rollout_release.py
+```
+
+Dry-run the commands first:
+
+```bash
+python scripts/rollout_release.py --dry-run
+```
+
+Update one station only:
+
+```bash
+python scripts/rollout_release.py --station astrid-liara
+python scripts/rollout_release.py --station campbell-olivea
+```
+
+This command uses SSH to ask each reachable Pi to run its installed
+`/home/morse/bin/update-morse-station.sh` wrapper. The Pi still controls the
+actual update: it backs up first, fast-forwards from `release/pi`, runs tests,
+restarts the app, health-checks it, rolls back on failure, and refreshes status
+and progress snapshots. If a station is off or away from Pappy's network, it
+will catch up from the automatic timer the next time it is online.
+
 Use environment variables when cloud upload is desired during update:
 
 ```bash

@@ -901,6 +901,14 @@ When asked to do the daily wrap-up, update:
   uploads immutable attempt objects only after a clean cloud check, refuses to
   run when cloud access errors or local ID conflicts are present, and does not
   download, merge, rebuild, or overwrite student progress.
+- Added `scripts/rollout_release.py` so Pappy can promote a tested release to
+  `release/pi` and then trigger all reachable grandkid stations to run their
+  installed hardened updater immediately. Offline stations still catch up from
+  the automatic timer when they are powered on.
+- Live-tested the rollout helper against both grandkid stations. Each station
+  ran its installed updater, created/uploaded a pre-update backup, confirmed it
+  was current at `1890ee9`, uploaded fresh status/progress snapshots, and kept
+  the app service active.
 
 ### Ready Next
 
@@ -912,6 +920,10 @@ When asked to do the daily wrap-up, update:
   and expect zero cloud access errors before testing the manual `--upload` path.
 - After upload-only passes with real station data, design the adult-controlled
   download/rebuild step with backups and before/after summaries.
+- Decide the away-from-home command trigger after the stations leave Pappy's
+  LAN. Preferred low-cost path remains AWS IoT triggering the same local updater;
+  Systems Manager remains the fuller remote-admin option if we accept the device
+  cost.
 - Run one kid-style smoke test on each grandkid unit before it leaves home:
   choose each student, complete one Daily/Learn/Send action with the physical
   keyer, verify progress sticks after switching users, then run a final

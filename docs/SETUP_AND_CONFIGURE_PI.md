@@ -512,6 +512,26 @@ systemctl --user start morse-station-update.service
 journalctl --user -u morse-station-update.service -n 50 --no-pager
 ```
 
+From the laptop, trigger all reachable grandkid stations after promoting a
+release:
+
+```bash
+python scripts/rollout_release.py
+```
+
+Preview the SSH commands without changing anything:
+
+```bash
+python scripts/rollout_release.py --dry-run
+```
+
+Trigger just one station:
+
+```bash
+python scripts/rollout_release.py --station astrid-liara
+python scripts/rollout_release.py --station campbell-olivea
+```
+
 Check the timer:
 
 ```bash
