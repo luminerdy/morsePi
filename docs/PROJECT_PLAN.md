@@ -915,15 +915,23 @@ When asked to do the daily wrap-up, update:
   progress snapshots and read/write immutable attempt objects only for their
   rostered students. Dry-run and unit tests pass; actual AWS application is
   pending because this Codex task cannot see the laptop's `aws` CLI/profile.
+- Applied the narrow station sync IAM policies using the default AWS admin
+  profile after confirming the setup profile lacked `iam:PutUserPolicy`.
+  Verification on all three Pis now shows family progress can read `3/3`
+  station snapshots and student attempt sync dry-run reports `Cloud errors: 0`
+  and `Conflicts: 0`. Pappy has 216 local attempts ready for upload; the two
+  grandkid stations are clean at `Would upload: 0`.
+- Fixed the attempt-sync dry-run boundary so each station checks only its
+  configured local student roster, not every family profile cached on that Pi.
 
 ### Ready Next
 
 - Update AWS permissions so Pappy's station credential can read the three
   `stations/*/snapshots/latest_progress.json` files, then refresh
   `/admin/family` and confirm all three stations appear as available.
-- Add narrow AWS permissions for station-rostered student attempt sync prefixes,
-  then rerun `scripts/student_attempt_sync.py` cloud-aware on all three stations
-  and expect zero cloud access errors before testing the manual `--upload` path.
+- Test the manual `scripts/student_attempt_sync.py --upload` path first on
+  Pappy, then rerun cloud-aware reports on all stations and confirm uploaded
+  attempts are counted as existing rather than pending.
 - After upload-only passes with real station data, design the adult-controlled
   download/rebuild step with backups and before/after summaries.
 - Decide the away-from-home command trigger after the stations leave Pappy's
