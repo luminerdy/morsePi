@@ -867,23 +867,42 @@ When asked to do the daily wrap-up, update:
 - Added stable `attempt_id` values to new Practice, Words, and Signal Sprint
   attempt records so future cross-station sync can merge immutable records
   without relying on newest timestamp wins.
+- Close-of-day verification:
+  - GitHub `main` and `release/pi` are current through `922fdd5`.
+  - Astrid/Liara and Campbell/Olivea are on `release/pi` at `922fdd5`.
+  - Pappy was manually file-deployed to the same runtime changes because it is
+    still not a Git checkout.
+  - All three app services were restarted and `/admin/family` responded.
+  - Route tests passed on all three stations for the attempt-ID change.
+- Current known limitation: Pappy's station credential can upload its own
+  progress snapshot, but cannot yet read the grandkid station snapshot files.
+  `/admin/family` therefore shows Pappy as available and the two grandkid
+  stations as unavailable until AWS permissions are widened narrowly.
 
 ### Ready Next
 
-- Kid-test the complete local message flow on Pappy's station: choose a recipient, build and correct a short message, review/play/send it, switch users, and decode it with and without hints.
-- Let Pappy and Astrid progress naturally through `S` and `O`, which unlocks the
-  Messages UI, then send the first live S3 message and verify its decoded receipt.
-- After the first online delivery passes, test delayed delivery with the
-  receiving Pi powered off and confirm exactly one message after it returns.
-- For future IoT work, prefer a narrow IoT setup identity; reactivate the broad `admin` access key only if truly needed, then deactivate it again after the task.
-- Plan the longer-term removal of path-global progress/attempt storage before enabling a multi-worker production server.
-- Run one kid-style smoke test on each grandkid unit before it leaves home: choose each student, complete one Daily/Learn/Send action with the physical keyer, verify progress sticks after switching users, then run a final backup/status upload.
 - Update AWS permissions so Pappy's station credential can read the three
   `stations/*/snapshots/latest_progress.json` files, then refresh
   `/admin/family` and confirm all three stations appear as available.
 - Build a dry-run student attempt sync report: list local attempts that would
   upload, cloud attempts that would download, and any duplicate/conflict cases
   without writing student files.
+- Run one kid-style smoke test on each grandkid unit before it leaves home:
+  choose each student, complete one Daily/Learn/Send action with the physical
+  keyer, verify progress sticks after switching users, then run a final
+  backup/status/snapshot cycle.
+- Kid-test the complete local message flow on Pappy's station: choose a
+  recipient, build and correct a short message, review/play/send it, switch
+  users, and decode it with and without hints.
+- Let Pappy and Astrid progress naturally through `S` and `O`, which unlocks the
+  Messages UI, then send the first live S3 message and verify its decoded receipt.
+- After the first online delivery passes, test delayed delivery with the
+  receiving Pi powered off and confirm exactly one message after it returns.
+- For future IoT work, prefer a narrow IoT setup identity; reactivate the broad
+  `admin` access key only if truly needed, then deactivate it again after the
+  task.
+- Plan the longer-term removal of path-global progress/attempt storage before
+  enabling a multi-worker production server.
 - Decide whether to enable any automatic update timer on deployed stations, or keep updates as adult-triggered `Update App` only until the stations have been used at the grandkids' homes.
 - Prepare the future remote command path after the first home deployment: AWS IoT preferred for lower-cost commands; Systems Manager remains the practical fallback if remote shell access becomes necessary.
 - Keep testing Words/Daily with Astrid/Liara/Pappy/Campbell/Olivea, especially auto-advance, progress clarity, and whether Words should remain bonus-only or join Daily Mission.
