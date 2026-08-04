@@ -15,7 +15,7 @@ files only carry *(Delta: …)* notes, not status history.
 | Input caps: 16 KB request body (`MAX_CONTENT_LENGTH`), message ≤ 160, Morse ≤ 600, answer ≤ 20, word ≤ 20, student name ≤ 40 chars | `7818254` | FR-012, SEC-004 — largely met (see note 1) |
 | All `next` redirects routed through `safe_next_url()`, with tests | `7818254` | SEC-005 — **met**; AC-005 passes |
 | Unlock table unified: `letter_unlock_groups` in `app.py` now generates steps + letter list | `7818254` | FR-022 — partial (duplicate `LETTER_UNLOCKS` remains in `practice_progress.py`) |
-| Update channel: default branch now `release/pi`; post-restart HTTP health check (30 s) | `5e835d3` | FR-035, SEC-010 — partial (no rollback, no pre-restart tests, no signed tags) |
+| Update channel: default branch now `release/pi`; pre-restart tests; post-restart HTTP health check; rollback on test/health failure | `5e835d3` + 2026-08-04 working tree | FR-035, SEC-010 — mostly met; signed tags/releases remain open |
 | `app.run(..., threaded=False)` | `7818254` | NFR-004 — mitigated by serializing requests; global-state root cause remains |
 | `scripts/check_dependencies.py` (manual required/optional binary + module check) | `7818254` | TR-008 — partial (manual script, not startup detection) |
 | Rhythm timing summaries per attempt + `/admin/rhythm` trends page; timing events capped at 240 | `674fdd8` | New scope — now FR-036/FR-037, API-017, AC-013 |
@@ -48,7 +48,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-012 input caps | 🟡 | Caps exist; truncates instead of rejecting |
 | FR-013…FR-021, FR-023…FR-034 | ✅ | Implemented in legacy (tiering is for the rebuild) |
 | FR-022 single unlock table | 🟡 | Unified in `app.py`; `practice_progress.py:LETTER_UNLOCKS` duplicate remains |
-| FR-035 hardened updater | 🟡 | `release/pi` branch + health check; **no rollback**, py_compile only |
+| FR-035 hardened updater | ✅ | `release/pi` branch, dirty-tree guard, fast-forward only, pre-restart tests, health check, rollback on failure, and status/snapshot refresh |
 | FR-036/FR-037 rhythm analysis | ✅ | New feature, spec'd retroactively |
 | FR-038 touch System recovery | ✅ | `/touch/system` shows local status, keyboard availability, update state, and a silent touch keypad; `/touch/system/action` gates recovery/update actions behind admin PIN; `/touch/shutdown` provides kid-facing safe shutdown; `scripts/set_admin_pin.py` safely resets the local PIN |
 | FR-039...FR-046 family Morse experience | ✅ | Phase 7A local flow implemented in `message_store.py` and `/touch/messages/*` |
@@ -71,7 +71,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | SEC-006 production WSGI | ❌ | Flask dev server (now single-threaded) |
 | SEC-007 systemd sandboxing | ❌ | No hardening directives |
 | SEC-009 subprocess hygiene | ✅ | Arg arrays, no shell (was already true) |
-| SEC-010 update trust | 🟡 | Pinned `release/pi` + health check; no signing/rollback |
+| SEC-010 update trust | 🟡 | Pinned `release/pi`, test/health rollback; no signed release/tag verification yet |
 | SEC-013 cookie flags | 🟡 | `SameSite=Lax` set; `HttpOnly` not set |
 | SEC-014/015, TR-011 | ❌ | No secret scan, pip-audit, lint, or dependency automation in CI |
 | TR-002 package layout | ❌ | `app.py` still a ~3,180-line monolith |

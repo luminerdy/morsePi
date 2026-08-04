@@ -9,6 +9,7 @@ STATION_ID="${MORSE_STATION_ID:-}"
 BACKUP_S3_URI="${MORSE_BACKUP_S3_URI:-}"
 HEALTH_URL="${MORSE_HEALTH_URL:-http://127.0.0.1:5000/touch}"
 HEALTH_TIMEOUT_SECONDS="${MORSE_HEALTH_TIMEOUT_SECONDS:-30}"
+RUN_TESTS="${MORSE_UPDATE_RUN_TESTS:-1}"
 
 check_health() {
     python3 - "$HEALTH_URL" "$HEALTH_TIMEOUT_SECONDS" <<'PY'
@@ -52,11 +53,36 @@ if [ -n "$BACKUP_S3_URI" ]; then
     status_args+=(--s3-uri "$BACKUP_S3_URI")
 fi
 
+write_status_and_snapshots() {
+    python3 scripts/station_status.py "${status_args[@]}"
+    python3 scripts/progress_snapshot.py
+    python3 scripts/family_progress.py
+}
+
+run_update_checks() {
+    python3 -m py_compile \
+        app.py \
+        morse.py \
+        practice_progress.py \
+        practice_attempts.py \
+        student_profiles.py \
+        message_store.py \
+        message_sync.py \
+        scripts/backup_data.py \
+        scripts/station_status.py \
+        scripts/progress_snapshot.py \
+        scripts/family_progress.py
+
+    if [ "$RUN_TESTS" = "1" ]; then
+        python3 -m unittest discover -s tests
+    fi
+}
+
 python3 scripts/backup_data.py "${backup_args[@]}"
 
 if ! git diff --quiet || ! git diff --cached --quiet; then
     echo "Tracked local changes are present; skipping update."
-    python3 scripts/station_status.py "${status_args[@]}"
+    write_status_and_snapshots
     exit 0
 fi
 
@@ -67,20 +93,35 @@ REMOTE_COMMIT="$(git rev-parse "$REMOTE/$BRANCH")"
 
 if [ "$LOCAL_COMMIT" = "$REMOTE_COMMIT" ]; then
     echo "Already up to date at $LOCAL_COMMIT."
-    python3 scripts/station_status.py "${status_args[@]}"
+    write_status_and_snapshots
     exit 0
 fi
 
 if ! git merge-base --is-ancestor "$LOCAL_COMMIT" "$REMOTE_COMMIT"; then
     echo "Remote branch is not a fast-forward from local checkout; skipping update."
-    python3 scripts/station_status.py "${status_args[@]}"
+    write_status_and_snapshots
     exit 1
 fi
 
 git merge --ff-only "$REMOTE/$BRANCH"
-python3 -m py_compile app.py morse.py practice_progress.py practice_attempts.py student_profiles.py scripts/backup_data.py scripts/station_status.py
+
+if ! run_update_checks; then
+    echo "Update checks failed; rolling back to $LOCAL_COMMIT."
+    git reset --hard "$LOCAL_COMMIT"
+    write_status_and_snapshots
+    exit 1
+fi
+
 systemctl --user restart "$SERVICE"
-check_health
-python3 scripts/station_status.py "${status_args[@]}"
+if ! check_health; then
+    echo "Health check failed; rolling back to $LOCAL_COMMIT."
+    git reset --hard "$LOCAL_COMMIT"
+    systemctl --user restart "$SERVICE"
+    check_health
+    write_status_and_snapshots
+    exit 1
+fi
+
+write_status_and_snapshots
 
 echo "Updated Morse station to $REMOTE_COMMIT and restarted $SERVICE."

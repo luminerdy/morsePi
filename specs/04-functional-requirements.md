@@ -137,8 +137,9 @@ from the current code (legacy status per requirement is tracked in
   dirty; only fast-forward; run the test suite (not merely `py_compile`)
   before restart; restart the service; verify a post-restart health check;
   report status; and roll back to the previous commit if the health check
-  fails. *(Delta: `5e835d3` added the `release/pi` branch and a 30 s HTTP
-  health check; still missing: rollback on failure and pre-restart tests.)*
+  fails. *(Delta: legacy now backs up first, tests before restart, rolls back
+  on test/health failure, and refreshes status/snapshots; signed releases
+  remain open.)*
 - **FR-038** *(V1)* The 7-inch touch UI SHALL provide an adult System page
   reachable without a keyboard. It SHALL show Wi-Fi/network status useful for
   troubleshooting, and SHALL provide admin-PIN-gated actions to restart Wi-Fi

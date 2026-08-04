@@ -879,6 +879,16 @@ When asked to do the daily wrap-up, update:
   `/admin/family` therefore shows Pappy as available and the two grandkid
   stations as unavailable until AWS permissions are widened narrowly.
 
+### 2026-08-04
+
+- Delivery-week priority: focus on keeping the grandkid stations current,
+  backed up, and progress-sync ready before they leave Pappy's house.
+- Hardened `scripts/update_station.sh` for deployed stations: still backs up
+  first, refuses dirty/non-fast-forward updates, and pulls only `release/pi`,
+  but now compile-checks, runs the full Pi test suite before restart, refreshes
+  station status/progress snapshots, and rolls back to the previous commit if
+  tests or the post-restart health check fail.
+
 ### Ready Next
 
 - Update AWS permissions so Pappy's station credential can read the three

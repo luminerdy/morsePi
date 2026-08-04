@@ -472,9 +472,10 @@ For deployed stations at different homes, the Pi can periodically check GitHub f
 - It preserves local station data in `data/student_profiles.json`, `data/students/`, and `data/timing_settings.json` because those files are ignored by Git.
 - It skips updates if tracked files were changed locally on the Pi.
 - It only applies fast-forward updates from `origin/release/pi`.
-- It runs `python3 -m py_compile app.py practice_progress.py practice_attempts.py student_profiles.py` before restarting the app.
+- It compile-checks and runs the test suite before restarting the app.
 - It restarts only the `morse-station.service` user service.
 - It checks that the local app responds at `http://127.0.0.1:5000/touch` before declaring the update successful.
+- It rolls back to the previous commit if tests or the health check fail.
 
 Release flow:
 
@@ -527,7 +528,7 @@ Recommended rollout: keep automatic updates disabled on brand-new stations until
 
 Future remote rollout: once stations are connected to AWS, AWS IoT can trigger `/home/morse/morse-station/scripts/update_station.sh` on demand. Systems Manager could also trigger the same script if we decide the monthly device cost is worth the extra Linux fleet-management features.
 
-The update script creates a pre-update backup, optionally uploads it to S3, fast-forwards from GitHub only when safe, compile-checks the app, restarts the service, and writes station status.
+The update script creates a pre-update backup, optionally uploads it to S3, fast-forwards from GitHub only when safe, compile-checks and tests the app, restarts the service, verifies health, rolls back on failure, and refreshes station status/progress snapshots.
 
 ## 11. Run the App at Boot with systemd
 
