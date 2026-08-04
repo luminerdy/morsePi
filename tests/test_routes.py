@@ -4,6 +4,7 @@ import os
 import shutil
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 
@@ -1342,7 +1343,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(["S", "O"], saved_state["groups"]["SO"]["letters"])
         self.assertEqual("2026-06-21", saved_state["last_learning_start_date"])
 
-    def test_practice_next_uses_learning_now_letters_for_learn_mode(self):
+    def test_practice_next_mixes_review_and_learning_now_letters_for_learn_mode(self):
         active_letters = app_module.starter_practice_letters + ["S", "O"]
         self.complete_progress("pappy", active_letters)
         self.write_word_attempts("pappy", total=app_module.word_ready_correct_attempts, correct=app_module.word_ready_correct_attempts)
@@ -1357,14 +1358,25 @@ class RouteRenderTests(unittest.TestCase):
             last_learning_start_date="2026-06-20",
         )
 
-        response = self.client.post("/practice/next?mode=learn")
-        payload = response.get_json()
+        with patch.object(app_module.random, "random", return_value=0.8):
+            review_response = self.client.post("/practice/next?mode=learn")
+        review_payload = review_response.get_json()
 
-        self.assertEqual(200, response.status_code)
-        self.assertEqual("learn", payload["mode"])
-        self.assertIn(payload["target"], ["R", "K"])
-        self.assertEqual(["R", "K"], [item["letter"] for item in payload["progress"]])
-        self.assertEqual(["R", "K"], payload["overall"]["learning_letters"])
+        with patch.object(app_module.random, "random", return_value=0.2):
+            learning_response = self.client.post("/practice/next?mode=learn")
+        learning_payload = learning_response.get_json()
+
+        self.assertEqual(200, review_response.status_code)
+        self.assertEqual("learn", review_payload["mode"])
+        self.assertIn(review_payload["target"], active_letters)
+        self.assertEqual(active_letters + ["R", "K"], [item["letter"] for item in review_payload["progress"]])
+        self.assertEqual(["R", "K"], review_payload["overall"]["learning_letters"])
+
+        self.assertEqual(200, learning_response.status_code)
+        self.assertEqual("learn", learning_payload["mode"])
+        self.assertIn(learning_payload["target"], ["R", "K"])
+        self.assertEqual(active_letters + ["R", "K"], [item["letter"] for item in learning_payload["progress"]])
+        self.assertEqual(["R", "K"], learning_payload["overall"]["learning_letters"])
 
     def test_practice_next_keeps_send_on_current_set_when_learning_now_exists(self):
         active_letters = app_module.starter_practice_letters + ["S", "O"]
