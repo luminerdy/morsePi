@@ -945,6 +945,11 @@ When asked to do the daily wrap-up, update:
 - Added optional `morse-station-sync.service` and `morse-station-sync.timer`
   files for a future 30-minute guarded sync cadence. Do not enable broadly until
   the guard has been tested on real stations while students are using the app.
+- Adjusted Learn mode for new-letter burn-in based on testing feedback: when
+  new letters such as `S O` are in Learning Now, Learn prompts now mix review
+  letters with the new group instead of showing almost only the new letters.
+  The first implementation uses a 40% Learning Now / 60% current-set review
+  prompt split while the completion gate still measures the new letters.
 
 ### Ready Next
 

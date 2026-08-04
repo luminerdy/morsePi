@@ -125,8 +125,33 @@ class LearningGateTests(unittest.TestCase):
         send_letters = app_module.get_practice_letters_for_mode("send")
 
         self.assertEqual(["S", "O"], state["learning_letters"])
-        self.assertEqual(["S", "O"], learn_letters)
+        self.assertEqual(["E", "T", "A", "N", "I", "M", "S", "O"], learn_letters)
         self.assertEqual(["E", "T", "A", "N", "I", "M"], send_letters)
+
+    def test_learn_mode_mixes_review_letters_with_learning_now(self):
+        self.write_progress(app_module.starter_practice_letters, self.all_modes(1.0))
+        captured = []
+        original_random = app_module.random.random
+        original_choose_next = app_module.choose_next_letter
+
+        def fake_choose_next(letters, current_letter="", mode="send"):
+            captured.append(list(letters))
+            return letters[0]
+
+        try:
+            app_module.choose_next_letter = fake_choose_next
+            app_module.random.random = lambda: 0.9
+            review_target = app_module.choose_learn_practice_target("")
+            app_module.random.random = lambda: 0.1
+            learning_target = app_module.choose_learn_practice_target("")
+        finally:
+            app_module.random.random = original_random
+            app_module.choose_next_letter = original_choose_next
+
+        self.assertEqual("E", review_target)
+        self.assertEqual("S", learning_target)
+        self.assertEqual(app_module.starter_practice_letters, captured[0])
+        self.assertEqual(["S", "O"], captured[1])
 
     def test_word_practice_unlocks_after_s_o_join_active_set(self):
         self.write_progress(app_module.starter_practice_letters, self.all_modes(1.0))

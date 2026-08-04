@@ -212,6 +212,7 @@ learn_ready_strength = 70
 learn_ready_rest_hours = 3
 word_ready_correct_attempts = 5
 max_learning_groups_per_day = 2
+learn_new_letter_prompt_weight = 0.4
 letter_unlock_groups = [
     {"letters": ["S", "O"], "label": "Signal Builder"},
     {"letters": ["R", "K"], "label": "Rhythm Builder"},
@@ -2612,7 +2613,7 @@ def get_practice_letters_for_mode(mode):
     state = get_practice_letter_state()
 
     if mode == "learn" and state["learning_letters"]:
-        return state["learning_letters"]
+        return state["active_letters"] + state["learning_letters"]
 
     return state["active_letters"]
 
@@ -2718,7 +2719,7 @@ def practice_mode_score(letters, mode):
 
     if mode == "learn":
         state = get_practice_letter_state()
-        if state["learning_letters"] and list(letters) == state["learning_letters"]:
+        if state["learning_letters"]:
             learning_focus = daily_learning_focus(state["learning_letters"])
             score["mastery"] = learning_focus["progress"]
             score["next_goal"] = learning_focus["next_need"] or score["next_goal"]
@@ -2741,11 +2742,28 @@ def get_practice_letter_morse():
     return {letter: text_to_morse(letter) for letter in letters}
 
 
+def choose_learn_practice_target(current_target=""):
+    state = get_practice_letter_state()
+    learning_letters = state["learning_letters"]
+    active_letters = state["active_letters"]
+
+    if not learning_letters:
+        return choose_next_letter(active_letters, current_target, "learn")
+
+    if active_letters and random.random() >= learn_new_letter_prompt_weight:
+        return choose_next_letter(active_letters, current_target, "learn")
+
+    return choose_next_letter(learning_letters, current_target, "learn")
+
+
 def choose_new_practice_target(mode="send"):
     global practice_target, practice_feedback
 
-    practice_letters = get_practice_letters_for_mode(mode)
-    practice_target = choose_next_letter(practice_letters, practice_target, mode)
+    if mode == "learn":
+        practice_target = choose_learn_practice_target(practice_target)
+    else:
+        practice_letters = get_practice_letters_for_mode(mode)
+        practice_target = choose_next_letter(practice_letters, practice_target, mode)
     practice_feedback = ""
     clear_key_state()
 
