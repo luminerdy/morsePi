@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, timezone
 from pathlib import Path
+from uuid import uuid4
 
 
 ATTEMPTS_PATH = Path("data/practice_attempts.jsonl")
@@ -177,6 +178,7 @@ def append_practice_attempt(record):
     ATTEMPTS_PATH.parent.mkdir(parents=True, exist_ok=True)
 
     normalized = dict(record)
+    normalized["attempt_id"] = str(normalized.get("attempt_id") or uuid4().hex)
     normalized["timestamp"] = datetime.now(timezone.utc).isoformat()
     normalized["timing_events"] = normalize_timing_events(normalized.get("timing_events", []))
     normalized["timing_summary"] = timing_summary(normalized["timing_events"])

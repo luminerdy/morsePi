@@ -85,8 +85,24 @@ Use this model:
 - Pappy's station can host all four grandkids
 - progress belongs to the student, not the station
 - each attempt includes `station_id`, `student_id`, and `practice_session_id`
+- each new attempt includes `attempt_id` so future sync can merge by immutable
+  record identity instead of timestamp or whole progress files
 - wrong-user recovery should move or discard a whole practice session later
 - adult actions use an admin PIN
+
+## Student Progress Sync Direction
+
+Use [Student Progress Sync Design](STUDENT_PROGRESS_SYNC_DESIGN.md) as the
+merge contract.
+
+Important rules:
+
+- snapshots are for visibility only
+- attempt logs are the source of truth
+- merge by `attempt_id`
+- never copy `practice_progress.json` from one station to another
+- never discard valid practice because another station has a newer snapshot
+- quarantine duplicate attempt IDs with different payloads
 
 ## Family Progress Philosophy
 

@@ -237,3 +237,8 @@ from the current code (legacy status per requirement is tracked in
 - **FR-053** A cloud router SHALL independently validate outbox and receipt
   records against the family directory and current minimal learning summaries
   before writing inbox or status copies to approved station prefixes.
+- **FR-054** Cross-station student progress sync SHALL preserve practice from
+  every approved station by uploading and merging immutable attempt records.
+  It SHALL not use newest-snapshot-wins for writes, SHALL not overwrite a
+  student's derived progress file from another station, and SHALL quarantine
+  conflicting duplicate attempt IDs for adult review.

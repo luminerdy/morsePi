@@ -13,13 +13,14 @@
   `strength` (0–100 float), `last_seen` (UTC ISO). Strength decay/growth
   formula SHALL be specified in DOC-06, not just implemented.
 - **DR-004** Attempt records (JSONL, append-only, one JSON object per line):
-  fields per FR-017 plus, for keyed attempts, `timing_events` (capped at 240
-  entries) and a derived `timing_summary` per FR-036 (counts, per-type gap
-  averages, consistency/ratio scores, `overall_rhythm_score`,
-  `primary_rhythm_feedback`); unknown fields preserved on rewrite; readers
-  tolerate a torn last line (NFR-006). Rhythm readers SHALL prefer recomputing
-  from `timing_events` and fall back to the stored `timing_summary` for older
-  records.
+  fields per FR-017 plus stable `attempt_id`, `station_id`, `student_id`, and
+  `practice_session_id`. For keyed attempts, records also include
+  `timing_events` (capped at 240 entries) and a derived `timing_summary` per
+  FR-036 (counts, per-type gap averages, consistency/ratio scores,
+  `overall_rhythm_score`, `primary_rhythm_feedback`); unknown fields preserved
+  on rewrite; readers tolerate a torn last line (NFR-006). Rhythm readers SHALL
+  prefer recomputing from `timing_events` and fall back to the stored
+  `timing_summary` for older records.
 - **DR-005** Station config schema: `station_id` (slug, required),
   `timezone`, `students[]`, `family_students[]`, `guest_profile`, `allow_student_create`,
   `backup_s3_uri`. `admin_pin` **must not** be stored here in plaintext
@@ -90,3 +91,9 @@
   student, the default row SHALL use the latest `latest_activity_at` snapshot
   while preserving source-station metadata. Missing or unauthorized station
   snapshots SHALL be reported as unavailable instead of blocking the view.
+- **DR-019** Cross-station student progress sync SHALL merge append-only
+  attempt logs by `attempt_id`, never by copying `practice_progress.json`.
+  Duplicate IDs with different payloads SHALL be quarantined for adult review;
+  older records without `attempt_id` SHALL use a deterministic legacy fallback
+  key. The detailed merge contract is documented in
+  `docs/STUDENT_PROGRESS_SYNC_DESIGN.md`.

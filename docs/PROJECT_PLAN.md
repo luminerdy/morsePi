@@ -860,6 +860,13 @@ When asked to do the daily wrap-up, update:
   progress view that combines station snapshots into one latest-per-student
   page. It reports unavailable station snapshots instead of blocking the page
   and does not write to student practice files.
+- Added [STUDENT_PROGRESS_SYNC_DESIGN.md](STUDENT_PROGRESS_SYNC_DESIGN.md) to
+  define the future merge contract: snapshots are visibility-only, attempts are
+  source-of-truth, merge by `attempt_id`, quarantine conflicts, and never copy
+  `practice_progress.json` across stations.
+- Added stable `attempt_id` values to new Practice, Words, and Signal Sprint
+  attempt records so future cross-station sync can merge immutable records
+  without relying on newest timestamp wins.
 
 ### Ready Next
 
@@ -874,6 +881,9 @@ When asked to do the daily wrap-up, update:
 - Update AWS permissions so Pappy's station credential can read the three
   `stations/*/snapshots/latest_progress.json` files, then refresh
   `/admin/family` and confirm all three stations appear as available.
+- Build a dry-run student attempt sync report: list local attempts that would
+  upload, cloud attempts that would download, and any duplicate/conflict cases
+  without writing student files.
 - Decide whether to enable any automatic update timer on deployed stations, or keep updates as adult-triggered `Update App` only until the stations have been used at the grandkids' homes.
 - Prepare the future remote command path after the first home deployment: AWS IoT preferred for lower-cost commands; Systems Manager remains the practical fallback if remote shell access becomes necessary.
 - Keep testing Words/Daily with Astrid/Liara/Pappy/Campbell/Olivea, especially auto-advance, progress clarity, and whether Words should remain bonus-only or join Daily Mission.
