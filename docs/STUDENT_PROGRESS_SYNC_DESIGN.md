@@ -33,12 +33,16 @@ Implemented:
   attempts as immutable `morsepi-student-attempt-v1` objects only after a clean
   cloud check. It refuses to upload if cloud access errors or local attempt ID
   conflicts exist.
+- The script also has a manual `--sync` mode that uploads local attempts,
+  downloads the cloud attempt union for the station roster, backs up local
+  attempt/progress files, rewrites merged attempt logs, quarantines conflicts,
+  and rebuilds `practice_progress.json` from merged Practice attempts.
 
 Not implemented:
 
 - Automatic cross-station practice attempt upload/download.
 - Automatic merge back to home stations.
-- Rebuild of Words or Sprint progress from a merged cloud log.
+- Timer/idle integration for full sync.
 - Conflict resolution UI.
 
 ## Core Rule
@@ -203,6 +207,9 @@ Phase D: download and rebuild behind adult action.
 - Merge by attempt ID.
 - Rebuild derived progress.
 - Show summary before/after.
+- Current implementation: `python3 scripts/student_attempt_sync.py --sync`
+  performs the merge/rebuild as a manual command and refuses to apply logs when
+  cloud errors or conflicts are found.
 
 Phase E: safe automatic sync.
 

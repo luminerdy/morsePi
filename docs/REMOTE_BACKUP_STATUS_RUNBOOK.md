@@ -227,6 +227,17 @@ Expected before upload-only testing:
 - new or clean grandkid stations may show `Would upload: 0` until students
   practice there
 
+Manual full sync:
+
+```bash
+python3 scripts/student_attempt_sync.py --sync
+```
+
+This uploads local attempts, downloads cloud attempts for the station roster,
+backs up local attempt/progress files under `data/sync_backups/`, rewrites the
+merged attempt logs, and rebuilds `practice_progress.json`. It refuses to apply
+merged logs if cloud errors or attempt ID conflicts are found.
+
 ## Optional Backup Timer
 
 Install after the station is tested locally:

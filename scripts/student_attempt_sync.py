@@ -1,6 +1,7 @@
 import argparse
 import hashlib
 import json
+import shutil
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -19,6 +20,7 @@ ATTEMPT_FILES = {
     "words": "word_attempts.jsonl",
     "bonus": "bonus_attempts.jsonl",
 }
+PRACTICE_MODES = {"send", "read", "listen", "echo", "learn"}
 
 
 def utc_now():
@@ -95,6 +97,10 @@ def iter_jsonl(path):
 
 def canonical_payload(record):
     return json.dumps(record, sort_keys=True, separators=(",", ":"))
+
+
+def jsonl_payload(record):
+    return json.dumps(record, sort_keys=True)
 
 
 def legacy_attempt_id(kind, station_id, student_id, line_number, record):
@@ -212,6 +218,64 @@ def cloud_existing_keys(store, students):
     return existing, errors
 
 
+def normalize_cloud_attempt(key, value):
+    if not isinstance(value, dict):
+        return None
+    payload = value.get("attempt") if value.get("format") == "morsepi-student-attempt-v1" else value
+    if not isinstance(payload, dict):
+        return None
+    parts = Path(key).parts
+    if len(parts) >= 5:
+        payload = dict(payload)
+        payload.setdefault("student_id", parts[1])
+        payload.setdefault("attempt_id", parts[-1].removesuffix(".json"))
+    return payload
+
+
+def download_cloud_attempts(store, students):
+    attempts = []
+    errors = []
+    keys, list_errors = cloud_existing_keys(store, students)
+    errors.extend(list_errors)
+    if errors:
+        return attempts, errors
+
+    for key in sorted(keys):
+        parts = Path(key).parts
+        if len(parts) < 5:
+            continue
+        kind = parts[3]
+        student_id = parts[1]
+        if kind not in ATTEMPT_FILES:
+            continue
+        try:
+            value = store.get_json(key)
+            payload = normalize_cloud_attempt(key, value)
+        except Exception as exc:
+            errors.append({
+                "key": key,
+                "error": str(exc).splitlines()[-1][:240],
+            })
+            continue
+        if payload is None:
+            errors.append({
+                "key": key,
+                "error": "Invalid cloud attempt payload.",
+            })
+            continue
+        payload.setdefault("student_id", student_id)
+        payload.setdefault("attempt_id", parts[-1].removesuffix(".json"))
+        attempts.append({
+            "canonical": canonical_payload(payload),
+            "kind": kind,
+            "key": key,
+            "payload": payload,
+            "student_id": student_id,
+        })
+
+    return attempts, errors
+
+
 def sync_state(data_dir=DEFAULT_DATA_DIR, config_path=DEFAULT_CONFIG_PATH, check_cloud=True, store=None):
     data_dir = Path(data_dir)
     config = load_station_config(config_path)
@@ -234,6 +298,7 @@ def sync_state(data_dir=DEFAULT_DATA_DIR, config_path=DEFAULT_CONFIG_PATH, check
         "existing": existing,
         "malformed_records": malformed,
         "station_id": station_id,
+        "roster": students,
         "students": by_student,
         "upload_keys": upload_keys,
     }
@@ -294,6 +359,164 @@ def upload_attempts(data_dir=DEFAULT_DATA_DIR, config_path=DEFAULT_CONFIG_PATH, 
     }
 
 
+def backup_sync_files(data_dir, students):
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    backup_root = Path(data_dir) / "sync_backups" / timestamp
+    copied = 0
+    for student in students:
+        student_id = student["id"]
+        source_dir = Path(data_dir) / "students" / student_id
+        for filename in list(ATTEMPT_FILES.values()) + ["practice_progress.json"]:
+            source = source_dir / filename
+            if not source.exists():
+                continue
+            target = backup_root / student_id / filename
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, target)
+            copied += 1
+    return backup_root if copied else None
+
+
+def merge_attempt_maps(local_attempts_by_key, cloud_attempts):
+    merged = dict(local_attempts_by_key)
+    conflicts = []
+    downloaded = 0
+
+    for attempt in cloud_attempts:
+        existing = merged.get(attempt["key"])
+        if existing is None:
+            merged[attempt["key"]] = attempt
+            downloaded += 1
+            continue
+        if existing["canonical"] != attempt["canonical"]:
+            conflicts.append({
+                "key": attempt["key"],
+                "local": existing["payload"],
+                "cloud": attempt["payload"],
+            })
+
+    return merged, conflicts, downloaded
+
+
+def write_conflicts(data_dir, conflicts):
+    if not conflicts:
+        return None
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    path = Path(data_dir) / "sync_conflicts" / f"{timestamp}.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(conflicts, indent=2, sort_keys=True), encoding="utf-8")
+    return path
+
+
+def write_merged_attempt_logs(data_dir, students, merged_attempts):
+    by_student_kind = {}
+    roster_ids = {student["id"] for student in students}
+    for attempt in merged_attempts.values():
+        student_id = attempt["student_id"]
+        kind = attempt["kind"]
+        if student_id not in roster_ids or kind not in ATTEMPT_FILES:
+            continue
+        by_student_kind.setdefault((student_id, kind), []).append(attempt["payload"])
+
+    written = {}
+    for student in students:
+        student_id = student["id"]
+        student_dir = Path(data_dir) / "students" / student_id
+        student_dir.mkdir(parents=True, exist_ok=True)
+        for kind, filename in ATTEMPT_FILES.items():
+            records = sorted(
+                by_student_kind.get((student_id, kind), []),
+                key=lambda item: (str(item.get("timestamp", "")), str(item.get("attempt_id", ""))),
+            )
+            path = student_dir / filename
+            if records:
+                path.write_text(
+                    "\n".join(jsonl_payload(record) for record in records) + "\n",
+                    encoding="utf-8",
+                )
+            elif path.exists():
+                path.unlink()
+            written[f"{student_id}:{kind}"] = len(records)
+    return written
+
+
+def empty_progress_record():
+    return {
+        "attempts": 0,
+        "correct": 0,
+        "last_seen": "",
+        "streak": 0,
+        "strength": 0.0,
+    }
+
+
+def rebuild_practice_progress(data_dir, students):
+    rebuilt = {}
+    for student in students:
+        student_id = student["id"]
+        progress = {}
+        attempts = []
+        student_dir = Path(data_dir) / "students" / student_id
+        for _, record in iter_jsonl(student_dir / "practice_attempts.jsonl"):
+            if record is not None:
+                attempts.append(record)
+        attempts.sort(key=lambda item: str(item.get("timestamp", "")))
+
+        for attempt in attempts:
+            letter = str(attempt.get("target", "")).upper()
+            mode = str(attempt.get("mode", "send")).lower()
+            if not letter or mode not in PRACTICE_MODES:
+                continue
+            letter_progress = progress.setdefault(letter, {})
+            record = letter_progress.setdefault(mode, empty_progress_record())
+            record["attempts"] += 1
+            record["last_seen"] = str(attempt.get("timestamp", "")) or utc_now()
+            if attempt.get("correct"):
+                record["correct"] += 1
+                record["streak"] += 1
+                record["strength"] = min(1.0, record["strength"] + 0.18 + min(record["streak"], 4) * 0.02)
+            else:
+                record["streak"] = 0
+                record["strength"] = max(0.0, record["strength"] - 0.35)
+
+        output = student_dir / "practice_progress.json"
+        output.write_text(json.dumps(progress, indent=2, sort_keys=True), encoding="utf-8")
+        rebuilt[student_id] = len(attempts)
+    return rebuilt
+
+
+def full_sync_attempts(data_dir=DEFAULT_DATA_DIR, config_path=DEFAULT_CONFIG_PATH, store=None):
+    state = sync_state(data_dir, config_path, check_cloud=True, store=store)
+    if not state["cloud_checked"]:
+        raise RuntimeError("Cloud store is not configured; cannot sync attempts.")
+    if state["cloud_errors"]:
+        raise RuntimeError("Cloud access errors must be fixed before syncing attempts.")
+    if state["conflicts"]:
+        raise RuntimeError("Local attempt ID conflicts must be fixed before syncing attempts.")
+
+    upload_result = upload_attempts(data_dir, config_path, store=store)
+    cloud_attempts, cloud_errors = download_cloud_attempts(store, state["roster"])
+    if cloud_errors:
+        raise RuntimeError("Cloud download errors must be fixed before applying merged attempts.")
+
+    merged, merge_conflicts, downloaded = merge_attempt_maps(state["attempts_by_key"], cloud_attempts)
+    conflict_path = write_conflicts(data_dir, merge_conflicts)
+    if merge_conflicts:
+        raise RuntimeError(f"Cloud attempt conflicts written to {conflict_path}; merged logs were not applied.")
+
+    backup_path = backup_sync_files(data_dir, state["roster"])
+    written = write_merged_attempt_logs(data_dir, state["roster"], merged)
+    rebuilt = rebuild_practice_progress(data_dir, state["roster"])
+    return {
+        "backup_path": str(backup_path) if backup_path else "",
+        "cloud_attempts": len(cloud_attempts),
+        "downloaded": downloaded,
+        "rebuilt": rebuilt,
+        "uploaded": upload_result["uploaded"],
+        "written": written,
+    }
+
+
 def write_report(report, output_path=DEFAULT_OUTPUT_PATH):
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -308,6 +531,7 @@ def parse_args():
     parser.add_argument("--no-cloud", action="store_true", help="Do not query S3; report local upload candidates only.")
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT_PATH), help="Report JSON output path.")
     parser.add_argument("--upload", action="store_true", help="Upload missing local attempts after a clean cloud check.")
+    parser.add_argument("--sync", action="store_true", help="Upload, download, merge, and rebuild local derived progress.")
     return parser.parse_args()
 
 
@@ -322,11 +546,21 @@ def main():
     print(f"Would upload: {report['summary']['would_upload']}")
     print(f"Cloud errors: {len(report['cloud_errors'])}")
     print(f"Conflicts: {report['summary']['local_conflicts']}")
+    if args.sync and args.no_cloud:
+        raise SystemExit("--sync cannot be combined with --no-cloud")
+    if args.sync and args.upload:
+        raise SystemExit("--sync already uploads; do not combine it with --upload")
     if args.upload:
         if args.no_cloud:
             raise SystemExit("--upload cannot be combined with --no-cloud")
         result = upload_attempts(args.data_dir, args.config)
         print(f"Uploaded attempts: {result['uploaded']}")
+    if args.sync:
+        result = full_sync_attempts(args.data_dir, args.config)
+        print(f"Uploaded attempts: {result['uploaded']}")
+        print(f"Cloud attempts read: {result['cloud_attempts']}")
+        print(f"Downloaded attempts added: {result['downloaded']}")
+        print(f"Backup path: {result['backup_path'] or 'not needed'}")
 
 
 if __name__ == "__main__":

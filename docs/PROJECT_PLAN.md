@@ -923,15 +923,20 @@ When asked to do the daily wrap-up, update:
   grandkid stations are clean at `Would upload: 0`.
 - Fixed the attempt-sync dry-run boundary so each station checks only its
   configured local student roster, not every family profile cached on that Pi.
+- Started full student progress sync with a manual `--sync` path. The sync
+  uploads local attempts, downloads the cloud attempt union for the station
+  roster, backs up attempt/progress files, rewrites merged logs, rebuilds
+  `practice_progress.json`, and refuses to apply changes when cloud errors or
+  conflicts exist.
 
 ### Ready Next
 
 - Update AWS permissions so Pappy's station credential can read the three
   `stations/*/snapshots/latest_progress.json` files, then refresh
   `/admin/family` and confirm all three stations appear as available.
-- Test the manual `scripts/student_attempt_sync.py --upload` path first on
-  Pappy, then rerun cloud-aware reports on all stations and confirm uploaded
-  attempts are counted as existing rather than pending.
+- Test the manual `scripts/student_attempt_sync.py --sync` path first on Pappy,
+  then rerun cloud-aware reports on all stations and confirm uploaded attempts
+  are counted as existing rather than pending.
 - After upload-only passes with real station data, design the adult-controlled
   download/rebuild step with backups and before/after summaries.
 - Decide the away-from-home command trigger after the stations leave Pappy's
