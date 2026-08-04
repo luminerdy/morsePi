@@ -300,6 +300,7 @@ def sync_state(data_dir=DEFAULT_DATA_DIR, config_path=DEFAULT_CONFIG_PATH, check
         "station_id": station_id,
         "roster": students,
         "students": by_student,
+        "store": store,
         "upload_keys": upload_keys,
     }
 
@@ -332,6 +333,7 @@ def build_report(data_dir=DEFAULT_DATA_DIR, config_path=DEFAULT_CONFIG_PATH, che
 
 def upload_attempts(data_dir=DEFAULT_DATA_DIR, config_path=DEFAULT_CONFIG_PATH, store=None):
     state = sync_state(data_dir, config_path, check_cloud=True, store=store)
+    store = state["store"]
     if not state["cloud_checked"]:
         raise RuntimeError("Cloud store is not configured; cannot upload attempts.")
     if state["cloud_errors"]:
@@ -487,6 +489,7 @@ def rebuild_practice_progress(data_dir, students):
 
 def full_sync_attempts(data_dir=DEFAULT_DATA_DIR, config_path=DEFAULT_CONFIG_PATH, store=None):
     state = sync_state(data_dir, config_path, check_cloud=True, store=store)
+    store = state["store"]
     if not state["cloud_checked"]:
         raise RuntimeError("Cloud store is not configured; cannot sync attempts.")
     if state["cloud_errors"]:
