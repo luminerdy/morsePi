@@ -1224,7 +1224,7 @@
     min-height: 0;
     display: grid;
     grid-template-columns: minmax(0, 1fr) 210px;
-    grid-template-rows: 112px 74px 90px minmax(0, 1fr);
+    grid-template-rows: 96px 66px 76px 58px minmax(0, 1fr);
     gap: 8px;
 }
 
@@ -1332,7 +1332,7 @@
 
 .touch-word-actions {
     grid-column: 2;
-    grid-row: 1 / 5;
+    grid-row: 1 / 6;
     display: grid;
     gap: 8px;
 }
@@ -1345,6 +1345,94 @@
     align-items: center;
     justify-content: center;
     text-align: center;
+}
+
+.touch-rhythm-coach {
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    gap: 6px;
+    padding: 8px 10px;
+}
+
+.touch-rhythm-coach[hidden] {
+    display: none;
+}
+
+.touch-rhythm-coach p {
+    font-size: 16px;
+    color: var(--text);
+}
+
+.touch-rhythm-rows {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.touch-rhythm-rows small {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.touch-rhythm-track {
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow-x: auto;
+}
+
+.touch-rhythm-segment {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    min-height: 28px;
+    padding: 3px 7px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: var(--surface-muted);
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.touch-rhythm-segment.gap {
+    min-width: 10px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.touch-rhythm-segment.gap.symbol {
+    width: 10px;
+    padding: 3px 0;
+}
+
+.touch-rhythm-segment.gap.letter {
+    min-width: 64px;
+}
+
+.touch-rhythm-segment.gap.word {
+    min-width: 76px;
+}
+
+.touch-rhythm-segment.good {
+    border-color: #9bd0ad;
+    background: #edf8f1;
+}
+
+.touch-rhythm-segment.too-long,
+.touch-rhythm-segment.too-short,
+.touch-rhythm-segment.check,
+.touch-rhythm-segment.extra {
+    border-color: #e4b14f;
+    background: #fff3d6;
 }
 
 .touch-words-layout.word-correct-reward .touch-word-card {

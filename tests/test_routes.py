@@ -814,6 +814,11 @@ class RouteRenderTests(unittest.TestCase):
                 "elapsed_ms": 2400,
                 "timing_events": [
                     {"type": "symbol", "symbol": ".", "duration_ms": 100},
+                    {"type": "gap", "gap_type": "symbol", "duration_ms": 100},
+                    {"type": "symbol", "symbol": "-", "duration_ms": 310},
+                    {"type": "gap", "gap_type": "letter", "duration_ms": 320},
+                    {"type": "symbol", "symbol": "-", "duration_ms": 310},
+                    {"type": "gap", "gap_type": "symbol", "duration_ms": 100},
                     {"type": "symbol", "symbol": "-", "duration_ms": 310},
                 ],
             },
@@ -830,7 +835,10 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(32, len(payload["attempt"]["attempt_id"]))
         self.assertEqual(32, len(word_record["attempt_id"]))
         self.assertEqual("AM", word_record["decoded"])
-        self.assertEqual(2, word_record["timing_summary"]["symbol_count"])
+        self.assertEqual(4, word_record["timing_summary"]["symbol_count"])
+        self.assertEqual("Great rhythm.", payload["rhythm"]["message"])
+        self.assertTrue(payload["rhythm"]["target"])
+        self.assertTrue(payload["rhythm"]["actual"])
         self.assertFalse(self.student_file("pappy", "practice_attempts.jsonl").exists())
 
     def test_word_result_recomputes_correctness_server_side(self):

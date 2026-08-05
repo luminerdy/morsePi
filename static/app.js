@@ -663,6 +663,53 @@ function setWordFeedback(message) {
     }
 }
 
+function setWordRhythmCoach(rhythm) {
+    const panel = document.getElementById("wordRhythmCoach");
+    const message = document.getElementById("wordRhythmMessage");
+    const target = document.getElementById("wordRhythmTarget");
+    const actual = document.getElementById("wordRhythmActual");
+
+    if (!panel || !message || !target || !actual) {
+        return;
+    }
+
+    target.innerHTML = "";
+    actual.innerHTML = "";
+
+    if (!rhythm || !Array.isArray(rhythm.target) || !Array.isArray(rhythm.actual) || rhythm.actual.length === 0) {
+        panel.hidden = true;
+        message.innerText = "";
+        return;
+    }
+
+    message.innerText = rhythm.message || "";
+    renderRhythmTrack(target, rhythm.target);
+    renderRhythmTrack(actual, rhythm.actual);
+    panel.hidden = false;
+}
+
+function renderRhythmTrack(element, segments) {
+    segments.forEach(segment => {
+        const item = document.createElement("span");
+        const type = segment.type === "gap" ? "gap" : "symbol";
+        const status = segment.status || "target";
+        item.className = `touch-rhythm-segment ${type} ${status}`;
+
+        if (segment.type === "gap") {
+            item.classList.add(segment.gap_type || "symbol");
+            item.innerText = segment.gap_type === "word" ? "word pause" : segment.gap_type === "letter" ? "letter pause" : "|";
+        } else {
+            item.innerText = segment.label || "";
+        }
+
+        if (segment.duration_ms !== undefined && segment.duration_ms !== null) {
+            item.title = `${segment.duration_ms} ms`;
+        }
+
+        element.appendChild(item);
+    });
+}
+
 function resetPracticeAutoCheck() {
     if (practiceCheckTimer) {
         clearTimeout(practiceCheckTimer);
@@ -686,6 +733,7 @@ function resetWordAutoCheck() {
     pendingWordMorse = "";
     wordStartedAt = null;
     setWordFeedback("");
+    setWordRhythmCoach(null);
 }
 
 function scheduleWordAutoCheck(rawMorse, decoded = "") {
@@ -734,13 +782,14 @@ function scheduleWordAutoCheck(rawMorse, decoded = "") {
     }, 1300);
 }
 
-function checkWordAnswer(actualMorse, expectedMorse, target, decoded = "") {
+async function checkWordAnswer(actualMorse, expectedMorse, target, decoded = "") {
     lastCheckedWordMorse = actualMorse;
     pendingWordMorse = "";
     const correct = actualMorse === expectedMorse;
     const elapsedMs = wordStartedAt === null ? null : Math.round(performance.now() - wordStartedAt);
 
-    recordWordResult(target, correct, actualMorse, expectedMorse, decoded, elapsedMs);
+    const result = await recordWordResult(target, correct, actualMorse, expectedMorse, decoded, elapsedMs);
+    setWordRhythmCoach(result ? result.rhythm : null);
 
     if (correct) {
         setWordFeedback(`Correct: ${target}.`);
@@ -755,7 +804,7 @@ function checkWordAnswer(actualMorse, expectedMorse, target, decoded = "") {
 
 async function recordWordResult(target, correct, actualMorse, expectedMorse, decoded, elapsedMs) {
     try {
-        await fetch("/words/result", {
+        const response = await fetch("/words/result", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -770,8 +819,13 @@ async function recordWordResult(target, correct, actualMorse, expectedMorse, dec
                 timing_events: keyboardKeyerActive ? keyboardTimingEvents : []
             })
         });
+        if (!response.ok) {
+            return null;
+        }
+        return await response.json();
     } catch (error) {
         console.log("Unable to record word result", error);
+        return null;
     }
 }
 

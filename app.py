@@ -33,6 +33,7 @@ from message_store import (
 )
 from message_sync import load_family_learning_summary, refresh_local_learning_summary
 from practice_attempts import append_practice_attempt, normalize_timing_events, rounded_ms, set_attempts_path, timing_summary
+from rhythm_coach import rhythm_coach
 from practice_progress import all_mode_details, choose_next_letter, mode_score, overall_score, progress_summary, record_attempt, save_progress, set_progress_path
 import student_profiles as student_profile_store
 from student_profiles import (
@@ -3965,6 +3966,12 @@ def words_result():
     return jsonify({
         "status": "recorded",
         "attempt": attempt_record,
+        "rhythm": rhythm_coach(
+            expected_morse,
+            actual_morse,
+            attempt_record.get("timing_events", []),
+            is_correct,
+        ),
     })
 
 

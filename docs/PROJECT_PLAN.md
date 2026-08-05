@@ -988,6 +988,11 @@ When asked to do the daily wrap-up, update:
   from merged Learn attempts. This keeps Daily, Learning Now, active letters,
   and Words unlocks aligned across stations without copying another station's
   learning file directly.
+- Started the Words Rhythm Coach slice. `/words/result` now returns a target vs
+  keyed rhythm comparison, the touch Words screen renders visible symbol,
+  letter-pause, and word-pause markers after an attempt, and the first feedback
+  message calls out spacing mistakes such as a letter pause that was long
+  enough to sound like a word break.
 
 ### Ready Next
 
