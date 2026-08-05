@@ -83,6 +83,7 @@ sudo apt install -y \
   python3-flask \
   python3-gpiozero \
   python3-lgpio \
+  python3-pytest \
   python3-rpi.gpio
 ```
 
@@ -745,6 +746,7 @@ Make sure no other hardware test script is still running. The web app owns GPIO1
 - User `morse` created
 - System packages installed
 - `python3 scripts/check_dependencies.py` shows required items as `OK`
+- `python3 -m pytest --version` works
 - Repo cloned to `/home/morse/morse-station`
 - Telegraph key wired to GPIO17
 - LED wired to GPIO27 with resistor
