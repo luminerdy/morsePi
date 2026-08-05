@@ -504,10 +504,10 @@ async function updateLiveKey() {
 
         if (data.morse) {
             renderMorseVisual(liveMorse, data.morse);
-            liveDecoded.innerText = data.decoded || "---";
+            liveDecoded.innerText = data.decoded || "?";
         } else {
             renderMorseVisual(liveMorse, "", "Waiting for key...");
-            liveDecoded.innerText = "---";
+            liveDecoded.innerText = "";
         }
 
         const messageKeyedWordMorse = document.getElementById("messageKeyedWordMorse");
@@ -1300,7 +1300,7 @@ function resetLiveKeyDisplay() {
     }
 
     if (liveDecoded) {
-        liveDecoded.innerText = "---";
+        liveDecoded.innerText = "";
     }
 }
 
@@ -1341,7 +1341,7 @@ function updateVirtualKeyerDisplay() {
     }
 
     if (liveDecoded) {
-        liveDecoded.innerText = morse ? (MORSE_DECODE[morse] || "?") : "---";
+        liveDecoded.innerText = morse ? (MORSE_DECODE[morse] || "?") : "";
     }
 
     schedulePracticeAutoCheck(morse);

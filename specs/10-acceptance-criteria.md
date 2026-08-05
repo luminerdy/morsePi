@@ -73,7 +73,9 @@ correctness checks. Each is encoded as an automated test per
   or page scrolling. Primary message actions have centered labels. An
   incomplete, unknown, or unavailable keyed word is not added.
   Retrying a partially keyed word clears only the live key buffer and preserves
-  every completed word already in the draft.
+  every completed word already in the draft. Live decoded readouts remain blank
+  until the student keys input, then show the decoded character or `?` for an
+  unknown pattern; they do not use dash placeholders that resemble Morse code.
 - **AC-016** (FR-044...FR-046) Opening a two-word fixture reveals no plaintext.
   Whole-message, word, and letter playback drive mock audio and LED together;
   correct four-choice answers fill only the selected slots; progressive hints

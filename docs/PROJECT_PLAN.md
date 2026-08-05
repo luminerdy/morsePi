@@ -963,6 +963,17 @@ When asked to do the daily wrap-up, update:
 - Close-of-day station status: Pappy, Astrid/Liara, and Campbell/Olivea are all
   updated with the Learn-mode mix and have active app services.
 
+### 2026-08-05
+
+- Cleaned up the live decoded readout across desktop keyer, touch keyer,
+  Practice, Echo, Learn, Send, Sprint, Words, and message compose screens.
+  Empty input now leaves the decoded box blank instead of showing `---`, which
+  could be mistaken for the Morse pattern for `O`.
+- Unknown keyed patterns still show `?` after input so students get feedback
+  without confusing idle state with a real Morse character.
+- Added a regression test to prevent `liveDecoded` placeholders from returning
+  to dash-like Morse text in templates or shared JavaScript.
+
 ### Ready Next
 
 - Let Pappy run normal practice tomorrow and watch the new Learn-mode 40/60 mix:
