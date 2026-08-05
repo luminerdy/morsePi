@@ -83,7 +83,9 @@ correctness checks. Each is encoded as an automated test per
   word-pause markers, and SHALL highlight a too-long letter pause as a
   word-break style issue with friendly feedback. When a keyed word is not
   correct, the student-facing feedback SHALL explicitly remind the student to
-  clear the attempt before trying again.
+  clear the attempt before trying again. Opening a Words prompt SHALL
+  automatically play the word on the station speaker and LED; Next SHALL load
+  and play the next word.
 - **AC-016** (FR-044...FR-046) Opening a two-word fixture reveals no plaintext.
   Whole-message, word, and letter playback drive mock audio and LED together;
   correct four-choice answers fill only the selected slots; progressive hints

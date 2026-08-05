@@ -414,7 +414,7 @@ async function initializeWordPractice() {
 
     const params = new URLSearchParams(window.location.search);
 
-    if (params.get("autoplay") === "1") {
+    if (params.get("autoplay") !== "0") {
         setTimeout(playWordCard, 300);
     }
 }
@@ -1747,6 +1747,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initializeDailyMissionReward();
     initializeMessageControls();
     initializeTouchPinPads();
+    initializeWordPractice();
 
     if (document.getElementById("liveMorse") && document.getElementById("liveDecoded")) {
         updateLiveKey();

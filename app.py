@@ -2371,7 +2371,7 @@ def next_unlock_wait_status(active_letters, state, latest_group_state):
 
         return {
             "label": "Words" if words_remaining else "Break",
-            "href": "/touch/words" if words_remaining else "/touch/daily",
+            "href": "/touch/words?autoplay=1" if words_remaining else "/touch/daily",
             "title": "Practice Words" if words_remaining else "Take A Break",
             "detail": f"{' and '.join(parts)} before new signals can open."
         }
