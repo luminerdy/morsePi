@@ -950,30 +950,37 @@ When asked to do the daily wrap-up, update:
   letters with the new group instead of showing almost only the new letters.
   The first implementation uses a 40% Learning Now / 60% current-set review
   prompt split while the completion gate still measures the new letters.
+- Updated the route regression test to match the new Learn-mode mix so the Pi
+  release gate verifies both behaviors: review letters can appear, and the
+  current Learning Now letters remain the measured focus.
+- Rolled the Learn-mode 40/60 review mix to the two Git-backed grandkid
+  stations on `release/pi`; both stations passed the full Pi-side route suite
+  and restarted with active services.
+- Copied the same app/test updates to Pappy's file-deployed station; focused
+  Pi-side route and learning-gate tests passed and the app service is active.
+- Close-of-day GitHub status: Learn-mode review mix, tests, and documentation
+  are committed and pushed to both `main` and `release/pi`.
+- Close-of-day station status: Pappy, Astrid/Liara, and Campbell/Olivea are all
+  updated with the Learn-mode mix and have active app services.
 
 ### Ready Next
 
-- Update AWS permissions so Pappy's station credential can read the three
-  `stations/*/snapshots/latest_progress.json` files, then refresh
-  `/admin/family` and confirm all three stations appear as available.
-- Test the manual `scripts/student_attempt_sync.py --sync` path first on Pappy,
-  then rerun cloud-aware reports on all stations and confirm uploaded attempts
-  are counted as existing rather than pending.
-- Test guarded sync behavior on Pappy: confirm normal `--sync` skips while the
-  app is recently active, `--sync --force` completes, and the status file is
-  clear enough for troubleshooting.
-- If Pappy testing is good, enable the sync timer on Pappy only for a short soak
-  before enabling it on the two grandkid units.
-- After upload-only passes with real station data, design the adult-controlled
-  download/rebuild step with backups and before/after summaries.
-- Decide the away-from-home command trigger after the stations leave Pappy's
-  LAN. Preferred low-cost path remains AWS IoT triggering the same local updater;
-  Systems Manager remains the fuller remote-admin option if we accept the device
-  cost.
+- Let Pappy run normal practice tomorrow and watch the new Learn-mode 40/60 mix:
+  new Learning Now letters should appear regularly, but known letters should
+  keep coming back for reinforcement.
+- Enable the guarded 30-minute progress-sync timer on Pappy only for a short
+  soak. Confirm it skips during recent use, completes after idle time, and
+  writes a clear `data/sync_reports/latest_sync_status.json`.
+- After the Pappy sync soak looks good, enable the same guarded progress-sync
+  timer on Astrid/Liara and Campbell/Olivea before the stations leave home.
 - Run one kid-style smoke test on each grandkid unit before it leaves home:
   choose each student, complete one Daily/Learn/Send action with the physical
   keyer, verify progress sticks after switching users, then run a final
   backup/status/snapshot cycle.
+- Decide the away-from-home command trigger after the stations leave Pappy's
+  LAN. Preferred low-cost path remains AWS IoT triggering the same local updater;
+  Systems Manager remains the fuller remote-admin option if we accept the device
+  cost.
 - Kid-test the complete local message flow on Pappy's station: choose a
   recipient, build and correct a short message, review/play/send it, switch
   users, and decode it with and without hints.
