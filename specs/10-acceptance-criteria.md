@@ -64,7 +64,7 @@ correctness checks. Each is encoded as an automated test per
   PIN. The touch menu exposes a `Power` action; `GET /touch/shutdown` renders a
   confirmation page, POST without confirmation returns to the menu, and POST
   with confirmation starts the shutdown worker. Before powering off, the worker
-  SHALL make a bounded best-effort attempt to force student-attempt sync,
+  SHALL make a bounded best-effort attempt to upload local student attempts,
   publish a fresh progress snapshot, and publish station status, then tell the
   student to wait for the screen to go dark before using the station power
   switch.
