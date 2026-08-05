@@ -678,6 +678,7 @@ function setWordRhythmCoach(rhythm) {
 
     if (!rhythm || !Array.isArray(rhythm.target) || !Array.isArray(rhythm.actual) || rhythm.actual.length === 0) {
         panel.hidden = true;
+        panel.closest(".touch-words-layout")?.classList.remove("has-rhythm-coach");
         message.innerText = "";
         return;
     }
@@ -686,6 +687,7 @@ function setWordRhythmCoach(rhythm) {
     renderRhythmTrack(target, rhythm.target);
     renderRhythmTrack(actual, rhythm.actual);
     panel.hidden = false;
+    panel.closest(".touch-words-layout")?.classList.add("has-rhythm-coach");
 }
 
 function renderRhythmTrack(element, segments) {
@@ -697,7 +699,8 @@ function renderRhythmTrack(element, segments) {
 
         if (segment.type === "gap") {
             item.classList.add(segment.gap_type || "symbol");
-            item.innerText = segment.gap_type === "word" ? "word pause" : segment.gap_type === "letter" ? "letter pause" : "|";
+            item.innerText = segment.gap_type === "word" ? "word pause" : segment.gap_type === "letter" ? "letter pause" : "";
+            item.setAttribute("aria-label", segment.label || "symbol pause");
         } else {
             item.innerText = segment.label || "";
         }
