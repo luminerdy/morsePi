@@ -81,7 +81,9 @@ correctness checks. Each is encoded as an automated test per
   stacked, full-width rows that fit longer early words such as `NOT` on the
   800x480 touch screen. It SHALL use visible symbol, letter-pause, and
   word-pause markers, and SHALL highlight a too-long letter pause as a
-  word-break style issue with friendly feedback.
+  word-break style issue with friendly feedback. When a keyed word is not
+  correct, the student-facing feedback SHALL explicitly remind the student to
+  clear the attempt before trying again.
 - **AC-016** (FR-044...FR-046) Opening a two-word fixture reveals no plaintext.
   Whole-message, word, and letter playback drive mock audio and LED together;
   correct four-choice answers fill only the selected slots; progressive hints

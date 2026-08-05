@@ -803,7 +803,7 @@ async function checkWordAnswer(actualMorse, expectedMorse, target, decoded = "")
     }
 
     const heard = decoded ? ` I read ${decoded}.` : "";
-    setWordFeedback(`Not yet. Tap Clear, then try ${target} again.${heard}`);
+    setWordFeedback(`Not yet. Clear first, then try ${target} again.${heard}`);
 }
 
 async function recordWordResult(target, correct, actualMorse, expectedMorse, decoded, elapsedMs) {
