@@ -25,6 +25,7 @@ let wordStartedAt = null;
 let wordAutoAdvanceTimer = null;
 
 const KEYBOARD_DASH_THRESHOLD_UNITS = 2.5;
+const WORD_AUTO_ADVANCE_DELAY_MS = 4000;
 const MORSE_DECODE = {
     ".": "E",
     "-": "T",
@@ -855,7 +856,7 @@ function scheduleWordAutoAdvance() {
     cancelWordAutoAdvance();
     wordAutoAdvanceTimer = setTimeout(() => {
         window.location.href = nextLink.href;
-    }, 2000);
+    }, WORD_AUTO_ADVANCE_DELAY_MS);
 }
 
 function schedulePracticeAutoCheck(rawMorse) {
