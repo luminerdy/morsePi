@@ -77,9 +77,11 @@ correctness checks. Each is encoded as an automated test per
   until the student keys input, then show the decoded character or `?` for an
   unknown pattern; they do not use dash placeholders that resemble Morse code.
 - **AC-024** (FR-037 / NFR-016) Words practice SHALL show a compact Rhythm
-  Coach after a keyed attempt. The coach SHALL compare Target and Yours with
-  visible symbol, letter-pause, and word-pause markers, and SHALL highlight a
-  too-long letter pause as a word-break style issue with friendly feedback.
+  Coach after a keyed attempt. The coach SHALL compare Target and Yours as
+  stacked, full-width rows that fit longer early words such as `NOT` on the
+  800x480 touch screen. It SHALL use visible symbol, letter-pause, and
+  word-pause markers, and SHALL highlight a too-long letter pause as a
+  word-break style issue with friendly feedback.
 - **AC-016** (FR-044...FR-046) Opening a two-word fixture reveals no plaintext.
   Whole-message, word, and letter playback drive mock audio and LED together;
   correct four-choice answers fill only the selected slots; progressive hints
