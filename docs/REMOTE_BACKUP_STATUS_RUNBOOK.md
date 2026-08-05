@@ -271,14 +271,17 @@ cat /home/morse/morse-station/data/sync_reports/latest_sync_status.json
 The kid-facing touch `Power Off` flow runs a bounded best-effort sync before
 powering off:
 
-1. `python3 scripts/student_attempt_sync.py --upload`
+1. `python3 scripts/backup_data.py --label shutdown --keep 30`
 2. `python3 scripts/progress_snapshot.py`
 3. `python3 scripts/station_status.py`
 
 The result is written to
 `data/sync_reports/latest_shutdown_sync.json`. This catches the most recent
 practice session before the station is unplugged. It does not replace the
-normal backup timer, update-time backup, or full two-way progress sync.
+normal backup timer, update-time backup, or full two-way progress sync. The
+shutdown path intentionally uses one compact backup object instead of the
+per-attempt sync path because shutdown needs to finish promptly even on slower
+Wi-Fi.
 
 ## Optional Backup Timer
 

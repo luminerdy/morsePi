@@ -994,12 +994,12 @@ When asked to do the daily wrap-up, update:
   message calls out spacing mistakes such as a letter pause that was long
   enough to sound like a word break.
 - Added bounded shutdown sync to the touch `Power Off` flow. When a student
-  powers off the station, the app uploads local student attempts, publishes a
+  powers off the station, the app creates/uploads a shutdown backup, publishes a
   fresh progress snapshot, publishes station status, records
   `data/sync_reports/latest_shutdown_sync.json`, and then powers off.
 - Decision: shutdown sync should be a best-effort save of recent progress, not
-  a full two-way merge or backup zip. Full sync and full backups remain on the
-  timer/update path so kid-facing shutdown stays reasonably quick.
+  a full two-way per-attempt merge. Full attempt sync remains on the
+  timer/manual path so kid-facing shutdown stays reasonably quick.
 
 ### Ready Next
 

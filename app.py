@@ -2981,12 +2981,15 @@ def exit_kiosk_in_background():
 def shutdown_sync_commands():
     return [
         {
-            "name": "student-attempt-upload",
+            "name": "shutdown-backup",
             "timeout": 45,
             "command": [
                 sys.executable,
-                "scripts/student_attempt_sync.py",
-                "--upload",
+                "scripts/backup_data.py",
+                "--label",
+                "shutdown",
+                "--keep",
+                "30",
             ],
         },
         {

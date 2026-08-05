@@ -303,7 +303,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("Wait for the screen to go dark", html)
         self.assertIn("PiSwitch", html)
 
-    def test_shutdown_sync_cycle_uploads_attempts_and_snapshot(self):
+    def test_shutdown_sync_cycle_creates_backup_and_snapshot(self):
         calls = []
 
         def fake_run_system_command(command, timeout=4):
@@ -316,14 +316,14 @@ class RouteRenderTests(unittest.TestCase):
         self.assertTrue(status["ok"])
         self.assertEqual(
             [
-                "student_attempt_sync.py",
+                "backup_data.py",
                 "progress_snapshot.py",
                 "station_status.py",
             ],
             [Path(call[0][1]).name for call in calls],
         )
-        self.assertIn("--upload", calls[0][0])
-        self.assertNotIn("--sync", calls[0][0])
+        self.assertIn("--label", calls[0][0])
+        self.assertIn("shutdown", calls[0][0])
         saved = json.loads(app_module.SHUTDOWN_SYNC_STATUS_PATH.read_text(encoding="utf-8"))
         self.assertEqual("morsepi-shutdown-sync-status-v1", saved["format"])
         self.assertTrue(saved["ok"])
