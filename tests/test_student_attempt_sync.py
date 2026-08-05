@@ -276,6 +276,61 @@ class StudentAttemptSyncTests(unittest.TestCase):
         self.assertEqual(2, progress["E"]["send"]["attempts"])
         self.assertEqual(1, progress["E"]["send"]["correct"])
 
+    def test_full_sync_rebuilds_completed_learning_state_from_learn_attempts(self):
+        cloud_objects = {}
+        for index, letter in enumerate(["S", "O"]):
+            for attempt_number in range(10):
+                attempt_id = f"{index + 1:01x}{attempt_number:031x}"
+                timestamp = f"2026-08-04T12:{index}{attempt_number}:00+00:00"
+                cloud_objects[f"students/astrid/attempts/practice/{attempt_id}.json"] = {
+                    "attempt": {
+                        "attempt_id": attempt_id,
+                        "correct": True,
+                        "mode": "learn",
+                        "station_id": "pappy-test-station",
+                        "student_id": "astrid",
+                        "target": letter,
+                        "timestamp": timestamp,
+                    },
+                    "format": "morsepi-student-attempt-v1",
+                    "kind": "practice",
+                    "student_id": "astrid",
+                }
+
+        result = full_sync_attempts(self.data_dir, self.config, store=PrefixDownloadStore(cloud_objects))
+
+        learning_state = json.loads((self.student_dir / "learning_state.json").read_text(encoding="utf-8"))
+        self.assertEqual(20, result["downloaded"])
+        self.assertEqual({"astrid": 1}, result["rebuilt_learning"])
+        self.assertEqual(["S", "O"], learning_state["groups"]["SO"]["letters"])
+        self.assertEqual("2026-08-04", learning_state["groups"]["SO"]["first_learning_date"])
+
+    def test_full_sync_rebuilds_current_learning_group_from_partial_attempts(self):
+        cloud_objects = {}
+        for attempt_number in range(3):
+            attempt_id = f"a{attempt_number:031x}"
+            cloud_objects[f"students/astrid/attempts/practice/{attempt_id}.json"] = {
+                "attempt": {
+                    "attempt_id": attempt_id,
+                    "correct": True,
+                    "mode": "learn",
+                    "station_id": "pappy-test-station",
+                    "student_id": "astrid",
+                    "target": "S",
+                    "timestamp": f"2026-08-04T12:0{attempt_number}:00+00:00",
+                },
+                "format": "morsepi-student-attempt-v1",
+                "kind": "practice",
+                "student_id": "astrid",
+            }
+
+        result = full_sync_attempts(self.data_dir, self.config, store=PrefixDownloadStore(cloud_objects))
+
+        learning_state = json.loads((self.student_dir / "learning_state.json").read_text(encoding="utf-8"))
+        self.assertEqual(3, result["downloaded"])
+        self.assertEqual({"astrid": 1}, result["rebuilt_learning"])
+        self.assertEqual(["S", "O"], learning_state["groups"]["SO"]["letters"])
+
     def test_full_sync_refuses_cloud_conflict_without_rewriting_logs(self):
         attempt_id = "h" * 32
         self.write_jsonl("practice_attempts.jsonl", [

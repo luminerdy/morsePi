@@ -980,6 +980,14 @@ When asked to do the daily wrap-up, update:
   their household students.
 - Seeded Pappy's current 320 cloud attempts onto both grandkid stations with a
   forced initial sync; both rebuilt Pappy progress locally without conflicts.
+- Identified the first cross-station sync gap from hands-on testing: attempts
+  and `practice_progress.json` synced, but `learning_state.json` did not, so a
+  grandkid station could show Pappy ready to start `S O` again and keep Words
+  locked even after Pappy had completed S/O elsewhere.
+- Updated full progress sync to rebuild conservative learning-state records
+  from merged Learn attempts. This keeps Daily, Learning Now, active letters,
+  and Words unlocks aligned across stations without copying another station's
+  learning file directly.
 
 ### Ready Next
 

@@ -27,6 +27,23 @@ ATTEMPT_FILES = {
     "bonus": "bonus_attempts.jsonl",
 }
 PRACTICE_MODES = {"send", "read", "listen", "echo", "learn"}
+LETTER_UNLOCK_STEPS = [
+    {"letters": ["S", "O"], "threshold": 100},
+    {"letters": ["R", "K"], "threshold": 85},
+    {"letters": ["D", "U"], "threshold": 85},
+    {"letters": ["C", "L"], "threshold": 85},
+    {"letters": ["P", "F"], "threshold": 85},
+    {"letters": ["W", "Y"], "threshold": 85},
+    {"letters": ["B", "G"], "threshold": 85},
+    {"letters": ["V", "H"], "threshold": 85},
+    {"letters": ["Q", "Z"], "threshold": 85},
+    {"letters": ["X", "J"], "threshold": 85},
+    {"letters": ["1", "2", "3"], "threshold": 85},
+    {"letters": ["4", "5", "6"], "threshold": 85},
+    {"letters": ["7", "8", "9", "0"], "threshold": 85},
+]
+LEARN_READY_ATTEMPTS = 10
+LEARN_READY_STRENGTH = 70
 
 
 def utc_now():
@@ -605,11 +622,36 @@ def empty_progress_record():
     }
 
 
+def apply_practice_attempt_to_progress(progress, attempt):
+    letter = str(attempt.get("target", "")).upper()
+    mode = str(attempt.get("mode", "send")).lower()
+    if not letter or mode not in PRACTICE_MODES:
+        return
+
+    letter_progress = progress.setdefault(letter, {})
+    record = letter_progress.setdefault(mode, empty_progress_record())
+    record["attempts"] += 1
+    record["last_seen"] = str(attempt.get("timestamp", "")) or utc_now()
+    if attempt.get("correct"):
+        record["correct"] += 1
+        record["streak"] += 1
+        record["strength"] = min(1.0, record["strength"] + 0.18 + min(record["streak"], 4) * 0.02)
+    else:
+        record["streak"] = 0
+        record["strength"] = max(0.0, record["strength"] - 0.35)
+
+
+def build_practice_progress(attempts):
+    progress = {}
+    for attempt in sorted(attempts, key=lambda item: str(item.get("timestamp", ""))):
+        apply_practice_attempt_to_progress(progress, attempt)
+    return progress
+
+
 def rebuild_practice_progress(data_dir, students):
     rebuilt = {}
     for student in students:
         student_id = student["id"]
-        progress = {}
         attempts = []
         student_dir = Path(data_dir) / "students" / student_id
         for _, record in iter_jsonl(student_dir / "practice_attempts.jsonl"):
@@ -617,28 +659,91 @@ def rebuild_practice_progress(data_dir, students):
                 attempts.append(record)
         if not attempts:
             continue
-        attempts.sort(key=lambda item: str(item.get("timestamp", "")))
 
-        for attempt in attempts:
-            letter = str(attempt.get("target", "")).upper()
-            mode = str(attempt.get("mode", "send")).lower()
-            if not letter or mode not in PRACTICE_MODES:
-                continue
-            letter_progress = progress.setdefault(letter, {})
-            record = letter_progress.setdefault(mode, empty_progress_record())
-            record["attempts"] += 1
-            record["last_seen"] = str(attempt.get("timestamp", "")) or utc_now()
-            if attempt.get("correct"):
-                record["correct"] += 1
-                record["streak"] += 1
-                record["strength"] = min(1.0, record["strength"] + 0.18 + min(record["streak"], 4) * 0.02)
-            else:
-                record["streak"] = 0
-                record["strength"] = max(0.0, record["strength"] - 0.35)
-
+        progress = build_practice_progress(attempts)
         output = student_dir / "practice_progress.json"
         output.write_text(json.dumps(progress, indent=2, sort_keys=True), encoding="utf-8")
         rebuilt[student_id] = len(attempts)
+    return rebuilt
+
+
+def step_key(step):
+    return "".join(step["letters"])
+
+
+def learn_record_ready(progress, letter):
+    record = progress.get(letter, {}).get("learn", {})
+    return (
+        int(record.get("correct", 0)) >= LEARN_READY_ATTEMPTS
+        and float(record.get("strength", 0)) * 100 >= LEARN_READY_STRENGTH
+    )
+
+
+def first_learn_attempt_time(attempts, letters):
+    wanted = set(letters)
+    timestamps = [
+        str(attempt.get("timestamp", ""))
+        for attempt in attempts
+        if str(attempt.get("mode", "")).lower() == "learn"
+        and str(attempt.get("target", "")).upper() in wanted
+        and str(attempt.get("timestamp", ""))
+    ]
+    return min(timestamps) if timestamps else ""
+
+
+def step_has_learn_attempts(progress, step):
+    return any(letter in progress and "learn" in progress[letter] for letter in step["letters"])
+
+
+def learning_group_state(step, started_at):
+    timestamp = started_at or utc_now()
+    return {
+        "letters": step["letters"],
+        "first_learning_date": timestamp[:10],
+        "first_learning_started_at": timestamp,
+    }
+
+
+def rebuild_learning_state(data_dir, students):
+    rebuilt = {}
+    for student in students:
+        student_id = student["id"]
+        student_dir = Path(data_dir) / "students" / student_id
+        attempts = [
+            record
+            for _, record in iter_jsonl(student_dir / "practice_attempts.jsonl")
+            if record is not None
+        ]
+        if not attempts:
+            continue
+
+        progress = build_practice_progress(attempts)
+        groups = {}
+        last_learning_start_date = ""
+        for step in LETTER_UNLOCK_STEPS:
+            started_at = first_learn_attempt_time(attempts, step["letters"])
+            complete = all(learn_record_ready(progress, letter) for letter in step["letters"])
+
+            if complete:
+                groups[step_key(step)] = learning_group_state(step, started_at)
+                last_learning_start_date = groups[step_key(step)]["first_learning_date"]
+                continue
+
+            if step_has_learn_attempts(progress, step):
+                groups[step_key(step)] = learning_group_state(step, started_at)
+                last_learning_start_date = groups[step_key(step)]["first_learning_date"]
+            break
+
+        output = student_dir / "learning_state.json"
+        if groups:
+            output.write_text(
+                json.dumps({"groups": groups, "last_learning_start_date": last_learning_start_date}, indent=2, sort_keys=True),
+                encoding="utf-8",
+            )
+            rebuilt[student_id] = len(groups)
+        elif output.exists():
+            output.unlink()
+            rebuilt[student_id] = 0
     return rebuilt
 
 
@@ -665,11 +770,13 @@ def full_sync_attempts(data_dir=DEFAULT_DATA_DIR, config_path=DEFAULT_CONFIG_PAT
     backup_path = backup_sync_files(data_dir, state["roster"])
     written = write_merged_attempt_logs(data_dir, state["roster"], merged)
     rebuilt = rebuild_practice_progress(data_dir, state["roster"])
+    rebuilt_learning = rebuild_learning_state(data_dir, state["roster"])
     return {
         "backup_path": str(backup_path) if backup_path else "",
         "cloud_attempts": len(cloud_attempts),
         "downloaded": downloaded,
         "rebuilt": rebuilt,
+        "rebuilt_learning": rebuilt_learning,
         "uploaded": upload_result["uploaded"],
         "written": written,
     }

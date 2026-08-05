@@ -36,7 +36,9 @@ Implemented:
 - The script also has a manual `--sync` mode that uploads local attempts,
   downloads the cloud attempt union for the station roster, backs up local
   attempt/progress files, rewrites merged attempt logs, quarantines conflicts,
-  and rebuilds `practice_progress.json` from merged Practice attempts.
+  rebuilds `practice_progress.json` from merged Practice attempts, and rebuilds
+  conservative `learning_state.json` entries from merged Learn attempts so
+  Daily, Learning Now, and Words unlock state are consistent across stations.
 - The app writes `data/app_activity.json` as a lightweight activity heartbeat.
   Guarded sync skips by default when app use occurred in the last 10 minutes,
   records status in `data/sync_reports/latest_sync_status.json`, and uses a
@@ -214,6 +216,10 @@ Phase D: download and rebuild behind adult action.
 - Current implementation: `python3 scripts/student_attempt_sync.py --sync`
   performs the merge/rebuild as a manual command and refuses to apply logs when
   cloud errors or conflicts are found.
+- Learning-state rebuild is derived from immutable Learn attempts. It marks a
+  group complete only when each letter meets the same Learn gate used by the
+  app, so stations do not blindly trust or copy another station's
+  `learning_state.json`.
 
 Phase E: safe automatic sync.
 
