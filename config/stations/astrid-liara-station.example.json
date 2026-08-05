@@ -7,6 +7,10 @@
   "allow_student_create": false,
   "students": [
     {
+      "id": "pappy",
+      "name": "Pappy"
+    },
+    {
       "id": "astrid",
       "name": "Astrid"
     },

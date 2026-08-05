@@ -13,11 +13,11 @@ STATIONS = {
     },
     "astrid-liara-station": {
         "user": "morsepi-astrid-liara-station",
-        "students": ["astrid", "liara"],
+        "students": ["pappy", "astrid", "liara"],
     },
     "campbell-olivea-station": {
         "user": "morsepi-campbell-olivea-station",
-        "students": ["campbell", "olivea"],
+        "students": ["pappy", "campbell", "olivea"],
     },
 }
 

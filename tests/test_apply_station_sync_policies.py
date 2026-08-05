@@ -56,6 +56,12 @@ class ApplyStationSyncPoliciesTests(unittest.TestCase):
         self.assertIn("put-user-policy", result["command"])
         self.assertIn("morsepi-astrid-liara-station", result["command"])
 
+    def test_grandkid_station_policies_include_pappy_for_cross_station_testing(self):
+        from scripts.apply_station_sync_policies import STATIONS
+
+        self.assertIn("pappy", STATIONS["astrid-liara-station"]["students"])
+        self.assertIn("pappy", STATIONS["campbell-olivea-station"]["students"])
+
     def test_student_object_arns_include_attempt_prefix_only(self):
         self.assertEqual([
             "arn:aws:s3:::example-bucket/students/pappy/attempts/*",

@@ -303,8 +303,12 @@ Rostered student attempt access:
 | Station user | Student attempt prefixes |
 |---|---|
 | `morsepi-pappy-test-station` | `pappy`, `astrid`, `liara`, `campbell`, `olivea` |
-| `morsepi-astrid-liara-station` | `astrid`, `liara` |
-| `morsepi-campbell-olivea-station` | `campbell`, `olivea` |
+| `morsepi-astrid-liara-station` | `pappy`, `astrid`, `liara` |
+| `morsepi-campbell-olivea-station` | `pappy`, `campbell`, `olivea` |
+
+`pappy` is intentionally included on the grandkid station sync policies so the
+adult operator can practice on any unit and confirm that progress merges back
+to the shared Pappy record.
 
 ## Configure One Pi
 

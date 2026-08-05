@@ -82,7 +82,9 @@ Expected:
 - `backup_s3_uri` is set if cloud backup/status will be used.
 - `admin_pin` is set before the station leaves home if adult controls should be protected.
 - `allow_student_create` is `false` for touch-only deployed stations.
-- `students` contains only the expected household students for that station.
+- `students` contains the expected household students for that station. During
+  delivery testing, include `pappy` as an adult/test operator so Pappy can
+  practice on any unit and verify cross-station progress sync.
 - `guest_profile` is present as disposable `Guest Operator` for demos, and Guest cannot send or receive messages.
 
 `data/station_config.json` is ignored by Git because it is station-specific.
