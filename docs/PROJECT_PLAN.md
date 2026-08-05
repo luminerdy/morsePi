@@ -973,6 +973,13 @@ When asked to do the daily wrap-up, update:
   without confusing idle state with a real Morse character.
 - Added a regression test to prevent `liveDecoded` placeholders from returning
   to dash-like Morse text in templates or shared JavaScript.
+- Added Pappy as an adult/test operator on the two grandkid station rosters so
+  Pappy can practice on any unit and verify cross-station progress sync.
+- Updated the narrow AWS student-attempt sync policies so Astrid/Liara and
+  Campbell/Olivea stations can read/write Pappy attempt records in addition to
+  their household students.
+- Seeded Pappy's current 320 cloud attempts onto both grandkid stations with a
+  forced initial sync; both rebuilt Pappy progress locally without conflicts.
 
 ### Ready Next
 
