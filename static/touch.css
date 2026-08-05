@@ -1224,15 +1224,15 @@
     min-height: 0;
     display: grid;
     grid-template-columns: minmax(0, 1fr) 210px;
-    grid-template-rows: 96px 66px 76px 58px minmax(0, 1fr);
-    gap: 8px;
+    grid-template-rows: 82px 58px 62px 52px minmax(86px, 1fr);
+    gap: 6px;
 }
 
 .touch-word-card,
 .touch-words-locked .touch-word-card {
     min-width: 0;
     min-height: 0;
-    padding: 12px;
+    padding: 8px 10px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -1241,7 +1241,7 @@
 
 .touch-word-card span {
     display: block;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     color: var(--muted);
     font-size: 14px;
     font-weight: 900;
@@ -1251,14 +1251,14 @@
 .touch-word-card p {
     margin: 0;
     color: var(--muted);
-    font-size: 17px;
+    font-size: 14px;
     font-weight: 800;
 }
 
 .touch-word-hero strong {
     display: block;
     color: var(--primary);
-    font-size: 58px;
+    font-size: 46px;
     line-height: 0.9;
     letter-spacing: 0;
 }
@@ -1266,7 +1266,7 @@
 .touch-word-morse strong {
     display: block;
     color: var(--text);
-    font-size: 34px;
+    font-size: 27px;
     line-height: 1;
     overflow-wrap: anywhere;
 }
@@ -1274,15 +1274,15 @@
 .touch-word-letters div {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 8px;
+    gap: 6px;
 }
 
 .touch-word-letters em {
     min-width: 0;
     display: grid;
     place-items: center;
-    gap: 5px;
-    padding: 8px;
+    gap: 3px;
+    padding: 5px;
     background: #edf5f0;
     border: 1px solid #c7dfd0;
     border-radius: 8px;
@@ -1291,13 +1291,13 @@
 
 .touch-word-letters em strong {
     color: var(--primary);
-    font-size: 26px;
+    font-size: 21px;
     line-height: 1;
 }
 
 .touch-word-letters em small {
     color: var(--text);
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 900;
     line-height: 1;
 }
@@ -1305,7 +1305,7 @@
 .touch-word-key {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: 6px;
 }
 
 .touch-word-key div {
@@ -1315,15 +1315,15 @@
 .touch-word-key strong {
     display: block;
     color: var(--primary);
-    font-size: 26px;
+    font-size: 21px;
     line-height: 1;
     overflow-wrap: anywhere;
 }
 
 .touch-word-feedback {
     min-height: 0;
-    padding: 8px 12px;
-    font-size: 19px;
+    padding: 6px 10px;
+    font-size: 16px;
 }
 
 .touch-word-feedback[hidden] {
@@ -1334,7 +1334,7 @@
     grid-column: 2;
     grid-row: 1 / 6;
     display: grid;
-    gap: 8px;
+    gap: 6px;
 }
 
 .touch-word-actions .button {
@@ -1349,9 +1349,9 @@
 
 .touch-rhythm-coach {
     display: grid;
-    grid-template-rows: auto auto minmax(0, 1fr);
-    gap: 6px;
-    padding: 8px 10px;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 4px;
+    padding: 6px 8px;
 }
 
 .touch-rhythm-coach[hidden] {
@@ -1359,7 +1359,7 @@
 }
 
 .touch-rhythm-coach p {
-    font-size: 16px;
+    font-size: 14px;
     color: var(--text);
 }
 
@@ -1367,23 +1367,23 @@
     min-height: 0;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: 6px;
 }
 
 .touch-rhythm-rows small {
     display: block;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     color: var(--muted);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 900;
     text-transform: uppercase;
 }
 
 .touch-rhythm-track {
-    min-height: 34px;
+    min-height: 28px;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
     overflow-x: auto;
 }
 
@@ -1392,21 +1392,21 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 24px;
-    min-height: 28px;
-    padding: 3px 7px;
+    min-width: 20px;
+    min-height: 24px;
+    padding: 2px 5px;
     border-radius: 7px;
     border: 1px solid var(--border);
     background: var(--surface-muted);
     color: var(--text);
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 900;
 }
 
 .touch-rhythm-segment.gap {
     min-width: 10px;
     color: var(--muted);
-    font-size: 11px;
+    font-size: 10px;
 }
 
 .touch-rhythm-segment.gap.symbol {
@@ -1415,11 +1415,11 @@
 }
 
 .touch-rhythm-segment.gap.letter {
-    min-width: 64px;
+    min-width: 54px;
 }
 
 .touch-rhythm-segment.gap.word {
-    min-width: 76px;
+    min-width: 66px;
 }
 
 .touch-rhythm-segment.good {
