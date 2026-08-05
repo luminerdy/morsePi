@@ -993,15 +993,26 @@ When asked to do the daily wrap-up, update:
   letter-pause, and word-pause markers after an attempt, and the first feedback
   message calls out spacing mistakes such as a letter pause that was long
   enough to sound like a word break.
+- Added bounded shutdown sync to the touch `Power Off` flow. When a student
+  powers off the station, the app now forces student-attempt sync, publishes a
+  fresh progress snapshot, publishes station status, records
+  `data/sync_reports/latest_shutdown_sync.json`, and then powers off.
+- Decision: shutdown sync should be a best-effort save of recent progress, not
+  a full backup zip. Full backups remain on the timer/update path so kid-facing
+  shutdown stays reasonably quick.
 
 ### Ready Next
 
 - Let Pappy run normal practice tomorrow and watch the new Learn-mode 40/60 mix:
   new Learning Now letters should appear regularly, but known letters should
   keep coming back for reinforcement.
-- Enable the guarded 30-minute progress-sync timer on Pappy only for a short
-  soak. Confirm it skips during recent use, completes after idle time, and
-  writes a clear `data/sync_reports/latest_sync_status.json`.
+- Test shutdown sync on Pappy after a small practice session. Confirm the
+  station writes `data/sync_reports/latest_shutdown_sync.json`, uploads the
+  latest attempts/snapshot, and powers off cleanly.
+- Enable the guarded 30-minute progress-sync timer on Pappy only if shutdown
+  sync is not enough for normal use. Confirm it skips during recent use,
+  completes after idle time, and writes a clear
+  `data/sync_reports/latest_sync_status.json`.
 - After the Pappy sync soak looks good, enable the same guarded progress-sync
   timer on Astrid/Liara and Campbell/Olivea before the stations leave home.
 - Run one kid-style smoke test on each grandkid unit before it leaves home:

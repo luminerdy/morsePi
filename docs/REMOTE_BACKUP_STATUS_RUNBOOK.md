@@ -266,6 +266,20 @@ journalctl --user -u morse-station-sync.service -n 80 --no-pager
 cat /home/morse/morse-station/data/sync_reports/latest_sync_status.json
 ```
 
+## Shutdown Sync
+
+The kid-facing touch `Power Off` flow runs a bounded best-effort sync before
+powering off:
+
+1. `python3 scripts/student_attempt_sync.py --sync --force`
+2. `python3 scripts/progress_snapshot.py`
+3. `python3 scripts/station_status.py`
+
+The result is written to
+`data/sync_reports/latest_shutdown_sync.json`. This catches the most recent
+practice session before the station is unplugged. It does not replace the
+normal backup timer or update-time backup.
+
 ## Optional Backup Timer
 
 Install after the station is tested locally:

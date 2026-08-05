@@ -65,6 +65,7 @@ STATION_CONFIG_PATH = Path("data/station_config.json")
 ADMIN_PIN_PATH = Path("data/admin_pin.txt")
 FAMILY_PROGRESS_PATH = Path("data/family_progress/latest.json")
 APP_ACTIVITY_PATH = Path("data/app_activity.json")
+SHUTDOWN_SYNC_STATUS_PATH = Path("data/sync_reports/latest_shutdown_sync.json")
 MAX_REQUEST_BYTES = 16 * 1024
 MAX_MESSAGE_CHARS = 160
 MAX_MORSE_CHARS = 600
@@ -2977,9 +2978,70 @@ def exit_kiosk_in_background():
     threading.Thread(target=worker, daemon=True).start()
 
 
+def shutdown_sync_commands():
+    return [
+        {
+            "name": "student-attempt-sync",
+            "timeout": 75,
+            "command": [
+                sys.executable,
+                "scripts/student_attempt_sync.py",
+                "--sync",
+                "--force",
+            ],
+        },
+        {
+            "name": "progress-snapshot",
+            "timeout": 45,
+            "command": [
+                sys.executable,
+                "scripts/progress_snapshot.py",
+            ],
+        },
+        {
+            "name": "station-status",
+            "timeout": 30,
+            "command": [
+                sys.executable,
+                "scripts/station_status.py",
+            ],
+        },
+    ]
+
+
+def run_shutdown_sync_cycle():
+    results = []
+
+    for item in shutdown_sync_commands():
+        result = run_system_command(item["command"], timeout=item["timeout"])
+        results.append({
+            "name": item["name"],
+            "ok": result["ok"],
+            "stdout": result["stdout"][-1200:],
+            "stderr": result["stderr"][-1200:],
+        })
+
+    status = {
+        "app": "morsePi",
+        "format": "morsepi-shutdown-sync-status-v1",
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "ok": all(item["ok"] for item in results),
+        "results": results,
+    }
+
+    try:
+        SHUTDOWN_SYNC_STATUS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        SHUTDOWN_SYNC_STATUS_PATH.write_text(json.dumps(status, indent=2, sort_keys=True), encoding="utf-8")
+    except OSError:
+        pass
+
+    return status
+
+
 def shutdown_pi_in_background():
     def worker():
-        sleep(2)
+        sleep(1)
+        run_shutdown_sync_cycle()
         result = run_system_command(["systemctl", "poweroff"], timeout=8)
         if not result["ok"]:
             run_system_command(["shutdown", "-h", "now"], timeout=8)

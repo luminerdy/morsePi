@@ -37,6 +37,7 @@ class RouteRenderTests(unittest.TestCase):
         self.original_timing_path = app_module.TIMING_SETTINGS_PATH
         self.original_volume_path = app_module.VOLUME_SETTINGS_PATH
         self.original_family_progress_path = app_module.FAMILY_PROGRESS_PATH
+        self.original_shutdown_sync_status_path = app_module.SHUTDOWN_SYNC_STATUS_PATH
         self.original_station_config_path = app_module.STATION_CONFIG_PATH
         self.original_admin_pin_path = app_module.ADMIN_PIN_PATH
         self.original_play_daily = app_module.play_daily_celebration_in_background
@@ -59,6 +60,7 @@ class RouteRenderTests(unittest.TestCase):
         app_module.TIMING_SETTINGS_PATH = self.data_dir / "timing_settings.json"
         app_module.VOLUME_SETTINGS_PATH = self.data_dir / "volume_settings.json"
         app_module.FAMILY_PROGRESS_PATH = self.data_dir / "family_progress" / "latest.json"
+        app_module.SHUTDOWN_SYNC_STATUS_PATH = self.data_dir / "sync_reports" / "latest_shutdown_sync.json"
         app_module.STATION_CONFIG_PATH = self.data_dir / "station_config.json"
         app_module.ADMIN_PIN_PATH = self.data_dir / "admin_pin.txt"
         app_module.station_volume = app_module.DEFAULT_STATION_VOLUME
@@ -81,6 +83,7 @@ class RouteRenderTests(unittest.TestCase):
         app_module.TIMING_SETTINGS_PATH = self.original_timing_path
         app_module.VOLUME_SETTINGS_PATH = self.original_volume_path
         app_module.FAMILY_PROGRESS_PATH = self.original_family_progress_path
+        app_module.SHUTDOWN_SYNC_STATUS_PATH = self.original_shutdown_sync_status_path
         app_module.STATION_CONFIG_PATH = self.original_station_config_path
         app_module.ADMIN_PIN_PATH = self.original_admin_pin_path
         app_module.play_daily_celebration_in_background = self.original_play_daily
@@ -299,6 +302,30 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("Powering Off", html)
         self.assertIn("Wait for the screen to go dark", html)
         self.assertIn("PiSwitch", html)
+
+    def test_shutdown_sync_cycle_forces_attempt_sync_and_snapshot(self):
+        calls = []
+
+        def fake_run_system_command(command, timeout=4):
+            calls.append((command, timeout))
+            return {"ok": True, "stdout": "ok", "stderr": ""}
+
+        with patch.object(app_module, "run_system_command", fake_run_system_command):
+            status = app_module.run_shutdown_sync_cycle()
+
+        self.assertTrue(status["ok"])
+        self.assertEqual(
+            [
+                "student_attempt_sync.py",
+                "progress_snapshot.py",
+                "station_status.py",
+            ],
+            [Path(call[0][1]).name for call in calls],
+        )
+        self.assertIn("--force", calls[0][0])
+        saved = json.loads(app_module.SHUTDOWN_SYNC_STATUS_PATH.read_text(encoding="utf-8"))
+        self.assertEqual("morsepi-shutdown-sync-status-v1", saved["format"])
+        self.assertTrue(saved["ok"])
 
     def test_touch_practice_menu_shows_locked_words_for_fresh_student(self):
         response = self.client.get("/touch/practice")
