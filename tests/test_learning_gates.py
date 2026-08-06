@@ -507,6 +507,7 @@ class LearningGateTests(unittest.TestCase):
 
     def test_student_badges_reward_daily_accuracy_and_mastery(self):
         self.write_progress(app_module.all_practice_letters, self.all_modes(1.0))
+        self.write_word_attempts(3, 3, timestamp=f"{app_module.today_key()}T00:00:00+00:00")
         self.write_learning_state(
             {
                 app_module.step_key(step): {

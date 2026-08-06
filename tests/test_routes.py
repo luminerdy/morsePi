@@ -1216,6 +1216,7 @@ class RouteRenderTests(unittest.TestCase):
             last_learning_start_date="2000-01-01",
         )
         self.write_attempts("pappy", total=20, correct=19)
+        self.write_word_attempts("pappy", total=3, correct=3, timestamp=f"{app_module.today_key()}T00:00:00+00:00")
 
         response = self.client.get("/touch/progress")
         html = response.get_data(as_text=True)
@@ -1612,6 +1613,7 @@ class RouteRenderTests(unittest.TestCase):
 
     def test_touch_daily_complete_links_to_signal_sprint(self):
         self.write_attempts("pappy", total=20, correct=18)
+        self.write_word_attempts("pappy", total=3, correct=3, timestamp=f"{app_module.today_key()}T00:00:00+00:00")
         self.complete_progress("pappy", app_module.all_practice_letters)
         self.set_learning_state(
             "pappy",
