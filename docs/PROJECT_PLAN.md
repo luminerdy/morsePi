@@ -1019,18 +1019,41 @@ When asked to do the daily wrap-up, update:
   unlocked, not just a side activity. After a student completes the 20
   signal-practice attempts, Daily now asks for 3 correct Words attempts before
   treating the mission as complete.
+- Implemented the Daily Words decision in the app, touch Daily screen, specs,
+  and regression tests. The Daily screen now points to Words after the 20 signal
+  attempts are done when Words are unlocked but today's 3-correct-Words finish
+  is incomplete.
+- Deployed the Daily Words update to all three stations. The two Git-backed
+  grandkid stations updated from `release/pi` to `49727f6`, restarted
+  successfully, and each passed the 181-test Pi regression suite. Pappy's
+  file-deployed station received the same changed files, restarted, and passed
+  the focused 112-test Pi suite.
+- Verified cross-station Pappy word progress after manual forced sync. The
+  first pass showed normal timing lag because Astrid/Liara uploaded newer Pappy
+  attempts after Pappy and Campbell/Olivea had already pulled. A second forced
+  pull on Pappy and Campbell/Olivea aligned all three stations at
+  `pappy:words = 90`.
+- Decision: message delivery remains designed as eventual delivery. Messages
+  should wait in cloud storage while a station is powered off and be delivered
+  when the receiving station comes online and syncs, assuming AWS credentials,
+  internet access, and the sync worker are healthy.
 
 ### Ready Next
 
-- Let Pappy run normal practice tomorrow and watch the new Learn-mode 40/60 mix:
-  new Learning Now letters should appear regularly, but known letters should
-  keep coming back for reinforcement.
+- Refresh all three station screens after sync and confirm Pappy's Words
+  percentage is aligned everywhere after `pappy:words = 90`.
+- Let Pappy run normal practice tomorrow and watch both current learning loops:
+  the Learn-mode 40/60 mix should keep review letters in rotation, and Daily
+  should ask for 3 correct Words after the 20 signal attempts once Words is
+  unlocked.
 - Test shutdown sync on Pappy after a small practice session. Confirm the
   station writes `data/sync_reports/latest_shutdown_sync.json`, uploads the
   latest attempts/snapshot, and powers off cleanly.
 - Watch the enabled 30-minute progress-sync timer on all three stations. Confirm
   it skips quickly during recent use, completes after idle time, and writes a
   clear `data/sync_reports/latest_sync_status.json`.
+- Add an adult-facing way to request/schedule a sync from the touch System page
+  or admin page so post-practice testing does not require SSH/CLI force sync.
 - Run one kid-style smoke test on each grandkid unit before it leaves home:
   choose each student, complete one Daily/Learn/Send action with the physical
   keyer, verify progress sticks after switching users, then run a final
