@@ -357,6 +357,7 @@ async function playWordCard() {
         return;
     }
 
+    setWordFeedback("");
     await stopWordPlayback();
 
     const playback = {
@@ -416,6 +417,7 @@ async function initializeWordPractice() {
     const params = new URLSearchParams(window.location.search);
 
     if (params.get("autoplay") !== "0") {
+        setWordFeedback("Get ready...");
         setTimeout(playWordCard, WORD_AUTOPLAY_DELAY_MS);
     }
 }

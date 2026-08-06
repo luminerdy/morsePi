@@ -1013,6 +1013,8 @@ When asked to do the daily wrap-up, update:
 - After testing showed manual Words Play sounded correct but first-entry
   autoplay could miss the first symbol, increased the Words autoplay startup
   delay so the page and station audio path settle before the initial prompt.
+- Added a neutral `Get ready...` feedback message during the Words autoplay
+  startup delay so the pause feels intentional before the station plays.
 
 ### Ready Next
 

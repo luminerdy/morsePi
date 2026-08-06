@@ -532,7 +532,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn('id="wordFeedback"', words_html)
         self.assertIn("data-word-clear", words_html)
         self.assertIn('/touch/words?i=1&autoplay=1', words_html)
-        self.assertIn('app.js?v=20260805-5', words_html)
+        self.assertIn('app.js?v=20260805-6', words_html)
         self.assertNotIn(">Read</a>", words_html)
         self.assertIn('class="morse-visual"', words_html)
         self.assertIn('aria-label="dot dash"', words_html)
