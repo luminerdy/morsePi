@@ -41,6 +41,7 @@ Completed:
 - Project pushed to GitHub at `luminerdy/morsePi`
 - Fresh Raspberry Pi setup guide added
 - Repository structure cleaned up
+- Progress snapshots now compute active letters from rebuilt learning/progress data instead of trusting stale message-summary caches
 
 ## Codebase Review Triage
 
@@ -51,7 +52,7 @@ Address soon:
 - Add input size caps for typed messages and Morse prompt payloads. Reason: this is an easy, high-value protection against memory exhaustion on a small Pi.
 - Route all `next` redirects through `safe_next_url()`. Reason: this is a small mechanical fix that closes open redirect behavior.
 - Add short-term concurrency protection. Reason: current per-request path globals and practice globals are fragile if two browsers use the same station at once. Short-term mitigation can be single-thread serving; longer-term fix is passing student paths explicitly instead of mutating `set_progress_path()` and `set_attempts_path()`.
-- Unify the curriculum/progression tables. Reason: `letter_unlock_steps` and `LETTER_UNLOCKS` duplicate curriculum ideas and can drift.
+- Unify the curriculum/progression tables. Reason: `letter_unlock_steps`, sync rebuild rules, and snapshot rules duplicate curriculum ideas and can drift.
 - Add dependency/tool checks for `speaker-test`, `aplay`, `aws`, `git`, and `systemctl`. Reason: the app and scripts depend on external binaries that should fail clearly during setup.
 
 Defer:

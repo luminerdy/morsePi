@@ -15,10 +15,40 @@ from scripts.backup_data import DEFAULT_CONFIG_PATH, load_station_config, resolv
 DEFAULT_DATA_DIR = data_path()
 DEFAULT_OUTPUT_PATH = DEFAULT_DATA_DIR / "snapshots" / "latest_progress.json"
 PRACTICE_MODES = ("learn", "send", "read", "listen", "echo")
+STARTER_PRACTICE_LETTERS = ["E", "T", "A", "N", "I", "M"]
+LEARN_READY_ATTEMPTS = 10
+LEARN_READY_STRENGTH = 70
+LEARN_READY_REST_HOURS = 3
+LETTER_UNLOCK_GROUPS = [
+    {"letters": ["S", "O"], "label": "Signal Builder"},
+    {"letters": ["R", "K"], "label": "Rhythm Builder"},
+    {"letters": ["D", "U"], "label": "Relay Builder"},
+    {"letters": ["C", "W", "H", "L"], "label": "Word Builder"},
+    {"letters": ["P", "F", "Y", "G"], "label": "Pattern Builder"},
+    {"letters": ["B", "V", "J", "X"], "label": "Code Builder"},
+    {"letters": ["Q", "Z"], "label": "Alphabet Builder"},
+    {"letters": ["1", "2", "3", "4", "5"], "label": "Number Builder"},
+    {"letters": ["6", "7", "8", "9", "0"], "label": "Full Station Operator"},
+]
+ALL_PRACTICE_LETTERS = STARTER_PRACTICE_LETTERS + [
+    letter
+    for group in LETTER_UNLOCK_GROUPS
+    for letter in group["letters"]
+]
 
 
 def utc_now():
     return datetime.now(timezone.utc).isoformat()
+
+
+def parse_utc(value):
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
 
 
 def load_json(path, default):
@@ -176,7 +206,49 @@ def summarize_jsonl(path, word_field="target"):
     return summary
 
 
-def load_active_letters(data_dir, student_id, progress):
+def step_key(step):
+    return "".join(step["letters"])
+
+
+def learn_record_ready(progress, letter):
+    letter_progress = progress.get(letter, {}) if isinstance(progress, dict) else {}
+    learn_record = letter_progress.get("learn", {}) if isinstance(letter_progress, dict) else {}
+    return (
+        int(learn_record.get("correct", 0) or 0) >= LEARN_READY_ATTEMPTS
+        and float(learn_record.get("strength", 0) or 0) * 100 >= LEARN_READY_STRENGTH
+    )
+
+
+def learning_rest_ready(group_state, now=None):
+    started_at = parse_utc(group_state.get("first_learning_started_at", ""))
+    if started_at is None:
+        return False
+    elapsed = (now or datetime.now(timezone.utc)) - started_at
+    return elapsed.total_seconds() >= LEARN_READY_REST_HOURS * 60 * 60
+
+
+def active_letters_from_learning(progress, learning_state):
+    groups = learning_state.get("groups", {}) if isinstance(learning_state, dict) else {}
+    active = list(STARTER_PRACTICE_LETTERS)
+
+    for step in LETTER_UNLOCK_GROUPS:
+        group_state = groups.get(step_key(step)) if isinstance(groups, dict) else None
+        if not isinstance(group_state, dict):
+            break
+        if not learning_rest_ready(group_state):
+            break
+        if not all(learn_record_ready(progress, letter) for letter in step["letters"]):
+            break
+        active.extend(letter for letter in step["letters"] if letter not in active)
+
+    return [letter for letter in ALL_PRACTICE_LETTERS if letter in active]
+
+
+def load_active_letters(data_dir, student_id, progress, learning_state):
+    active = active_letters_from_learning(progress, learning_state)
+    if active != STARTER_PRACTICE_LETTERS:
+        return active
+
     local_summary = load_json(
         Path(data_dir) / "message_sync" / "local_summaries" / f"{student_id}.json",
         {},
@@ -185,7 +257,7 @@ def load_active_letters(data_dir, student_id, progress):
     if isinstance(active_letters, list):
         letters = [str(letter).upper() for letter in active_letters if str(letter).strip()]
         if letters:
-            return sorted(set(letters))
+            return [letter for letter in ALL_PRACTICE_LETTERS if letter in set(letters)]
 
     return summarize_progress(progress)["letters_seen"]
 
@@ -205,7 +277,7 @@ def student_snapshot(data_dir, profile):
     )
 
     return {
-        "active_letters": load_active_letters(data_dir, student_id, progress),
+        "active_letters": load_active_letters(data_dir, student_id, progress, learning_state),
         "disposable": profile["disposable"],
         "generated_at": utc_now(),
         "learning_state": learning_state if isinstance(learning_state, dict) else {},

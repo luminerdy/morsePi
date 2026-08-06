@@ -84,6 +84,53 @@ class ProgressSnapshotTests(unittest.TestCase):
         self.assertEqual(1, student["words"]["attempts"])
         self.assertEqual("2026-08-03T12:15:00+00:00", student["latest_activity_at"])
 
+    def test_build_snapshot_prefers_ready_learning_state_over_stale_message_summary(self):
+        progress = json.loads((self.student_dir / "practice_progress.json").read_text(encoding="utf-8"))
+        for letter in ("S", "O"):
+            progress[letter] = {
+                "learn": {
+                    "attempts": 10,
+                    "correct": 10,
+                    "strength": 0.85,
+                    "last_seen": "2026-08-03T14:00:00+00:00",
+                },
+            }
+        (self.student_dir / "practice_progress.json").write_text(
+            json.dumps(progress),
+            encoding="utf-8",
+        )
+        (self.student_dir / "learning_state.json").write_text(
+            json.dumps({
+                "groups": {
+                    "SO": {
+                        "letters": ["S", "O"],
+                        "first_learning_date": "2026-08-03",
+                        "first_learning_started_at": "2026-08-03T12:00:00+00:00",
+                    },
+                },
+                "last_learning_start_date": "2026-08-03",
+            }),
+            encoding="utf-8",
+        )
+        summary_dir = self.data_dir / "message_sync" / "local_summaries"
+        summary_dir.mkdir(parents=True)
+        (summary_dir / "astrid.json").write_text(
+            json.dumps({
+                "active_letters": ["E", "T", "A", "N", "I", "M"],
+                "student_id": "astrid",
+            }),
+            encoding="utf-8",
+        )
+
+        snapshot = build_snapshot(
+            self.data_dir,
+            station_id="pappy-test-station",
+            config_path=self.data_dir / "missing-config.json",
+        )
+
+        student = snapshot["students"][0]
+        self.assertEqual(["E", "T", "A", "N", "I", "M", "S", "O"], student["active_letters"])
+
     def test_write_snapshot_creates_parent_directory(self):
         output = self.base / "out" / "latest_progress.json"
         snapshot = {"format": "morsepi-progress-snapshot-v1"}
