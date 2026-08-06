@@ -1000,6 +1000,12 @@ When asked to do the daily wrap-up, update:
 - Decision: shutdown sync should be a best-effort save of recent progress, not
   a full two-way per-attempt merge. Full attempt sync remains on the
   timer/manual path so kid-facing shutdown stays reasonably quick.
+- Enabled the guarded 30-minute student-attempt sync timer on all three
+  stations so stations can eventually merge practice history while powered on.
+- Found and fixed a timer-sync inefficiency: `student_attempt_sync.py --sync`
+  no longer runs the slower dry-run cloud scan before checking the idle guard.
+  This lets active stations skip quickly instead of doing cloud work while a
+  student is practicing.
 
 ### Ready Next
 
@@ -1009,12 +1015,9 @@ When asked to do the daily wrap-up, update:
 - Test shutdown sync on Pappy after a small practice session. Confirm the
   station writes `data/sync_reports/latest_shutdown_sync.json`, uploads the
   latest attempts/snapshot, and powers off cleanly.
-- Enable the guarded 30-minute progress-sync timer on Pappy only if shutdown
-  sync is not enough for normal use. Confirm it skips during recent use,
-  completes after idle time, and writes a clear
-  `data/sync_reports/latest_sync_status.json`.
-- After the Pappy sync soak looks good, enable the same guarded progress-sync
-  timer on Astrid/Liara and Campbell/Olivea before the stations leave home.
+- Watch the enabled 30-minute progress-sync timer on all three stations. Confirm
+  it skips quickly during recent use, completes after idle time, and writes a
+  clear `data/sync_reports/latest_sync_status.json`.
 - Run one kid-style smoke test on each grandkid unit before it leaves home:
   choose each student, complete one Daily/Learn/Send action with the physical
   keyer, verify progress sticks after switching users, then run a final

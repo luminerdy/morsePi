@@ -242,6 +242,8 @@ Guarded sync behavior:
 
 - normal `--sync` skips when `data/app_activity.json` shows app use in the last
   10 minutes
+- timer-driven `--sync` checks the idle guard before doing the slower cloud
+  dry-run scan
 - adult/manual maintenance can use `--sync --force`
 - `data/sync_reports/latest_sync_status.json` records completed, skipped, or
   error status

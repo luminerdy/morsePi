@@ -1,9 +1,12 @@
 import json
+import sys
 import tempfile
 import unittest
 from datetime import datetime, timezone
 from pathlib import Path
+from unittest.mock import patch
 
+import scripts.student_attempt_sync as sync_module
 from scripts.student_attempt_sync import build_report, full_sync_attempts, guarded_full_sync, write_report
 from scripts.student_attempt_sync import SyncLock, SyncSkipped
 from scripts.student_attempt_sync import upload_attempts
@@ -441,6 +444,17 @@ class StudentAttemptSyncTests(unittest.TestCase):
         with SyncLock(lock_path):
             with self.assertRaises(SyncSkipped):
                 guarded_full_sync(self.data_dir, self.config, store=MemoryStore(), force=True, lock_path=lock_path)
+
+    def test_sync_cli_skips_without_building_dry_run_report(self):
+        status = {"reason": "recent-activity"}
+
+        def fake_guarded_full_sync(*args, **kwargs):
+            raise SyncSkipped(status)
+
+        with patch.object(sys, "argv", ["student_attempt_sync.py", "--sync"]):
+            with patch.object(sync_module, "build_report", side_effect=AssertionError("dry run should not execute")):
+                with patch.object(sync_module, "guarded_full_sync", fake_guarded_full_sync):
+                    sync_module.main()
 
 
 if __name__ == "__main__":

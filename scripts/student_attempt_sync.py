@@ -848,24 +848,11 @@ def parse_args():
 
 def main():
     args = parse_args()
-    report = build_report(args.data_dir, args.config, check_cloud=not args.no_cloud)
-    output = write_report(report, args.output)
 
-    print(f"Wrote sync dry-run report: {output}")
-    print(f"Station id: {report['station_id']}")
-    print(f"Local unique attempts: {report['summary']['local_unique_attempts']}")
-    print(f"Would upload: {report['summary']['would_upload']}")
-    print(f"Cloud errors: {len(report['cloud_errors'])}")
-    print(f"Conflicts: {report['summary']['local_conflicts']}")
     if args.sync and args.no_cloud:
         raise SystemExit("--sync cannot be combined with --no-cloud")
     if args.sync and args.upload:
         raise SystemExit("--sync already uploads; do not combine it with --upload")
-    if args.upload:
-        if args.no_cloud:
-            raise SystemExit("--upload cannot be combined with --no-cloud")
-        result = upload_attempts(args.data_dir, args.config)
-        print(f"Uploaded attempts: {result['uploaded']}")
     if args.sync:
         try:
             result = guarded_full_sync(
@@ -881,6 +868,22 @@ def main():
         print(f"Cloud attempts read: {result['cloud_attempts']}")
         print(f"Downloaded attempts added: {result['downloaded']}")
         print(f"Backup path: {result['backup_path'] or 'not needed'}")
+        return
+
+    report = build_report(args.data_dir, args.config, check_cloud=not args.no_cloud)
+    output = write_report(report, args.output)
+
+    print(f"Wrote sync dry-run report: {output}")
+    print(f"Station id: {report['station_id']}")
+    print(f"Local unique attempts: {report['summary']['local_unique_attempts']}")
+    print(f"Would upload: {report['summary']['would_upload']}")
+    print(f"Cloud errors: {len(report['cloud_errors'])}")
+    print(f"Conflicts: {report['summary']['local_conflicts']}")
+    if args.upload:
+        if args.no_cloud:
+            raise SystemExit("--upload cannot be combined with --no-cloud")
+        result = upload_attempts(args.data_dir, args.config)
+        print(f"Uploaded attempts: {result['uploaded']}")
 
 
 if __name__ == "__main__":
