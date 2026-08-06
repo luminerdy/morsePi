@@ -1040,6 +1040,15 @@ When asked to do the daily wrap-up, update:
 - Added a PIN-gated `Sync Now` action to the touch System page. It starts the
   existing guarded `morse-station-sync.service` so an adult can request progress
   sync locally without SSH before or after the stations leave the house.
+- Reviewed the external `morsePi_review.md` recommendations. Accepted the CI
+  coverage finding as immediate work: GitHub Actions and README now use
+  `python -m unittest discover -s tests` so sync, family progress, rollout,
+  admin PIN helper, and rhythm-coach tests run with the rest of the suite.
+- Review triage: the "ladder stops at 12 letters" finding is stale because the
+  current unlock ladder covers A-Z and 0-9; the monolithic `app.py`,
+  global-path pattern, admin PIN lockout, data-path anchoring, app-activity
+  write throttling, single Morse table, and release tagging remain valid future
+  hardening items.
 
 ### Ready Next
 
@@ -1057,6 +1066,12 @@ When asked to do the daily wrap-up, update:
   clear `data/sync_reports/latest_sync_status.json`.
 - Test the new touch System `Sync Now` action on all three stations: confirm the
   PIN gate, service start, and `latest_sync_status.json` result.
+- Run the full discovered test suite on a Pi after the CI discovery change and
+  confirm all 15 test modules pass before treating the next release as ready.
+- Before weekend delivery, prioritize small hardening only: admin PIN
+  `compare_digest`/lockout, data-path anchoring, and app-activity write
+  throttling. Defer the app factory/blueprint/global-path refactor until after
+  the stations are delivered and stable.
 - Run one kid-style smoke test on each grandkid unit before it leaves home:
   choose each student, complete one Daily/Learn/Send action with the physical
   keyer, verify progress sticks after switching users, then run a final

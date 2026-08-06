@@ -113,10 +113,10 @@ Run the regression test bank on the Pi with mock GPIO:
 
 ```bash
 cd /home/morse/morse-station
-GPIOZERO_PIN_FACTORY=mock python3 -m unittest tests.test_backup_data tests.test_station_status tests.test_practice_attempts tests.test_learning_gates tests.test_morse_display tests.test_message_store tests.test_message_cloud tests.test_routes
+GPIOZERO_PIN_FACTORY=mock python3 -m unittest discover -s tests
 ```
 
-These tests use temporary progress files and do not modify student practice data. The current bank covers data backups, station status reporting, timing summaries, learning gates, alphabet progress, stale Learning Now cleanup, Daily Mission summary rules, Practice Coach recommendations, derived badges, rendered touch pages, profile cookie separation, admin reset behavior, practice POST routes, Signal Sprint bonus routes, Daily celebration, local messaging, and duplicate-safe three-station cloud delivery contracts.
+These tests use temporary progress files and do not modify student practice data. The current bank covers data backups, station status reporting, timing summaries, learning gates, alphabet progress, stale Learning Now cleanup, Daily Mission summary rules, Practice Coach recommendations, derived badges, rendered touch pages, profile cookie separation, admin reset behavior, practice POST routes, Signal Sprint bonus routes, Daily celebration, local messaging, duplicate-safe three-station cloud delivery contracts, family progress snapshots, admin PIN tooling, rollout/update helpers, rhythm coaching, and student-attempt sync.
 
 ## Repository Layout
 

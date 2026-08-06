@@ -28,4 +28,4 @@ jobs:
           python -m pip install -r requirements.txt
 
       - name: Run regression tests
-        run: python -m unittest tests.test_backup_data tests.test_station_status tests.test_practice_attempts tests.test_learning_gates tests.test_morse_display tests.test_message_store tests.test_message_cloud tests.test_routes
+        run: python -m unittest discover -s tests
