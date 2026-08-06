@@ -64,6 +64,7 @@ class RouteRenderTests(unittest.TestCase):
         app_module.SHUTDOWN_SYNC_STATUS_PATH = self.data_dir / "sync_reports" / "latest_shutdown_sync.json"
         app_module.STATION_CONFIG_PATH = self.data_dir / "station_config.json"
         app_module.ADMIN_PIN_PATH = self.data_dir / "admin_pin.txt"
+        app_module.reset_admin_pin_lockout()
         app_module.station_volume = app_module.DEFAULT_STATION_VOLUME
         app_module.play_daily_celebration_in_background = self.record_daily_celebration
         self.daily_celebration_called = False
@@ -101,6 +102,7 @@ class RouteRenderTests(unittest.TestCase):
         app_module.get_current_key_morse = self.original_get_current_key_morse
         app_module.practice_target = self.original_practice_target
         app_module.practice_feedback = self.original_practice_feedback
+        app_module.reset_admin_pin_lockout()
         self.temp_dir.cleanup()
 
     def record_daily_celebration(self):
@@ -443,6 +445,19 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(302, response.status_code)
         self.assertIn("system_error=admin-pin", response.headers["Location"])
         self.assertFalse(called["restart"])
+
+    def test_admin_pin_lockout_after_repeated_failures(self):
+        self.write_station_config({"admin_pin": "1234"})
+
+        for _ in range(app_module.ADMIN_PIN_MAX_FAILURES):
+            self.assertFalse(app_module.admin_pin_valid("0000"))
+
+        self.assertTrue(app_module.admin_pin_locked())
+        self.assertFalse(app_module.admin_pin_valid("1234"))
+
+        app_module.admin_pin_lockout["locked_until"] = app_module.time() - 1
+        self.assertTrue(app_module.admin_pin_valid("1234"))
+        self.assertFalse(app_module.admin_pin_locked())
 
     def test_touch_system_action_starts_exit_kiosk_with_valid_pin(self):
         self.write_station_config({"admin_pin": "1234"})

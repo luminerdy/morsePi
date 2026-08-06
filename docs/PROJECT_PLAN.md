@@ -1049,6 +1049,9 @@ When asked to do the daily wrap-up, update:
   global-path pattern, admin PIN lockout, data-path anchoring, app-activity
   write throttling, single Morse table, and release tagging remain valid future
   hardening items.
+- Hardened configured admin PIN checks before weekend delivery: comparisons now
+  use `hmac.compare_digest`, and 5 wrong PIN attempts within 15 minutes trigger
+  a short 60-second in-memory lockout for adult actions.
 
 ### Ready Next
 
@@ -1068,10 +1071,10 @@ When asked to do the daily wrap-up, update:
   PIN gate, service start, and `latest_sync_status.json` result.
 - Run the full discovered test suite on a Pi after the CI discovery change and
   confirm all 15 test modules pass before treating the next release as ready.
-- Before weekend delivery, prioritize small hardening only: admin PIN
-  `compare_digest`/lockout, data-path anchoring, and app-activity write
-  throttling. Defer the app factory/blueprint/global-path refactor until after
-  the stations are delivered and stable.
+- Before weekend delivery, prioritize remaining small hardening only:
+  data-path anchoring and app-activity write throttling. Defer the app
+  factory/blueprint/global-path refactor until after the stations are delivered
+  and stable.
 - Run one kid-style smoke test on each grandkid unit before it leaves home:
   choose each student, complete one Daily/Learn/Send action with the physical
   keyer, verify progress sticks after switching users, then run a final

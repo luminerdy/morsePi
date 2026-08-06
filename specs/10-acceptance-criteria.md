@@ -22,7 +22,9 @@ correctness checks. Each is encoded as an automated test per
   ***Fails today.***
 - **AC-004** (SEC-002 / SEC-003) With no PIN configured, admin endpoints
   return 403 and startup logs a warning; 5 wrong PINs lock admin for 15 min.
-  ***Fails today.***
+  ***Partially passes today:*** configured PINs use constant-time comparison and
+  5 wrong PINs trigger a short in-memory lockout. Mandatory PIN, persistent
+  logging, and the full 15-minute production lockout remain open.
 - **AC-005** (SEC-005) `POST /api/play` with `next=https://evil.example`
   redirects to `/`. ***Passes as of `7818254`*** (all routes use
   `safe_next_url`, covered by legacy tests).

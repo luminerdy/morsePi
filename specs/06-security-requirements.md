@@ -9,9 +9,12 @@ belongs in the rebuilt repo's `SECURITY.md` (DOC-04).
   No exceptions for "it's just a kiosk."
 - **SEC-002** *(MVP)* Admin PIN SHALL be mandatory (refuse to start admin
   features without one), compared with `secrets.compare_digest`, and never
-  logged. *(Delta: today optional-and-blank ⇒ admin open.)*
+  logged. *(Delta: legacy still allows optional-and-blank PIN for development,
+  but configured PINs use constant-time comparison.)*
 - **SEC-003** *(MVP)* PIN attempts SHALL be rate-limited: ≥ 5 failures in
-  15 min locks admin actions for 15 min; lockouts are logged.
+  15 min locks admin actions. *(Delta: legacy now applies an in-memory
+  60-second lockout after 5 failures in 15 minutes; persistent logging and a
+  longer production lockout remain open.)*
 - **SEC-004** *(MVP)* All user input SHALL be length-capped and validated
   server-side before processing (see FR-012; student names ≤ 40 chars;
   PIN ≤ 32; request bodies ≤ 16 KB). *(Status: largely implemented in legacy

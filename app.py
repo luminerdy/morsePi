@@ -58,6 +58,7 @@ import sys
 import os
 import random
 import shutil
+import hmac
 
 app = Flask(__name__)
 SESSION_COOKIE = "morse_practice_session_id"
@@ -72,6 +73,13 @@ MAX_MORSE_CHARS = 600
 MAX_ANSWER_CHARS = 20
 MAX_WORD_CHARS = 20
 MAX_STUDENT_NAME_CHARS = 40
+ADMIN_PIN_MAX_FAILURES = 5
+ADMIN_PIN_FAILURE_WINDOW_SECONDS = 15 * 60
+ADMIN_PIN_LOCKOUT_SECONDS = 60
+admin_pin_lockout = {
+    "failures": [],
+    "locked_until": 0.0,
+}
 
 app.config["MAX_CONTENT_LENGTH"] = MAX_REQUEST_BYTES
 app.jinja_env.filters["morse_visual"] = morse_visual
@@ -495,12 +503,49 @@ def admin_pin_required():
     return bool(configured_admin_pin())
 
 
+def reset_admin_pin_lockout():
+    admin_pin_lockout["failures"] = []
+    admin_pin_lockout["locked_until"] = 0.0
+
+
+def admin_pin_locked(now=None):
+    now = time() if now is None else now
+    return admin_pin_lockout.get("locked_until", 0.0) > now
+
+
+def record_admin_pin_failure(now=None):
+    now = time() if now is None else now
+    cutoff = now - ADMIN_PIN_FAILURE_WINDOW_SECONDS
+    failures = [
+        failure_at for failure_at in admin_pin_lockout.get("failures", [])
+        if failure_at >= cutoff
+    ]
+    failures.append(now)
+
+    if len(failures) >= ADMIN_PIN_MAX_FAILURES:
+        admin_pin_lockout["failures"] = []
+        admin_pin_lockout["locked_until"] = now + ADMIN_PIN_LOCKOUT_SECONDS
+        return
+
+    admin_pin_lockout["failures"] = failures
+
+
 def admin_pin_valid(value):
     required_pin = configured_admin_pin()
     if not required_pin:
         return True
 
-    return str(value or "").strip() == required_pin
+    if admin_pin_locked():
+        return False
+
+    provided_pin = str(value or "").strip()
+    if hmac.compare_digest(provided_pin, required_pin):
+        reset_admin_pin_lockout()
+        return True
+
+    record_admin_pin_failure()
+    return False
+
 
 
 def attempt_metadata():

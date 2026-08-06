@@ -65,7 +65,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-054/DR-019 student progress sync | 🟡 | Merge strategy documented, new attempts get `attempt_id`, and `scripts/student_attempt_sync.py` produces a no-write dry-run report, upload-only path, guarded full sync with backup/merge/rebuild, status file, and lock; optional systemd timer exists but needs station soak testing |
 | FR-053 cloud message router | ✅ | Narrow-role Lambda and three S3 notifications deployed in `us-east-1`; live routing and receipts verified |
 | SEC-001 CSRF | ❌ | No tokens anywhere |
-| SEC-002/003 mandatory PIN + lockout | ❌ | PIN optional, `==` compare, no rate limit |
+| SEC-002/003 mandatory PIN + lockout | 🟡 | PIN remains optional for development, but configured PINs now use constant-time comparison and a short in-memory lockout after repeated failures |
 | SEC-004 input validation | 🟡 | See FR-012 note |
 | SEC-005 safe redirects | ✅ | Fixed + tested at `7818254` |
 | SEC-006 production WSGI | ❌ | Flask dev server (now single-threaded) |
@@ -88,7 +88,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | AC-001 concurrency | ❌ | 🟡 | Passes only because server is single-threaded; root cause open |
 | AC-002 oversize → 413 | ❌ | 🟡 | OOM closed by truncation; 413-rejection semantics still fail |
 | AC-003 CSRF | ❌ | ❌ | |
-| AC-004 mandatory PIN + lockout | ❌ | ❌ | |
+| AC-004 mandatory PIN + lockout | ❌ | 🟡 | Constant-time compare and short lockout implemented; mandatory PIN, logging, and full production lockout remain open |
 | AC-005 external redirect rejected | ❌ | ✅ | Covered by new legacy tests |
 | AC-006…AC-012 | n/a | n/a | Rebuild-phase criteria |
 | AC-013 rhythm scoring | — | ✅ | Covered by `tests/test_practice_attempts.py` |
