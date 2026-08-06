@@ -328,6 +328,22 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual("morsepi-shutdown-sync-status-v1", saved["format"])
         self.assertTrue(saved["ok"])
 
+    def test_station_audio_samples_start_with_preroll_silence(self):
+        timing = {
+            "dash_seconds": 0.3,
+            "dot_seconds": 0.1,
+            "letter_gap_seconds": 0.6,
+            "symbol_gap_seconds": 0.1,
+            "tone_hz": 700,
+            "word_gap_seconds": 1.4,
+        }
+
+        samples = app_module.morse_to_audio_samples(".", 0.5, timing, preroll_seconds=0.01)
+        preroll_samples = int(app_module.SAMPLE_RATE * 0.01)
+
+        self.assertTrue(all(sample == 0 for sample in samples[:preroll_samples]))
+        self.assertTrue(any(sample != 0 for sample in samples[preroll_samples:]))
+
     def test_touch_practice_menu_shows_locked_words_for_fresh_student(self):
         response = self.client.get("/touch/practice")
         html = response.get_data(as_text=True)

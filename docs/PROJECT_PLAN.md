@@ -1006,6 +1006,10 @@ When asked to do the daily wrap-up, update:
   no longer runs the slower dry-run cloud scan before checking the idle guard.
   This lets active stations skip quickly instead of doing cloud work while a
   student is practicing.
+- Tuned Pi station playback for Words and prompts by adding a short silent
+  pre-roll before generated USB-speaker audio and delaying the LED by the same
+  amount. This gives the USB speaker/ALSA path time to start cleanly so the
+  first Morse symbol is less likely to be clipped.
 
 ### Ready Next
 

@@ -177,6 +177,7 @@ DOT_DASH_THRESHOLD_UNITS = 2.5
 # USB speaker audio settings
 # -----------------------------
 SAMPLE_RATE = 44100
+STATION_PLAYBACK_PREROLL_SECONDS = 0.18
 DEFAULT_STATION_VOLUME = 0.35
 DAILY_MISSION_GOAL = 20
 DAILY_CELEBRATION_MORSE = "...-"
@@ -831,8 +832,10 @@ def add_silence(samples, duration_seconds):
         samples.append(0)
 
 
-def morse_to_audio_samples(morse: str, volume: float, timing):
+def morse_to_audio_samples(morse: str, volume: float, timing, preroll_seconds: float = 0):
     samples = []
+    if preroll_seconds > 0:
+        add_silence(samples, preroll_seconds)
 
     for character in morse:
         if character == ".":
@@ -865,17 +868,19 @@ def write_wav_file(path, samples):
         wav_file.writeframes(frames)
 
 
-def play_morse_usb_speaker(morse: str, volume: float, timing=None):
-    global station_audio_process
-
-    samples = morse_to_audio_samples(morse, volume, timing or get_morse_timing())
-
+def create_morse_wav_file(morse: str, volume: float, timing=None, preroll_seconds: float = 0):
+    samples = morse_to_audio_samples(morse, volume, timing or get_morse_timing(), preroll_seconds)
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
         wav_path = temp_file.name
 
-    try:
-        write_wav_file(wav_path, samples)
+    write_wav_file(wav_path, samples)
+    return wav_path
 
+
+def play_wav_usb_speaker(wav_path: str):
+    global station_audio_process
+
+    try:
         # Plays through the configured Raspberry Pi USB speaker.
         station_audio_process = subprocess.Popen(
             ["aplay", "-D", AUDIO_DEVICE, wav_path],
@@ -902,10 +907,19 @@ def play_morse_usb_speaker(morse: str, volume: float, timing=None):
 # -----------------------------
 # Station output helpers
 # -----------------------------
-def flash_morse_led(morse: str, timing=None):
+def flash_morse_led(morse: str, timing=None, start_delay_seconds: float = 0):
     timing = timing or get_morse_timing()
 
     try:
+        delay_remaining = max(0, start_delay_seconds)
+        while delay_remaining > 0:
+            if station_stop_event.is_set():
+                return
+
+            sleep_for = min(0.02, delay_remaining)
+            sleep(sleep_for)
+            delay_remaining -= sleep_for
+
         for character in morse:
             if station_stop_event.is_set():
                 return
@@ -992,13 +1006,22 @@ def play_morse_on_station(morse: str, timing=None):
         station_stop_event.clear()
         volume = station_volume
         playback_timing = timing or get_morse_timing()
+        wav_path = create_morse_wav_file(
+            morse,
+            volume,
+            playback_timing,
+            STATION_PLAYBACK_PREROLL_SECONDS,
+        )
 
-        led_thread = threading.Thread(target=flash_morse_led, args=(morse, playback_timing))
+        led_thread = threading.Thread(
+            target=flash_morse_led,
+            args=(morse, playback_timing, STATION_PLAYBACK_PREROLL_SECONDS),
+        )
         led_thread.daemon = True
         led_thread.start()
 
         try:
-            play_morse_usb_speaker(morse, volume, playback_timing)
+            play_wav_usb_speaker(wav_path)
         finally:
             led_off()
 
