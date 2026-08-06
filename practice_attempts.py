@@ -3,8 +3,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
+from paths import data_path
 
-ATTEMPTS_PATH = Path("data/practice_attempts.jsonl")
+ATTEMPTS_PATH = data_path("practice_attempts.jsonl")
 MAX_TIMING_EVENTS = 240
 
 

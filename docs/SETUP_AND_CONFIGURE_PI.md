@@ -6,6 +6,10 @@ For the current hardware shopping list, see [BILL_OF_MATERIALS.md](BILL_OF_MATER
 For a station that will leave Pappy's house, use [GRANDKID_STATION_DEPLOYMENT.md](GRANDKID_STATION_DEPLOYMENT.md) after this fresh setup guide.
 For remote backup/status/update operations, use [REMOTE_BACKUP_STATUS_RUNBOOK.md](REMOTE_BACKUP_STATUS_RUNBOOK.md).
 
+The app stores station data in `data/` beside the app by default. Advanced
+deployments can override this with `MORSE_DATA_DIR`, but the standard Raspberry
+Pi setup should leave it unset.
+
 Target setup:
 
 ```text

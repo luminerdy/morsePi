@@ -5,10 +5,16 @@ import subprocess
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
+import sys
+
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from paths import data_path
 
 
 DEFAULT_KEEP = 30
-DEFAULT_DATA_DIR = Path("data")
+DEFAULT_DATA_DIR = data_path()
 DEFAULT_BACKUP_DIR = DEFAULT_DATA_DIR / "backups"
 DEFAULT_CONFIG_PATH = DEFAULT_DATA_DIR / "station_config.json"
 

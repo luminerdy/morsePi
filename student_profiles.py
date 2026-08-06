@@ -4,8 +4,9 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
+from paths import data_path
 
-DATA_DIR = Path("data")
+DATA_DIR = data_path()
 STUDENTS_DIR = DATA_DIR / "students"
 PROFILES_PATH = DATA_DIR / "student_profiles.json"
 DEFAULT_STUDENT_ID = "pappy"

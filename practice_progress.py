@@ -3,8 +3,9 @@ import random
 from datetime import datetime, timezone
 from pathlib import Path
 
+from paths import data_path
 
-PROGRESS_PATH = Path("data/practice_progress.json")
+PROGRESS_PATH = data_path("practice_progress.json")
 DEFAULT_MODE = "send"
 
 RANKS = [

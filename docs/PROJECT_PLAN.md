@@ -1052,6 +1052,10 @@ When asked to do the daily wrap-up, update:
 - Hardened configured admin PIN checks before weekend delivery: comparisons now
   use `hmac.compare_digest`, and 5 wrong PIN attempts within 15 minutes trigger
   a short 60-second in-memory lockout for adult actions.
+- Anchored default data paths to the application directory through `paths.py`,
+  with optional `MORSE_DATA_DIR` override for advanced deployments. This removes
+  the fragile assumption that the app and maintenance scripts are always started
+  from `/home/morse/morse-station`.
 
 ### Ready Next
 
@@ -1072,9 +1076,8 @@ When asked to do the daily wrap-up, update:
 - Run the full discovered test suite on a Pi after the CI discovery change and
   confirm all 15 test modules pass before treating the next release as ready.
 - Before weekend delivery, prioritize remaining small hardening only:
-  data-path anchoring and app-activity write throttling. Defer the app
-  factory/blueprint/global-path refactor until after the stations are delivered
-  and stable.
+  app-activity write throttling. Defer the app factory/blueprint/global-path
+  refactor until after the stations are delivered and stable.
 - Run one kid-style smoke test on each grandkid unit before it leaves home:
   choose each student, complete one Daily/Learn/Send action with the physical
   keyer, verify progress sticks after switching users, then run a final

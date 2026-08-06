@@ -7,9 +7,15 @@ import json
 import shutil
 from datetime import datetime, timezone
 from pathlib import Path
+import sys
+
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from paths import data_path
 
 
-DEFAULT_CONFIG_PATH = Path("data/station_config.json")
+DEFAULT_CONFIG_PATH = data_path("station_config.json")
 
 
 def timestamp():

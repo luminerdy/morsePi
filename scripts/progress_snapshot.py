@@ -8,10 +8,11 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from paths import data_path
 from scripts.backup_data import DEFAULT_CONFIG_PATH, load_station_config, resolve_station_id, upload_snapshot_to_s3
 
 
-DEFAULT_DATA_DIR = Path("data")
+DEFAULT_DATA_DIR = data_path()
 DEFAULT_OUTPUT_PATH = DEFAULT_DATA_DIR / "snapshots" / "latest_progress.json"
 PRACTICE_MODES = ("learn", "send", "read", "listen", "echo")
 

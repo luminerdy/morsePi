@@ -1,6 +1,8 @@
 # 08 — Data Requirements
 
-- **DR-001** Data root: `data/` beside the app. Layout:
+- **DR-001** Data root: `data/` beside the app by default, anchored to the
+  application directory rather than the process working directory. Deployments
+  MAY override it with `MORSE_DATA_DIR`. Layout:
   `data/station_config.json`, `data/timing_settings.json`,
   `data/volume_settings.json`,
   `data/student_profiles.json`, `data/students/<id>/…`, `data/backups/`,

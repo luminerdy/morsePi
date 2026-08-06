@@ -9,10 +9,12 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from paths import data_path
 from scripts.backup_data import DEFAULT_CONFIG_PATH, load_station_config, resolve_station_id, upload_status_to_s3
 
 
-DEFAULT_OUTPUT_PATH = Path("data/station_status.json")
+DEFAULT_OUTPUT_PATH = data_path("station_status.json")
+DEFAULT_BACKUP_DIR = data_path("backups")
 
 
 def run_command(command):
@@ -55,7 +57,7 @@ def service_state(service_name):
     return result["output"] or ("inactive" if not result["ok"] else "unknown")
 
 
-def build_status(station_id, backup_dir="data/backups", service_name="morse-station.service"):
+def build_status(station_id, backup_dir=DEFAULT_BACKUP_DIR, service_name="morse-station.service"):
     return {
         "app": "morsePi",
         "checked_at": datetime.now(timezone.utc).isoformat(),
@@ -80,7 +82,7 @@ def write_status(status, output_path=DEFAULT_OUTPUT_PATH):
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Write Morse station status JSON.")
-    parser.add_argument("--backup-dir", default="data/backups", help="Backup directory to inspect.")
+    parser.add_argument("--backup-dir", default=str(DEFAULT_BACKUP_DIR), help="Backup directory to inspect.")
     parser.add_argument("--config", default=str(DEFAULT_CONFIG_PATH), help="Station config JSON path.")
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT_PATH), help="Status JSON output path.")
     parser.add_argument("--s3-uri", help="Optional S3 URI such as s3://morsepi-backups.")

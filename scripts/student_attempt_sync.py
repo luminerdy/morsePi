@@ -12,10 +12,11 @@ if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from message_sync import AwsCliObjectStore
+from paths import data_path
 from scripts.backup_data import DEFAULT_CONFIG_PATH, load_station_config
 
 
-DEFAULT_DATA_DIR = Path("data")
+DEFAULT_DATA_DIR = data_path()
 DEFAULT_OUTPUT_PATH = DEFAULT_DATA_DIR / "sync_reports" / "latest_attempt_sync.json"
 DEFAULT_STATUS_PATH = DEFAULT_DATA_DIR / "sync_reports" / "latest_sync_status.json"
 DEFAULT_ACTIVITY_PATH = DEFAULT_DATA_DIR / "app_activity.json"

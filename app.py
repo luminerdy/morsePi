@@ -7,6 +7,7 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify, g
 from gpiozero import Button, LED
 from morse import text_to_morse, morse_to_text
 from morse_display import morse_visual
+from paths import data_path
 from message_store import (
     MessageValidationError,
     advance_hint,
@@ -62,11 +63,11 @@ import hmac
 
 app = Flask(__name__)
 SESSION_COOKIE = "morse_practice_session_id"
-STATION_CONFIG_PATH = Path("data/station_config.json")
-ADMIN_PIN_PATH = Path("data/admin_pin.txt")
-FAMILY_PROGRESS_PATH = Path("data/family_progress/latest.json")
-APP_ACTIVITY_PATH = Path("data/app_activity.json")
-SHUTDOWN_SYNC_STATUS_PATH = Path("data/sync_reports/latest_shutdown_sync.json")
+STATION_CONFIG_PATH = data_path("station_config.json")
+ADMIN_PIN_PATH = data_path("admin_pin.txt")
+FAMILY_PROGRESS_PATH = data_path("family_progress", "latest.json")
+APP_ACTIVITY_PATH = data_path("app_activity.json")
+SHUTDOWN_SYNC_STATUS_PATH = data_path("sync_reports", "latest_shutdown_sync.json")
 MAX_REQUEST_BYTES = 16 * 1024
 MAX_MESSAGE_CHARS = 160
 MAX_MORSE_CHARS = 600
@@ -173,8 +174,8 @@ led = LED(LED_GPIO)
 DEFAULT_CHARACTER_WPM = 12
 DEFAULT_EFFECTIVE_WPM = 6
 DEFAULT_TONE_HZ = 700
-TIMING_SETTINGS_PATH = Path("data/timing_settings.json")
-VOLUME_SETTINGS_PATH = Path("data/volume_settings.json")
+TIMING_SETTINGS_PATH = data_path("timing_settings.json")
+VOLUME_SETTINGS_PATH = data_path("volume_settings.json")
 KEY_TONE_RETRY_SECONDS = 1.25
 
 LETTER_GAP_THRESHOLD_SECONDS = 0.80
@@ -217,7 +218,7 @@ current_key_events = []
 key_tone_process = None
 
 starter_practice_letters = ["E", "T", "A", "N", "I", "M"]
-learning_state_path = Path("data/learning_state.json")
+learning_state_path = data_path("learning_state.json")
 learn_ready_attempts = 10
 learn_ready_strength = 70
 learn_ready_rest_hours = 3

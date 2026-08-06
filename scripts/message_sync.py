@@ -1,14 +1,19 @@
 import argparse
 import json
+import sys
 from pathlib import Path
 
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 from message_sync import AwsCliObjectStore, sync_station
+from paths import data_path
 
 
 def main():
     parser = argparse.ArgumentParser(description="Synchronize Morse family messages through S3.")
-    parser.add_argument("--config", default="data/station_config.json")
-    parser.add_argument("--data-dir", default="data")
+    parser.add_argument("--config", default=str(data_path("station_config.json")))
+    parser.add_argument("--data-dir", default=str(data_path()))
     parser.add_argument("--force", action="store_true", help="Run even when message sync is disabled.")
     args = parser.parse_args()
 
