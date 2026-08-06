@@ -3062,12 +3062,13 @@ def parse_status_timestamp(value):
     return parsed.astimezone(timezone.utc)
 
 
-def relative_time_label(value):
+def relative_time_label(value, now=None):
     parsed = parse_status_timestamp(value)
     if parsed is None:
         return "Never"
 
-    elapsed_seconds = max(0, int((datetime.now(timezone.utc) - parsed).total_seconds()))
+    now = now or datetime.now(timezone.utc)
+    elapsed_seconds = max(0, int((now - parsed).total_seconds()))
     if elapsed_seconds < 90:
         return "just now"
 
@@ -3083,7 +3084,8 @@ def relative_time_label(value):
     return f"{days} days ago"
 
 
-def load_sync_status_summary(path=SYNC_STATUS_PATH):
+def load_sync_status_summary(path=None, now=None):
+    path = path or SYNC_STATUS_PATH
     try:
         status = json.loads(Path(path).read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
@@ -3115,7 +3117,7 @@ def load_sync_status_summary(path=SYNC_STATUS_PATH):
         "label": label,
         "detail": detail,
         "updated_at": updated_at,
-        "relative": relative_time_label(updated_at),
+        "relative": relative_time_label(updated_at, now),
     }
 
 

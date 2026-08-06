@@ -444,10 +444,9 @@ class RouteRenderTests(unittest.TestCase):
             encoding="utf-8",
         )
 
-        with patch("app.datetime") as mock_datetime:
-            mock_datetime.now.return_value = app_module.datetime(2026, 8, 6, 21, 5, tzinfo=app_module.timezone.utc)
-            mock_datetime.fromisoformat.side_effect = app_module.datetime.fromisoformat
-            summary = app_module.load_sync_status_summary()
+        summary = app_module.load_sync_status_summary(
+            now=app_module.datetime(2026, 8, 6, 21, 5, tzinfo=app_module.timezone.utc)
+        )
 
         self.assertEqual("Completed", summary["label"])
         self.assertEqual("5 min ago", summary["relative"])
