@@ -58,6 +58,8 @@
                 <p>
                     {% if daily.learning_focus.active and not daily.learning_focus.complete %}
                         Practice count done
+                    {% elif daily.word_focus.unlocked and not daily.word_focus.complete and daily.remaining == 0 %}
+                        {{ daily.word_focus.remaining }} Words left
                     {% elif daily.completed %}
                         Practice count done
                     {% else %}
@@ -160,6 +162,8 @@
             <span>
                 {% if daily.learning_focus.active and not daily.learning_focus.complete %}
                     {{ daily.learning_focus.remaining }} Learn left
+                {% elif daily.word_focus.unlocked and not daily.word_focus.complete and daily.remaining == 0 %}
+                    {{ daily.word_focus.remaining }} Words left
                 {% elif daily.completed %}
                     Mission complete
                 {% else %}

@@ -741,6 +741,38 @@ class LearningGateTests(unittest.TestCase):
         self.assertEqual("Practice Echo", action["title"])
         self.assertIn("most room", action["detail"])
 
+    def test_daily_next_action_points_to_words_after_signal_goal_when_unlocked(self):
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        self.write_progress(active_letters, self.all_modes(1.0))
+
+        state = {
+            "active_letters": active_letters,
+            "learning_letters": [],
+            "locked_until_tomorrow": False,
+            "next_step": {"letters": ["R", "K"], "threshold": 100, "label": "Rhythm Builder"},
+            "daily_signals_complete": True,
+        }
+
+        action = app_module.daily_next_action(state)
+        focus = app_module.daily_word_focus(active_letters)
+
+        self.assertEqual("Words", action["label"])
+        self.assertEqual("words", action["mode"])
+        self.assertEqual("/touch/words?autoplay=1", action["href"])
+        self.assertEqual(3, focus["remaining"])
+        self.assertFalse(focus["complete"])
+
+    def test_daily_word_focus_completes_after_three_correct_words_today(self):
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        self.write_word_attempts(3, 3, timestamp=f"{app_module.today_key()}T00:00:00+00:00")
+
+        focus = app_module.daily_word_focus(active_letters)
+
+        self.assertTrue(focus["unlocked"])
+        self.assertTrue(focus["complete"])
+        self.assertEqual(0, focus["remaining"])
+        self.assertEqual(100, focus["progress"])
+
 
 if __name__ == "__main__":
     unittest.main()

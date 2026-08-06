@@ -214,6 +214,7 @@ learn_ready_attempts = 10
 learn_ready_strength = 70
 learn_ready_rest_hours = 3
 word_ready_correct_attempts = 5
+daily_word_practice_goal = 3
 max_learning_groups_per_day = 2
 learn_new_letter_prompt_weight = 0.4
 letter_unlock_groups = [
@@ -1660,12 +1661,18 @@ def daily_mission_summary():
     accuracy = int(round((correct / total) * 100)) if total else 0
     attempt_progress = min(100, int(round((total / DAILY_MISSION_GOAL) * 100))) if DAILY_MISSION_GOAL else 100
     learning_focus = daily_learning_focus(state["learning_letters"])
+    word_focus = daily_word_focus(state["active_letters"])
+    state["daily_signals_complete"] = total >= DAILY_MISSION_GOAL
     progress = attempt_progress
     completed = total >= DAILY_MISSION_GOAL
 
     if learning_focus["active"]:
         progress = int(round((attempt_progress + learning_focus["progress"]) / 2))
         completed = completed and learning_focus["complete"]
+
+    if word_focus["unlocked"]:
+        progress = int(round((progress + word_focus["progress"]) / 2))
+        completed = completed and word_focus["complete"]
 
     next_action = daily_next_action(state)
 
@@ -1676,6 +1683,8 @@ def daily_mission_summary():
             message = "Daily mission complete."
     elif learning_focus["active"] and learning_focus["next_need"]:
         message = f"Daily mission: {learning_focus['next_need']}."
+    elif word_focus["unlocked"] and not word_focus["complete"]:
+        message = f"Daily mission: {word_focus['remaining']} correct Word{'s' if word_focus['remaining'] != 1 else ''} left."
     elif state["learning_letters"]:
         message = f"Daily mission: practice today and spend time with {' '.join(state['learning_letters'])}."
     else:
@@ -1703,6 +1712,7 @@ def daily_mission_summary():
         "active_letters_remaining_count": max(0, len(state["active_letters"]) - 12),
         "learning_letters": state["learning_letters"],
         "learning_focus": learning_focus,
+        "word_focus": word_focus,
         "letter_morse": get_practice_letter_morse(),
         "message": message,
         "next_action": next_action,
@@ -2160,6 +2170,7 @@ def daily_next_action(state):
         }
 
     active_letters = state["active_letters"]
+    word_focus = daily_word_focus(active_letters)
     mode_order = {mode: index for index, mode in enumerate(practice_modes)}
     mode_scores = [
         (mode, mode_score(active_letters, mode))
@@ -2171,6 +2182,15 @@ def daily_next_action(state):
         key=lambda item: (item[1]["mastery"], item[1]["accuracy"], mode_order[item[0]])
     )
     mode_label = practice_modes[weakest_mode]["label"]
+
+    if word_focus["unlocked"] and not word_focus["complete"] and state.get("daily_signals_complete"):
+        return {
+            "label": "Words",
+            "mode": "words",
+            "href": "/touch/words?autoplay=1",
+            "title": "Practice Words",
+            "detail": word_focus["next_need"]
+        }
 
     if weakest_score["mastery"] < 100:
         return {
@@ -2299,6 +2319,46 @@ def load_word_attempts():
             continue
 
     return attempts
+
+
+def daily_word_focus(active_letters=None):
+    summary = word_practice_summary(active_letters)
+
+    if not summary["unlocked"]:
+        return {
+            "unlocked": False,
+            "goal": daily_word_practice_goal,
+            "correct": 0,
+            "total": 0,
+            "remaining": 0,
+            "progress": 100,
+            "complete": True,
+            "next_need": "Words unlock after S O."
+        }
+
+    attempts = [
+        attempt for attempt in load_word_attempts()
+        if str(attempt.get("timestamp", ""))[:10] == today_key()
+    ]
+    total = len(attempts)
+    correct = sum(1 for attempt in attempts if attempt.get("correct"))
+    remaining = max(0, daily_word_practice_goal - correct)
+    progress = min(100, int(round((correct / daily_word_practice_goal) * 100))) if daily_word_practice_goal else 100
+
+    return {
+        "unlocked": True,
+        "goal": daily_word_practice_goal,
+        "correct": correct,
+        "total": total,
+        "remaining": remaining,
+        "progress": progress,
+        "complete": remaining == 0,
+        "next_need": (
+            f"{remaining} correct Word{'s' if remaining != 1 else ''} left to finish today's mission."
+            if remaining
+            else "Words are complete for today's mission."
+        )
+    }
 
 
 def word_progress_summary():

@@ -1680,7 +1680,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("Daily complete. Take a short break", html)
         self.assertNotIn("Bonus Round", html)
 
-    def test_touch_daily_complete_points_to_practice_when_active_set_unfinished(self):
+    def test_touch_daily_signal_goal_points_to_words_when_words_are_unfinished(self):
         self.set_student_cookie("astrid")
         self.write_attempts("astrid", total=20, correct=17)
         progress = {}
@@ -1724,8 +1724,8 @@ class RouteRenderTests(unittest.TestCase):
         html = response.get_data(as_text=True)
 
         self.assertEqual(200, response.status_code)
-        self.assertIn("Daily complete. Send has the most room to improve today.", html)
-        self.assertIn("/touch/practice/run?mode=send", html)
+        self.assertIn("Daily mission: 3 correct Words left.", html)
+        self.assertIn("/touch/words?autoplay=1", html)
         self.assertNotIn("Bonus Round", html)
         self.assertIn("8/26", html)
 

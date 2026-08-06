@@ -1015,6 +1015,10 @@ When asked to do the daily wrap-up, update:
   delay so the page and station audio path settle before the initial prompt.
 - Added a neutral `Get ready...` feedback message during the Words autoplay
   startup delay so the pause feels intentional before the station plays.
+- Decision: Words practice is now part of the core Daily Mission path once
+  unlocked, not just a side activity. After a student completes the 20
+  signal-practice attempts, Daily now asks for 3 correct Words attempts before
+  treating the mission as complete.
 
 ### Ready Next
 
@@ -1049,5 +1053,7 @@ When asked to do the daily wrap-up, update:
   enabling a multi-worker production server.
 - Decide whether to enable any automatic update timer on deployed stations, or keep updates as adult-triggered `Update App` only until the stations have been used at the grandkids' homes.
 - Prepare the future remote command path after the first home deployment: AWS IoT preferred for lower-cost commands; Systems Manager remains the practical fallback if remote shell access becomes necessary.
-- Keep testing Words/Daily with Astrid/Liara/Pappy/Campbell/Olivea, especially auto-advance, progress clarity, and whether Words should remain bonus-only or join Daily Mission.
+- Keep testing Words/Daily with Astrid/Liara/Pappy/Campbell/Olivea, especially
+  the new 3-correct-Words Daily finish, auto-advance, progress clarity, and
+  whether the goal feels motivating without dragging the session too long.
 - Measure the 7-inch display/Pi stack with [CASE_MEASUREMENT_WORKSHEET.md](CASE_MEASUREMENT_WORKSHEET.md), then design a Bambu X1 Carbon test-fit plate.

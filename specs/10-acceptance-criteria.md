@@ -125,6 +125,11 @@ correctness checks. Each is encoded as an automated test per
 - **AC-022** (FR-051) With `E T A N I M S O` active, Words still exposes the
   complete 42-word set, starts with `AM`, and presents `NOT` and `MOM` within
   the first six prompts. Every available word contains only active letters.
+- **AC-025** (FR-029) After Words unlocks, a student with 20 signal-practice
+  attempts but fewer than 3 correct Words attempts today sees Daily Mission
+  point to Words instead of Bonus Round. After 3 correct Words attempts today,
+  the Words portion is complete and Daily may recommend sprint or targeted
+  practice as usual.
 - **AC-023** (FR-052 / FR-053 / DR-014...DR-016) A three-station fixture
   uploads one message, replays its outbox event ten times, and produces exactly
   one validated inbox copy at each station hosting the recipient. An opened
