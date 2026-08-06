@@ -26,6 +26,7 @@ let wordAutoAdvanceTimer = null;
 
 const KEYBOARD_DASH_THRESHOLD_UNITS = 2.5;
 const WORD_AUTO_ADVANCE_DELAY_MS = 4000;
+const WORD_AUTOPLAY_DELAY_MS = 1200;
 const MORSE_DECODE = {
     ".": "E",
     "-": "T",
@@ -415,7 +416,7 @@ async function initializeWordPractice() {
     const params = new URLSearchParams(window.location.search);
 
     if (params.get("autoplay") !== "0") {
-        setTimeout(playWordCard, 300);
+        setTimeout(playWordCard, WORD_AUTOPLAY_DELAY_MS);
     }
 }
 

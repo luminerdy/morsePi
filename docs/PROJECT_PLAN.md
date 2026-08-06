@@ -1010,6 +1010,9 @@ When asked to do the daily wrap-up, update:
   pre-roll before generated USB-speaker audio and delaying the LED by the same
   amount. This gives the USB speaker/ALSA path time to start cleanly so the
   first Morse symbol is less likely to be clipped.
+- After testing showed manual Words Play sounded correct but first-entry
+  autoplay could miss the first symbol, increased the Words autoplay startup
+  delay so the page and station audio path settle before the initial prompt.
 
 ### Ready Next
 
