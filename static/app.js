@@ -26,7 +26,7 @@ let wordAutoAdvanceTimer = null;
 
 const KEYBOARD_DASH_THRESHOLD_UNITS = 2.5;
 const WORD_AUTO_ADVANCE_DELAY_MS = 4000;
-const WORD_AUTOPLAY_DELAY_MS = 1200;
+const WORD_AUTOPLAY_DELAY_MS = 1800;
 const MORSE_DECODE = {
     ".": "E",
     "-": "T",
