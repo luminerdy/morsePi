@@ -43,6 +43,7 @@ Completed:
 - Repository structure cleaned up
 - Progress snapshots now compute active letters from rebuilt learning/progress data instead of trusting stale message-summary caches
 - Daily and Progress screens explain why Learn-only letters have not joined practice yet, including per-letter strength gaps
+- Adult System screen shows last student sync status, relative time, and upload/download counts
 
 ## Codebase Review Triage
 

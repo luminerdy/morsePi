@@ -60,6 +60,8 @@
                     <span>Sync</span>
                     <strong>{{ system.sync_service_state }}</strong>
                     <em>{{ system.sync_service }}</em>
+                    <small>{{ system.sync_status.label }} · {{ system.sync_status.relative }}</small>
+                    <small>{{ system.sync_status.detail }}</small>
                 </div>
             </section>
 

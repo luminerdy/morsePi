@@ -68,6 +68,7 @@ ADMIN_PIN_PATH = data_path("admin_pin.txt")
 FAMILY_PROGRESS_PATH = data_path("family_progress", "latest.json")
 APP_ACTIVITY_PATH = data_path("app_activity.json")
 SHUTDOWN_SYNC_STATUS_PATH = data_path("sync_reports", "latest_shutdown_sync.json")
+SYNC_STATUS_PATH = data_path("sync_reports", "latest_sync_status.json")
 MAX_REQUEST_BYTES = 16 * 1024
 MAX_MESSAGE_CHARS = 160
 MAX_MORSE_CHARS = 600
@@ -3051,6 +3052,73 @@ def first_command_line(command, default="Unknown"):
     return result["stdout"].splitlines()[0].strip() or default
 
 
+def parse_status_timestamp(value):
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def relative_time_label(value):
+    parsed = parse_status_timestamp(value)
+    if parsed is None:
+        return "Never"
+
+    elapsed_seconds = max(0, int((datetime.now(timezone.utc) - parsed).total_seconds()))
+    if elapsed_seconds < 90:
+        return "just now"
+
+    minutes = elapsed_seconds // 60
+    if minutes < 90:
+        return f"{minutes} min ago"
+
+    hours = minutes // 60
+    if hours < 48:
+        return f"{hours} hr ago"
+
+    days = hours // 24
+    return f"{days} days ago"
+
+
+def load_sync_status_summary(path=SYNC_STATUS_PATH):
+    try:
+        status = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        status = {}
+
+    if not isinstance(status, dict):
+        status = {}
+
+    updated_at = str(status.get("updated_at") or "")
+    result = status.get("result") if isinstance(status.get("result"), dict) else {}
+    activity = status.get("activity") if isinstance(status.get("activity"), dict) else {}
+    state = str(status.get("status") or "unknown")
+    reason = str(status.get("reason") or activity.get("reason") or "")
+
+    if state == "completed":
+        label = "Completed"
+        detail = f"{int(result.get('uploaded', 0) or 0)} up, {int(result.get('downloaded', 0) or 0)} down"
+    elif state == "skipped":
+        label = "Skipped"
+        detail = reason.replace("-", " ") or "Not needed"
+    elif updated_at:
+        label = state.title()
+        detail = reason.replace("-", " ") or "See sync report"
+    else:
+        label = "No sync yet"
+        detail = "Waiting for first sync"
+
+    return {
+        "label": label,
+        "detail": detail,
+        "updated_at": updated_at,
+        "relative": relative_time_label(updated_at),
+    }
+
+
 def system_status():
     hostname = first_command_line(["hostname"], "Unknown")
     ip_addresses = first_command_line(["hostname", "-I"], "No IP address").split()
@@ -3109,6 +3177,7 @@ def system_status():
         "sync_service_available": bool(shutil.which("systemctl")),
         "sync_service": sync_service,
         "sync_service_state": sync_service_state,
+        "sync_status": load_sync_status_summary(),
     }
 
 

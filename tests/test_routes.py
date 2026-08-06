@@ -38,6 +38,7 @@ class RouteRenderTests(unittest.TestCase):
         self.original_volume_path = app_module.VOLUME_SETTINGS_PATH
         self.original_family_progress_path = app_module.FAMILY_PROGRESS_PATH
         self.original_shutdown_sync_status_path = app_module.SHUTDOWN_SYNC_STATUS_PATH
+        self.original_sync_status_path = app_module.SYNC_STATUS_PATH
         self.original_station_config_path = app_module.STATION_CONFIG_PATH
         self.original_admin_pin_path = app_module.ADMIN_PIN_PATH
         self.original_play_daily = app_module.play_daily_celebration_in_background
@@ -62,6 +63,7 @@ class RouteRenderTests(unittest.TestCase):
         app_module.VOLUME_SETTINGS_PATH = self.data_dir / "volume_settings.json"
         app_module.FAMILY_PROGRESS_PATH = self.data_dir / "family_progress" / "latest.json"
         app_module.SHUTDOWN_SYNC_STATUS_PATH = self.data_dir / "sync_reports" / "latest_shutdown_sync.json"
+        app_module.SYNC_STATUS_PATH = self.data_dir / "sync_reports" / "latest_sync_status.json"
         app_module.STATION_CONFIG_PATH = self.data_dir / "station_config.json"
         app_module.ADMIN_PIN_PATH = self.data_dir / "admin_pin.txt"
         app_module.reset_admin_pin_lockout()
@@ -86,6 +88,7 @@ class RouteRenderTests(unittest.TestCase):
         app_module.VOLUME_SETTINGS_PATH = self.original_volume_path
         app_module.FAMILY_PROGRESS_PATH = self.original_family_progress_path
         app_module.SHUTDOWN_SYNC_STATUS_PATH = self.original_shutdown_sync_status_path
+        app_module.SYNC_STATUS_PATH = self.original_sync_status_path
         app_module.STATION_CONFIG_PATH = self.original_station_config_path
         app_module.ADMIN_PIN_PATH = self.original_admin_pin_path
         app_module.play_daily_celebration_in_background = self.original_play_daily
@@ -399,6 +402,12 @@ class RouteRenderTests(unittest.TestCase):
             "sync_service_available": True,
             "sync_service": "morse-station-sync.service",
             "sync_service_state": "inactive",
+            "sync_status": {
+                "label": "Completed",
+                "relative": "5 min ago",
+                "detail": "2 up, 3 down",
+                "updated_at": "2026-08-06T21:00:00+00:00",
+            },
         }
 
         response = self.client.get("/touch/system")
@@ -416,7 +425,49 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("morse-station-update.service", html)
         self.assertIn("Sync Now", html)
         self.assertIn("morse-station-sync.service", html)
+        self.assertIn("Completed", html)
+        self.assertIn("5 min ago", html)
+        self.assertIn("2 up, 3 down", html)
         self.assertIn("Exit Kiosk", html)
+
+    def test_sync_status_summary_reports_completed_sync(self):
+        app_module.SYNC_STATUS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        app_module.SYNC_STATUS_PATH.write_text(
+            json.dumps({
+                "status": "completed",
+                "updated_at": "2026-08-06T21:00:00+00:00",
+                "result": {
+                    "uploaded": 2,
+                    "downloaded": 3,
+                },
+            }),
+            encoding="utf-8",
+        )
+
+        with patch("app.datetime") as mock_datetime:
+            mock_datetime.now.return_value = app_module.datetime(2026, 8, 6, 21, 5, tzinfo=app_module.timezone.utc)
+            mock_datetime.fromisoformat.side_effect = app_module.datetime.fromisoformat
+            summary = app_module.load_sync_status_summary()
+
+        self.assertEqual("Completed", summary["label"])
+        self.assertEqual("5 min ago", summary["relative"])
+        self.assertEqual("2 up, 3 down", summary["detail"])
+
+    def test_sync_status_summary_reports_skipped_sync_reason(self):
+        app_module.SYNC_STATUS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        app_module.SYNC_STATUS_PATH.write_text(
+            json.dumps({
+                "status": "skipped",
+                "updated_at": "2026-08-06T21:00:00+00:00",
+                "reason": "recent-activity",
+            }),
+            encoding="utf-8",
+        )
+
+        summary = app_module.load_sync_status_summary()
+
+        self.assertEqual("Skipped", summary["label"])
+        self.assertEqual("recent activity", summary["detail"])
 
     def test_touch_system_shows_silent_touch_pin_pad_when_pin_required(self):
         self.write_station_config({"admin_pin": "1234"})
