@@ -2017,6 +2017,7 @@ def daily_learning_focus(learning_letters):
             "progress": 100,
             "complete": True,
             "next_need": "",
+            "status_label": "",
             "letters": []
         }
 
@@ -2037,6 +2038,17 @@ def daily_learning_focus(learning_letters):
         if strength_remaining:
             needs.append(f"{item['letter']} needs {strength_remaining} more Learn strength points")
 
+    def item_status(item):
+        correct_remaining = max(0, learn_ready_attempts - item["correct"])
+        if correct_remaining:
+            return f"{item['letter']} {min(item['correct'], learn_ready_attempts)}/{learn_ready_attempts}"
+        strength_remaining = max(0, learn_ready_strength - item["strength_percent"])
+        if strength_remaining:
+            return f"{item['letter']} strength {item['strength_percent']}/{learn_ready_strength}"
+        return f"{item['letter']} ready"
+
+    next_need = needs[0] if needs else ""
+
     return {
         "active": True,
         "goal": goal,
@@ -2044,13 +2056,18 @@ def daily_learning_focus(learning_letters):
         "remaining": remaining,
         "progress": min(100, progress),
         "complete": remaining == 0 and not needs,
-        "next_need": needs[0] if needs else "",
+        "next_need": next_need,
+        "status_label": f"Learning {' '.join(learning_letters)}: {next_need}" if next_need else f"Learning {' '.join(learning_letters)}: ready for practice",
         "letters": [
             {
                 "letter": item["letter"],
                 "correct": min(item["correct"], learn_ready_attempts),
                 "goal": learn_ready_attempts,
                 "remaining": max(0, learn_ready_attempts - item["correct"]),
+                "strength": item["strength_percent"],
+                "strength_goal": learn_ready_strength,
+                "ready": item["correct"] >= learn_ready_attempts and item["strength_percent"] >= learn_ready_strength,
+                "status": item_status(item),
                 "progress": min(100, int(round((min(item["correct"], learn_ready_attempts) / learn_ready_attempts) * 100))) if learn_ready_attempts else 100
             }
             for item in items

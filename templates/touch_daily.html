@@ -75,10 +75,10 @@
                     <div class="touch-progress-meter" aria-hidden="true">
                         <span style="width: {{ daily.learning_focus.progress }}%"></span>
                     </div>
-                    <p>{{ daily.learning_focus.correct }}/{{ daily.learning_focus.goal }} Learn · {{ daily.learning_focus.remaining }} left</p>
+                    <p>{{ daily.learning_focus.status_label }}</p>
                     <div class="touch-learning-letters">
                         {% for item in daily.learning_focus.letters %}
-                            <em>{{ item.letter }} {{ item.correct }}/{{ item.goal }}</em>
+                            <em>{{ item.status }}</em>
                         {% endfor %}
                     </div>
                     <small>{{ daily.learning_letters | join(" ") }} are not in Send, Read, Listen, or Echo yet.</small>

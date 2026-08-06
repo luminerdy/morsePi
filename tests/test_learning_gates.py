@@ -286,6 +286,57 @@ class LearningGateTests(unittest.TestCase):
         self.assertEqual(["E", "T", "A", "N", "I", "M", "S", "O"], state["active_letters"])
         self.assertEqual("8/26", overall["alphabet_progress"])
 
+    def test_learning_focus_explains_strength_gap(self):
+        progress = {}
+        for letter in app_module.starter_practice_letters:
+            progress[letter] = {
+                mode: {
+                    "attempts": 10,
+                    "correct": 10,
+                    "last_seen": "2026-06-21T00:00:00+00:00",
+                    "streak": 10,
+                    "strength": 1.0,
+                }
+                for mode in app_module.practice_modes
+            }
+
+        progress["S"] = {
+            "learn": {
+                "attempts": 11,
+                "correct": 11,
+                "last_seen": "2026-06-21T00:00:00+00:00",
+                "streak": 11,
+                "strength": 1.0,
+            }
+        }
+        progress["O"] = {
+            "learn": {
+                "attempts": 17,
+                "correct": 13,
+                "last_seen": "2026-06-21T00:00:00+00:00",
+                "streak": 1,
+                "strength": 0.5,
+            }
+        }
+
+        self.progress_path.write_text(json.dumps(progress), encoding="utf-8")
+        self.write_learning_state(
+            {
+                "SO": {
+                    "first_learning_date": "2000-01-01",
+                    "letters": ["S", "O"],
+                }
+            },
+            last_learning_start_date="2000-01-01",
+        )
+
+        state = app_module.get_practice_letter_state()
+        focus = app_module.daily_learning_focus(state["learning_letters"])
+
+        self.assertEqual(["S", "O"], state["learning_letters"])
+        self.assertEqual("Learning S O: O needs 20 more Learn strength points", focus["status_label"])
+        self.assertEqual(["S ready", "O strength 50/70"], [item["status"] for item in focus["letters"]])
+
     def test_daily_mission_summary_caps_display_and_marks_complete(self):
         original_loader = app_module.load_today_attempts
         app_module.load_today_attempts = lambda: self.make_attempts(total=22, correct=18)
