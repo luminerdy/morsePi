@@ -50,6 +50,7 @@ class RouteRenderTests(unittest.TestCase):
         self.original_shutdown_pi = app_module.shutdown_pi_in_background
         self.original_launch_keyboard = app_module.launch_keyboard_in_background
         self.original_start_update_service = app_module.start_update_service
+        self.original_start_sync_service = app_module.start_sync_service
         self.original_get_current_key_morse = app_module.get_current_key_morse
         self.original_practice_target = app_module.practice_target
         self.original_practice_feedback = app_module.practice_feedback
@@ -96,6 +97,7 @@ class RouteRenderTests(unittest.TestCase):
         app_module.shutdown_pi_in_background = self.original_shutdown_pi
         app_module.launch_keyboard_in_background = self.original_launch_keyboard
         app_module.start_update_service = self.original_start_update_service
+        app_module.start_sync_service = self.original_start_sync_service
         app_module.get_current_key_morse = self.original_get_current_key_morse
         app_module.practice_target = self.original_practice_target
         app_module.practice_feedback = self.original_practice_feedback
@@ -392,6 +394,9 @@ class RouteRenderTests(unittest.TestCase):
             "update_service_available": True,
             "update_service": "morse-station-update.service",
             "update_service_state": "inactive",
+            "sync_service_available": True,
+            "sync_service": "morse-station-sync.service",
+            "sync_service_state": "inactive",
         }
 
         response = self.client.get("/touch/system")
@@ -407,6 +412,8 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("matchbox-keyboard", html)
         self.assertIn("Update App", html)
         self.assertIn("morse-station-update.service", html)
+        self.assertIn("Sync Now", html)
+        self.assertIn("morse-station-sync.service", html)
         self.assertIn("Exit Kiosk", html)
 
     def test_touch_system_shows_silent_touch_pin_pad_when_pin_required(self):
@@ -500,6 +507,31 @@ class RouteRenderTests(unittest.TestCase):
 
         self.assertEqual(302, response.status_code)
         self.assertIn("system_error=update-start-failed", response.headers["Location"])
+
+    def test_touch_system_action_starts_sync_with_valid_pin(self):
+        self.write_station_config({"admin_pin": "1234"})
+        called = {"sync": False}
+        app_module.start_sync_service = lambda: called.__setitem__("sync", True) or True
+
+        response = self.client.post(
+            "/touch/system/action",
+            data={"admin_pin": "1234", "action": "sync-now"},
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("system_status=sync-started", response.headers["Location"])
+        self.assertTrue(called["sync"])
+
+    def test_touch_system_action_reports_sync_start_failure(self):
+        app_module.start_sync_service = lambda: False
+
+        response = self.client.post(
+            "/touch/system/action",
+            data={"action": "sync-now"},
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("system_error=sync-start-failed", response.headers["Location"])
 
     def test_touch_words_unlocks_after_s_o_active(self):
         active_letters = app_module.starter_practice_letters + ["S", "O"]

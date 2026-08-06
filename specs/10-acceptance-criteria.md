@@ -57,8 +57,9 @@ correctness checks. Each is encoded as an automated test per
   field/display and does not call speaker, LED, playback, or keyer controls. `POST
   /touch/system/action` rejects a bad admin PIN and does not run the requested
   action; with a valid PIN it starts the requested local recovery action,
-  including opening the on-screen keyboard or starting the local update service,
-  and returns/redirects without exposing secrets. The local admin PIN helper
+  including opening the on-screen keyboard, starting the local update service,
+  or starting the local student-attempt sync service, and returns/redirects
+  without exposing secrets. The local admin PIN helper
   updates `data/station_config.json`, preserves unrelated config fields,
   creates a timestamped backup, rejects non-numeric PINs, and does not print the
   PIN. The touch menu exposes a `Power` action; `GET /touch/shutdown` renders a

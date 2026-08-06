@@ -2997,7 +2997,9 @@ def system_status():
     keyboard_commands = ["matchbox-keyboard", "onboard", "florence", "wvkbd-mobintl", "wvkbd"]
     keyboard_command = next((command for command in keyboard_commands if shutil.which(command)), "")
     update_service = "morse-station-update.service"
+    sync_service = "morse-station-sync.service"
     update_service_state = first_command_line(["systemctl", "--user", "is-active", update_service], "unknown")
+    sync_service_state = first_command_line(["systemctl", "--user", "is-active", sync_service], "unknown")
     wifi_signal = "Unknown"
     wifi_state = "Unknown"
     connectivity = "Unknown"
@@ -3041,6 +3043,9 @@ def system_status():
         "update_service_available": bool(shutil.which("systemctl")),
         "update_service": update_service,
         "update_service_state": update_service_state,
+        "sync_service_available": bool(shutil.which("systemctl")),
+        "sync_service": sync_service,
+        "sync_service_state": sync_service_state,
     }
 
 
@@ -3160,6 +3165,14 @@ def start_update_service():
         return False
 
     result = run_system_command(["systemctl", "--user", "start", "morse-station-update.service"], timeout=8)
+    return result["ok"]
+
+
+def start_sync_service():
+    if not shutil.which("systemctl"):
+        return False
+
+    result = run_system_command(["systemctl", "--user", "start", "morse-station-sync.service"], timeout=8)
     return result["ok"]
 
 
@@ -3876,6 +3889,11 @@ def touch_system_action():
         if not start_update_service():
             return redirect(url_for("touch_system", system_error="update-start-failed"))
         return redirect(url_for("touch_system", system_status="update-started"))
+
+    if action == "sync-now":
+        if not start_sync_service():
+            return redirect(url_for("touch_system", system_error="sync-start-failed"))
+        return redirect(url_for("touch_system", system_status="sync-started"))
 
     return redirect(url_for("touch_system", system_error="unknown-action"))
 

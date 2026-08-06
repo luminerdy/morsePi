@@ -56,6 +56,11 @@
                     <strong>{{ system.update_service_state }}</strong>
                     <em>{{ system.update_service }}</em>
                 </div>
+                <div class="touch-system-card">
+                    <span>Sync</span>
+                    <strong>{{ system.sync_service_state }}</strong>
+                    <em>{{ system.sync_service }}</em>
+                </div>
             </section>
 
             <section class="touch-system-actions">
@@ -69,6 +74,8 @@
                             On-screen keyboard is opening.
                         {% elif system_status_message == "update-started" %}
                             Update started. The app may restart.
+                        {% elif system_status_message == "sync-started" %}
+                            Sync started. Progress may update after it finishes.
                         {% else %}
                             Action started.
                         {% endif %}
@@ -84,6 +91,8 @@
                             Keyboard app is missing.
                         {% elif system_error == "update-start-failed" %}
                             Update could not start.
+                        {% elif system_error == "sync-start-failed" %}
+                            Sync could not start.
                         {% else %}
                             Action not available.
                         {% endif %}
@@ -107,6 +116,7 @@
                     <div class="touch-system-action-grid">
                         <button type="submit" name="action" value="open-keyboard" class="button secondary">Open Keyboard</button>
                         <button type="submit" name="action" value="update-app" class="button secondary">Update App</button>
+                        <button type="submit" name="action" value="sync-now" class="button secondary">Sync Now</button>
                         <button type="submit" name="action" value="restart-wifi" class="button secondary">Restart Wi-Fi</button>
                         <button type="submit" name="action" value="exit-kiosk" class="button danger-button">Exit Kiosk</button>
                     </div>

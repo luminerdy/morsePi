@@ -249,6 +249,9 @@ Guarded sync behavior:
   error status
 - `data/sync_reports/student_attempt_sync.lock` prevents two syncs from running
   at the same time
+- the touch System page provides a PIN-gated `Sync Now` action that starts
+  `morse-station-sync.service`; it uses the guarded sync path, so it may still
+  skip if the station was used recently
 
 Optional automatic sync timer:
 
@@ -267,6 +270,15 @@ systemctl --user start morse-station-sync.service
 journalctl --user -u morse-station-sync.service -n 80 --no-pager
 cat /home/morse/morse-station/data/sync_reports/latest_sync_status.json
 ```
+
+Touch test:
+
+1. Open `System` from the touch menu.
+2. Enter the admin PIN.
+3. Tap `Sync Now`.
+4. Confirm the page reports that sync started.
+5. Later check `data/sync_reports/latest_sync_status.json` if detailed status
+   is needed.
 
 ## Shutdown Sync
 

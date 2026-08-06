@@ -1037,6 +1037,9 @@ When asked to do the daily wrap-up, update:
   should wait in cloud storage while a station is powered off and be delivered
   when the receiving station comes online and syncs, assuming AWS credentials,
   internet access, and the sync worker are healthy.
+- Added a PIN-gated `Sync Now` action to the touch System page. It starts the
+  existing guarded `morse-station-sync.service` so an adult can request progress
+  sync locally without SSH before or after the stations leave the house.
 
 ### Ready Next
 
@@ -1052,8 +1055,8 @@ When asked to do the daily wrap-up, update:
 - Watch the enabled 30-minute progress-sync timer on all three stations. Confirm
   it skips quickly during recent use, completes after idle time, and writes a
   clear `data/sync_reports/latest_sync_status.json`.
-- Add an adult-facing way to request/schedule a sync from the touch System page
-  or admin page so post-practice testing does not require SSH/CLI force sync.
+- Test the new touch System `Sync Now` action on all three stations: confirm the
+  PIN gate, service start, and `latest_sync_status.json` result.
 - Run one kid-style smoke test on each grandkid unit before it leaves home:
   choose each student, complete one Daily/Learn/Send action with the physical
   keyer, verify progress sticks after switching users, then run a final
