@@ -39,6 +39,7 @@ class RouteRenderTests(unittest.TestCase):
         self.original_family_progress_path = app_module.FAMILY_PROGRESS_PATH
         self.original_shutdown_sync_status_path = app_module.SHUTDOWN_SYNC_STATUS_PATH
         self.original_sync_status_path = app_module.SYNC_STATUS_PATH
+        self.original_attempt_sync_report_path = app_module.ATTEMPT_SYNC_REPORT_PATH
         self.original_station_config_path = app_module.STATION_CONFIG_PATH
         self.original_admin_pin_path = app_module.ADMIN_PIN_PATH
         self.original_play_daily = app_module.play_daily_celebration_in_background
@@ -64,6 +65,7 @@ class RouteRenderTests(unittest.TestCase):
         app_module.FAMILY_PROGRESS_PATH = self.data_dir / "family_progress" / "latest.json"
         app_module.SHUTDOWN_SYNC_STATUS_PATH = self.data_dir / "sync_reports" / "latest_shutdown_sync.json"
         app_module.SYNC_STATUS_PATH = self.data_dir / "sync_reports" / "latest_sync_status.json"
+        app_module.ATTEMPT_SYNC_REPORT_PATH = self.data_dir / "sync_reports" / "latest_attempt_sync.json"
         app_module.STATION_CONFIG_PATH = self.data_dir / "station_config.json"
         app_module.ADMIN_PIN_PATH = self.data_dir / "admin_pin.txt"
         app_module.reset_admin_pin_lockout()
@@ -89,6 +91,7 @@ class RouteRenderTests(unittest.TestCase):
         app_module.FAMILY_PROGRESS_PATH = self.original_family_progress_path
         app_module.SHUTDOWN_SYNC_STATUS_PATH = self.original_shutdown_sync_status_path
         app_module.SYNC_STATUS_PATH = self.original_sync_status_path
+        app_module.ATTEMPT_SYNC_REPORT_PATH = self.original_attempt_sync_report_path
         app_module.STATION_CONFIG_PATH = self.original_station_config_path
         app_module.ADMIN_PIN_PATH = self.original_admin_pin_path
         app_module.play_daily_celebration_in_background = self.original_play_daily
@@ -450,6 +453,8 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("Completed", html)
         self.assertIn("5 min ago", html)
         self.assertIn("2 up, 3 down", html)
+        self.assertIn("Scheduled", html)
+        self.assertIn("job Idle", html)
         self.assertIn("App Version", html)
         self.assertIn("abc1234", html)
         self.assertIn("release/pi", html)
@@ -495,6 +500,45 @@ class RouteRenderTests(unittest.TestCase):
 
         self.assertEqual("Skipped", summary["label"])
         self.assertEqual("recent activity", summary["detail"])
+
+    def test_sync_status_summary_falls_back_to_attempt_report(self):
+        app_module.ATTEMPT_SYNC_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+        app_module.ATTEMPT_SYNC_REPORT_PATH.write_text(
+            json.dumps({
+                "generated_at": "2026-08-06T21:00:00+00:00",
+                "summary": {
+                    "local_unique_attempts": 717,
+                    "would_upload": 0,
+                    "local_conflicts": 0,
+                },
+                "cloud_errors": [],
+            }),
+            encoding="utf-8",
+        )
+
+        summary = app_module.load_sync_status_summary(
+            now=app_module.datetime(2026, 8, 6, 21, 5, tzinfo=app_module.timezone.utc)
+        )
+
+        self.assertEqual("Report ready", summary["label"])
+        self.assertEqual("5 min ago", summary["relative"])
+        self.assertEqual("717 attempts checked", summary["detail"])
+
+    def test_first_command_line_keeps_stdout_from_nonzero_status_command(self):
+        original_runner = app_module.run_system_command
+        app_module.run_system_command = lambda command: {
+            "ok": False,
+            "stdout": "inactive\n",
+            "stderr": "",
+            "returncode": 3,
+        }
+
+        try:
+            value = app_module.first_command_line(["systemctl", "--user", "is-active", "example.service"], "unknown")
+        finally:
+            app_module.run_system_command = original_runner
+
+        self.assertEqual("inactive", value)
 
     def test_touch_system_shows_sync_completed_feedback(self):
         app_module.system_status = lambda: {

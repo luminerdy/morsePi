@@ -1136,3 +1136,9 @@ When asked to do the daily wrap-up, update:
   practice modes.
 - Words now opens silently by default from Daily, Progress, Practice menu, and
   Next; students press Play only when they want to hear the word.
+- Reviewed the touch Adult System screen after seeing confusing sync status.
+  Live station files showed recent guarded sync skips due to app activity, which
+  is normal, but the UI exposed systemd-style `inactive`/`unknown` wording. The
+  System page now labels one-shot jobs as `Idle`, timers as `Scheduled`, shows
+  `Last Sync` first, and falls back to the detailed attempt-sync report when the
+  compact sync status file is missing.

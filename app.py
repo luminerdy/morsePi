@@ -69,6 +69,7 @@ FAMILY_PROGRESS_PATH = data_path("family_progress", "latest.json")
 APP_ACTIVITY_PATH = data_path("app_activity.json")
 SHUTDOWN_SYNC_STATUS_PATH = data_path("sync_reports", "latest_shutdown_sync.json")
 SYNC_STATUS_PATH = data_path("sync_reports", "latest_sync_status.json")
+ATTEMPT_SYNC_REPORT_PATH = data_path("sync_reports", "latest_attempt_sync.json")
 MAX_REQUEST_BYTES = 16 * 1024
 MAX_MESSAGE_CHARS = 160
 MAX_MORSE_CHARS = 600
@@ -3050,10 +3051,12 @@ def refresh_family_progress_view():
 
 def first_command_line(command, default="Unknown"):
     result = run_system_command(command)
-    if not result["ok"] or not result["stdout"]:
+    if result["stdout"]:
+        return result["stdout"].splitlines()[0].strip() or default
+    if not result["ok"]:
         return default
 
-    return result["stdout"].splitlines()[0].strip() or default
+    return default
 
 
 def parse_status_timestamp(value):
@@ -3155,7 +3158,63 @@ def systemd_unit_summary(service_name, timer_name):
     }
 
 
-def load_sync_status_summary(path=None, now=None):
+def service_state_label(state):
+    labels = {
+        "active": "Running",
+        "activating": "Starting",
+        "inactive": "Idle",
+        "failed": "Needs attention",
+        "unknown": "Unknown",
+    }
+    return labels.get(str(state or "unknown").lower(), str(state or "Unknown").title())
+
+
+def timer_state_label(state, enabled):
+    if str(state).lower() == "active":
+        return "Scheduled"
+    if str(enabled).lower() == "enabled":
+        return "Enabled"
+    if str(state).lower() in ("inactive", "unknown") and str(enabled).lower() in ("disabled", "unknown"):
+        return "Not scheduled"
+    return service_state_label(state)
+
+
+def load_attempt_sync_report_summary(path=None, now=None):
+    path = path or ATTEMPT_SYNC_REPORT_PATH
+    try:
+        report = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None
+
+    if not isinstance(report, dict):
+        return None
+
+    generated_at = str(report.get("generated_at") or "")
+    summary = report.get("summary") if isinstance(report.get("summary"), dict) else {}
+    local_unique = int(summary.get("local_unique_attempts", 0) or 0)
+    would_upload = int(summary.get("would_upload", 0) or 0)
+    cloud_errors = len(report.get("cloud_errors", []) if isinstance(report.get("cloud_errors"), list) else [])
+    conflicts = int(summary.get("local_conflicts", 0) or 0)
+
+    if cloud_errors or conflicts:
+        label = "Needs attention"
+        detail = f"{cloud_errors} cloud errors, {conflicts} conflicts"
+    elif would_upload:
+        label = "Report ready"
+        detail = f"{would_upload} of {local_unique} attempts not uploaded yet"
+    else:
+        label = "Report ready"
+        detail = f"{local_unique} attempts checked"
+
+    return {
+        "label": label,
+        "detail": detail,
+        "updated_at": generated_at,
+        "relative": relative_time_label(generated_at, now),
+    }
+
+
+def load_sync_status_summary(path=None, now=None, attempt_report_path=None):
     path = path or SYNC_STATUS_PATH
     try:
         status = json.loads(Path(path).read_text(encoding="utf-8"))
@@ -3181,8 +3240,11 @@ def load_sync_status_summary(path=None, now=None):
         label = state.title()
         detail = reason.replace("-", " ") or "See sync report"
     else:
-        label = "No sync yet"
-        detail = "Waiting for first sync"
+        attempt_report = load_attempt_sync_report_summary(attempt_report_path, now)
+        if attempt_report:
+            return attempt_report
+        label = "No sync report yet"
+        detail = "Tap Sync Now to create one"
 
     return {
         "label": label,
@@ -3206,6 +3268,8 @@ def system_status():
     sync_timer = "morse-station-sync.timer"
     update_service_state = first_command_line(["systemctl", "--user", "is-active", update_service], "unknown")
     sync_service_state = first_command_line(["systemctl", "--user", "is-active", sync_service], "unknown")
+    update_status = systemd_unit_summary(update_service, update_timer)
+    sync_status = systemd_unit_summary(sync_service, sync_timer)
     wifi_signal = "Unknown"
     wifi_state = "Unknown"
     connectivity = "Unknown"
@@ -3249,12 +3313,17 @@ def system_status():
         "update_service_available": bool(shutil.which("systemctl")),
         "update_service": update_service,
         "update_service_state": update_service_state,
-        "update_status": systemd_unit_summary(update_service, update_timer),
+        "update_service_label": service_state_label(update_service_state),
+        "update_status": update_status,
+        "update_timer_label": timer_state_label(update_status["timer_state"], update_status["timer_enabled"]),
         "sync_service_available": bool(shutil.which("systemctl")),
         "sync_service": sync_service,
         "sync_service_state": sync_service_state,
+        "sync_service_label": service_state_label(sync_service_state),
+        "sync_timer_label": timer_state_label(sync_status["timer_state"], sync_status["timer_enabled"]),
         "sync_status": load_sync_status_summary(),
         "sync_timer": sync_timer,
+        "sync_unit_status": sync_status,
         "git": git_status_summary(),
         "backup": latest_backup_summary(),
     }

@@ -53,17 +53,17 @@
                 </div>
                 <div class="touch-system-card">
                     <span>Update</span>
-                    <strong>{{ system.update_service_state }}</strong>
+                    <strong>{{ system.update_service_label | default(system.update_service_state) }}</strong>
                     <em>{{ system.update_service }}</em>
-                    <small>{{ system.update_status.timer_state }} timer · {{ system.update_status.timer_enabled }}</small>
+                    <small>{{ system.update_timer_label | default(system.update_status.timer_state ~ " timer") }} · {{ system.update_status.timer_enabled }}</small>
                     <small>Last result: {{ system.update_status.last_result }}</small>
                 </div>
                 <div class="touch-system-card">
-                    <span>Sync</span>
-                    <strong>{{ system.sync_service_state }}</strong>
-                    <em>{{ system.sync_service }}</em>
-                    <small>{{ system.sync_status.label }} · {{ system.sync_status.relative }}</small>
+                    <span>Last Sync</span>
+                    <strong>{{ system.sync_status.label }}</strong>
+                    <em>{{ system.sync_status.relative }}</em>
                     <small>{{ system.sync_status.detail }}</small>
+                    <small>{{ system.sync_timer_label | default(system.sync_unit_status.timer_state ~ " timer") }} · job {{ system.sync_service_label | default(system.sync_service_state) }}</small>
                 </div>
                 <div class="touch-system-card">
                     <span>App Version</span>
