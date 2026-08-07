@@ -2216,6 +2216,8 @@ class RouteRenderTests(unittest.TestCase):
                     {
                         "available": True,
                         "generated_at": "2026-08-04T02:20:00+00:00",
+                        "health_label": "Current",
+                        "health_level": "current",
                         "station_id": "pappy-test-station",
                     },
                 ],
@@ -2245,6 +2247,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("Family Progress", html)
         self.assertIn("Astrid", html)
         self.assertIn("pappy-test-station", html)
+        self.assertIn("Current", html)
         self.assertIn("S O", html)
 
     def test_admin_family_refresh_requires_admin_pin_when_configured(self):

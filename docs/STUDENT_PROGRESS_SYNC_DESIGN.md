@@ -231,6 +231,8 @@ Phase E: safe automatic sync.
   the station progress snapshot and family progress view so screens reflect the
   latest merged attempt data. The timer is persistent, so a station that was off
   during its sync window catches up after boot.
+- Family progress labels each station snapshot as current, missing, or needing
+  attention when the latest snapshot is at least 24 hours old.
 
 ## Why Not Newest Wins
 

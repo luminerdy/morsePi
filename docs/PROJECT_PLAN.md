@@ -45,6 +45,7 @@ Completed:
 - Daily and Progress screens explain why Learn-only letters have not joined practice yet, including per-letter strength gaps
 - Adult System screen shows last student sync status, relative time, and upload/download counts
 - Scheduled student sync now refreshes station snapshots and family progress after each guarded attempt sync, with a persistent timer for boot catch-up
+- Family Progress station cards now flag current, stale, and missing station snapshots so Wi-Fi/offline issues are easier to spot
 
 ## Codebase Review Triage
 

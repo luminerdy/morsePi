@@ -114,6 +114,24 @@ class FamilyProgressTests(unittest.TestCase):
         ]
         self.assertEqual(["astrid-liara-station", "campbell-olivea-station"], unavailable)
         self.assertEqual(1, len(progress["students"]))
+        missing = [station for station in progress["station_status"] if station["station_id"] == "astrid-liara-station"][0]
+        self.assertEqual("Missing", missing["health_label"])
+        self.assertEqual("missing", missing["health_level"])
+
+    def test_refresh_family_progress_marks_old_snapshot_stale(self):
+        store = MemoryStore({
+            "stations/pappy-test-station/snapshots/latest_progress.json": snapshot(
+                "pappy-test-station",
+                "pappy",
+                "2000-01-01T10:00:00+00:00",
+            ),
+        })
+
+        progress, _ = refresh_family_progress(self.data_dir, self.config, self.output, store)
+
+        pappy = [station for station in progress["station_status"] if station["station_id"] == "pappy-test-station"][0]
+        self.assertEqual("Needs attention", pappy["health_label"])
+        self.assertEqual("stale", pappy["health_level"])
 
 
 if __name__ == "__main__":

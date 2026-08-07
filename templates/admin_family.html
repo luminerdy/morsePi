@@ -59,9 +59,9 @@
 
                 <div class="family-station-grid">
                     {% for station in family_progress.station_status %}
-                        <article class="family-station-card {% if not station.available %}offline{% endif %}">
+                        <article class="family-station-card {% if not station.available %}offline{% endif %} {{ station.health_level }}">
                             <strong>{{ station.station_id }}</strong>
-                            <span>{% if station.available %}Available{% else %}Unavailable{% endif %}</span>
+                            <span>{{ station.health_label or "Unknown" }}</span>
                             <em>
                                 {% if station.generated_at %}
                                     {{ station.generated_at[:19].replace("T", " ") }}
@@ -69,6 +69,9 @@
                                     No snapshot
                                 {% endif %}
                             </em>
+                            {% if station.error %}
+                                <em>{{ station.error }}</em>
+                            {% endif %}
                         </article>
                     {% endfor %}
                 </div>

@@ -19,6 +19,7 @@ DEFAULT_STATION_IDS = (
     "astrid-liara-station",
     "campbell-olivea-station",
 )
+STALE_STATION_HOURS = 24
 MODE_LABELS = {
     "learn": "Learn",
     "send": "Send",
@@ -30,6 +31,48 @@ MODE_LABELS = {
 
 def utc_now():
     return datetime.now(timezone.utc).isoformat()
+
+
+def parse_utc(value):
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def station_health(generated_at, available, now=None):
+    now = now or datetime.now(timezone.utc)
+    if not available:
+        return {
+            "label": "Missing",
+            "level": "missing",
+            "stale": True,
+        }
+
+    generated = parse_utc(generated_at)
+    if generated is None:
+        return {
+            "label": "Unknown age",
+            "level": "warning",
+            "stale": True,
+        }
+
+    age_hours = max(0, (now - generated).total_seconds() / 3600)
+    if age_hours >= STALE_STATION_HOURS:
+        return {
+            "label": "Needs attention",
+            "level": "stale",
+            "stale": True,
+        }
+
+    return {
+        "label": "Current",
+        "level": "current",
+        "stale": False,
+    }
 
 
 def load_json(path, default):
@@ -105,10 +148,14 @@ def load_station_snapshots(data_dir, config, store=None):
             source = "local-cache" if snapshot is not None else "unavailable"
 
         if snapshot_is_valid(snapshot, station_id):
+            health = station_health(snapshot.get("generated_at", ""), True)
             snapshots.append(snapshot)
             station_status.append({
                 "error": "",
                 "generated_at": snapshot.get("generated_at", ""),
+                "health": health,
+                "health_label": health["label"],
+                "health_level": health["level"],
                 "source": source,
                 "station_id": station_id,
                 "students": len(snapshot.get("students", [])),
@@ -119,9 +166,13 @@ def load_station_snapshots(data_dir, config, store=None):
             local_path.write_text(json.dumps(snapshot, indent=2, sort_keys=True), encoding="utf-8")
             continue
 
+        health = station_health("", False)
         station_status.append({
             "error": error or "No valid snapshot found.",
             "generated_at": "",
+            "health": health,
+            "health_label": health["label"],
+            "health_level": health["level"],
             "source": source,
             "station_id": station_id,
             "students": 0,
