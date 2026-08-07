@@ -1083,6 +1083,9 @@ When asked to do the daily wrap-up, update:
 - Added a prominent title-bar result for every touch practice activity so a
   student immediately sees bold `Correct!` or `Try Again` while the detailed
   coaching message, timing, scoring, audio, and LED behavior remain unchanged.
+- Fixed the Admin System Last Sync fallback discovered by the full Pi test bank
+  so partial status records render as `Scheduled` and `Idle` instead of raising
+  a template error.
 - Deployed the day's release to Pappy (`10.10.10.141`), Astrid/Liara
   (`10.10.10.129`), and Campbell/Olivea (`10.10.10.157`). App services are
   active on all three.

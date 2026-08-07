@@ -63,7 +63,7 @@
                     <strong>{{ system.sync_status.label }}</strong>
                     <em>{{ system.sync_status.relative }}</em>
                     <small>{{ system.sync_status.detail }}</small>
-                    <small>{{ system.sync_timer_label | default(system.sync_unit_status.timer_state ~ " timer") }} · job {{ system.sync_service_label | default(system.sync_service_state) }}</small>
+                    <small>{{ system.sync_timer_label | default("Scheduled") }} · job {{ system.sync_service_label | default("Idle") }}</small>
                 </div>
                 <div class="touch-system-card">
                     <span>App Version</span>

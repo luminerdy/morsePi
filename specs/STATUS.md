@@ -38,6 +38,7 @@ files only carry *(Delta: …)* notes, not status history.
 | Admin System sync status wording | 2026-08-07 working tree | FR-038/FR-054 — touch System page now presents sync as Last Sync plus friendly job/timer labels and falls back to the attempt-sync report instead of showing an unhelpful unknown state |
 | Admin System 800x480 layout polish | 2026-08-07 working tree | AC-014/UX polish — screen renamed from Adult System to Admin System; status cards use a compact three-column layout with wrapped/clamped text so long network, backup, and system labels do not bleed into neighboring cards; unreported Wi-Fi signal values show as `Signal not reported` instead of `Unknown` |
 | Top-of-screen practice result | 2026-08-07 working tree | FR-055/AC-026 — Learn, Send, Read, Listen, Echo, Words, and Bonus Sprint now show bold `Correct!` or `Try Again` in the existing title bar while retaining detailed feedback and the established timing |
+| Admin System partial-status compatibility | 2026-08-07 working tree | AC-014 — the Last Sync card uses friendly literal defaults when optional detailed service fields are absent, preventing Pi/Jinja rendering failures in reduced status fixtures |
 
 **Note 1 (FR-012):** over-limit text is silently **truncated** (`limited_text`),
 not rejected; only bodies > 16 KB get a hard 413. The OOM DoS is closed
