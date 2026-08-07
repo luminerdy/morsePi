@@ -2542,6 +2542,7 @@ def word_progress_summary(active_letters=None, attempts=None):
     if not summary["unlocked"]:
         return {
             "unlocked": False,
+            "completion": 0,
             "accuracy": 0,
             "correct": 0,
             "total": 0,
@@ -2551,8 +2552,11 @@ def word_progress_summary(active_letters=None, attempts=None):
             "detail": "Known-letter words",
         }
 
+    completion = int(round((len(unique_correct) / summary["count"]) * 100)) if summary["count"] else 100
+
     return {
         "unlocked": True,
+        "completion": completion,
         "accuracy": accuracy,
         "correct": correct,
         "total": total,

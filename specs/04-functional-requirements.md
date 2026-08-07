@@ -266,4 +266,8 @@ from the current code (legacy status per requirement is tracked in
   remain unfinished and return in later cycles; completed review words SHALL
   prioritize lower accuracy and fewer prior attempts. After every available
   word has been completed, all Words slots SHALL remain available for review.
-  Progress wording SHALL identify the numerator as distinct words completed.
+  Student-facing Words percentage SHALL be distinct completed words divided by
+  currently available words, making every available set capable of reaching
+  100%. Progress wording SHALL identify the numerator as distinct words
+  completed. Lifetime correct/attempt accuracy SHALL remain recorded and
+  available to adult analysis but SHALL not be the primary student score.

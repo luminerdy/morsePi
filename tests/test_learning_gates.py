@@ -219,6 +219,19 @@ class LearningGateTests(unittest.TestCase):
         self.assertEqual("AM", item["word"])
         self.assertEqual("ME", item["next_word"])
 
+    def test_words_completion_reaches_100_despite_earlier_misses(self):
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        words = app_module.available_word_practice_words(active_letters)
+        attempts = [{"word": "AM", "correct": False}]
+        attempts.extend({"word": word, "correct": True} for word in words)
+
+        summary = app_module.word_progress_summary(active_letters, attempts)
+
+        self.assertEqual(100, summary["completion"])
+        self.assertLess(summary["accuracy"], 100)
+        self.assertEqual("42/42 words complete", summary["label"])
+        self.assertEqual("42/43 correct", summary["detail"])
+
     def test_started_learning_group_continues_when_current_set_dips(self):
         self.write_progress(app_module.starter_practice_letters, self.all_modes(0.0))
         self.write_learning_state(

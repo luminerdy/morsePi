@@ -63,11 +63,11 @@
                 <a class="touch-progress-card words-progress-card" href="/touch/words">
                     <span>Words</span>
                     {% if words.unlocked %}
-                        <strong>{{ words.accuracy }}%</strong>
+                        <strong>{{ words.completion }}%</strong>
                     {% else %}
                         <strong>Lock</strong>
                     {% endif %}
-                    <em>{{ words.label }} · {{ words.detail }}</em>
+                    <em>{{ words.label }}</em>
                 </a>
             </section>
         </main>

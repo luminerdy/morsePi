@@ -743,7 +743,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("known-letter words", menu_html)
         self.assertEqual(200, words_response.status_code)
         self.assertIn("<strong>AM</strong>", words_html)
-        self.assertIn("0% · 0/42 words complete · No word tries yet", words_html)
+        self.assertIn("0% · 0/42 words complete", words_html)
         self.assertIn('data-word-morse=".- --"', words_html)
         self.assertIn('data-word-target="AM"', words_html)
         self.assertIn('id="liveMorse"', words_html)
@@ -778,7 +778,7 @@ class RouteRenderTests(unittest.TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertIn('data-word-target="ME"', html)
-        self.assertIn("100% · 1/42 words complete · 1/1 correct", html)
+        self.assertIn("2% · 1/42 words complete", html)
         self.assertIn('/touch/words?word=NOT&phase=1', html)
 
     def test_desktop_practice_retry_does_not_print_raw_morse(self):
@@ -1442,9 +1442,9 @@ class RouteRenderTests(unittest.TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertIn("Words", html)
-        self.assertIn("79%", html)
-        self.assertIn("1/42 words", html)
-        self.assertIn("19/24 correct", html)
+        self.assertIn("2%", html)
+        self.assertIn("1/42 words complete", html)
+        self.assertNotIn("19/24 correct", html)
 
     def test_touch_progress_renders_badges_and_next_badge(self):
         self.complete_progress("pappy", app_module.all_practice_letters)

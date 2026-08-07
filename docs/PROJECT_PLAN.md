@@ -1100,6 +1100,10 @@ When asked to do the daily wrap-up, update:
   unfinished words followed by two completed reviews. New visits begin with an
   unfinished word, lower-accuracy reviews come first, missed words return in a
   later cycle, and progress now explicitly says `words complete`.
+- Changed the student-facing Words percentage from lifetime accuracy to
+  distinct-word completion. A student who finishes all 42 available words now
+  earns an attainable 100%; lifetime accuracy and correct/attempt totals remain
+  stored for adult rhythm and progress analysis but are hidden on kid screens.
 - Deployed the day's release to Pappy (`10.10.10.141`), Astrid/Liara
   (`10.10.10.129`), and Campbell/Olivea (`10.10.10.157`). App services are
   active on all three.

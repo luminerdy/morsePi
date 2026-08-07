@@ -40,6 +40,7 @@ files only carry *(Delta: …)* notes, not status history.
 | Top-of-screen practice result | 2026-08-07 working tree | FR-055/AC-026 — Learn, Send, Read, Listen, Echo, Words, and Bonus Sprint now show bold `Correct!` or `Try Again` in the existing title bar while retaining detailed feedback and the established timing |
 | Admin System partial-status compatibility | 2026-08-07 working tree | AC-014 — the Last Sync card uses friendly literal defaults when optional detailed service fields are absent, preventing Pi/Jinja rendering failures in reduced status fixtures |
 | Adaptive Words rotation | 2026-08-07 working tree | FR-056/AC-027 — new sessions start with unfinished work, advancement mixes three unfinished Words with two completed reviews, weaker reviews come first, and progress explicitly says `words complete` |
+| Attainable Words completion score | 2026-08-07 working tree | FR-056/AC-027 — kid-facing Words and Progress percentages now measure distinct words completed, allowing 42/42 to display 100%; lifetime accuracy remains stored for adult analysis |
 
 **Note 1 (FR-012):** over-limit text is silently **truncated** (`limited_text`),
 not rejected; only bodies > 16 KB get a hard 413. The OOM DoS is closed

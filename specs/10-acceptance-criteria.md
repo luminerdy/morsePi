@@ -154,7 +154,10 @@ correctness checks. Each is encoded as an automated test per
   word remains eligible in the next unfinished cycle. The Next URL preserves
   the phase, legacy index URLs remain valid, and the progress label reads
   `<unique>/<available> words complete`. When all words are complete, the same
-  cadence safely falls back to review words without an empty prompt.
+  cadence safely falls back to review words without an empty prompt. A fixture
+  that completes all available words after earlier misses displays 100% on the
+  student Words and Progress screens while retaining its lower lifetime
+  accuracy in the underlying summary data.
 
 ## Coverage rule
 
