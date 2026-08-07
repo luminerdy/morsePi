@@ -134,6 +134,12 @@ cd /home/morse/morse-station
 bash scripts/install_wallpaper.sh
 ```
 
+Install the morsePi boot splash:
+
+```bash
+bash scripts/install_boot_splash.sh
+```
+
 Then reboot:
 
 ```bash
@@ -144,6 +150,7 @@ After reboot, confirm:
 
 - The Flask app starts automatically.
 - The touchscreen opens `/touch`.
+- The morsePi boot splash appears before the touch app opens.
 - The screen shows student selection if more than one profile exists.
 - The screen goes to Daily if only one profile exists.
 - Touch buttons are large enough on the 800x480 display.

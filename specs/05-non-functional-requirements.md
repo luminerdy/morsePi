@@ -52,3 +52,7 @@
   live key displays, and printable student materials. Canonical stored,
   transmitted, and compared Morse SHALL remain ASCII `.` and `-`. The visual
   renderer SHALL expose an accessible dot/dash text label.
+- **NFR-018** *(V1)* A deployed station SHOULD show morsePi branding during
+  boot and on the adult recovery desktop. Boot branding SHALL use a static
+  Plymouth-compatible image, keep a restorable copy of the original OS splash,
+  and not add a new boot dependency that can block app startup.

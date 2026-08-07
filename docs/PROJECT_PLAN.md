@@ -1111,3 +1111,6 @@ When asked to do the daily wrap-up, update:
   the new 3-correct-Words Daily finish, auto-advance, progress clarity, and
   whether the goal feels motivating without dragging the session too long.
 - Measure the 7-inch display/Pi stack with [CASE_MEASUREMENT_WORKSHEET.md](CASE_MEASUREMENT_WORKSHEET.md), then design a Bambu X1 Carbon test-fit plate.
+- Verify the new morsePi boot splash on the next station reboot and decide
+  whether the simple static splash is enough before attempting deeper boot-screen
+  customization.

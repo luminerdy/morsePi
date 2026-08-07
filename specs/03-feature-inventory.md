@@ -30,6 +30,7 @@ Tiers: **MVP** (Phase 1–3), **V1** (Phase 4), **V2** (Phase 5–6). See
 | F-23 | Touch System page for Wi-Fi status, on-screen keyboard launch, app update, Wi-Fi restart, kiosk escape, and kid-facing safe shutdown | V1 | `/touch/system`, `/touch/shutdown` |
 | F-24 | Kid-friendly family messages: touch/keyer composition, letter-by-letter review, inbox, and guided decoding | V2 | `message_store.py`, `/touch/messages/*`, touch message templates (Phase 7A local delivery) |
 | F-25 | Durable student-addressed message delivery across stations, with S3 storage and optional AWS IoT arrival notices | V2 | Planned Phase 7B |
+| F-26 | Station branding for recovery desktop and boot splash | V1 | `docs/assets/morsepi-desktop-wallpaper.png`, `docs/assets/morsepi-boot-splash.png`, install scripts |
 
 Notes:
 

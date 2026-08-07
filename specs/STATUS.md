@@ -31,6 +31,7 @@ files only carry *(Delta: …)* notes, not status history.
 | Local family Morse messaging with shared-letter validation, word-tile/whole-word keyer composition, review, playback, inbox, guided decoding, effort, and badges | 2026-08-02 working tree | FR-039...FR-046 — met for Phase 7A; FR-047...FR-050 remain partial pending cross-station transport |
 | Durable S3/Lambda message routing, station sync worker, remote receipts, and three-station rehearsal | `29a665d`; activated 2026-08-02 | FR-047...FR-050, FR-052, FR-053, API-023, and AC-018...AC-020/AC-023 — met; Pappy and Astrid/Liara enabled at ten minutes, Campbell/Olivea remains disabled |
 | Project and AWS architecture diagrams | 2026-08-02 working tree | DOC-03 — implemented for the current three-station system, deployed AWS services, trust boundaries, and future optional services |
+| Station boot splash branding | 2026-08-06 working tree | NFR-018 — static 800x480 boot splash asset and reversible Plymouth `pix` installer added; live reboot verification remains open |
 
 **Note 1 (FR-012):** over-limit text is silently **truncated** (`limited_text`),
 not rejected; only bodies > 16 KB get a hard 413. The OOM DoS is closed

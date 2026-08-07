@@ -337,7 +337,27 @@ http://10.10.10.141:5000
 
 Important: run the app with `debug=False` and `use_reloader=False`. The current `app.py` already does this. The Flask debug reloader can start multiple processes and claim the GPIO pins twice.
 
-## 9. Back Up Student Data
+## 9. Install Station Branding
+
+Install the morsePi desktop wallpaper so the adult recovery desktop is clearly
+part of the station:
+
+```bash
+cd /home/morse/morse-station
+bash scripts/install_wallpaper.sh
+```
+
+Install the simple morsePi boot splash:
+
+```bash
+bash scripts/install_boot_splash.sh
+```
+
+The boot splash installer replaces the Raspberry Pi OS `pix` Plymouth splash
+image and keeps backups at `/usr/share/plymouth/themes/pix/splash.png.morsepi-*`.
+It will be visible on the next reboot.
+
+## 10. Back Up Student Data
 
 Student progress is local to the Pi and is not committed to GitHub. Backups should include:
 
