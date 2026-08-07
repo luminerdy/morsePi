@@ -35,7 +35,8 @@ files only carry *(Delta: …)* notes, not status history.
 | Student sync learning-state rebuild | 2026-08-06 working tree | FR-054/DR-019 — rebuild now treats completed learning groups as earned once historical attempts crossed the gate, while current skill strength may still regress for coaching |
 | App learning-gate display after sync | 2026-08-06 working tree | FR-022/FR-051 — Daily/Progress active-letter calculation now keeps earlier earned groups active when a later learning group exists, preventing Words from relocking after sync-derived strength changes |
 | Words feedback color state | 2026-08-06 working tree | UX polish — Words correct feedback now uses a steady green success wash for the existing feedback duration; incorrect feedback uses a steady amber needs-work wash |
-| Adult System sync status wording | 2026-08-07 working tree | FR-038/FR-054 — touch System page now presents sync as Last Sync plus friendly job/timer labels and falls back to the attempt-sync report instead of showing an unhelpful unknown state |
+| Admin System sync status wording | 2026-08-07 working tree | FR-038/FR-054 — touch System page now presents sync as Last Sync plus friendly job/timer labels and falls back to the attempt-sync report instead of showing an unhelpful unknown state |
+| Admin System 800x480 layout polish | 2026-08-07 working tree | AC-014/UX polish — screen renamed from Adult System to Admin System; status cards use a compact three-column layout with wrapped/clamped text so long network, backup, and system labels do not bleed into neighboring cards |
 
 **Note 1 (FR-012):** over-limit text is silently **truncated** (`limited_text`),
 not rejected; only bodies > 16 KB get a hard 413. The OOM DoS is closed

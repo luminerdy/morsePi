@@ -43,10 +43,10 @@ Completed:
 - Repository structure cleaned up
 - Progress snapshots now compute active letters from rebuilt learning/progress data instead of trusting stale message-summary caches
 - Daily and Progress screens explain why Learn-only letters have not joined practice yet, including per-letter strength gaps
-- Adult System screen shows last student sync status, relative time, and upload/download counts
+- Admin System screen shows last student sync status, relative time, and upload/download counts
 - Scheduled student sync now refreshes station snapshots and family progress after each guarded attempt sync, with a persistent timer for boot catch-up
 - Family Progress station cards now flag current, stale, and missing station snapshots so Wi-Fi/offline issues are easier to spot
-- Adult System screen shows app version/branch, update timer/result, and last local backup age/name
+- Admin System screen shows app version/branch, update timer/result, and last local backup age/name
 - PIN-gated Sync Now waits for the local sync service result and reports completed, skipped, or finished status on return
 
 ## Codebase Review Triage
@@ -1136,9 +1136,12 @@ When asked to do the daily wrap-up, update:
   practice modes.
 - Words now opens silently by default from Daily, Progress, Practice menu, and
   Next; students press Play only when they want to hear the word.
-- Reviewed the touch Adult System screen after seeing confusing sync status.
+- Reviewed the touch Admin System screen after seeing confusing sync status.
   Live station files showed recent guarded sync skips due to app activity, which
   is normal, but the UI exposed systemd-style `inactive`/`unknown` wording. The
   System page now labels one-shot jobs as `Idle`, timers as `Scheduled`, shows
   `Last Sync` first, and falls back to the detailed attempt-sync report when the
   compact sync status file is missing.
+- Renamed the screen from Adult System to Admin System and tightened the 800x480
+  status grid to prevent long service, backup, and network text from bleeding
+  into neighboring cards.

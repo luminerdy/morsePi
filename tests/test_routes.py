@@ -436,7 +436,7 @@ class RouteRenderTests(unittest.TestCase):
         html = response.get_data(as_text=True)
 
         self.assertEqual(200, response.status_code)
-        self.assertIn("Adult System", html)
+        self.assertIn("Admin System", html)
         self.assertIn("PiMorse", html)
         self.assertIn("FamilyWifi", html)
         self.assertIn("10.10.10.141", html)
@@ -444,7 +444,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("Open Keyboard", html)
         self.assertIn("matchbox-keyboard", html)
         self.assertIn("Update App", html)
-        self.assertIn("morse-station-update.service", html)
+        self.assertIn("App updater", html)
         self.assertIn("active timer", html)
         self.assertIn("enabled", html)
         self.assertIn("success", html)

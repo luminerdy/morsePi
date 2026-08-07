@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-    <title>Touch System - Pappy's Internet Telegraph</title>
+    <title>Admin System - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260621-4">
     <link rel="stylesheet" href="/static/touch.css?v=20260803-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,7 +10,7 @@
     <div class="touch-screen">
         <header class="touch-titlebar">
             <div>
-                <p class="eyebrow">Adult System</p>
+                <p class="eyebrow">Admin System</p>
                 <h1><a class="touch-student-link" href="/touch/students?next=/touch/daily">{{ current_student.name }}</a></h1>
             </div>
             <a class="touch-top-link" href="/touch/menu">Menu</a>
@@ -27,6 +27,10 @@
                     <strong>{{ system.wifi_ssid }}</strong>
                     <em>{{ system.wifi_state }} · {{ system.wifi_signal }}</em>
                 </div>
+                <div class="touch-system-card">
+                    <span>Internet</span>
+                    <strong>{{ system.connectivity }}</strong>
+                </div>
                 <div class="touch-system-card wide">
                     <span>IP Address</span>
                     <strong>
@@ -36,10 +40,6 @@
                             No IP address
                         {% endif %}
                     </strong>
-                </div>
-                <div class="touch-system-card">
-                    <span>Internet</span>
-                    <strong>{{ system.connectivity }}</strong>
                 </div>
                 <div class="touch-system-card">
                     <span>Tools</span>
@@ -54,7 +54,7 @@
                 <div class="touch-system-card">
                     <span>Update</span>
                     <strong>{{ system.update_service_label | default(system.update_service_state) }}</strong>
-                    <em>{{ system.update_service }}</em>
+                    <em>App updater</em>
                     <small>{{ system.update_timer_label | default(system.update_status.timer_state ~ " timer") }} · {{ system.update_status.timer_enabled }}</small>
                     <small>Last result: {{ system.update_status.last_result }}</small>
                 </div>

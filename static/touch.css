@@ -1071,9 +1071,9 @@
 .touch-system-status {
     min-height: 0;
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     grid-auto-rows: minmax(0, 1fr);
-    gap: 8px;
+    gap: 7px;
 }
 
 .touch-system-card {
@@ -1082,32 +1082,54 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 5px;
-    padding: 10px;
+    gap: 3px;
+    padding: 8px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 8px;
     box-shadow: 0 6px 18px rgba(23, 33, 43, 0.08);
+    overflow: hidden;
 }
 
 .touch-system-card.wide {
-    grid-column: span 2;
+    grid-column: span 3;
 }
 
 .touch-system-card span,
-.touch-system-card em {
+.touch-system-card em,
+.touch-system-card small {
+    min-width: 0;
+    display: block;
     color: var(--muted);
-    font-size: 13px;
+    font-size: 12px;
+    line-height: 1.1;
     font-style: normal;
     font-weight: 900;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    text-overflow: ellipsis;
 }
 
 .touch-system-card strong {
     min-width: 0;
     color: var(--primary);
-    font-size: 22px;
-    line-height: 1.05;
+    font-size: 20px;
+    line-height: 1;
+    overflow: hidden;
     overflow-wrap: anywhere;
+}
+
+.touch-system-card em,
+.touch-system-card small,
+.touch-system-card strong {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.touch-system-card span,
+.touch-system-card small {
+    -webkit-line-clamp: 1;
 }
 
 .touch-system-actions {
