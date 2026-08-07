@@ -1063,11 +1063,31 @@ When asked to do the daily wrap-up, update:
   with optional `MORSE_DATA_DIR` override for advanced deployments. This removes
   the fragile assumption that the app and maintenance scripts are always started
   from `/home/morse/morse-station`.
+- Added a reversible morsePi boot splash installer and 800x480 splash image.
+  Installed it on all three stations; Pappy reboot-tested it and confirmed the
+  splash looks good.
+- Recovered and clarified Pappy progress after the first reboot/sync confusion.
+  Raw `S O` practice and Words attempts were present on all three stations, but
+  sync/app-derived learning state was relocking Words after later O Learn
+  mistakes lowered current strength.
+- Fixed the sync rebuild rule so a learning group stays earned once historical
+  attempts crossed the gate. Current strength can still dip for coaching, but
+  unlock history does not fall backward.
+- Fixed the app-side active-letter rule so Daily/Progress keep earlier earned
+  groups active when a later learning group exists. Verified live: Pappy shows
+  `R K` as Learning Now, `8/26` letters mastered, and Words unlocked with
+  `22/42 words` and `69/98 correct`.
+- Replaced the Words correct-answer flashing effect with a steady green success
+  wash for the same feedback duration, and added a steady amber needs-work wash
+  when the keyed word is not correct.
+- Deployed the day's release to Pappy (`10.10.10.141`), Astrid/Liara
+  (`10.10.10.129`), and Campbell/Olivea (`10.10.10.157`). App services are
+  active on all three.
+- GitHub status: pushed `main` and `release/pi` through `179aaa6` with splash,
+  sync, app-gate, and Words feedback changes.
 
 ### Ready Next
 
-- Refresh all three station screens after sync and confirm Pappy's Words
-  percentage is aligned everywhere after `pappy:words = 90`.
 - Let Pappy run normal practice tomorrow and watch both current learning loops:
   the Learn-mode 40/60 mix should keep review letters in rotation, and Daily
   should ask for 3 correct Words after the 20 signal attempts once Words is
@@ -1111,15 +1131,6 @@ When asked to do the daily wrap-up, update:
   the new 3-correct-Words Daily finish, auto-advance, progress clarity, and
   whether the goal feels motivating without dragging the session too long.
 - Measure the 7-inch display/Pi stack with [CASE_MEASUREMENT_WORKSHEET.md](CASE_MEASUREMENT_WORKSHEET.md), then design a Bambu X1 Carbon test-fit plate.
-- Verify the new morsePi boot splash on the next station reboot and decide
-  whether the simple static splash is enough before attempting deeper boot-screen
-  customization.
-- Fixed the first reboot/sync progress-confusion issue: cross-station sync now
-  preserves a completed learning group for unlock purposes once it was earned,
-  even if later mistakes lower the current strength score for coaching.
-- Fixed the app-side half of the same issue: Daily/Progress now treats an
-  earlier learning group as earned when a later learning group exists, so `S O`
-  stays active and Words stay unlocked while Pappy is learning `R K`.
-- Replaced the Words correct-answer flashing effect with a steady green success
-  wash for the same feedback duration, and added a steady amber needs-work wash
-  when the keyed word is not correct.
+- Confirm the steady green/amber Words feedback feels good during hands-on
+  practice and decide whether the same no-flash pattern should be applied to all
+  practice modes.
