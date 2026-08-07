@@ -1134,3 +1134,5 @@ When asked to do the daily wrap-up, update:
 - Confirm the steady green/amber Words feedback feels good during hands-on
   practice and decide whether the same no-flash pattern should be applied to all
   practice modes.
+- Words now opens silently by default from Daily, Progress, Practice menu, and
+  Next; students press Play only when they want to hear the word.

@@ -695,7 +695,7 @@ class RouteRenderTests(unittest.TestCase):
         words_html = words_response.get_data(as_text=True)
 
         self.assertEqual(200, menu_response.status_code)
-        self.assertIn('href="/touch/words?autoplay=1"', menu_html)
+        self.assertIn('href="/touch/words"', menu_html)
         self.assertIn("known-letter words", menu_html)
         self.assertEqual(200, words_response.status_code)
         self.assertIn("<strong>AM</strong>", words_html)
@@ -705,7 +705,8 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn('id="liveMorse"', words_html)
         self.assertIn('id="wordFeedback"', words_html)
         self.assertIn("data-word-clear", words_html)
-        self.assertIn('/touch/words?i=1&autoplay=1', words_html)
+        self.assertIn('/touch/words?i=1', words_html)
+        self.assertNotIn("autoplay=1", words_html)
         self.assertIn('app.js?v=20260805-6', words_html)
         self.assertNotIn(">Read</a>", words_html)
         self.assertIn('class="morse-visual"', words_html)
@@ -1901,7 +1902,8 @@ class RouteRenderTests(unittest.TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertIn("Daily mission: 3 correct Words left.", html)
-        self.assertIn("/touch/words?autoplay=1", html)
+        self.assertIn("/touch/words", html)
+        self.assertNotIn("autoplay=1", html)
         self.assertNotIn("Bonus Round", html)
         self.assertIn("8/26", html)
 

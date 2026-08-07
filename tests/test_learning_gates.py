@@ -856,7 +856,7 @@ class LearningGateTests(unittest.TestCase):
 
         self.assertEqual("Words", action["label"])
         self.assertEqual("words", action["mode"])
-        self.assertEqual("/touch/words?autoplay=1", action["href"])
+        self.assertEqual("/touch/words", action["href"])
         self.assertEqual(3, focus["remaining"])
         self.assertFalse(focus["complete"])
 

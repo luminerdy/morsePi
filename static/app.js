@@ -416,7 +416,7 @@ async function initializeWordPractice() {
 
     const params = new URLSearchParams(window.location.search);
 
-    if (params.get("autoplay") !== "0") {
+    if (params.get("autoplay") === "1") {
         setWordFeedback("Get ready...");
         setTimeout(playWordCard, WORD_AUTOPLAY_DELAY_MS);
     }

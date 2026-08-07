@@ -60,7 +60,7 @@
                         <em>{{ mode_score.completion_label or details[mode_key].summary_label ~ ' · ' ~ mode_score.streak ~ ' streak' }}</em>
                     </a>
                 {% endfor %}
-                <a class="touch-progress-card words-progress-card" href="/touch/words?autoplay=1">
+                <a class="touch-progress-card words-progress-card" href="/touch/words">
                     <span>Words</span>
                     {% if words.unlocked %}
                         <strong>{{ words.accuracy }}%</strong>
