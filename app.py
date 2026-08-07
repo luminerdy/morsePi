@@ -3039,18 +3039,19 @@ def update_message_from_request():
         last_morse = text_to_morse(last_message)
 
 
-def render_home_template(template_name):
+def render_home_template(template_name, **extra_context):
     if message_access_allowed():
         update_message_from_request()
 
-    return render_template(
-        template_name,
-        message=last_message if message_access_allowed() else "",
-        morse=last_morse if message_access_allowed() else "",
-        message_access_allowed=message_access_allowed(),
-        station_volume_percent=station_volume_percent(),
-        timing=get_morse_timing()
-    )
+    context = {
+        "message": last_message if message_access_allowed() else "",
+        "morse": last_morse if message_access_allowed() else "",
+        "message_access_allowed": message_access_allowed(),
+        "station_volume_percent": station_volume_percent(),
+        "timing": get_morse_timing(),
+    }
+    context.update(extra_context)
+    return render_template(template_name, **context)
 
 
 def render_practice_template(template_name):
@@ -3099,6 +3100,13 @@ def safe_next_url(default_endpoint="touch_index", **default_values):
         return next_url
 
     return url_for(default_endpoint, **default_values)
+
+
+def denied_settings_response():
+    if safe_next_url("index") == url_for("touch_timing"):
+        return redirect(url_for("touch_timing", settings_error="admin-pin"))
+
+    return "Admin PIN required", 403
 
 
 def run_system_command(command, timeout=4):
@@ -4251,7 +4259,10 @@ def touch_key():
 
 @app.route("/touch/timing")
 def touch_timing():
-    return render_home_template("touch_timing.html")
+    return render_home_template(
+        "touch_timing.html",
+        settings_error=request.args.get("settings_error", ""),
+    )
 
 
 @app.route("/touch/system")
@@ -4334,7 +4345,7 @@ def set_station_volume():
     global station_volume
 
     if not admin_pin_valid(request.form.get("admin_pin", "")):
-        return "Admin PIN required", 403
+        return denied_settings_response()
 
     volume_percent = normalize_station_volume(request.form.get("station_volume"))
     station_volume = volume_percent / 100.0
@@ -4346,7 +4357,7 @@ def set_station_volume():
 @app.route("/timing-settings", methods=["POST"])
 def set_timing_settings():
     if not admin_pin_valid(request.form.get("admin_pin", "")):
-        return "Admin PIN required", 403
+        return denied_settings_response()
 
     morse_timing.update(normalize_morse_timing({
         "character_wpm": request.form.get("character_wpm"),

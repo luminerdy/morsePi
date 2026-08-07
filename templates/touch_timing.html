@@ -3,7 +3,7 @@
 <head>
     <title>Touch Timing - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260621-1">
-    <link rel="stylesheet" href="/static/touch.css?v=20260803-1">
+    <link rel="stylesheet" href="/static/touch.css?v=20260807-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body class="touch-ui">
@@ -13,6 +13,9 @@
                 <p class="eyebrow">Timing</p>
                 <h1><a class="touch-student-link" href="/touch/students?next=/touch/daily">{{ current_student.name }}</a></h1>
             </div>
+            {% if settings_error == "admin-pin" %}
+                <div class="touch-settings-alert" role="alert">Enter the admin PIN, then choose a setting.</div>
+            {% endif %}
             <a class="touch-top-link" href="/touch/menu">Menu</a>
         </header>
 

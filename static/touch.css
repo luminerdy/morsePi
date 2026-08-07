@@ -938,6 +938,28 @@
     gap: 8px;
 }
 
+.touch-settings-alert {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: 50%;
+    width: 330px;
+    min-height: 38px;
+    padding: 7px 10px;
+    display: grid;
+    place-items: center;
+    transform: translate(-50%, -50%);
+    color: #734912;
+    background: #fff3d6;
+    border: 2px solid #e4b14f;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 900;
+    line-height: 1.15;
+    text-align: center;
+    pointer-events: none;
+}
+
 .touch-settings-form {
     display: grid;
     align-content: start;

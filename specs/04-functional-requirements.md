@@ -44,7 +44,10 @@ from the current code (legacy status per requirement is tracked in
 - **FR-011** *(MVP)* Station volume SHALL be adjustable 0–100% (default 35%),
   persist across app restarts, and require admin authorization to change.
   The 7-inch touch UI SHALL expose parent-friendly presets for Mute, Quiet,
-  Normal, and Loud without requiring a physical keyboard.
+  Normal, and Loud without requiring a physical keyboard. If the PIN is
+  missing or invalid, volume and timing controls SHALL leave settings
+  unchanged and return to the touch Timing screen with a visible instruction;
+  they SHALL NOT strand the kiosk on a plain browser error page.
 - **FR-012** *(MVP)* Playback input length SHALL be capped: message text
   ≤ 160 characters, Morse ≤ 600 characters after normalization, request body
   ≤ 16 KB (limits adopted from the legacy hardening at `7818254`). Over-limit

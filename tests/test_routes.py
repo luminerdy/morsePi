@@ -278,6 +278,45 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn('name="station_volume" value="35"', html)
         self.assertIn("data-touch-pin-copy", html)
 
+    def test_touch_settings_pin_failure_returns_to_usable_timing_screen(self):
+        self.write_station_config({"admin_pin": "1234"})
+
+        denied_volume = self.client.post(
+            "/station-volume",
+            data={
+                "station_volume": "0",
+                "admin_pin": "",
+                "next": "/touch/timing",
+            },
+        )
+        denied_timing = self.client.post(
+            "/timing-settings",
+            data={
+                "character_wpm": "35",
+                "effective_wpm": "35",
+                "tone_hz": "1000",
+                "admin_pin": "0000",
+                "next": "/touch/timing",
+            },
+        )
+        timing_page = self.client.get(denied_volume.headers["Location"])
+        html = timing_page.get_data(as_text=True)
+
+        self.assertEqual(302, denied_volume.status_code)
+        self.assertEqual(
+            "/touch/timing?settings_error=admin-pin",
+            denied_volume.headers["Location"],
+        )
+        self.assertEqual(302, denied_timing.status_code)
+        self.assertEqual(
+            "/touch/timing?settings_error=admin-pin",
+            denied_timing.headers["Location"],
+        )
+        self.assertEqual(200, timing_page.status_code)
+        self.assertIn("Enter the admin PIN, then choose a setting.", html)
+        self.assertIn('href="/touch/menu"', html)
+        self.assertEqual(35, app_module.station_volume_percent())
+
     def test_touch_shutdown_confirm_page_does_not_require_admin_pin(self):
         self.write_station_config({"admin_pin": "1234"})
 

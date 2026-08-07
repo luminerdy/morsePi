@@ -158,6 +158,11 @@ correctness checks. Each is encoded as an automated test per
   that completes all available words after earlier misses displays 100% on the
   student Words and Progress screens while retaining its lower lifetime
   accuracy in the underlying summary data.
+- **AC-028** (FR-011) On an 800x480 station with an admin PIN configured,
+  submitting Mute or timing changes with a missing or invalid PIN leaves the
+  saved setting unchanged, redirects back to `/touch/timing`, displays a clear
+  PIN instruction, and keeps the touch Menu control available. Direct requests
+  without a touch return target remain forbidden with HTTP 403.
 
 ## Coverage rule
 

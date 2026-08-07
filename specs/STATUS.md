@@ -5,7 +5,7 @@ knows what it inherits. This file is updated on each re-review; requirement
 files only carry *(Delta: …)* notes, not status history.
 
 - **Baseline review:** `33df851` (2026-07-02)
-- **Latest legacy-code re-review:** touch speaker volume update (2026-08-03)
+- **Latest legacy-code re-review:** touch settings PIN recovery (2026-08-07)
 - **Spec package location:** root `specs/`
 
 ## Changes landed since baseline (`33df851..7818254`)
@@ -25,6 +25,7 @@ files only carry *(Delta: …)* notes, not status history.
 | Local admin PIN reset helper | 2026-08-03 working tree | FR-038, AC-014 — adult can reset the station PIN with a config backup and no JSON hand-editing |
 | Kid-facing safe shutdown flow | 2026-08-03 working tree | FR-038, API-024, AC-014 — students can safely power off from the touch menu after a confirmation page |
 | Touch speaker volume presets | 2026-08-03 working tree | FR-011 — parent-friendly Mute/Quiet/Normal/Loud controls are available from the touch Timing screen, require the adult PIN when configured, and persist in `data/volume_settings.json` |
+| Touch settings PIN recovery | 2026-08-07 working tree | FR-011, AC-028 — a missing or invalid PIN returns volume/timing actions to the usable Timing screen with a visible instruction instead of trapping the kiosk on a plain 403 page |
 | Read-only station progress snapshots | 2026-08-03 working tree | FR-034, DR-017 — daily backup service now also writes/uploads `morsepi-progress-snapshot-v1` to the station snapshot prefix for family visibility; no cross-station merge yet |
 | Read-only family progress view | 2026-08-03 working tree | DR-018, API-025 — `scripts/family_progress.py` combines latest station snapshots into `data/family_progress/latest.json`; `/admin/family` shows the latest student source and unavailable station snapshots without writing student data |
 | Student progress sync design, attempt IDs, dry-run report, full-sync path, and guarded timer foundation | 2026-08-04 working tree | FR-054, DR-019 — new Practice/Words/Sprint attempts include stable `attempt_id`; merge contract documented; dry-run report lists local upload candidates/conflicts/cloud errors without writing student files; manual upload-only and full `--sync` modes are available; guarded sync skips recent app activity, writes status, uses a lock, and has optional systemd timer files; production timer soak remains future work |
