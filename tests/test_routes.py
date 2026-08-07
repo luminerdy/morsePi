@@ -748,10 +748,12 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn('data-word-target="AM"', words_html)
         self.assertIn('id="liveMorse"', words_html)
         self.assertIn('id="wordFeedback"', words_html)
+        self.assertIn('id="touchResultBanner"', words_html)
+        self.assertIn('aria-live="polite"', words_html)
         self.assertIn("data-word-clear", words_html)
         self.assertIn('/touch/words?i=1', words_html)
         self.assertNotIn("autoplay=1", words_html)
-        self.assertIn('app.js?v=20260805-6', words_html)
+        self.assertIn('app.js?v=20260807-1', words_html)
         self.assertNotIn(">Read</a>", words_html)
         self.assertIn('class="morse-visual"', words_html)
         self.assertIn('aria-label="dot dash"', words_html)
@@ -1579,6 +1581,8 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(200, response.status_code)
         self.assertIn('href="/touch/daily">Daily</a>', html)
         self.assertIn('href="/touch/practice">Modes</a>', html)
+        self.assertIn('id="touchResultBanner"', html)
+        self.assertIn('role="status"', html)
 
     def test_touch_practice_mastered_mode_points_back_to_daily(self):
         self.complete_starter_progress("pappy")
@@ -1960,6 +1964,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn('data-bonus-kind="signal-sprint"', html)
         self.assertIn('data-bonus-session="test-session"', html)
         self.assertIn('id="bonusAttempts">0</span>/20 signals', html)
+        self.assertIn('id="touchResultBanner"', html)
 
     def test_bonus_result_records_without_changing_practice_progress(self):
         response = self.client.post(

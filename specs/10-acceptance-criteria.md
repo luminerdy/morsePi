@@ -89,9 +89,9 @@ correctness checks. Each is encoded as an automated test per
   word-pause markers, and SHALL highlight a too-long letter pause as a
   word-break style issue with friendly feedback. When a keyed word is not
   correct, the student-facing feedback SHALL explicitly remind the student to
-  clear the attempt before trying again. Opening a Words prompt SHALL
-  automatically play the word on the station speaker and LED; Next SHALL load
-  and play the next word.
+  clear the attempt before trying again. Opening a Words prompt and selecting
+  Next SHALL leave playback under student control; Play SHALL sound the word
+  on the station speaker and light the LED.
 - **AC-016** (FR-044...FR-046) Opening a two-word fixture reveals no plaintext.
   Whole-message, word, and letter playback drive mock audio and LED together;
   correct four-choice answers fill only the selected slots; progressive hints
@@ -140,6 +140,13 @@ correctness checks. Each is encoded as an automated test per
   replaying either receipt creates no duplicate local message or effort event.
   A mismatched station path, unknown family ID, stale summary, altered required
   letters, or unavailable letter is rejected.
+- **AC-026** (FR-055 / NFR-016) Learn, Send, Read, Listen, Echo, Words, and
+  Bonus Sprint touch screens render one title-bar result region without
+  increasing the 800x480 page height. A correct answer displays bold
+  `Correct!`; a missed answer displays `Try Again`; the existing detailed
+  feedback remains visible. Loading the next prompt clears the title-bar
+  result, and all existing answer timing and advancement delays remain
+  unchanged.
 
 ## Coverage rule
 

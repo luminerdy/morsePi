@@ -252,3 +252,10 @@ from the current code (legacy status per requirement is tracked in
   It SHALL not use newest-snapshot-wins for writes, SHALL not overwrite a
   student's derived progress file from another station, and SHALL quarantine
   conflicting duplicate attempt IDs for adult review.
+- **FR-055** The 800x480 touch practice screens SHALL show a prominent,
+  text-based result in the existing title bar after each checked answer.
+  Correct answers SHALL show `Correct!` in a bold success state; incorrect
+  answers SHALL show `Try Again` in a distinct needs-work state. The detailed
+  feedback message SHALL remain available in the practice content, and the
+  title-bar result SHALL not change scoring, playback, LED behavior, automatic
+  advancement, or consume additional screen height.

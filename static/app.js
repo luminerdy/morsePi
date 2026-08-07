@@ -630,6 +630,36 @@ function countMorseSymbols(value) {
     return value.replace(/[\s/]/g, "").length;
 }
 
+function feedbackResult(message) {
+    const text = (message || "").trim();
+
+    if (text.startsWith("Correct")) {
+        return { label: "Correct!", className: "success" };
+    }
+
+    if (text.startsWith("Try") || text.startsWith("Not yet") || text.startsWith("Listen again")) {
+        return { label: "Try Again", className: "needs-practice" };
+    }
+
+    return null;
+}
+
+function setTouchResultBanner(result) {
+    const banner = document.getElementById("touchResultBanner");
+
+    if (!banner) {
+        return;
+    }
+
+    banner.classList.remove("success", "needs-practice");
+    banner.hidden = !result;
+    banner.innerText = result ? result.label : "";
+
+    if (result) {
+        banner.classList.add(result.className);
+    }
+}
+
 function setPracticeFeedback(message) {
     const feedback = document.getElementById("practiceFeedback");
 
@@ -641,12 +671,13 @@ function setPracticeFeedback(message) {
     feedback.hidden = !message;
 
     feedback.classList.remove("success", "needs-practice");
+    const result = feedbackResult(message);
 
-    if (message.startsWith("Correct")) {
-        feedback.classList.add("success");
-    } else if (message.startsWith("Try")) {
-        feedback.classList.add("needs-practice");
+    if (result) {
+        feedback.classList.add(result.className);
     }
+
+    setTouchResultBanner(result);
 }
 
 function setWordFeedback(message) {
@@ -659,12 +690,13 @@ function setWordFeedback(message) {
     feedback.innerText = message;
     feedback.hidden = !message;
     feedback.classList.remove("success", "needs-practice");
+    const result = feedbackResult(message);
 
-    if (message.startsWith("Correct")) {
-        feedback.classList.add("success");
-    } else if (message.startsWith("Try")) {
-        feedback.classList.add("needs-practice");
+    if (result) {
+        feedback.classList.add(result.className);
     }
+
+    setTouchResultBanner(result);
 }
 
 function setWordRhythmCoach(rhythm) {

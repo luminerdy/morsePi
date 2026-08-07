@@ -35,11 +35,47 @@
 }
 
 .touch-titlebar {
+    position: relative;
     min-width: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
+}
+
+.touch-result-banner {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: 50%;
+    width: 210px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    transform: translate(-50%, -50%);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    font-size: 26px;
+    font-weight: 900;
+    line-height: 1;
+    text-align: center;
+    pointer-events: none;
+}
+
+.touch-result-banner[hidden] {
+    display: none;
+}
+
+.touch-result-banner.success {
+    color: #155f36;
+    background: #e8f7ee;
+    border-color: #7fc79f;
+}
+
+.touch-result-banner.needs-practice {
+    color: #734912;
+    background: #fff3d6;
+    border-color: #e4b14f;
 }
 
 .touch-titlebar.compact {

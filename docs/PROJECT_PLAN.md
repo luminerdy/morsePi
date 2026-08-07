@@ -1080,6 +1080,9 @@ When asked to do the daily wrap-up, update:
 - Replaced the Words correct-answer flashing effect with a steady green success
   wash for the same feedback duration, and added a steady amber needs-work wash
   when the keyed word is not correct.
+- Added a prominent title-bar result for every touch practice activity so a
+  student immediately sees bold `Correct!` or `Try Again` while the detailed
+  coaching message, timing, scoring, audio, and LED behavior remain unchanged.
 - Deployed the day's release to Pappy (`10.10.10.141`), Astrid/Liara
   (`10.10.10.129`), and Campbell/Olivea (`10.10.10.157`). App services are
   active on all three.
