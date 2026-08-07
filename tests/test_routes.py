@@ -449,7 +449,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("enabled", html)
         self.assertIn("success", html)
         self.assertIn("Sync Now", html)
-        self.assertIn("morse-station-sync.service", html)
+        self.assertNotIn("morse-station-sync.service", html)
         self.assertIn("Completed", html)
         self.assertIn("5 min ago", html)
         self.assertIn("2 up, 3 down", html)

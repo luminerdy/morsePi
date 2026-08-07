@@ -1086,6 +1086,9 @@ When asked to do the daily wrap-up, update:
 - Fixed the Admin System Last Sync fallback discovered by the full Pi test bank
   so partial status records render as `Scheduled` and `Idle` instead of raising
   a template error.
+- Aligned the Admin System regression expectation with its child-friendly sync
+  wording and restored Pappy's missing rollout-release test module so all three
+  stations run the same complete test bank.
 - Deployed the day's release to Pappy (`10.10.10.141`), Astrid/Liara
   (`10.10.10.129`), and Campbell/Olivea (`10.10.10.157`). App services are
   active on all three.
