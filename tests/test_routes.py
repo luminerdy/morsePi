@@ -624,6 +624,131 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("data-touch-pin-clear", html)
         self.assertIn("data-touch-pin-back", html)
         self.assertNotIn("data-test-sound", html)
+        self.assertIn('href="/touch/system/operators"', html)
+
+    def test_touch_operator_manager_lists_family_with_current_roster_checked(self):
+        self.write_station_config({
+            "admin_pin": "1234",
+            "allow_student_create": False,
+            "students": [
+                {"id": "campbell", "name": "Campbell"},
+                {"id": "olivea", "name": "Olivea"},
+            ],
+            "family_students": [
+                {"id": "pappy", "name": "Pappy"},
+                {"id": "campbell", "name": "Campbell"},
+                {"id": "olivea", "name": "Olivea"},
+            ],
+            "guest_profile": {
+                "id": "guest",
+                "name": "Guest Operator",
+                "guest": True,
+                "disposable": True,
+            },
+        })
+
+        response = self.client.get("/touch/system/operators")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Manage Operators", html)
+        self.assertIn('value="pappy"', html)
+        self.assertIn('value="campbell" checked', html)
+        self.assertIn('value="olivea" checked', html)
+        self.assertNotIn('value="guest"', html)
+        self.assertIn("data-touch-pin-pad", html)
+
+    def test_touch_operator_manager_rejects_bad_pin_without_changes(self):
+        config = {
+            "admin_pin": "1234",
+            "students": [{"id": "pappy", "name": "Pappy"}],
+            "family_students": [
+                {"id": "pappy", "name": "Pappy"},
+                {"id": "campbell", "name": "Campbell"},
+            ],
+        }
+        self.write_station_config(config)
+
+        response = self.client.post(
+            "/touch/system/operators",
+            data={"admin_pin": "0000", "student_ids": "campbell"},
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("operator_error=admin-pin", response.headers["Location"])
+        self.assertEqual(config, json.loads(app_module.STATION_CONFIG_PATH.read_text(encoding="utf-8")))
+        self.assertEqual([], list(self.data_dir.glob("station_config.json.pre-roster-*")))
+
+    def test_touch_operator_manager_rejects_empty_or_unknown_roster(self):
+        config = {
+            "admin_pin": "1234",
+            "students": [{"id": "pappy", "name": "Pappy"}],
+            "family_students": [
+                {"id": "pappy", "name": "Pappy"},
+                {"id": "campbell", "name": "Campbell"},
+            ],
+        }
+        self.write_station_config(config)
+
+        empty = self.client.post(
+            "/touch/system/operators",
+            data={"admin_pin": "1234"},
+        )
+        unknown = self.client.post(
+            "/touch/system/operators",
+            data={"admin_pin": "1234", "student_ids": "unknown-student"},
+        )
+
+        self.assertIn("operator_error=choose-one", empty.headers["Location"])
+        self.assertIn("operator_error=invalid-selection", unknown.headers["Location"])
+        self.assertEqual(config, json.loads(app_module.STATION_CONFIG_PATH.read_text(encoding="utf-8")))
+        self.assertEqual([], list(self.data_dir.glob("station_config.json.pre-roster-*")))
+
+    def test_touch_operator_manager_saves_roster_and_preserves_student_data(self):
+        self.write_station_config({
+            "station_id": "campbell-olivea-station",
+            "admin_pin": "1234",
+            "custom_setting": "preserved",
+            "students": [{"id": "pappy", "name": "Pappy"}],
+            "family_students": [
+                {"id": "pappy", "name": "Pappy"},
+                {"id": "campbell", "name": "Campbell"},
+                {"id": "olivea", "name": "Olivea"},
+            ],
+            "guest_profile": {
+                "id": "guest",
+                "name": "Guest Operator",
+                "guest": True,
+                "disposable": True,
+            },
+        })
+        self.write_text_file("pappy", "practice_attempts.jsonl", "saved-progress\n")
+
+        response = self.client.post(
+            "/touch/system/operators",
+            data={
+                "admin_pin": "1234",
+                "student_ids": ["campbell", "olivea"],
+            },
+        )
+        saved = json.loads(app_module.STATION_CONFIG_PATH.read_text(encoding="utf-8"))
+        picker = self.client.get("/touch/students").get_data(as_text=True)
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual("/touch/students", response.headers["Location"])
+        self.assertEqual(["campbell", "olivea"], [item["id"] for item in saved["students"]])
+        self.assertEqual("preserved", saved["custom_setting"])
+        self.assertEqual("1234", saved["admin_pin"])
+        self.assertEqual(1, len(list(self.data_dir.glob("station_config.json.pre-roster-*"))))
+        self.assertEqual(
+            "saved-progress\n",
+            self.student_file("pappy", "practice_attempts.jsonl").read_text(encoding="utf-8"),
+        )
+        self.assertTrue((self.students_dir / "campbell").is_dir())
+        self.assertTrue((self.students_dir / "olivea").is_dir())
+        self.assertNotIn("Pappy</strong>", picker)
+        self.assertIn("Campbell</strong>", picker)
+        self.assertIn("Olivea</strong>", picker)
 
     def test_touch_system_action_requires_admin_pin(self):
         self.write_station_config({"admin_pin": "1234"})

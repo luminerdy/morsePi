@@ -17,7 +17,7 @@ General rules:
   `GET /progress`, `GET /students`
 - **API-002** *(V1)* `GET /touch`, `/touch/daily`, `/touch/practice`,
   `/touch/words`, `/touch/progress`, `/touch/students`, `/touch/timing`,
-  `/touch/system`, `/touch/shutdown`
+  `/touch/system`, `/touch/system/operators`, `/touch/shutdown`
 - **API-003** *(V2)* `GET /admin/sessions` 🔒
 - **API-017** *(V2)* `GET /admin/rhythm` 🔒 — per-student rhythm trend report
   (FR-037). *(Delta: legacy page added in `674fdd8` is unauthenticated; the
@@ -73,6 +73,10 @@ General rules:
 - **API-014** *(MVP)* `GET /healthz` — unauthenticated
   `{status, version, git_sha, hardware: {key, led, audio}}` for
   updater/monitoring
+- **API-026** *(V1)* `POST /touch/system/operators` 🔒 — replace the local
+  named-student roster with a non-empty subset of configured family students;
+  preserve unrelated station configuration and student data, then redirect to
+  the touch operator picker.
 
 ## Family messages
 

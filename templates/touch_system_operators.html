@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head>
+    <title>Manage Operators - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260621-4">
+    <link rel="stylesheet" href="/static/touch.css?v=20260807-2">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="touch-ui">
+    <div class="touch-screen">
+        <header class="touch-titlebar">
+            <div>
+                <p class="eyebrow">Admin System</p>
+                <h1>Manage Operators</h1>
+            </div>
+            {% if operator_error %}
+                <div class="touch-operator-alert" role="alert">
+                    {% if operator_error == "admin-pin" %}
+                        Admin PIN needed.
+                    {% elif operator_error == "choose-one" %}
+                        Choose at least one operator.
+                    {% else %}
+                        Operator choice not available.
+                    {% endif %}
+                </div>
+            {% endif %}
+            <a class="touch-top-link" href="/touch/system">System</a>
+        </header>
+
+        <main>
+            <form method="post" action="/touch/system/operators" class="touch-operator-layout">
+                <section class="touch-operator-list" aria-label="Family operators">
+                    {% for operator in operators %}
+                        <label class="touch-operator-option">
+                            <input type="checkbox" name="student_ids" value="{{ operator.id }}"{% if operator.id in active_operator_ids %} checked{% endif %}>
+                            <span>
+                                <strong>{{ operator.name }}</strong>
+                                <small>{% if operator.id in active_operator_ids %}At this station{% else %}Available{% endif %}</small>
+                            </span>
+                        </label>
+                    {% endfor %}
+                </section>
+
+                <section class="touch-operator-admin">
+                    {% if admin_pin_required %}
+                        <label for="operator_admin_pin">Admin PIN</label>
+                        <input id="operator_admin_pin" name="admin_pin" type="password" autocomplete="off" inputmode="numeric" class="touch-pin-input" data-touch-pin-input>
+                        <div class="touch-pin-display" data-touch-pin-display aria-live="polite">PIN</div>
+                        <div class="touch-pin-pad compact" data-touch-pin-pad aria-label="Admin PIN keypad">
+                            {% for digit in ["1", "2", "3", "4", "5", "6", "7", "8", "9"] %}
+                                <button type="button" class="touch-pin-key" data-touch-pin-digit="{{ digit }}">{{ digit }}</button>
+                            {% endfor %}
+                            <button type="button" class="touch-pin-key utility" data-touch-pin-clear>Clear</button>
+                            <button type="button" class="touch-pin-key" data-touch-pin-digit="0">0</button>
+                            <button type="button" class="touch-pin-key utility" data-touch-pin-back>Back</button>
+                        </div>
+                    {% endif %}
+                    <button type="submit" class="button primary">Save Operators</button>
+                    <a href="/touch/system" class="button secondary">Cancel</a>
+                </section>
+            </form>
+        </main>
+    </div>
+<script src="/static/app.js?v=20260803-1"></script>
+</body>
+</html>

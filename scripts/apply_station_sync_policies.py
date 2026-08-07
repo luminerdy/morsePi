@@ -6,18 +6,19 @@ import sys
 
 BUCKET = "morsepi-backups-luminerdy"
 POLICY_NAME = "morsepi-station-progress-sync"
+FAMILY_STUDENTS = ["pappy", "astrid", "liara", "campbell", "olivea"]
 STATIONS = {
     "pappy-test-station": {
         "user": "morsepi-pappy-test-station",
-        "students": ["pappy", "astrid", "liara", "campbell", "olivea"],
+        "students": FAMILY_STUDENTS,
     },
     "astrid-liara-station": {
         "user": "morsepi-astrid-liara-station",
-        "students": ["pappy", "astrid", "liara"],
+        "students": FAMILY_STUDENTS,
     },
     "campbell-olivea-station": {
         "user": "morsepi-campbell-olivea-station",
-        "students": ["pappy", "campbell", "olivea"],
+        "students": FAMILY_STUDENTS,
     },
 }
 

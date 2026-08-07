@@ -288,8 +288,9 @@ The policy allows:
 
 - listing the three station progress snapshot prefixes
 - reading only each station's `snapshots/latest_progress.json`
-- listing, reading, and writing immutable attempt objects for the students
-  rostered on that station
+- listing, reading, and writing immutable attempt objects only for the five
+  configured family operator IDs. This lets the PIN-protected Manage Operators
+  page enable a family member on any station without breaking progress sync.
 
 The policy does not allow:
 
@@ -297,6 +298,11 @@ The policy does not allow:
 - reading raw backups from other stations
 - writing another station's station-owned prefix
 - managing IAM
+
+The app still syncs only the operators currently enabled in that station's
+local `students` roster. The broader family attempt-prefix permission is present
+so a PIN-authorized roster change works immediately; it does not grant backup,
+delete, message-content, or general bucket access.
 
 Rostered student attempt access:
 

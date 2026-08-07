@@ -163,6 +163,14 @@ correctness checks. Each is encoded as an automated test per
   saved setting unchanged, redirects back to `/touch/timing`, displays a clear
   PIN instruction, and keeps the touch Menu and Save Timing controls visible.
   Direct requests without a touch return target remain forbidden with HTTP 403.
+- **AC-029** (FR-024 / API-026 / SEC-002) On an 800x480 station, Admin System
+  links to Manage Operators. The page lists configured family students as
+  touch checkboxes and provides a silent PIN keypad. A missing or invalid PIN,
+  an empty selection, or an unknown submitted student changes nothing and
+  returns clear feedback. A valid non-empty selection atomically replaces only
+  `station_config.json`'s `students` list, creates a timestamped config backup,
+  preserves all unrelated fields and student folders, and returns to the
+  operator picker where only the selected names plus Guest are visible.
 
 ## Coverage rule
 

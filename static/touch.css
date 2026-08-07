@@ -27,6 +27,7 @@
 .touch-screen:has(.touch-key-layout),
 .touch-screen:has(.touch-settings-layout),
 .touch-screen:has(.touch-system-layout),
+.touch-screen:has(.touch-operator-layout),
 .touch-screen:has(.touch-shutdown-layout),
 .touch-screen:has(.touch-words-layout),
 .touch-screen:has(.touch-words-locked),
@@ -1047,6 +1048,117 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) 260px;
     gap: 10px;
+}
+
+.touch-operator-layout {
+    min-height: 0;
+    height: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 250px;
+    gap: 10px;
+}
+
+.touch-operator-alert {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: 56%;
+    width: 300px;
+    min-height: 38px;
+    padding: 7px 10px;
+    display: grid;
+    place-items: center;
+    transform: translate(-50%, -50%);
+    color: #734912;
+    background: #fff3d6;
+    border: 2px solid #e4b14f;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 900;
+    text-align: center;
+    pointer-events: none;
+}
+
+.touch-operator-list {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr);
+    gap: 8px;
+}
+
+.touch-operator-option {
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    color: var(--text);
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(23, 33, 43, 0.08);
+}
+
+.touch-operator-option:has(input:checked) {
+    background: #e8f7ee;
+    border-color: #7fc79f;
+}
+
+.touch-operator-option input {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    margin: 0;
+    accent-color: #16834f;
+}
+
+.touch-operator-option span {
+    min-width: 0;
+    display: grid;
+    gap: 5px;
+}
+
+.touch-operator-option strong {
+    font-size: 25px;
+    line-height: 1;
+    overflow-wrap: anywhere;
+}
+
+.touch-operator-option small {
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.touch-operator-admin {
+    min-height: 0;
+    padding: 10px;
+    display: grid;
+    align-content: start;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(23, 33, 43, 0.08);
+}
+
+.touch-operator-admin > label {
+    margin: 0;
+    font-size: 14px;
+}
+
+.touch-operator-admin > .button {
+    width: 100%;
+    min-height: 46px;
+    display: grid;
+    place-items: center;
+    padding: 5px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 15px;
 }
 
 .touch-shutdown-layout {

@@ -204,7 +204,10 @@ scripts/update_station.sh
 ## Progress Sync Permission Check
 
 Before enabling student attempt upload or download, confirm the station IAM
-users have the narrow progress-sync policy:
+users have the narrow family progress-sync policy. It covers only the five
+configured family student-attempt prefixes so PIN-authorized operator changes
+can sync immediately; the local station roster still determines which students
+the sync worker actually processes:
 
 ```bash
 python scripts/apply_station_sync_policies.py --dry-run

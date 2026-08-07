@@ -99,7 +99,12 @@ from the current code (legacy status per requirement is tracked in
   selected via cookie (1-year lifetime); student IDs are slugs `[a-z0-9-]`.
 - **FR-024** A station config MAY define a fixed roster; when set, only
   rostered students are selectable and self-serve student creation is
-  disabled unless explicitly enabled.
+  disabled unless explicitly enabled. The touch Admin System SHALL provide a
+  PIN-protected Manage Operators page where an adult can toggle local operators
+  from the configured `family_students` directory without a keyboard. Saving
+  SHALL preserve unrelated station settings and all student data, SHALL keep
+  the disposable Guest behavior unchanged, and SHALL reject an empty named
+  roster.
 - **FR-025** A guest profile MAY be enabled; guest attempts are flagged
   disposable and excluded from messaging features.
 - **FR-026** Each browser session SHALL carry a 32-hex session ID cookie

@@ -294,6 +294,34 @@ def load_station_config():
     return loaded if isinstance(loaded, dict) else {}
 
 
+def save_station_config(config, backup_label="roster"):
+    STATION_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    backup_path = None
+
+    if STATION_CONFIG_PATH.exists():
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+        backup_path = STATION_CONFIG_PATH.with_name(
+            f"{STATION_CONFIG_PATH.name}.pre-{backup_label}-{timestamp}"
+        )
+        shutil.copy2(STATION_CONFIG_PATH, backup_path)
+
+    temporary_path = STATION_CONFIG_PATH.with_name(
+        f".{STATION_CONFIG_PATH.name}.{uuid4().hex}.tmp"
+    )
+    try:
+        temporary_path.write_text(
+            json.dumps(config, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        if STATION_CONFIG_PATH.exists():
+            shutil.copymode(STATION_CONFIG_PATH, temporary_path)
+        temporary_path.replace(STATION_CONFIG_PATH)
+    finally:
+        temporary_path.unlink(missing_ok=True)
+
+    return backup_path
+
+
 def configured_station_profiles():
     config = load_station_config()
     raw_profiles = config.get("students", [])
@@ -441,6 +469,14 @@ def configured_family_profiles():
 
     by_id = {profile["id"]: profile for profile in profiles if not profile.get("disposable")}
     return list(by_id.values())
+
+
+def configured_local_operator_ids():
+    return {
+        profile["id"]
+        for profile in configured_station_profiles()
+        if not profile.get("disposable") and not profile.get("guest")
+    }
 
 
 def message_recipient_options():
@@ -4272,6 +4308,49 @@ def touch_system():
         system=system_status(),
         system_status_message=request.args.get("system_status", ""),
         system_error=request.args.get("system_error", ""),
+    )
+
+
+@app.route("/touch/system/operators", methods=["GET", "POST"])
+def touch_system_operators():
+    operators = [
+        profile
+        for profile in configured_family_profiles()
+        if not profile.get("disposable") and not profile.get("guest")
+    ]
+    operator_ids = {profile["id"] for profile in operators}
+
+    if request.method == "POST":
+        if not admin_pin_valid(request.form.get("admin_pin", "")):
+            return redirect(url_for("touch_system_operators", operator_error="admin-pin"))
+
+        requested_ids = {
+            slugify_student_id(student_id)
+            for student_id in request.form.getlist("student_ids")
+            if slugify_student_id(student_id)
+        }
+        if not requested_ids:
+            return redirect(url_for("touch_system_operators", operator_error="choose-one"))
+        if not requested_ids.issubset(operator_ids):
+            return redirect(url_for("touch_system_operators", operator_error="invalid-selection"))
+
+        selected_profiles = [
+            profile for profile in operators if profile["id"] in requested_ids
+        ]
+        config = load_station_config()
+        config["students"] = [
+            {"id": profile["id"], "name": profile["name"]}
+            for profile in selected_profiles
+        ]
+        save_station_config(config, "roster")
+        ensure_profiles(selected_profiles)
+        return redirect(url_for("touch_students"))
+
+    return render_template(
+        "touch_system_operators.html",
+        operators=operators,
+        active_operator_ids=configured_local_operator_ids(),
+        operator_error=request.args.get("operator_error", ""),
     )
 
 
