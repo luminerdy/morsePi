@@ -1096,6 +1096,10 @@ When asked to do the daily wrap-up, update:
   Astrid/Liara, and Campbell/Olivea each pass all 201 tests. The run also
   corrected Pappy manual-install drift in the test bank, rollout helper, and
   station sync-policy helper without changing student data.
+- Replaced the fixed Words restart with an adaptive five-step rotation: three
+  unfinished words followed by two completed reviews. New visits begin with an
+  unfinished word, lower-accuracy reviews come first, missed words return in a
+  later cycle, and progress now explicitly says `words complete`.
 - Deployed the day's release to Pappy (`10.10.10.141`), Astrid/Liara
   (`10.10.10.129`), and Campbell/Olivea (`10.10.10.157`). App services are
   active on all three.

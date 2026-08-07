@@ -28,7 +28,8 @@
         {% if word_item %}
             <main class="touch-words-layout"
                   data-word-target="{{ word_item.word }}"
-                  data-word-morse="{{ word_item.morse }}">
+                  data-word-morse="{{ word_item.morse }}"
+                  data-word-phase="{{ word_item.phase }}">
                 <section class="touch-word-card touch-word-hero">
                     <span>Word</span>
                     <strong>{{ word_item.word }}</strong>
@@ -80,7 +81,7 @@
                     <button type="button" class="button primary" data-word-play>Play</button>
                     <button type="button" class="button secondary" data-word-stop>Stop</button>
                     <button type="button" class="button secondary" data-word-clear>Clear</button>
-                    <a class="button secondary" href="/touch/words?i={{ word_item.next_index }}" data-word-next>Next</a>
+                    <a class="button secondary" href="/touch/words?word={{ word_item.next_word }}&phase={{ word_item.next_phase }}" data-word-next>Next</a>
                 </section>
             </main>
         {% else %}

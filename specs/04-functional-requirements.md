@@ -259,3 +259,11 @@ from the current code (legacy status per requirement is tracked in
   feedback message SHALL remain available in the practice content, and the
   title-bar result SHALL not change scoring, playback, LED behavior, automatic
   advancement, or consume additional screen height.
+- **FR-056** Once Words is unlocked, a new Words visit SHALL begin with an
+  unfinished available word instead of always restarting at the first catalog
+  word. Advancement SHALL use a repeating five-word learning cadence of three
+  unfinished words followed by two completed review words. Missed words SHALL
+  remain unfinished and return in later cycles; completed review words SHALL
+  prioritize lower accuracy and fewer prior attempts. After every available
+  word has been completed, all Words slots SHALL remain available for review.
+  Progress wording SHALL identify the numerator as distinct words completed.

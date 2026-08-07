@@ -178,6 +178,47 @@ class LearningGateTests(unittest.TestCase):
         self.assertEqual(["AM", "ME", "NOT", "IN", "SO", "MOM"], words[:6])
         self.assertTrue(all(set(word).issubset(active_letters) for word in words))
 
+    def test_adaptive_words_mix_three_unfinished_with_two_weak_reviews(self):
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        attempts = [
+            {"word": "AM", "correct": True},
+            {"word": "AM", "correct": False},
+            {"word": "ME", "correct": True},
+        ]
+
+        first = app_module.adaptive_word_practice_item("", 0, active_letters, attempts)
+        self.assertEqual("NOT", first["word"])
+        self.assertEqual("IN", first["next_word"])
+        self.assertEqual(1, first["next_phase"])
+
+        attempts.append({"word": "NOT", "correct": True})
+        second = app_module.adaptive_word_practice_item("IN", 1, active_letters, attempts)
+        self.assertEqual("SO", second["next_word"])
+
+        attempts.append({"word": "IN", "correct": True})
+        third = app_module.adaptive_word_practice_item("SO", 2, active_letters, attempts)
+        self.assertEqual("AM", third["next_word"])
+        self.assertEqual(3, third["next_phase"])
+
+        attempts.append({"word": "SO", "correct": True})
+        first_review = app_module.adaptive_word_practice_item("AM", 3, active_letters, attempts)
+        self.assertEqual("ME", first_review["next_word"])
+        self.assertEqual(4, first_review["next_phase"])
+
+        second_review = app_module.adaptive_word_practice_item("ME", 4, active_letters, attempts)
+        self.assertEqual("MOM", second_review["next_word"])
+        self.assertEqual(0, second_review["next_phase"])
+
+    def test_adaptive_words_fall_back_to_review_after_all_are_complete(self):
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        words = app_module.available_word_practice_words(active_letters)
+        attempts = [{"word": word, "correct": True} for word in words]
+
+        item = app_module.adaptive_word_practice_item("", 0, active_letters, attempts)
+
+        self.assertEqual("AM", item["word"])
+        self.assertEqual("ME", item["next_word"])
+
     def test_started_learning_group_continues_when_current_set_dips(self):
         self.write_progress(app_module.starter_practice_letters, self.all_modes(0.0))
         self.write_learning_state(

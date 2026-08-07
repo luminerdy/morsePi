@@ -743,7 +743,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("known-letter words", menu_html)
         self.assertEqual(200, words_response.status_code)
         self.assertIn("<strong>AM</strong>", words_html)
-        self.assertIn("0% · 0/42 words · No word tries yet", words_html)
+        self.assertIn("0% · 0/42 words complete · No word tries yet", words_html)
         self.assertIn('data-word-morse=".- --"', words_html)
         self.assertIn('data-word-target="AM"', words_html)
         self.assertIn('id="liveMorse"', words_html)
@@ -751,12 +751,35 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn('id="touchResultBanner"', words_html)
         self.assertIn('aria-live="polite"', words_html)
         self.assertIn("data-word-clear", words_html)
-        self.assertIn('/touch/words?i=1', words_html)
+        self.assertIn('/touch/words?word=ME&phase=1', words_html)
         self.assertNotIn("autoplay=1", words_html)
         self.assertIn('app.js?v=20260807-1', words_html)
         self.assertNotIn(">Read</a>", words_html)
         self.assertIn('class="morse-visual"', words_html)
         self.assertIn('aria-label="dot dash"', words_html)
+
+    def test_touch_words_starts_with_first_unfinished_word(self):
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        self.complete_progress("pappy", active_letters)
+        self.set_learning_state(
+            "pappy",
+            {
+                "SO": {
+                    "first_learning_date": "2000-01-01",
+                    "letters": ["S", "O"],
+                }
+            },
+            last_learning_start_date="2000-01-01",
+        )
+        self.write_word_attempts("pappy", total=1, correct=1, word="AM")
+
+        response = self.client.get("/touch/words")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn('data-word-target="ME"', html)
+        self.assertIn("100% · 1/42 words complete · 1/1 correct", html)
+        self.assertIn('/touch/words?word=NOT&phase=1', html)
 
     def test_desktop_practice_retry_does_not_print_raw_morse(self):
         app_module.practice_target = "A"

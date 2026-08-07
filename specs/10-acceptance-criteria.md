@@ -147,6 +147,14 @@ correctness checks. Each is encoded as an automated test per
   feedback remains visible. Loading the next prompt clears the title-bar
   result, and all existing answer timing and advancement delays remain
   unchanged.
+- **AC-027** (FR-056) Given completed and unfinished Words fixtures, opening
+  `/touch/words` selects the first unfinished available word. Five successive
+  advancement phases select three unfinished words and then two completed
+  review words; the lowest-accuracy completed word is reviewed first. A missed
+  word remains eligible in the next unfinished cycle. The Next URL preserves
+  the phase, legacy index URLs remain valid, and the progress label reads
+  `<unique>/<available> words complete`. When all words are complete, the same
+  cadence safely falls back to review words without an empty prompt.
 
 ## Coverage rule
 

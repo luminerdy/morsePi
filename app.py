@@ -261,6 +261,7 @@ word_practice_bank = [
     "MEAN", "MEAT", "MOON", "SOON", "TEAM", "TONE", "NOTE", "SEAT", "STEM",
     "STONE"
 ]
+word_practice_phases = ("unfinished", "unfinished", "unfinished", "review", "review")
 
 
 def new_practice_session_id():
@@ -2356,6 +2357,102 @@ def word_practice_item(index=0, active_letters=None):
         "morse": text_to_morse(word),
         "index": normalized_index,
         "next_index": (normalized_index + 1) % len(words),
+        "phase": normalized_index % len(word_practice_phases),
+        "next_phase": (normalized_index + 1) % len(word_practice_phases),
+        "next_word": words[(normalized_index + 1) % len(words)],
+        "total": len(words),
+        "letters": [
+            {
+                "letter": letter,
+                "morse": text_to_morse(letter),
+            }
+            for letter in word
+        ],
+    }
+
+
+def completed_word_practice_words(attempts=None):
+    attempts = load_word_attempts() if attempts is None else attempts
+    return {
+        str(attempt.get("word", "")).upper()
+        for attempt in attempts
+        if attempt.get("correct") and attempt.get("word")
+    }
+
+
+def ranked_word_practice_reviews(words, attempts=None):
+    attempts = load_word_attempts() if attempts is None else attempts
+    available = set(words)
+    stats = {
+        word: {"attempts": 0, "correct": 0}
+        for word in words
+    }
+
+    for attempt in attempts:
+        word = str(attempt.get("word", "")).upper()
+        if word not in available:
+            continue
+        stats[word]["attempts"] += 1
+        if attempt.get("correct"):
+            stats[word]["correct"] += 1
+
+    completed = completed_word_practice_words(attempts) & available
+    bank_order = {word: index for index, word in enumerate(word_practice_bank)}
+
+    def review_rank(word):
+        record = stats[word]
+        accuracy = record["correct"] / record["attempts"] if record["attempts"] else 0
+        return accuracy, record["attempts"], bank_order.get(word, len(word_practice_bank))
+
+    return sorted(completed, key=review_rank)
+
+
+def select_word_practice_candidate(phase, unfinished, reviews, current_word=""):
+    phase = int(phase) % len(word_practice_phases)
+    if word_practice_phases[phase] == "unfinished":
+        preferred, fallback = unfinished, reviews
+    else:
+        preferred, fallback = reviews, unfinished
+    candidates = preferred or fallback
+
+    if not candidates:
+        return ""
+    if current_word in candidates and len(candidates) > 1:
+        return candidates[(candidates.index(current_word) + 1) % len(candidates)]
+    return candidates[0]
+
+
+def adaptive_word_practice_item(requested_word="", phase=0, active_letters=None, attempts=None):
+    words = available_word_practice_words(active_letters)
+
+    if not words:
+        return None
+
+    attempts = load_word_attempts() if attempts is None else attempts
+    completed = completed_word_practice_words(attempts)
+    unfinished = [word for word in words if word not in completed]
+    reviews = ranked_word_practice_reviews(words, attempts)
+    normalized_phase = int(phase) % len(word_practice_phases)
+    requested_word = str(requested_word or "").strip().upper()
+    word = requested_word if requested_word in words else select_word_practice_candidate(
+        normalized_phase,
+        unfinished,
+        reviews,
+    )
+    next_phase = (normalized_phase + 1) % len(word_practice_phases)
+    next_word = select_word_practice_candidate(
+        next_phase,
+        unfinished,
+        reviews,
+        current_word=word,
+    )
+
+    return {
+        "word": word,
+        "morse": text_to_morse(word),
+        "phase": normalized_phase,
+        "next_phase": next_phase,
+        "next_word": next_word or word,
         "total": len(words),
         "letters": [
             {
@@ -2426,15 +2523,19 @@ def daily_word_focus(active_letters=None):
     }
 
 
-def word_progress_summary():
-    summary = word_practice_summary()
-    attempts = load_word_attempts()
+def word_progress_summary(active_letters=None, attempts=None):
+    summary = word_practice_summary(active_letters)
+    attempts = load_word_attempts() if attempts is None else attempts
+    available_words = set(summary["words"])
     total = len(attempts)
     correct = sum(1 for attempt in attempts if attempt.get("correct"))
     unique_correct = sorted({
         str(attempt.get("word", "")).upper()
         for attempt in attempts
-        if attempt.get("correct") and attempt.get("word")
+        if (
+            attempt.get("correct")
+            and str(attempt.get("word", "")).upper() in available_words
+        )
     })
     accuracy = int(round((correct / total) * 100)) if total else 0
 
@@ -2457,7 +2558,7 @@ def word_progress_summary():
         "total": total,
         "unique_correct": len(unique_correct),
         "available": summary["count"],
-        "label": f"{len(unique_correct)}/{summary['count']} words",
+        "label": f"{len(unique_correct)}/{summary['count']} words complete",
         "detail": f"{correct}/{total} correct" if total else "No word tries yet",
     }
 
@@ -4293,18 +4394,33 @@ def touch_words():
     active_letters = get_unlocked_practice_letters()
     overall = get_learning_overall(active_letters)
     summary = word_practice_summary(active_letters)
+    attempts = load_word_attempts()
 
     try:
-        word_index = int(request.args.get("i", "0"))
+        word_phase = int(request.args.get("phase", "0"))
     except ValueError:
-        word_index = 0
+        word_phase = 0
+
+    if "i" in request.args:
+        try:
+            word_index = int(request.args.get("i", "0"))
+        except ValueError:
+            word_index = 0
+        word_item = word_practice_item(word_index, active_letters)
+    else:
+        word_item = adaptive_word_practice_item(
+            request.args.get("word", ""),
+            word_phase,
+            active_letters,
+            attempts,
+        )
 
     return render_template(
         "touch_words.html",
         overall=overall,
         word_practice=summary,
-        word_progress=word_progress_summary(),
-        word_item=word_practice_item(word_index, active_letters),
+        word_progress=word_progress_summary(active_letters, attempts),
+        word_item=word_item,
         timing=get_morse_timing()
     )
 
