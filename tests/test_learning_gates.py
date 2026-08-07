@@ -506,6 +506,52 @@ class LearningGateTests(unittest.TestCase):
         self.assertEqual("Break", daily["next_action"]["label"])
         self.assertEqual("Take A Break", daily["next_action"]["title"])
 
+    def test_later_learning_group_keeps_earned_letters_active(self):
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        self.write_progress(active_letters, self.all_modes(1.0))
+        progress = json.loads(self.progress_path.read_text(encoding="utf-8"))
+        progress["O"]["learn"]["strength"] = 0.5
+        progress["R"] = {
+            "learn": {
+                "attempts": 1,
+                "correct": 1,
+                "last_seen": "2026-08-06T21:34:23+00:00",
+                "streak": 1,
+                "strength": 0.2,
+            }
+        }
+        progress["K"] = {
+            "learn": {
+                "attempts": 2,
+                "correct": 1,
+                "last_seen": "2026-08-06T21:34:38+00:00",
+                "streak": 1,
+                "strength": 0.2,
+            }
+        }
+        self.progress_path.write_text(json.dumps(progress), encoding="utf-8")
+        self.write_learning_state(
+            {
+                "SO": {
+                    "first_learning_date": "2026-08-03",
+                    "letters": ["S", "O"],
+                },
+                "RK": {
+                    "first_learning_date": "2026-08-06",
+                    "letters": ["R", "K"],
+                },
+            },
+            last_learning_start_date="2026-08-06",
+        )
+
+        state = app_module.get_practice_letter_state()
+        word_focus = app_module.daily_word_focus(state["active_letters"])
+
+        self.assertEqual(["R", "K"], state["learning_letters"])
+        self.assertIn("S", state["active_letters"])
+        self.assertIn("O", state["active_letters"])
+        self.assertTrue(word_focus["unlocked"])
+
     def test_next_letters_require_correct_words_after_current_set_mastery(self):
         active_letters = app_module.starter_practice_letters + ["S", "O"]
         self.write_progress(active_letters, self.all_modes(1.0))

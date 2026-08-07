@@ -33,6 +33,7 @@ files only carry *(Delta: …)* notes, not status history.
 | Project and AWS architecture diagrams | 2026-08-02 working tree | DOC-03 — implemented for the current three-station system, deployed AWS services, trust boundaries, and future optional services |
 | Station boot splash branding | 2026-08-06 working tree | NFR-018 — static 800x480 boot splash asset and reversible Plymouth `pix` installer added; live reboot verification remains open |
 | Student sync learning-state rebuild | 2026-08-06 working tree | FR-054/DR-019 — rebuild now treats completed learning groups as earned once historical attempts crossed the gate, while current skill strength may still regress for coaching |
+| App learning-gate display after sync | 2026-08-06 working tree | FR-022/FR-051 — Daily/Progress active-letter calculation now keeps earlier earned groups active when a later learning group exists, preventing Words from relocking after sync-derived strength changes |
 
 **Note 1 (FR-012):** over-limit text is silently **truncated** (`limited_text`),
 not rejected; only bodies > 16 KB get a hard 413. The OOM DoS is closed

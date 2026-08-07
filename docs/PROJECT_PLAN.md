@@ -1117,3 +1117,6 @@ When asked to do the daily wrap-up, update:
 - Fixed the first reboot/sync progress-confusion issue: cross-station sync now
   preserves a completed learning group for unlock purposes once it was earned,
   even if later mistakes lower the current strength score for coaching.
+- Fixed the app-side half of the same issue: Daily/Progress now treats an
+  earlier learning group as earned when a later learning group exists, so `S O`
+  stays active and Words stay unlocked while Pappy is learning `R K`.

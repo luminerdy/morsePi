@@ -2684,9 +2684,13 @@ def get_practice_letter_state():
     for index, step in enumerate(letter_unlock_steps):
         key = step_key(step)
         group_state = state["groups"].get(key)
+        later_group_exists = any(
+            step_key(later_step) in state["groups"]
+            for later_step in letter_unlock_steps[index + 1:]
+        )
 
         if group_state:
-            if learning_step_ready(step, group_state):
+            if later_group_exists or learning_step_ready(step, group_state):
                 active.extend(letter for letter in step["letters"] if letter not in active)
                 latest_group_state = group_state
                 continue
