@@ -55,6 +55,8 @@
                     <span>Update</span>
                     <strong>{{ system.update_service_state }}</strong>
                     <em>{{ system.update_service }}</em>
+                    <small>{{ system.update_status.timer_state }} timer · {{ system.update_status.timer_enabled }}</small>
+                    <small>Last result: {{ system.update_status.last_result }}</small>
                 </div>
                 <div class="touch-system-card">
                     <span>Sync</span>
@@ -62,6 +64,16 @@
                     <em>{{ system.sync_service }}</em>
                     <small>{{ system.sync_status.label }} · {{ system.sync_status.relative }}</small>
                     <small>{{ system.sync_status.detail }}</small>
+                </div>
+                <div class="touch-system-card">
+                    <span>App Version</span>
+                    <strong>{{ system.git.version }}</strong>
+                    <em>{{ system.git.branch }}</em>
+                </div>
+                <div class="touch-system-card">
+                    <span>Backup</span>
+                    <strong>{{ system.backup.relative }}</strong>
+                    <em>{{ system.backup.name or system.backup.label }}</em>
                 </div>
             </section>
 

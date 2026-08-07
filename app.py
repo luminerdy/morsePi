@@ -3084,6 +3084,73 @@ def relative_time_label(value, now=None):
     return f"{days} days ago"
 
 
+def relative_file_time(path):
+    try:
+        modified = datetime.fromtimestamp(Path(path).stat().st_mtime, timezone.utc)
+    except OSError:
+        return "Never"
+
+    return relative_time_label(modified.isoformat())
+
+
+def latest_backup_summary(backup_dir=None):
+    backup_dir = Path(backup_dir or data_path("backups"))
+    try:
+        backups = sorted(
+            [path for path in backup_dir.glob("*.zip") if path.is_file()],
+            key=lambda path: path.stat().st_mtime,
+            reverse=True,
+        )
+    except OSError:
+        backups = []
+
+    if not backups:
+        return {
+            "label": "No backup yet",
+            "name": "",
+            "relative": "Never",
+        }
+
+    latest = backups[0]
+    return {
+        "label": "Last backup",
+        "name": latest.name,
+        "relative": relative_file_time(latest),
+    }
+
+
+def git_status_summary():
+    branch = first_command_line(["git", "rev-parse", "--abbrev-ref", "HEAD"], "")
+    commit = first_command_line(["git", "rev-parse", "--short", "HEAD"], "")
+
+    return {
+        "branch": branch or "Manual install",
+        "commit": commit or "No Git version",
+        "version": commit or "Manual install",
+    }
+
+
+def systemd_unit_summary(service_name, timer_name):
+    if not shutil.which("systemctl"):
+        return {
+            "service": service_name,
+            "service_state": "unknown",
+            "timer": timer_name,
+            "timer_enabled": "unknown",
+            "timer_state": "unknown",
+            "last_result": "unknown",
+        }
+
+    return {
+        "service": service_name,
+        "service_state": first_command_line(["systemctl", "--user", "is-active", service_name], "unknown"),
+        "timer": timer_name,
+        "timer_enabled": first_command_line(["systemctl", "--user", "is-enabled", timer_name], "unknown"),
+        "timer_state": first_command_line(["systemctl", "--user", "is-active", timer_name], "unknown"),
+        "last_result": first_command_line(["systemctl", "--user", "show", service_name, "-p", "Result", "--value"], "unknown"),
+    }
+
+
 def load_sync_status_summary(path=None, now=None):
     path = path or SYNC_STATUS_PATH
     try:
@@ -3130,7 +3197,9 @@ def system_status():
     keyboard_commands = ["matchbox-keyboard", "onboard", "florence", "wvkbd-mobintl", "wvkbd"]
     keyboard_command = next((command for command in keyboard_commands if shutil.which(command)), "")
     update_service = "morse-station-update.service"
+    update_timer = "morse-station-update.timer"
     sync_service = "morse-station-sync.service"
+    sync_timer = "morse-station-sync.timer"
     update_service_state = first_command_line(["systemctl", "--user", "is-active", update_service], "unknown")
     sync_service_state = first_command_line(["systemctl", "--user", "is-active", sync_service], "unknown")
     wifi_signal = "Unknown"
@@ -3176,10 +3245,14 @@ def system_status():
         "update_service_available": bool(shutil.which("systemctl")),
         "update_service": update_service,
         "update_service_state": update_service_state,
+        "update_status": systemd_unit_summary(update_service, update_timer),
         "sync_service_available": bool(shutil.which("systemctl")),
         "sync_service": sync_service,
         "sync_service_state": sync_service_state,
         "sync_status": load_sync_status_summary(),
+        "sync_timer": sync_timer,
+        "git": git_status_summary(),
+        "backup": latest_backup_summary(),
     }
 
 

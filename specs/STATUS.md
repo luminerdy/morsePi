@@ -50,7 +50,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-022 single unlock table | 🟡 | Unified in `app.py`; `practice_progress.py:LETTER_UNLOCKS` duplicate remains |
 | FR-035 hardened updater | ✅ | `release/pi` branch, dirty-tree guard, fast-forward only, pre-restart tests, health check, rollback on failure, and status/snapshot refresh |
 | FR-036/FR-037 rhythm analysis | ✅ | New feature, spec'd retroactively |
-| FR-038 touch System recovery | ✅ | `/touch/system` shows local status, keyboard availability, update state, and a silent touch keypad; `/touch/system/action` gates recovery/update actions behind admin PIN; `/touch/shutdown` provides kid-facing safe shutdown; `scripts/set_admin_pin.py` safely resets the local PIN |
+| FR-038 touch System recovery | ✅ | `/touch/system` shows local status, keyboard availability, update state, app version/branch, latest backup, latest sync, and a silent touch keypad; `/touch/system/action` gates recovery/update actions behind admin PIN; `/touch/shutdown` provides kid-facing safe shutdown; `scripts/set_admin_pin.py` safely resets the local PIN |
 | FR-039...FR-046 family Morse experience | ✅ | Phase 7A local flow implemented in `message_store.py` and `/touch/messages/*` |
 | FR-047...FR-050 durable delivery | ✅ | S3 routing, duplicate-safe station download, durable offline storage, and decoded receipts passed the live three-station rehearsal |
 | NFR-004 concurrency safety | 🟡 | `threaded=False` serializes requests; module-global state remains, will regress under any threaded server |

@@ -151,7 +151,9 @@ from the current code (legacy status per requirement is tracked in
   action to open it. When the local update service is installed, it SHALL
   provide an admin-PIN-gated action to start the station update wrapper. When
   the local student-attempt sync service is installed, it SHALL provide an
-  admin-PIN-gated action to request a progress sync. These controls SHALL be
+  admin-PIN-gated action to request a progress sync. It SHALL also show the
+  current app version/branch, update timer/result, latest student sync status,
+  and latest local backup age/name. These controls SHALL be
   available locally on the touchscreen even if internet access is down, though
   updating and syncing may require internet access. Touch admin PIN
   entry SHALL be possible without a physical keyboard and SHALL NOT trigger the

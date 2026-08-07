@@ -399,6 +399,14 @@ class RouteRenderTests(unittest.TestCase):
             "update_service_available": True,
             "update_service": "morse-station-update.service",
             "update_service_state": "inactive",
+            "update_status": {
+                "service": "morse-station-update.service",
+                "service_state": "inactive",
+                "timer": "morse-station-update.timer",
+                "timer_enabled": "enabled",
+                "timer_state": "active",
+                "last_result": "success",
+            },
             "sync_service_available": True,
             "sync_service": "morse-station-sync.service",
             "sync_service_state": "inactive",
@@ -407,6 +415,17 @@ class RouteRenderTests(unittest.TestCase):
                 "relative": "5 min ago",
                 "detail": "2 up, 3 down",
                 "updated_at": "2026-08-06T21:00:00+00:00",
+            },
+            "sync_timer": "morse-station-sync.timer",
+            "git": {
+                "branch": "release/pi",
+                "commit": "abc1234",
+                "version": "abc1234",
+            },
+            "backup": {
+                "label": "Last backup",
+                "name": "20260806-test.zip",
+                "relative": "2 hr ago",
             },
         }
 
@@ -423,11 +442,19 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("matchbox-keyboard", html)
         self.assertIn("Update App", html)
         self.assertIn("morse-station-update.service", html)
+        self.assertIn("morse-station-update.timer", html)
+        self.assertIn("success", html)
         self.assertIn("Sync Now", html)
         self.assertIn("morse-station-sync.service", html)
         self.assertIn("Completed", html)
         self.assertIn("5 min ago", html)
         self.assertIn("2 up, 3 down", html)
+        self.assertIn("App Version", html)
+        self.assertIn("abc1234", html)
+        self.assertIn("release/pi", html)
+        self.assertIn("Backup", html)
+        self.assertIn("2 hr ago", html)
+        self.assertIn("20260806-test.zip", html)
         self.assertIn("Exit Kiosk", html)
 
     def test_sync_status_summary_reports_completed_sync(self):
