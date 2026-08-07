@@ -84,7 +84,11 @@ Expected:
 - `allow_student_create` is `false` for touch-only deployed stations.
 - `students` contains the expected household students for that station. During
   delivery testing, include `pappy` as an adult/test operator so Pappy can
-  practice on any unit and verify cross-station progress sync.
+  practice on any unit and verify cross-station progress sync. Before delivery,
+  remove `pappy` from the local `students` roster unless he will continue using
+  that unit. Keep him in `family_students` so family messaging still recognizes
+  him. Removing a student from the local roster hides the profile without
+  deleting its saved progress folder.
 - `guest_profile` is present as disposable `Guest Operator` for demos, and Guest cannot send or receive messages.
 
 `data/station_config.json` is ignored by Git because it is station-specific.
@@ -167,7 +171,8 @@ Expected result: service is active and `/touch` responds.
 ## 5. Student Profiles
 
 - Create the student profile.
-- Keep `Pappy` only if adult testing is useful on that station.
+- Keep `Pappy` only if adult testing is useful on that station; otherwise remove
+  him from the local roster before delivery without deleting his data folder.
 - Select the student and confirm Daily opens.
 - Do one quick Learn attempt and one Send attempt.
 - Confirm progress is saved after switching away and back.
