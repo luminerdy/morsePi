@@ -1145,3 +1145,5 @@ When asked to do the daily wrap-up, update:
 - Renamed the screen from Adult System to Admin System and tightened the 800x480
   status grid to prevent long service, backup, and network text from bleeding
   into neighboring cards.
+- Reworded unreported Wi-Fi signal values as `Signal not reported` so the
+  Admin System screen does not show `Unknown` for a connected network.

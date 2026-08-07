@@ -3255,7 +3255,7 @@ def load_sync_status_summary(path=None, now=None, attempt_report_path=None):
 
 
 def system_status():
-    hostname = first_command_line(["hostname"], "Unknown")
+    hostname = first_command_line(["hostname"], "Not reported")
     ip_addresses = first_command_line(["hostname", "-I"], "No IP address").split()
     wifi_ssid = first_command_line(["iwgetid", "-r"], "Not connected")
     nmcli_available = bool(shutil.which("nmcli"))
@@ -3270,9 +3270,9 @@ def system_status():
     sync_service_state = first_command_line(["systemctl", "--user", "is-active", sync_service], "unknown")
     update_status = systemd_unit_summary(update_service, update_timer)
     sync_status = systemd_unit_summary(sync_service, sync_timer)
-    wifi_signal = "Unknown"
-    wifi_state = "Unknown"
-    connectivity = "Unknown"
+    wifi_signal = "Signal not reported"
+    wifi_state = "State not reported"
+    connectivity = "Not checked"
 
     if nmcli_available:
         device_result = run_system_command(["nmcli", "-t", "-f", "DEVICE,TYPE,STATE,CONNECTION", "device", "status"])
@@ -3280,7 +3280,7 @@ def system_status():
             for line in device_result["stdout"].splitlines():
                 parts = line.split(":")
                 if len(parts) >= 4 and parts[1] == "wifi":
-                    wifi_state = parts[2] or "Unknown"
+                    wifi_state = parts[2] or "State not reported"
                     if wifi_ssid == "Not connected" and parts[3]:
                         wifi_ssid = parts[3]
                     break
@@ -3290,7 +3290,7 @@ def system_status():
             for line in wifi_result["stdout"].splitlines():
                 parts = line.split(":")
                 if len(parts) >= 3 and parts[0] == "yes":
-                    wifi_signal = f"{parts[2]}%" if parts[2] else "Unknown"
+                    wifi_signal = f"{parts[2]}%" if parts[2] else "Signal not reported"
                     if parts[1]:
                         wifi_ssid = parts[1]
                     break
