@@ -1089,6 +1089,13 @@ When asked to do the daily wrap-up, update:
 - Aligned the Admin System regression expectation with its child-friendly sync
   wording and restored Pappy's missing rollout-release test module so all three
   stations run the same complete test bank.
+- Completed a forced two-pass family progress sync before station testing.
+  Pappy's shared totals match on all three units at 515 practice attempts and
+  145 Words attempts; all family views report 3/3 stations available.
+- Ran the complete Pi regression bank on every unit after sync. Pappy,
+  Astrid/Liara, and Campbell/Olivea each pass all 201 tests. The run also
+  corrected Pappy manual-install drift in the test bank, rollout helper, and
+  station sync-policy helper without changing student data.
 - Deployed the day's release to Pappy (`10.10.10.141`), Astrid/Liara
   (`10.10.10.129`), and Campbell/Olivea (`10.10.10.157`). App services are
   active on all three.
