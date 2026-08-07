@@ -1114,3 +1114,6 @@ When asked to do the daily wrap-up, update:
 - Verify the new morsePi boot splash on the next station reboot and decide
   whether the simple static splash is enough before attempting deeper boot-screen
   customization.
+- Fixed the first reboot/sync progress-confusion issue: cross-station sync now
+  preserves a completed learning group for unlock purposes once it was earned,
+  even if later mistakes lower the current strength score for coaching.

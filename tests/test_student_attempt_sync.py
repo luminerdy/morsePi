@@ -334,6 +334,46 @@ class StudentAttemptSyncTests(unittest.TestCase):
         self.assertEqual({"astrid": 1}, result["rebuilt_learning"])
         self.assertEqual(["S", "O"], learning_state["groups"]["SO"]["letters"])
 
+    def test_full_sync_keeps_completed_group_after_later_weak_attempts(self):
+        cloud_objects = {}
+        sequence = []
+        for letter in ["S", "O"]:
+            for _ in range(10):
+                sequence.append({"target": letter, "correct": True})
+        for _ in range(3):
+            sequence.append({"target": "O", "correct": False})
+        sequence.extend([
+            {"target": "R", "correct": True},
+            {"target": "K", "correct": False},
+        ])
+
+        for index, attempt in enumerate(sequence):
+            attempt_id = f"b{index:031x}"
+            cloud_objects[f"students/astrid/attempts/practice/{attempt_id}.json"] = {
+                "attempt": {
+                    "attempt_id": attempt_id,
+                    "correct": attempt["correct"],
+                    "mode": "learn",
+                    "station_id": "pappy-test-station",
+                    "student_id": "astrid",
+                    "target": attempt["target"],
+                    "timestamp": f"2026-08-04T12:{index:02d}:00+00:00",
+                },
+                "format": "morsepi-student-attempt-v1",
+                "kind": "practice",
+                "student_id": "astrid",
+            }
+
+        result = full_sync_attempts(self.data_dir, self.config, store=PrefixDownloadStore(cloud_objects))
+
+        learning_state = json.loads((self.student_dir / "learning_state.json").read_text(encoding="utf-8"))
+        progress = json.loads((self.student_dir / "practice_progress.json").read_text(encoding="utf-8"))
+        self.assertEqual(len(sequence), result["downloaded"])
+        self.assertEqual({"astrid": 2}, result["rebuilt_learning"])
+        self.assertLess(progress["O"]["learn"]["strength"], 1.0)
+        self.assertEqual(["S", "O"], learning_state["groups"]["SO"]["letters"])
+        self.assertEqual(["R", "K"], learning_state["groups"]["RK"]["letters"])
+
     def test_full_sync_refuses_cloud_conflict_without_rewriting_logs(self):
         attempt_id = "h" * 32
         self.write_jsonl("practice_attempts.jsonl", [

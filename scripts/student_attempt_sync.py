@@ -696,6 +696,25 @@ def step_has_learn_attempts(progress, step):
     return any(letter in progress and "learn" in progress[letter] for letter in step["letters"])
 
 
+def completed_learning_groups_from_attempts(attempts):
+    progress = {}
+    completed = {}
+    sorted_attempts = sorted(attempts, key=lambda item: str(item.get("timestamp", "")))
+    for attempt in sorted_attempts:
+        apply_practice_attempt_to_progress(progress, attempt)
+        for step in LETTER_UNLOCK_STEPS:
+            key = step_key(step)
+            if key in completed:
+                continue
+            if all(learn_record_ready(progress, letter) for letter in step["letters"]):
+                completed[key] = learning_group_state(
+                    step,
+                    first_learn_attempt_time(sorted_attempts, step["letters"]),
+                )
+            break
+    return completed
+
+
 def learning_group_state(step, started_at):
     timestamp = started_at or utc_now()
     return {
@@ -719,20 +738,21 @@ def rebuild_learning_state(data_dir, students):
             continue
 
         progress = build_practice_progress(attempts)
+        completed_groups = completed_learning_groups_from_attempts(attempts)
         groups = {}
         last_learning_start_date = ""
         for step in LETTER_UNLOCK_STEPS:
+            key = step_key(step)
             started_at = first_learn_attempt_time(attempts, step["letters"])
-            complete = all(learn_record_ready(progress, letter) for letter in step["letters"])
 
-            if complete:
-                groups[step_key(step)] = learning_group_state(step, started_at)
-                last_learning_start_date = groups[step_key(step)]["first_learning_date"]
+            if key in completed_groups:
+                groups[key] = completed_groups[key]
+                last_learning_start_date = groups[key]["first_learning_date"]
                 continue
 
             if step_has_learn_attempts(progress, step):
-                groups[step_key(step)] = learning_group_state(step, started_at)
-                last_learning_start_date = groups[step_key(step)]["first_learning_date"]
+                groups[key] = learning_group_state(step, started_at)
+                last_learning_start_date = groups[key]["first_learning_date"]
             break
 
         output = student_dir / "learning_state.json"
