@@ -1120,3 +1120,6 @@ When asked to do the daily wrap-up, update:
 - Fixed the app-side half of the same issue: Daily/Progress now treats an
   earlier learning group as earned when a later learning group exists, so `S O`
   stays active and Words stay unlocked while Pappy is learning `R K`.
+- Replaced the Words correct-answer flashing effect with a steady green success
+  wash for the same feedback duration, and added a steady amber needs-work wash
+  when the keyed word is not correct.

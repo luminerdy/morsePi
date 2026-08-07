@@ -1489,22 +1489,15 @@
 }
 
 .touch-words-layout.word-correct-reward .touch-word-card {
-    animation: word-correct-flash 200ms ease-in-out 10;
+    background: #e8f7ee;
+    border-color: #7fc79f;
+    box-shadow: 0 0 0 8px rgba(21, 95, 54, 0.12);
 }
 
-@keyframes word-correct-flash {
-    0%,
-    100% {
-        background: var(--surface);
-        border-color: var(--border);
-        box-shadow: 0 6px 18px rgba(23, 33, 43, 0.08);
-    }
-
-    50% {
-        background: #e8f7ee;
-        border-color: #7fc79f;
-        box-shadow: 0 0 0 8px rgba(21, 95, 54, 0.12);
-    }
+.touch-words-layout.word-needs-practice .touch-word-card {
+    background: #fff3d6;
+    border-color: #e4b14f;
+    box-shadow: 0 0 0 8px rgba(171, 112, 25, 0.12);
 }
 
 .touch-words-locked {

@@ -800,13 +800,14 @@ async function checkWordAnswer(actualMorse, expectedMorse, target, decoded = "")
 
     if (correct) {
         setWordFeedback(`Correct: ${target}.`);
-        rewardCorrectWord();
+        rewardWordResult(true);
         scheduleWordAutoAdvance();
         return;
     }
 
     const heard = decoded ? ` I read ${decoded}.` : "";
     setWordFeedback(`Not yet. Clear first, then try ${target} again.${heard}`);
+    rewardWordResult(false);
 }
 
 async function recordWordResult(target, correct, actualMorse, expectedMorse, decoded, elapsedMs) {
@@ -836,15 +837,15 @@ async function recordWordResult(target, correct, actualMorse, expectedMorse, dec
     }
 }
 
-function rewardCorrectWord() {
+function rewardWordResult(correct) {
     const panel = getWordPanel();
 
     if (panel) {
-        panel.classList.remove("word-correct-reward");
+        panel.classList.remove("word-correct-reward", "word-needs-practice");
         void panel.offsetWidth;
-        panel.classList.add("word-correct-reward");
+        panel.classList.add(correct ? "word-correct-reward" : "word-needs-practice");
         setTimeout(() => {
-            panel.classList.remove("word-correct-reward");
+            panel.classList.remove("word-correct-reward", "word-needs-practice");
         }, 2200);
     }
 }
