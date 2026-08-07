@@ -244,6 +244,8 @@ Guarded sync behavior:
   10 minutes
 - timer-driven `--sync` checks the idle guard before doing the slower cloud
   dry-run scan
+- after the guarded attempt sync, the service refreshes the local progress
+  snapshot and family progress view so the UI catches up with synced data
 - adult/manual maintenance can use `--sync --force`
 - `data/sync_reports/latest_sync_status.json` records completed, skipped, or
   error status
@@ -269,6 +271,8 @@ Test once:
 systemctl --user start morse-station-sync.service
 journalctl --user -u morse-station-sync.service -n 80 --no-pager
 cat /home/morse/morse-station/data/sync_reports/latest_sync_status.json
+cat /home/morse/morse-station/data/snapshots/latest_progress.json
+cat /home/morse/morse-station/data/family_progress/latest.json
 ```
 
 Touch test:

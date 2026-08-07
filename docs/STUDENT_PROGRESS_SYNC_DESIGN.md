@@ -227,8 +227,10 @@ Phase E: safe automatic sync.
 - Keep backups.
 - Report status on `/admin/family`.
 - Current foundation: optional `morse-station-sync.service` and timer run the
-  guarded sync every 30 minutes while powered on. The timer is available but
-  should be enabled only after manual station testing.
+  guarded sync every 30 minutes while powered on. The service then refreshes
+  the station progress snapshot and family progress view so screens reflect the
+  latest merged attempt data. The timer is persistent, so a station that was off
+  during its sync window catches up after boot.
 
 ## Why Not Newest Wins
 
