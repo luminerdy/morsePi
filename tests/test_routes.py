@@ -277,6 +277,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn('name="station_volume" value="0"', html)
         self.assertIn('name="station_volume" value="35"', html)
         self.assertIn("data-touch-pin-copy", html)
+        self.assertIn('class="touch-pin-pad compact wide"', html)
 
     def test_touch_settings_pin_failure_returns_to_usable_timing_screen(self):
         self.write_station_config({"admin_pin": "1234"})

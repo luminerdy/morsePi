@@ -35,7 +35,7 @@
                     <label for="touch_timing_admin_pin">Admin PIN</label>
                     <input id="touch_timing_admin_pin" name="admin_pin" type="password" autocomplete="off" inputmode="numeric" class="touch-pin-input" data-touch-pin-input>
                     <div class="touch-pin-display" data-touch-pin-display aria-live="polite">PIN</div>
-                    <div class="touch-pin-pad compact" data-touch-pin-pad aria-label="Admin PIN keypad">
+                    <div class="touch-pin-pad compact wide" data-touch-pin-pad aria-label="Admin PIN keypad">
                         {% for digit in ["1", "2", "3", "4", "5", "6", "7", "8", "9"] %}
                             <button type="button" class="touch-pin-key" data-touch-pin-digit="{{ digit }}">{{ digit }}</button>
                         {% endfor %}
