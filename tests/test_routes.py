@@ -496,6 +496,37 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual("Skipped", summary["label"])
         self.assertEqual("recent activity", summary["detail"])
 
+    def test_touch_system_shows_sync_completed_feedback(self):
+        app_module.system_status = lambda: {
+            "hostname": "PiMorse",
+            "ip_addresses": [],
+            "wifi_ssid": "FamilyWifi",
+            "wifi_signal": "82%",
+            "wifi_state": "connected",
+            "connectivity": "full",
+            "nmcli_available": True,
+            "iwgetid_available": True,
+            "keyboard_available": True,
+            "keyboard_command": "matchbox-keyboard",
+            "update_service_available": True,
+            "update_service": "morse-station-update.service",
+            "update_service_state": "inactive",
+            "update_status": {"timer_state": "active", "timer_enabled": "enabled", "last_result": "success"},
+            "sync_service_available": True,
+            "sync_service": "morse-station-sync.service",
+            "sync_service_state": "inactive",
+            "sync_status": {"label": "Completed", "relative": "just now", "detail": "0 up, 0 down"},
+            "sync_timer": "morse-station-sync.timer",
+            "git": {"branch": "release/pi", "commit": "abc1234", "version": "abc1234"},
+            "backup": {"label": "Last backup", "name": "backup.zip", "relative": "1 hr ago"},
+        }
+
+        response = self.client.get("/touch/system?system_status=sync-completed")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Sync complete. Last Sync is updated.", html)
+
     def test_touch_system_shows_silent_touch_pin_pad_when_pin_required(self):
         self.write_station_config({"admin_pin": "1234"})
 
@@ -601,10 +632,13 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(302, response.status_code)
         self.assertIn("system_error=update-start-failed", response.headers["Location"])
 
-    def test_touch_system_action_starts_sync_with_valid_pin(self):
+    def test_touch_system_action_reports_completed_sync_with_valid_pin(self):
         self.write_station_config({"admin_pin": "1234"})
         called = {"sync": False}
-        app_module.start_sync_service = lambda: called.__setitem__("sync", True) or True
+        app_module.start_sync_service = lambda: called.__setitem__("sync", True) or {
+            "ok": True,
+            "status": "completed",
+        }
 
         response = self.client.post(
             "/touch/system/action",
@@ -612,8 +646,23 @@ class RouteRenderTests(unittest.TestCase):
         )
 
         self.assertEqual(302, response.status_code)
-        self.assertIn("system_status=sync-started", response.headers["Location"])
+        self.assertIn("system_status=sync-completed", response.headers["Location"])
         self.assertTrue(called["sync"])
+
+    def test_touch_system_action_reports_skipped_sync_with_valid_pin(self):
+        self.write_station_config({"admin_pin": "1234"})
+        app_module.start_sync_service = lambda: {
+            "ok": True,
+            "status": "skipped",
+        }
+
+        response = self.client.post(
+            "/touch/system/action",
+            data={"admin_pin": "1234", "action": "sync-now"},
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("system_status=sync-skipped", response.headers["Location"])
 
     def test_touch_system_action_reports_sync_start_failure(self):
         app_module.start_sync_service = lambda: False

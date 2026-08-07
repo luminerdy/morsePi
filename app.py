@@ -3377,10 +3377,26 @@ def start_update_service():
 
 def start_sync_service():
     if not shutil.which("systemctl"):
-        return False
+        return {
+            "ok": False,
+            "error": "missing-systemctl",
+            "status": "failed",
+        }
 
-    result = run_system_command(["systemctl", "--user", "start", "morse-station-sync.service"], timeout=8)
-    return result["ok"]
+    result = run_system_command(["systemctl", "--user", "start", "morse-station-sync.service"], timeout=180)
+    if not result["ok"]:
+        return {
+            "ok": False,
+            "error": result["stderr"] or result["stdout"] or "sync failed",
+            "status": "failed",
+        }
+
+    summary = load_sync_status_summary()
+    return {
+        "ok": True,
+        "status": summary["label"].lower(),
+        "summary": summary,
+    }
 
 
 def message_page_allowed():
@@ -4098,9 +4114,16 @@ def touch_system_action():
         return redirect(url_for("touch_system", system_status="update-started"))
 
     if action == "sync-now":
-        if not start_sync_service():
+        sync_result = start_sync_service()
+        if isinstance(sync_result, bool):
+            sync_result = {"ok": sync_result, "status": "completed" if sync_result else "failed"}
+        if not sync_result.get("ok"):
             return redirect(url_for("touch_system", system_error="sync-start-failed"))
-        return redirect(url_for("touch_system", system_status="sync-started"))
+        if sync_result.get("status") == "skipped":
+            return redirect(url_for("touch_system", system_status="sync-skipped"))
+        if sync_result.get("status") == "completed":
+            return redirect(url_for("touch_system", system_status="sync-completed"))
+        return redirect(url_for("touch_system", system_status="sync-finished"))
 
     return redirect(url_for("touch_system", system_error="unknown-action"))
 

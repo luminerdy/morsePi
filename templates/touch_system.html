@@ -90,6 +90,12 @@
                             Update started. The app may restart.
                         {% elif system_status_message == "sync-started" %}
                             Sync started. Progress may update after it finishes.
+                        {% elif system_status_message == "sync-completed" %}
+                            Sync complete. Last Sync is updated.
+                        {% elif system_status_message == "sync-skipped" %}
+                            Sync skipped. Last Sync shows why.
+                        {% elif system_status_message == "sync-finished" %}
+                            Sync finished. Check Last Sync below.
                         {% else %}
                             Action started.
                         {% endif %}

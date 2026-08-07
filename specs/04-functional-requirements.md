@@ -153,7 +153,9 @@ from the current code (legacy status per requirement is tracked in
   the local student-attempt sync service is installed, it SHALL provide an
   admin-PIN-gated action to request a progress sync. It SHALL also show the
   current app version/branch, update timer/result, latest student sync status,
-  and latest local backup age/name. These controls SHALL be
+  and latest local backup age/name. A manual Sync Now request SHALL return a
+  visible completed/skipped/finished outcome when the local service returns.
+  These controls SHALL be
   available locally on the touchscreen even if internet access is down, though
   updating and syncing may require internet access. Touch admin PIN
   entry SHALL be possible without a physical keyboard and SHALL NOT trigger the

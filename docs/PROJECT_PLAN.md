@@ -47,6 +47,7 @@ Completed:
 - Scheduled student sync now refreshes station snapshots and family progress after each guarded attempt sync, with a persistent timer for boot catch-up
 - Family Progress station cards now flag current, stale, and missing station snapshots so Wi-Fi/offline issues are easier to spot
 - Adult System screen shows app version/branch, update timer/result, and last local backup age/name
+- PIN-gated Sync Now waits for the local sync service result and reports completed, skipped, or finished status on return
 
 ## Codebase Review Triage
 
