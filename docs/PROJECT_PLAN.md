@@ -19,6 +19,14 @@
   `morsepi-campbell-olivea-station`.
 - Confirmed the account Jobs endpoint:
   `l1dnyp15x2puh8.jobs.iot.us-east-1.amazonaws.com`.
+- Deployed the remote-update worker and timer to the Astrid/Liara station.
+  The first live smoke Job safely failed because AWS returns `jobDocument` as a
+  JSON string; no local command ran. Fixed the parser and added regression
+  coverage for the real AWS response shape.
+- Ran a second live `update-app` IoT Job for Astrid/Liara:
+  `morsepi-update-astrid-liara-20260808-0709`. The station consumed it,
+  started the local update service, stayed healthy at commit `f806498`, wrote a
+  local succeeded status, and AWS reports the Job execution as `SUCCEEDED`.
 - Updated the station config examples, setup docs, remote deployment docs, and
   specs before implementation.
 - Local validation passed: focused remote-update/systemd tests and full laptop
