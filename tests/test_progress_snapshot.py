@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from scripts.progress_snapshot import build_snapshot, write_snapshot
+from student_identity import student_uuid_for_id
 
 
 class ProgressSnapshotTests(unittest.TestCase):
@@ -76,6 +77,7 @@ class ProgressSnapshotTests(unittest.TestCase):
         self.assertEqual(1, len(snapshot["students"]))
         student = snapshot["students"][0]
         self.assertEqual("astrid", student["student_id"])
+        self.assertEqual(student_uuid_for_id("astrid"), student["student_uuid"])
         self.assertEqual(["E", "T"], student["active_letters"])
         self.assertEqual(["S", "O"], student["learning_state"]["learning_letters"])
         self.assertEqual(4, student["practice"]["modes"]["learn"]["attempts"])

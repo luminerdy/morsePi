@@ -202,17 +202,6 @@ from the current code (legacy status per requirement is tracked in
   station, so the receiver may open the same inbox from any approved family
   station where that student is rostered.
 
-## Student identity
-
-- **FR-057** Each named family student SHALL have one immutable RFC 4122 UUID
-  shared by every approved station. Display names MAY change and legacy
-  `student_id` slugs SHALL remain compatible storage/routing aliases. Guest is
-  disposable and station-local and SHALL NOT receive a family UUID. Existing
-  records without a UUID SHALL be mapped through the canonical family registry;
-  records whose supplied UUID conflicts with their legacy ID SHALL be rejected.
-  Canonical family legacy IDs SHALL be reserved: generic profile creation using
-  the same display name SHALL receive a distinct suffixed ID and new UUID rather
-  than assuming the existing family identity.
 - **FR-041** The 800x480 composer SHALL work without a keyboard. It SHALL
   support (a) touch word tiles filtered to the allowable letters and (b)
   physical-key entry that captures and decodes one complete word from the
@@ -292,3 +281,15 @@ from the current code (legacy status per requirement is tracked in
   100%. Progress wording SHALL identify the numerator as distinct words
   completed. Lifetime correct/attempt accuracy SHALL remain recorded and
   available to adult analysis but SHALL not be the primary student score.
+
+## Student identity
+
+- **FR-057** Each named family student SHALL have one immutable RFC 4122 UUID
+  shared by every approved station. Display names MAY change and legacy
+  `student_id` slugs SHALL remain compatible storage/routing aliases. Guest is
+  disposable and station-local and SHALL NOT receive a family UUID. Existing
+  records without a UUID SHALL be mapped through the canonical family registry;
+  records whose supplied UUID conflicts with their legacy ID SHALL be rejected.
+  Canonical family legacy IDs SHALL be reserved: generic profile creation using
+  the same display name SHALL receive a distinct suffixed ID and new UUID rather
+  than assuming the existing family identity.

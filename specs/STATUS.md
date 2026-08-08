@@ -8,7 +8,7 @@ files only carry *(Delta: …)* notes, not status history.
 - **Latest legacy-code re-review:** permanent student UUID compatibility migration (2026-08-07)
 - **Spec package location:** root `specs/`
 
-## Changes landed since baseline (`33df851..7818254`)
+## Changes landed since baseline
 
 | Change | Commits | Spec impact |
 |---|---|---|
@@ -50,7 +50,7 @@ not rejected; only bodies > 16 KB get a hard 413. The OOM DoS is closed
 (Morse capped at 600 chars before synthesis), but FR-012's
 "reject, don't truncate" behavior is still open — see AC-002.
 
-## Requirement status at `7818254`
+## Current legacy requirement status
 
 Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to legacy
 (rebuild-only requirement).
@@ -77,6 +77,9 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | DR-018 family progress view | ✅ | Read-only local family progress file and `/admin/family` view implemented; live cross-station completeness depends on Pappy's AWS credential being allowed to read station snapshot objects |
 | FR-054/DR-019 student progress sync | 🟡 | Merge strategy documented, new attempts get `attempt_id`, and `scripts/student_attempt_sync.py` produces a no-write dry-run report, upload-only path, guarded full sync with backup/merge/rebuild, status file, and lock; optional systemd timer exists but needs station soak testing |
 | FR-053 cloud message router | ✅ | Narrow-role Lambda and three S3 notifications deployed in `us-east-1`; live routing and receipts verified |
+| FR-055 prominent practice result | ✅ | Shared title-bar result is covered across all touch practice modes without changing page height or scoring |
+| FR-056 adaptive attainable Words | ✅ | Unfinished/review cadence and distinct-word completion score are implemented and covered |
+| FR-057/DR-020/SEC-021 permanent identity | ✅ | Canonical family UUIDs, compatibility aliases, idempotent migration, Guest exclusion, and fail-closed mismatch checks are implemented and live-rehearsed |
 | SEC-001 CSRF | ❌ | No tokens anywhere |
 | SEC-002/003 mandatory PIN + lockout | 🟡 | PIN remains optional for development, but configured PINs now use constant-time comparison and a short in-memory lockout after repeated failures |
 | SEC-004 input validation | 🟡 | See FR-012 note |
@@ -93,8 +96,9 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | API-018 touch system recovery action | ✅ | Implemented as `/touch/system/action` |
 | API-019...API-022 family Morse messages | 🟡 | Equivalent server-validated touch form routes exist; the rebuild's versioned JSON API contract remains open |
 | API-023 cross-station sync | ✅ | Versioned S3 object contract and station worker implemented and live-rehearsed |
+| API-026 touch operator roster | ✅ | PIN-gated configured-family roster selection is implemented and covered at 800x480 |
 
-## Acceptance criteria at `7818254`
+## Current acceptance status
 
 | AC | Baseline | Now | Notes |
 |---|---|---|---|
@@ -113,3 +117,10 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | AC-021 centered Morse geometry | — | ✅ | Unit/template tests plus 800x480 geometry measurement and two-page PDF inspection |
 | AC-022 mixed Words sequence | — | ✅ | Curriculum regression verifies 42 eligible words with `NOT` and `MOM` in the first six |
 | AC-023 three-station cloud delivery | — | ✅ | Intended Pappy and Astrid/Liara stations received one copy; Campbell/Olivea received none; receipt returned to sender |
+| AC-024 Words rhythm coach | — | ✅ | Compact target/yours rhythm feedback is implemented and route-tested |
+| AC-025 Daily Words mission | — | ✅ | Daily requires three correct Words attempts after unlock before advancing |
+| AC-026 prominent practice result | — | ✅ | All seven touch practice activities share the title-bar result region |
+| AC-027 adaptive Words rotation | — | ✅ | Unfinished/review cadence and attainable completion are unit- and route-tested |
+| AC-028 touch settings PIN recovery | — | ✅ | Invalid settings PINs return to a usable 800x480 Timing screen |
+| AC-029 touch operator roster | — | ✅ | PIN, validation, backup, preservation, and picker behavior are route-tested |
+| AC-030 permanent student identity | — | ✅ | Registry/migration fixtures pass; 701 live attempts matched hashes and UUIDs, and a UUID-bearing message completed decoded receipt delivery |

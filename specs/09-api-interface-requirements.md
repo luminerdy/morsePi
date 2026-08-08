@@ -81,12 +81,14 @@ General rules:
 ## Family messages
 
 - **API-020** *(V2)* `GET /api/messages/recipients` returns configured eligible
-  recipients with active-letter availability; `POST /api/messages/draft`
+  recipients with legacy ID, canonical UUID, and active-letter availability;
+  `POST /api/messages/draft`
   performs `{create|append-word|append-keyed-letter|space|undo|clear|replace|
   delete}` and returns the normalized draft plus letter/Morse tiles.
 - **API-021** *(V2)* `POST /api/messages/play-draft`; `POST
-  /api/messages/send` accepts the draft ID and recipient ID, revalidates
-  FR-039/SEC-018, freezes the record, and returns `queued` or `available`.
+  /api/messages/send` accepts the draft ID and a compatible recipient ID alias,
+  resolves and validates its canonical UUID, revalidates FR-039/SEC-018,
+  freezes the record, and returns `queued` or `available`.
 - **API-022** *(V2)* `GET /api/messages/inbox`; `POST
   /api/messages/<message_id>/open`; `POST
   /api/messages/<message_id>/play` with scope `message|word|letter`; `POST
