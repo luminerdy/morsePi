@@ -10,6 +10,8 @@ FILES = [
     ROOT / "cloud" / "message_router.py",
     ROOT / "message_cloud.py",
     ROOT / "message_store.py",
+    ROOT / "student_identity.py",
+    ROOT / "config" / "family_registry.json",
     ROOT / "morse.py",
 ]
 

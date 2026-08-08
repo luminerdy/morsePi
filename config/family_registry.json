@@ -1,0 +1,30 @@
+{
+  "format": "morsepi-family-registry-v1",
+  "students": [
+    {
+      "id": "pappy",
+      "name": "Pappy",
+      "student_uuid": "9d05ac8c-670a-4d39-96e3-558c60d248d5"
+    },
+    {
+      "id": "astrid",
+      "name": "Astrid",
+      "student_uuid": "6846e573-eacb-4dd5-874d-ce756295a2fa"
+    },
+    {
+      "id": "liara",
+      "name": "Liara",
+      "student_uuid": "0cf72f39-5ae0-4d0f-a835-bfd1d12ebb0e"
+    },
+    {
+      "id": "campbell",
+      "name": "Campbell",
+      "student_uuid": "50666cae-559b-49e5-9749-1ca11f620617"
+    },
+    {
+      "id": "olivea",
+      "name": "Olivea",
+      "student_uuid": "f99d5bcc-5431-4da5-9664-cddeeeaad28c"
+    }
+  ]
+}

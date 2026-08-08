@@ -197,9 +197,19 @@ from the current code (legacy status per requirement is tracked in
   and single spaces, use at most 3 words and 20 letters, and use only letters
   that have graduated into the active sets of both sender and receiver.
 - **FR-040** The sender SHALL choose a receiver from a preconfigured family
-  directory. Messages SHALL be addressed to a stable `student_id`, not to one
+  directory. Messages SHALL be addressed to a stable `student_uuid`, with the
+  current `student_id` retained as a compatible storage alias, not to one
   station, so the receiver may open the same inbox from any approved family
   station where that student is rostered.
+
+## Student identity
+
+- **FR-057** Each named family student SHALL have one immutable RFC 4122 UUID
+  shared by every approved station. Display names MAY change and legacy
+  `student_id` slugs SHALL remain compatible storage/routing aliases. Guest is
+  disposable and station-local and SHALL NOT receive a family UUID. Existing
+  records without a UUID SHALL be mapped through the canonical family registry;
+  records whose supplied UUID conflicts with their legacy ID SHALL be rejected.
 - **FR-041** The 800x480 composer SHALL work without a keyboard. It SHALL
   support (a) touch word tiles filtered to the allowable letters and (b)
   physical-key entry that captures and decodes one complete word from the

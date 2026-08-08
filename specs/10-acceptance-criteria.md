@@ -171,6 +171,12 @@ correctness checks. Each is encoded as an automated test per
   `station_config.json`'s `students` list, creates a timestamped config backup,
   preserves all unrelated fields and student folders, and returns to the
   operator picker where only the selected names plus Guest are visible.
+- **AC-030** (FR-057 / DR-020 / SEC-021) Migrating three legacy station
+  fixtures assigns the same UUID to each named family student on every station,
+  leaves Guest without a family UUID, preserves all folders and attempt records,
+  and is byte-stable on a second run except for the first-run backup files. New
+  attempts, snapshots, and messages include both UUID and legacy ID. UUID-less
+  historical records still merge, while a supplied mismatched UUID is rejected.
 
 ## Coverage rule
 

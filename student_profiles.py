@@ -3,8 +3,10 @@ import re
 import shutil
 from datetime import datetime
 from pathlib import Path
+from uuid import uuid4
 
 from paths import data_path
+from student_identity import enrich_student_identity, family_registry_by_id, normalize_student_uuid
 
 DATA_DIR = data_path()
 STUDENTS_DIR = DATA_DIR / "students"
@@ -54,10 +56,16 @@ def normalize_profile(profile):
         "name": name
     }
 
+    student_uuid = normalize_student_uuid(profile.get("student_uuid"))
+    if student_uuid:
+        normalized["student_uuid"] = student_uuid
+
     for flag in OPTIONAL_PROFILE_FLAGS:
         if profile.get(flag):
             normalized[flag] = True
 
+    if not normalized.get("guest") and not normalized.get("disposable"):
+        normalized = enrich_student_identity(normalized)
     return normalized
 
 
@@ -131,18 +139,11 @@ def load_student_profile_metadata():
         if not isinstance(profile, dict):
             continue
 
-        loaded_profile = profile
-        student_id = slugify_student_id(str(loaded_profile.get("id") or profile_path.parent.name))
-        name = str(loaded_profile.get("name") or student_id).strip() or student_id
-        profile = {
-            "id": student_id,
-            "name": name
-        }
-        for flag in OPTIONAL_PROFILE_FLAGS:
-            if loaded_profile.get(flag):
-                profile[flag] = True
-
-        profiles.append(normalize_profile(profile))
+        loaded_profile = dict(profile)
+        loaded_profile["id"] = slugify_student_id(
+            str(loaded_profile.get("id") or profile_path.parent.name)
+        )
+        profiles.append(normalize_profile(loaded_profile))
 
     return profiles
 
@@ -172,7 +173,7 @@ def profile_for_id(student_id):
 
 def unique_student_id(name):
     profiles = load_profiles()
-    existing = {profile["id"] for profile in profiles}
+    existing = {profile["id"] for profile in profiles} | set(family_registry_by_id())
     base = slugify_student_id(name)
     student_id = base
     counter = 2
@@ -192,7 +193,8 @@ def add_profile(name):
     profiles = load_profiles()
     profile = {
         "id": unique_student_id(clean_name),
-        "name": clean_name
+        "name": clean_name,
+        "student_uuid": str(uuid4()),
     }
     profiles.append(profile)
     save_profiles(profiles)

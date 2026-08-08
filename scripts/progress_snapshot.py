@@ -10,6 +10,7 @@ if __package__ in (None, ""):
 
 from paths import data_path
 from scripts.backup_data import DEFAULT_CONFIG_PATH, load_station_config, resolve_station_id, upload_snapshot_to_s3
+from student_identity import enrich_student_identity
 
 
 DEFAULT_DATA_DIR = data_path()
@@ -77,11 +78,12 @@ def load_profiles(data_dir):
         student_id = str(profile.get("id") or "").strip()
         if not student_id or student_id in seen:
             continue
-        normalized.append({
+        normalized.append(enrich_student_identity({
             "id": student_id,
             "name": str(profile.get("name") or student_id).strip() or student_id,
             "disposable": bool(profile.get("disposable") or profile.get("guest")),
-        })
+            "student_uuid": profile.get("student_uuid", ""),
+        }))
         seen.add(student_id)
 
     return normalized
@@ -285,6 +287,7 @@ def student_snapshot(data_dir, profile):
         "name": profile["name"],
         "practice": progress_summary,
         "student_id": student_id,
+        "student_uuid": profile.get("student_uuid", ""),
         "words": words,
         "bonus": bonus,
     }

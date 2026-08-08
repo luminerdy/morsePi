@@ -66,12 +66,14 @@ run_update_checks() {
         practice_progress.py \
         practice_attempts.py \
         student_profiles.py \
+        student_identity.py \
         message_store.py \
         message_sync.py \
         scripts/backup_data.py \
         scripts/station_status.py \
         scripts/progress_snapshot.py \
-        scripts/family_progress.py
+        scripts/family_progress.py \
+        scripts/migrate_student_uuids.py
 
     if [ "$RUN_TESTS" = "1" ]; then
         python3 -m unittest discover -s tests
@@ -107,6 +109,13 @@ git merge --ff-only "$REMOTE/$BRANCH"
 
 if ! run_update_checks; then
     echo "Update checks failed; rolling back to $LOCAL_COMMIT."
+    git reset --hard "$LOCAL_COMMIT"
+    write_status_and_snapshots
+    exit 1
+fi
+
+if ! python3 scripts/migrate_student_uuids.py; then
+    echo "Student identity migration failed; rolling back to $LOCAL_COMMIT."
     git reset --hard "$LOCAL_COMMIT"
     write_status_and_snapshots
     exit 1

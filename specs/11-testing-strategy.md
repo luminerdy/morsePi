@@ -57,6 +57,10 @@
   replay snapshots, outbox objects, inbox downloads, and receipts across all
   three configured stations. They cover path/payload mismatches, family scope,
   active-letter enforcement, forward-only states, and duplicate delivery.
+- **TEST-018** Student-identity tests validate canonical registry uniqueness,
+  idempotent station/profile migration, preservation of legacy paths/history,
+  UUID enrichment of new and historical records, stable rename behavior, Guest
+  exclusion, and fail-closed handling of UUID/legacy-ID conflicts.
 
 ## CI pipeline (per TR-011)
 

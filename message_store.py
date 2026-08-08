@@ -137,10 +137,18 @@ def clear_draft(data_dir, student_id, recipient_student_id=""):
     return save_draft(data_dir, new_draft(student_id, recipient_student_id))
 
 
-def create_message(sender_student_id, recipient_student_id, station_id, text, allowed_letters):
+def create_message(
+    sender_student_id,
+    recipient_student_id,
+    station_id,
+    text,
+    allowed_letters,
+    sender_student_uuid="",
+    recipient_student_uuid="",
+):
     normalized = validate_message_text(text, allowed_letters)
     now = utc_now()
-    return {
+    message = {
         "format": MESSAGE_FORMAT,
         "message_id": uuid4().hex,
         "sender_student_id": sender_student_id,
@@ -159,6 +167,11 @@ def create_message(sender_student_id, recipient_student_id, station_id, text, al
             "hint_levels": {},
         },
     }
+    if sender_student_uuid:
+        message["sender_student_uuid"] = str(sender_student_uuid)
+    if recipient_student_uuid:
+        message["recipient_student_uuid"] = str(recipient_student_uuid)
+    return message
 
 
 def message_copy_path(directory, message_id):

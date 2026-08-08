@@ -79,3 +79,7 @@ belongs in the rebuilt repo's `SECURITY.md` (DOC-04).
   not display names, and SHALL not include practice history or detailed
   progress. The minimum active-letter snapshot needed for validation MAY be
   synchronized separately under SEC-012 handling rules.
+- **SEC-021** *(V2)* Cross-station records SHALL validate any supplied student
+  UUID against the canonical family registry. A UUID/legacy-ID conflict SHALL
+  fail closed before upload, merge, delivery, or receipt processing. UUIDs are
+  identifiers, not secrets, and SHALL not grant authorization by themselves.

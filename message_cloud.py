@@ -10,6 +10,7 @@ from message_store import (
     normalize_message_text,
     required_letters,
 )
+from student_identity import StudentIdentityError, validate_identity_pair
 
 
 CLOUD_MESSAGE_FORMAT = "morsepi-cloud-message-v1"
@@ -151,14 +152,23 @@ def validate_family_summary(summary, expected_student_id="", now=None):
     return dict(summary)
 
 
-def cloud_message_from_local(message):
+def cloud_message_from_local(message, enrich_legacy=True):
     if not isinstance(message, dict) or message.get("format") != MESSAGE_FORMAT:
         raise MessageValidationError("Invalid local message format.")
     text = normalize_message_text(message.get("text"))
     canonical_required = required_letters(text)
     if canonical_required != message.get("required_letters"):
         raise MessageValidationError("Message required letters do not match text.")
-    return {
+    try:
+        sender_uuid = validate_identity_pair(
+            message.get("sender_student_id"), message.get("sender_student_uuid"), allow_legacy=True
+        )
+        recipient_uuid = validate_identity_pair(
+            message.get("recipient_student_id"), message.get("recipient_student_uuid"), allow_legacy=True
+        )
+    except StudentIdentityError as error:
+        raise MessageValidationError(str(error)) from error
+    payload = {
         "format": CLOUD_MESSAGE_FORMAT,
         "message_id": require_message_id(message.get("message_id")),
         "sender_student_id": require_slug(message.get("sender_student_id"), "sender student ID"),
@@ -168,6 +178,11 @@ def cloud_message_from_local(message):
         "required_letters": canonical_required,
         "created_at": parse_utc(message.get("created_at")).isoformat(),
     }
+    if sender_uuid and (enrich_legacy or message.get("sender_student_uuid")):
+        payload["sender_student_uuid"] = sender_uuid
+    if recipient_uuid and (enrich_legacy or message.get("recipient_student_uuid")):
+        payload["recipient_student_uuid"] = recipient_uuid
+    return payload
 
 
 def validate_cloud_message(payload, expected_sender_station, directory, sender_summary, recipient_summary):
@@ -179,11 +194,13 @@ def validate_cloud_message(payload, expected_sender_station, directory, sender_s
         "sender_student_id": payload.get("sender_student_id"),
         "sender_station_id": payload.get("sender_station_id"),
         "recipient_student_id": payload.get("recipient_student_id"),
+        "sender_student_uuid": payload.get("sender_student_uuid"),
+        "recipient_student_uuid": payload.get("recipient_student_uuid"),
         "text": payload.get("text"),
         "required_letters": payload.get("required_letters"),
         "created_at": payload.get("created_at"),
     }
-    validated = cloud_message_from_local(canonical)
+    validated = cloud_message_from_local(canonical, enrich_legacy=False)
     expected_station = require_slug(expected_sender_station, "station ID")
     if validated["sender_station_id"] != expected_station:
         raise MessageValidationError("Sender station path mismatch.")
@@ -212,10 +229,12 @@ def validate_station_inbox_message(payload, recipient_student_id, family_student
         "sender_student_id": payload.get("sender_student_id"),
         "sender_station_id": payload.get("sender_station_id"),
         "recipient_student_id": payload.get("recipient_student_id"),
+        "sender_student_uuid": payload.get("sender_student_uuid"),
+        "recipient_student_uuid": payload.get("recipient_student_uuid"),
         "text": payload.get("text"),
         "required_letters": payload.get("required_letters"),
         "created_at": payload.get("created_at"),
-    })
+    }, enrich_legacy=False)
     if canonical != payload:
         raise MessageValidationError("Cloud message is not canonical.")
     recipient_id = require_slug(recipient_student_id, "recipient student ID")
@@ -234,7 +253,7 @@ def validate_station_inbox_message(payload, recipient_student_id, family_student
 
 
 def local_message_from_cloud(payload, available_at=None):
-    return {
+    message = {
         "format": MESSAGE_FORMAT,
         "message_id": require_message_id(payload.get("message_id")),
         "sender_student_id": require_slug(payload.get("sender_student_id"), "sender student ID"),
@@ -249,6 +268,10 @@ def local_message_from_cloud(payload, available_at=None):
         "decoded_at": "",
         "decode": {"solved_positions": [], "revealed_positions": [], "hint_levels": {}},
     }
+    for field in ("sender_student_uuid", "recipient_student_uuid"):
+        if payload.get(field):
+            message[field] = payload[field]
+    return message
 
 
 def new_receipt(message, state, station_id, occurred_at=None):

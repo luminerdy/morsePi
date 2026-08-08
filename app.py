@@ -593,6 +593,7 @@ def attempt_metadata():
         "station_id": current_station_id(),
         "practice_session_id": getattr(g, "practice_session_id", ""),
         "student_id": getattr(g, "current_student", {}).get("id", ""),
+        "student_uuid": getattr(g, "current_student", {}).get("student_uuid", ""),
         "student_disposable": bool(getattr(g, "current_student", {}).get("disposable")),
     }
 
@@ -4051,6 +4052,8 @@ def touch_message_send():
             current_station_id(),
             draft.get("text", ""),
             recipient["allowed_letters"],
+            sender_student_uuid=g.current_student.get("student_uuid", ""),
+            recipient_student_uuid=recipient.get("student_uuid", ""),
         )
     except MessageValidationError as error:
         return redirect(url_for("touch_message_compose", to=recipient["id"], error=str(error)))

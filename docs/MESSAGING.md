@@ -1,5 +1,14 @@
 # Family Morse Messaging
 
+## Student identity
+
+Messages retain the legacy sender and recipient IDs used in existing paths,
+and new messages also carry canonical UUIDs from
+`config/family_registry.json`. Existing UUID-less messages remain readable and
+are enriched when newly uploaded. Any supplied ID/UUID mismatch is rejected
+before routing or delivery. A UUID identifies a student but does not authorize
+access; station rosters and IAM policy still control delivery.
+
 ## Current Scope
 
 Phase 7A provides kid-friendly Morse messages between students whose progress

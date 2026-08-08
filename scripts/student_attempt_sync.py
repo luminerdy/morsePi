@@ -14,6 +14,7 @@ if __package__ in (None, ""):
 from message_sync import AwsCliObjectStore
 from paths import data_path
 from scripts.backup_data import DEFAULT_CONFIG_PATH, load_station_config
+from student_identity import StudentIdentityError, enrich_student_identity, validate_identity_pair
 
 
 DEFAULT_DATA_DIR = data_path()
@@ -165,10 +166,11 @@ def load_profiles(data_dir):
         student_id = str(profile.get("id") or "").strip()
         if not student_id:
             continue
-        normalized.append({
+        normalized.append(enrich_student_identity({
             "id": student_id,
             "name": str(profile.get("name") or student_id).strip() or student_id,
-        })
+            "student_uuid": profile.get("student_uuid", ""),
+        }))
     return normalized
 
 
@@ -180,10 +182,11 @@ def load_station_students(config, fallback_profiles):
         student_id = str(profile.get("id") or "").strip()
         if not student_id or student_id == "guest":
             continue
-        configured.append({
+        configured.append(enrich_student_identity({
             "id": student_id,
             "name": str(profile.get("name") or student_id).strip() or student_id,
-        })
+            "student_uuid": profile.get("student_uuid", ""),
+        }))
     return configured or fallback_profiles
 
 
@@ -263,6 +266,11 @@ def local_attempts(data_dir, station_id, students):
                 payload.setdefault("attempt_id", identity)
                 payload.setdefault("station_id", station_id)
                 payload.setdefault("student_id", student_id)
+                payload["student_uuid"] = validate_identity_pair(
+                    student_id,
+                    payload.get("student_uuid"),
+                    allow_legacy=True,
+                )
                 attempts.append({
                     "attempt_id": identity,
                     "canonical": canonical_payload(payload),
@@ -338,8 +346,16 @@ def normalize_cloud_attempt(key, value):
     parts = Path(key).parts
     if len(parts) >= 5:
         payload = dict(payload)
-        payload.setdefault("student_id", parts[1])
+        path_student_id = parts[1]
+        if payload.get("student_id") and payload.get("student_id") != path_student_id:
+            raise StudentIdentityError("Cloud attempt student path mismatch.")
+        payload.setdefault("student_id", path_student_id)
         payload.setdefault("attempt_id", parts[-1].removesuffix(".json"))
+        payload["student_uuid"] = validate_identity_pair(
+            path_student_id,
+            payload.get("student_uuid"),
+            allow_legacy=True,
+        )
     return payload
 
 
@@ -418,7 +434,7 @@ def download_cloud_attempts_by_prefix(store, students):
                     try:
                         value = json.loads(path.read_text(encoding="utf-8"))
                         payload = normalize_cloud_attempt(key, value)
-                    except (json.JSONDecodeError, OSError) as exc:
+                    except (json.JSONDecodeError, OSError, StudentIdentityError) as exc:
                         errors.append({
                             "key": key,
                             "error": str(exc).splitlines()[-1][:240],

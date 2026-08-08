@@ -15,7 +15,8 @@
   `strength` (0–100 float), `last_seen` (UTC ISO). Strength decay/growth
   formula SHALL be specified in DOC-06, not just implemented.
 - **DR-004** Attempt records (JSONL, append-only, one JSON object per line):
-  fields per FR-017 plus stable `attempt_id`, `station_id`, `student_id`, and
+  fields per FR-017 plus stable `attempt_id`, `station_id`, `student_id`,
+  `student_uuid` for named family students, and
   `practice_session_id`. For keyed attempts, records also include
   `timing_events` (capped at 240 entries) and a derived `timing_summary` per
   FR-036 (counts, per-type gap averages, consistency/ratio scores,
@@ -31,6 +32,7 @@
   `students[]` defines who can sign in locally; `family_students[]` defines the
   approved messaging directory and MAY include students who normally use a
   different station.
+  Named entries SHALL carry the UUID assigned by `config/family_registry.json`.
 - **DR-006** Backup archive: zip named `<UTCstamp>-<station>-<label>.zip`
   containing `data/…` relative paths + `manifest.json`
   (`format: morse-station-data-backup-v1`); restore SHALL validate the
@@ -49,8 +51,8 @@
   retention, export, and deletion rules SHALL be documented in `SECURITY.md`
   (SEC-012) before cloud messaging is enabled.
 - **DR-011** Message record format `morsepi-message-v1` SHALL contain:
-  `message_id`, `sender_student_id`, `sender_station_id`,
-  `recipient_student_id`, normalized `text`, `required_letters[]`,
+  `message_id`, `sender_student_id`, `sender_student_uuid`, `sender_station_id`,
+  `recipient_student_id`, `recipient_student_uuid`, normalized `text`, `required_letters[]`,
   `created_at` UTC, and `format`. Morse MAY be cached but is non-authoritative
   and MUST match FR-001 when read. Message text is immutable after acceptance.
 - **DR-012** Per-student messaging data SHALL include atomic local draft and
@@ -99,3 +101,10 @@
   older records without `attempt_id` SHALL use a deterministic legacy fallback
   key. The detailed merge contract is documented in
   `docs/STUDENT_PROGRESS_SYNC_DESIGN.md`.
+- **DR-020** `config/family_registry.json` SHALL assign exactly one immutable,
+  unique RFC 4122 UUID to each named family student. UUIDs are canonical person
+  identity; legacy IDs remain folder, cookie, and cloud-path aliases during the
+  compatibility phase. Migration SHALL be idempotent, create timestamped
+  metadata/config backups, never rename student directories, and preserve old
+  records. Readers SHALL enrich UUID-less records through the registry and
+  reject a supplied ID/UUID conflict. Display-name edits SHALL not change UUIDs.

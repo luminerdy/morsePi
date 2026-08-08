@@ -1,5 +1,16 @@
 # Pappy's Internet Telegraph Project Plan
 
+## 2026-08-07 - Permanent student identity
+
+- Added immutable UUIDs for Pappy, Astrid, Liara, Campbell, and Olivea while
+  retaining current display names and legacy IDs.
+- Added compatibility enrichment for profiles, attempts, progress snapshots,
+  and family messages without moving old folders or cloud paths.
+- Added a backed-up, repeatable station migration to the remote update flow.
+- Kept Guest disposable and UUID-free; conflicting ID/UUID records fail closed.
+- Added regression coverage for migration safety, legacy enrichment, rename
+  stability, registry uniqueness, and identity-conflict rejection.
+
 ## Vision
 
 Build a Raspberry Pi Morse code learning station where students can see, hear, tap, decode, and eventually send Morse messages. The project should stay hands-on, encouraging, and easy to grow in small tested steps.

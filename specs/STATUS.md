@@ -5,7 +5,7 @@ knows what it inherits. This file is updated on each re-review; requirement
 files only carry *(Delta: …)* notes, not status history.
 
 - **Baseline review:** `33df851` (2026-07-02)
-- **Latest legacy-code re-review:** touch operator roster management (2026-08-07)
+- **Latest legacy-code re-review:** permanent student UUID compatibility migration (2026-08-07)
 - **Spec package location:** root `specs/`
 
 ## Changes landed since baseline (`33df851..7818254`)

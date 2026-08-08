@@ -1,5 +1,23 @@
 # Student Progress Sync Design
 
+## Permanent student identity
+
+Named family students have one canonical `student_uuid` in
+`config/family_registry.json`. The UUID identifies the person across every
+station. The existing `student_id` remains a compatibility alias for local
+folders, cookies, S3 prefixes, and historical records; display names remain
+editable labels. Guest is disposable and intentionally has no family UUID.
+
+New attempts carry both values. During sync, old UUID-less attempts are
+enriched from the registry before comparison or merge. A record containing a
+UUID that conflicts with its legacy ID is rejected. This avoids renaming
+folders or rewriting history while preventing a same-name profile from
+silently becoming another student's cloud identity.
+
+`python3 scripts/migrate_student_uuids.py` enriches station/profile metadata,
+creates timestamped backups when a file changes, preserves attempt logs and
+student directories, and is safe to rerun.
+
 This design covers future cross-station student progress sync. It is not a
 leaderboard and it is not a whole-file overwrite system.
 

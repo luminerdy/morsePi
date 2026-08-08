@@ -256,6 +256,18 @@ message recipient directory. Phase 7A can deliver only when both students have
 progress on the same station; Phase 7B will synchronize the minimal active-letter
 summary needed to safely send between homes.
 
+Each named family entry must use the permanent `student_uuid` from
+`config/family_registry.json`. Do not generate a replacement UUID while
+rebuilding a station. After placing or updating `data/station_config.json`, run:
+
+```bash
+python3 scripts/migrate_student_uuids.py
+```
+
+This adds missing UUID metadata without moving student folders or rewriting
+progress history, and creates a backup only when a file changes. Guest remains
+station-local and has no family UUID.
+
 Use a unique id for each station, such as:
 
 ```text
