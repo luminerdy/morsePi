@@ -1,7 +1,8 @@
 # MorsePi Architecture
 
-This document shows the current project and AWS architecture. Solid lines are
-implemented paths. Dashed lines are disabled or future options.
+This document shows the current project and AWS architecture as of the live
+AWS IoT Jobs remote-update rehearsal. Solid lines are implemented paths.
+Dashed lines are disabled, partial, or optional support paths.
 
 ## Project Architecture
 
@@ -17,6 +18,7 @@ flowchart TB
         Messages["Family messages<br/>compose, review, decode"]
         Data["Local student data<br/>JSON and JSONL files"]
         Services["systemd services and timers<br/>app, kiosk, backup, status,<br/>update, message sync"]
+        RemoteWorker["Remote update worker<br/>AWS IoT Jobs poller"]
         Recovery["PIN-gated System screen<br/>Wi-Fi, keyboard, desktop, update"]
         Keyer["Telegraph key<br/>GPIO17"]
         LED["Status LED<br/>GPIO27"]
@@ -32,6 +34,8 @@ flowchart TB
         Web --> Speaker
         Services --> Web
         Services --> Data
+        RemoteWorker --> Services
+        RemoteWorker --> Data
         Recovery --> Services
     end
 
@@ -40,11 +44,12 @@ flowchart TB
     Adult --> Recovery
 
     GitHub["GitHub<br/>main and release/pi"]
-    AWS["AWS<br/>backup, status, summaries,<br/>durable message routing"]
+    AWS["AWS<br/>S3 backup/sync/message store,<br/>Lambda router, IoT Jobs"]
 
     GitHub -->|"PIN-gated update"| Services
     Services -->|"narrow station identity"| AWS
     AWS -->|"ten-minute sync<br/>on two test stations"| Services
+    AWS -->|"IoT Jobs<br/>update trigger"| RemoteWorker
 ```
 
 There are three stations using the same application and release:
@@ -74,17 +79,18 @@ flowchart LR
 
     subgraph AWS["AWS account - us-east-1"]
         subgraph Bucket["Private versioned S3 bucket"]
-            PPrefix["stations/pappy-test-station/<br/>backups, status, snapshots, messages"]
-            ALPrefix["stations/astrid-liara-station/<br/>backups, status, snapshots, messages"]
-            COPrefix["stations/campbell-olivea-station/<br/>backups, status, snapshots, messages"]
+            PPrefix["stations/pappy-test-station/<br/>backups, status, snapshots,<br/>outbox, inbox, receipts, attempts"]
+            ALPrefix["stations/astrid-liara-station/<br/>backups, status, snapshots,<br/>outbox, inbox, receipts, attempts"]
+            COPrefix["stations/campbell-olivea-station/<br/>backups, status, snapshots,<br/>outbox, inbox, receipts, attempts"]
             Family["family/<br/>directory and sanitized<br/>student summaries"]
         end
 
         Lambda["Lambda<br/>morsepi-message-router"]
         RouterRole["Narrow Lambda IAM role"]
         Logs["CloudWatch Logs"]
-        IoT["AWS IoT Core<br/>optional future arrival notices<br/>and remote commands"]
-        SSM["Systems Manager<br/>optional future remote support"]
+        IoTThings["AWS IoT Things<br/>one per station"]
+        IoTJobs["AWS IoT Jobs<br/>durable remote update trigger"]
+        SSM["Systems Manager<br/>optional manual remote support"]
     end
 
     Pappy -->|"read/write own prefix"| PPrefix
@@ -93,6 +99,9 @@ flowchart LR
     Pappy -->|"read sanitized data"| Family
     AL -->|"read sanitized data"| Family
     CO -->|"read sanitized data"| Family
+    Pappy -->|"upload/read approved<br/>student attempt records"| PPrefix
+    AL -->|"upload/read approved<br/>student attempt records"| ALPrefix
+    CO -->|"upload/read approved<br/>student attempt records"| COPrefix
 
     PPrefix -->|"S3 object-created event"| Lambda
     ALPrefix -->|"S3 object-created event"| Lambda
@@ -106,21 +115,33 @@ flowchart LR
 
     GitHub -->|"adult-triggered station update"| Devices
     Admin -->|"setup and maintenance only"| AWS
-    IoT -.-> Devices
+    Admin -->|"create update Job"| IoTJobs
+    IoTJobs -->|"pending update-app job"| IoTThings
+    IoTThings -->|"station polls<br/>15-minute timer"| AL
+    IoTThings -.->|"provisioned, rollout pending"| Pappy
+    IoTThings -.->|"provisioned, offline/pending"| CO
+    AL -->|"starts local<br/>update service"| GitHub
     SSM -.-> Devices
 ```
 
 ## Security Boundaries
 
-- Each station can access only its own S3 prefix plus sanitized `family/` data.
+- Each station can access its own station S3 prefix, sanitized `family/` data,
+  and only the approved student-attempt prefixes needed for its roster.
 - Stations cannot read another station's raw backups or create AWS resources.
 - S3 invokes Lambda using a bucket- and account-scoped permission.
 - Lambda independently validates station, sender, receiver, message limits,
   learned letters, and object paths before routing.
+- AWS IoT Jobs uses one Thing per station and a narrow data-plane policy; a
+  station can read/update only its own Job executions.
+- Remote Jobs are declarative actions such as `update-app`; the Pi worker
+  rejects unknown actions and never executes shell text from AWS.
 - The bucket blocks public access, uses encryption, and retains versions.
 - Broad AWS administration is temporary and should be disabled after setup.
 - Cross-station message sync is enabled on Pappy and Astrid/Liara for testing;
   Campbell/Olivea remains disabled until deliberately added.
+- Systems Manager remains optional remote-hands support, not the normal update
+  path, because of fixed per-device monthly cost.
 
 ## Data Flows
 
@@ -138,6 +159,36 @@ flowchart LR
    copies only to approved stations.
 4. A receiver station downloads one idempotent copy when it is online.
 5. Opening or decoding creates a receipt that Lambda routes back to the sender.
+
+### Student Progress Sync
+
+1. Practice, Words, and Sprint attempts are stored as immutable local records
+   with stable attempt IDs and canonical student UUIDs.
+2. The guarded sync worker uploads local attempts, downloads approved attempts
+   for local rostered students, quarantines conflicts, and rebuilds derived
+   progress locally.
+3. Sync runs on adult demand, after safe shutdown, and by guarded timer when
+   the station has been idle long enough.
+
+### Remote Update
+
+1. Pappy promotes tested code to GitHub `release/pi`.
+2. Pappy creates an AWS IoT Job containing an allowed action such as
+   `update-app`.
+3. A station polls IoT Jobs while online. Astrid/Liara currently has this
+   timer enabled and has completed a live `update-app` Job successfully.
+4. The station worker starts the existing local update service, which backs up,
+   fast-forwards, tests, restarts, health-checks, and reports status.
+5. The worker records local status and marks the AWS Job `SUCCEEDED` or
+   `FAILED`.
+
+Current remote-update rollout:
+
+| Station | AWS IoT Thing | Remote-update timer | Status |
+|---|---|---|---|
+| `pappy-test-station` | Created | Not enabled | Pappy station is still a manual-file install; convert to Git checkout before remote `update-app` |
+| `astrid-liara-station` | Created | Enabled | Live `update-app` Job succeeded |
+| `campbell-olivea-station` | Created | Pending | Station offline/pending reconnection |
 
 Related details:
 
