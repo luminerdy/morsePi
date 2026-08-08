@@ -13,6 +13,15 @@
 - Kept Guest disposable and UUID-free; conflicting ID/UUID records fail closed.
 - Added regression coverage for migration safety, legacy enrichment, rename
   stability, registry uniqueness, and identity-conflict rejection.
+- Updated the AWS `morsepi-message-router` Lambda first and verified an empty
+  invocation returned HTTP 200 with no function error before releasing Pi code.
+- Pappy was backed up to S3, manually updated and migrated, passed all 216
+  Pi-side tests, and restarted healthy. A second migration changed nothing.
+- Astrid/Liara fast-forwarded to `6e0080c`, migrated, passed all 217 Pi-side
+  tests, restarted healthy, and completed an already-current updater rehearsal.
+- Campbell/Olivea was offline after delivery. `release/pi` now runs pending
+  migrations before the already-current exit, so it will catch up on its next
+  update cycles without requiring progress-folder renames or history rewrites.
 
 ## Vision
 

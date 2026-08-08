@@ -43,6 +43,7 @@ files only carry *(Delta: …)* notes, not status history.
 | Admin System partial-status compatibility | 2026-08-07 working tree | AC-014 — the Last Sync card uses friendly literal defaults when optional detailed service fields are absent, preventing Pi/Jinja rendering failures in reduced status fixtures |
 | Adaptive Words rotation | 2026-08-07 working tree | FR-056/AC-027 — new sessions start with unfinished work, advancement mixes three unfinished Words with two completed reviews, weaker reviews come first, and progress explicitly says `words complete` |
 | Attainable Words completion score | 2026-08-07 working tree | FR-056/AC-027 — kid-facing Words and Progress percentages now measure distinct words completed, allowing 42/42 to display 100%; lifetime accuracy remains stored for adult analysis |
+| Permanent family student UUIDs | `f3226ae`...`6e0080c` | FR-057/DR-020/SEC-021/AC-030 — canonical UUID registry, compatible profile/attempt/snapshot/message enrichment, backed-up idempotent migration, fail-closed identity checks, and offline updater catch-up are implemented. AWS router, Pappy, and Astrid/Liara are deployed and verified; Campbell/Olivea is pending reconnection. |
 
 **Note 1 (FR-012):** over-limit text is silently **truncated** (`limited_text`),
 not rejected; only bodies > 16 KB get a hard 413. The OOM DoS is closed
