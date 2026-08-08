@@ -36,6 +36,72 @@
   not altered to force the rehearsal; she will unlock Messages naturally after
   `S` and `O`.
 
+### Daily Wrap-Up
+
+**Accomplishments**
+
+- Completed the permanent student identity rollout: one canonical UUID for
+  each named family member, compatible legacy IDs and paths, UUID-bearing new
+  attempts/snapshots/messages, backed-up migration, and conflict rejection.
+- Updated and smoke-tested the AWS message router before releasing station code.
+- Verified Pappy and Astrid/Liara migrations are idempotent and both app services
+  are healthy. Pappy passed the 216-test Pi suite; Astrid/Liara passed the
+  expanded 217-test Pi suite during release updates.
+- Proved cross-station progress identity with exact matching hashes for Pappy's
+  515 Practice and 186 Words records. All 701 records contain the same UUID.
+- Proved the live UUID message round trip with one `AM` rehearsal: one Lambda
+  delivery, one Astrid decoded receipt, and Pappy status advanced to decoded.
+- Re-reviewed the specs through FR-057, DR-020, SEC-021, API-026, AC-030, and
+  TEST-018. Made UUID explicit in DR-017 snapshots and API-020/021, restored
+  numerical requirement order, refreshed compliance tables, and added a
+  snapshot UUID regression assertion. Focused checks pass on both reachable Pis.
+
+**Decisions**
+
+- UUID is the permanent person identity. Display name is a label; legacy ID
+  remains a compatibility alias for folders, cookies, and cloud paths.
+- Guest remains local, disposable, UUID-free, and excluded from family sync and
+  messaging. Canonical family ID aliases are reserved from generic user creation.
+- Historical UUID-less records remain valid and are enriched during sync;
+  supplied ID/UUID conflicts fail closed. Existing folders and history are not
+  renamed or bulk-rewritten merely to introduce identity.
+- Do not change a student's mastery to make a deployment test pass. Astrid's
+  Messages UI will unlock naturally after `S` and `O`; the controlled cloud
+  rehearsal added no practice credit.
+- Keep pull-based `release/pi` updates as the reliable baseline. AWS IoT remains
+  the preferred low-cost immediate remote update trigger; Systems Manager stays
+  optional because of per-device cost.
+
+**Station and data state**
+
+- Pappy: active, backed up to S3 before migration/rehearsal, manually updated,
+  migrated, and verified. The decoded `AM` rehearsal remains as an audit record.
+- Astrid/Liara: active on `f5fdf87`, backed up to S3 before rehearsal, migrated,
+  updated through the reviewed specs release, and verified.
+- Campbell/Olivea: offline at its home. `release/pi` contains automatic pending-
+  migration catch-up; verify its commit, migration, tests, and sync after it
+  reconnects. No local intervention is required for normal offline app use.
+- No student mastery, attempt totals, or unlocked letters were changed by the
+  message rehearsal. No sync conflicts or duplicate attempts were found.
+
+**Ready next**
+
+1. Verify Campbell/Olivea reaches the current `release/pi` and completes its
+   identity migration after it reconnects.
+2. Build the narrow AWS IoT command path for an immediate remote update request,
+   while retaining the station's backup, test, migration, and health checks.
+3. Let Astrid unlock Messages naturally, then kid-test the normal compose,
+   review, send, decode, and receipt UI without infrastructure shortcuts.
+4. Continue normal Words/Daily practice observation and prioritize app-activity
+   write throttling as the next small hardening change.
+5. Deactivate the broad laptop AWS admin key now that router deployment is done;
+   reactivate it only for approved AWS setup work.
+
+**GitHub**
+
+- `main` and `release/pi` include all implementation and spec work through
+  `f5fdf87`; this wrap-up entry is the final documentation-only closeout commit.
+
 ## Vision
 
 Build a Raspberry Pi Morse code learning station where students can see, hear, tap, decode, and eventually send Morse messages. The project should stay hands-on, encouraging, and easy to grow in small tested steps.
