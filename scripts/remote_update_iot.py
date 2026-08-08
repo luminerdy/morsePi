@@ -129,6 +129,11 @@ class AwsJobsClient:
 
 
 def action_from_document(job_document):
+    if isinstance(job_document, str):
+        try:
+            job_document = json.loads(job_document)
+        except json.JSONDecodeError:
+            return ""
     if not isinstance(job_document, dict):
         return ""
     action = job_document.get("action") or job_document.get("operation")

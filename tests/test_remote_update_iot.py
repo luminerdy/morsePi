@@ -92,6 +92,39 @@ class RemoteUpdateIotTests(unittest.TestCase):
             self.assertEqual("job-123", saved["job_id"])
             self.assertEqual("update-app", saved["action"])
 
+    def test_update_app_job_accepts_aws_string_document(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            config = root / "station_config.json"
+            write_config(
+                config,
+                station_id="pappy-test-station",
+                remote_update_enabled=True,
+                iot_jobs_endpoint="abc-ats.iot.us-east-1.amazonaws.com",
+            )
+            client = FakeJobsClient(
+                {
+                    "jobId": "job-string-doc",
+                    "jobDocument": '{"action":"update-app"}',
+                }
+            )
+            commands = []
+
+            def runner(command, **kwargs):
+                commands.append(command)
+                return {"ok": True, "returncode": 0, "stdout": "started", "stderr": ""}
+
+            status = remote_update_iot.run_once(
+                config_path=config,
+                output_path=root / "latest.json",
+                client=client,
+                runner=runner,
+                app_dir=root,
+            )
+
+            self.assertEqual("succeeded", status["status"])
+            self.assertEqual([["systemctl", "--user", "start", "morse-station-update.service"]], commands)
+
     def test_unknown_action_fails_job_without_local_command(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
