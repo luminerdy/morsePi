@@ -45,6 +45,7 @@ files only carry *(Delta: …)* notes, not status history.
 | Attainable Words completion score | 2026-08-07 working tree | FR-056/AC-027 — kid-facing Words and Progress percentages now measure distinct words completed, allowing 42/42 to display 100%; lifetime accuracy remains stored for adult analysis |
 | Permanent family student UUIDs | `f3226ae`...`6e0080c` | FR-057/DR-020/SEC-021/AC-030 — canonical UUID registry, compatible profile/attempt/snapshot/message enrichment, backed-up idempotent migration, fail-closed identity checks, and offline updater catch-up are implemented. AWS router, Pappy, and Astrid/Liara are deployed. A live 701-attempt hash/UUID comparison and Pappy-to-Astrid decoded-receipt round trip passed; Campbell/Olivea is pending reconnection. |
 | AWS IoT Jobs remote update foundation | `22a7589` + `f806498` | FR-058/API-027/SEC-022/AC-031/TEST-019 — local polling worker, systemd service/timer, station config examples, least-privilege IoT Jobs policy template, docs, and regression tests are implemented. AWS Things and per-station inline Jobs data-plane policies are provisioned for the three deployed station IDs. Astrid/Liara has the timer enabled and successfully consumed live `update-app` Job `morsepi-update-astrid-liara-20260808-0709`; Pappy remains manual-file install and Campbell/Olivea is pending reconnection. |
+| Remote maintenance cost guardrail | 2026-08-08 working tree | NFR-019/AC-032/TEST-020 — specs now require normal three-station remote maintenance to stay under `$1/month` where practical and require fixed monthly per-device tools such as Systems Manager to be documented as explicit temporary troubleshooting choices before activation. |
 
 **Note 1 (FR-012):** over-limit text is silently **truncated** (`limited_text`),
 not rejected; only bodies > 16 KB get a hard 413. The OOM DoS is closed
@@ -71,6 +72,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | NFR-005 runs off-Pi w/o env vars | ❌ | Still needs `GPIOZERO_PIN_FACTORY=mock` |
 | NFR-006 atomic writes | ❌ | Plain `write_text`, no temp+rename |
 | NFR-017 centered Morse display | ✅ | Shared server/browser renderer covers app displays and printable handout while preserving canonical ASCII Morse |
+| NFR-019 remote maintenance cost | 🟡 | AWS IoT Jobs path is designed for pennies-per-month normal use and avoids fixed per-device SSM cost; documentation review guardrail added, but ongoing AWS billing observation is still operational work |
 | FR-051 mixed Words opening | ✅ | The opening bank interleaves familiar two- and three-letter words; eligibility remains active-letter filtered |
 | FR-052 station message sync | ✅ | Ten-minute worker/timer prepared for all three stations; tested live with isolated data; normal sync remains an explicit configuration switch |
 | FR-028/DR-015 reset summary cleanup | ✅ | Student reset backs up and removes local and cached family learning summaries so old cloud eligibility cannot restore unlocked letters |
@@ -127,3 +129,4 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | AC-029 touch operator roster | — | ✅ | PIN, validation, backup, preservation, and picker behavior are route-tested |
 | AC-030 permanent student identity | — | ✅ | Registry/migration fixtures pass; 701 live attempts matched hashes and UUIDs, and a UUID-bearing message completed decoded receipt delivery |
 | AC-031 remote update Jobs | — | 🟡 | Fake Jobs adapter tests pass for accepted/rejected/no-op paths, including AWS string job documents; Astrid/Liara live Job succeeded; remaining station rollout pending |
+| AC-032 remote maintenance cost guardrail | — | 🟡 | Spec guardrail added; keep reviewing AWS docs/billing before activating any fixed monthly remote-admin service |

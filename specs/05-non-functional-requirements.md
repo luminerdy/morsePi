@@ -56,3 +56,11 @@
   boot and on the adult recovery desktop. Boot branding SHALL use a static
   Plymouth-compatible image, keep a restorable copy of the original OS splash,
   and not add a new boot dependency that can block app startup.
+- **NFR-019** *(V2)* Remote maintenance for three family stations SHOULD stay
+  below `$1/month` in normal use, excluding S3 storage/transfer and optional
+  human-troubleshooting services. The preferred update trigger SHALL be AWS IoT
+  Jobs or an equally low-cost outbound polling mechanism whose cost is driven
+  by occasional remote actions, not by a fixed per-device monthly fee. Systems
+  Manager or another fixed monthly remote-admin service MAY be used only as an
+  explicit temporary troubleshooting choice, with the expected per-device cost
+  documented before activation.

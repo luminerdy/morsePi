@@ -65,6 +65,10 @@
   cover no-pending-job, missing configuration, accepted `update-app`, rejected
   unknown action, local status writing, AWS job state updates, and systemd unit
   wiring without contacting AWS.
+- **TEST-020** Documentation review for remote operations verifies that any
+  remote-maintenance design includes the NFR-019 cost guardrail, expected
+  three-station normal-use cost, and a clear note before enabling a fixed
+  monthly per-device service.
 
 ## CI pipeline (per TR-011)
 

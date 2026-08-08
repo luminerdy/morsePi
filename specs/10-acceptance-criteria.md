@@ -185,6 +185,10 @@ correctness checks. Each is encoded as an automated test per
   job with an unknown action is marked failed, writes a local status summary,
   and runs no local command. Missing IoT configuration skips cleanly without
   failing the station.
+- **AC-032** (NFR-019) The remote-maintenance design document and AWS setup
+  reference include a cost note showing the expected three-station remote
+  update cost under normal use and explicitly compare it to any fixed
+  per-device remote-admin option before that option is enabled.
 
 ## Coverage rule
 
