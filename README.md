@@ -145,7 +145,11 @@ systemd/                Optional Linux service file
 
 See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) for milestones and next steps.
 
-Current next focus: practice from the clean family reset until Pappy and Astrid unlock Messages through `S` and `O`, then run the first live ten-minute S3 delivery and decoded-receipt test. Remote update commands remain a parallel deployment priority.
+Current next focus: verify Campbell/Olivea catches up after reconnecting, let
+students unlock the kid-facing Messages UI naturally through `S` and `O`, and
+add a low-cost AWS IoT command that can request an immediate remote update.
+Cross-station UUID progress merge and live S3 message/decoded-receipt delivery
+have passed between Pappy and Astrid/Liara.
 
 ## License
 

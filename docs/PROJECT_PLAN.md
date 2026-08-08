@@ -22,6 +22,19 @@
 - Campbell/Olivea was offline after delivery. `release/pi` now runs pending
   migrations before the already-current exit, so it will catch up on its next
   update cycles without requiring progress-folder renames or history rewrites.
+- Completed the live UUID progress rehearsal between Pappy and Astrid/Liara.
+  Pappy's 515 Practice and 186 Words records had identical hashes on both
+  stations, and all 701 records carried Pappy's canonical UUID with no cloud
+  upload, duplicate, download, or conflict needed.
+- Completed a live UUID-bearing `AM` cloud message rehearsal from Pappy to
+  Astrid using only their shared starter letters. Lambda delivered exactly one
+  inbox copy, Astrid/Liara returned one decoded receipt, and Pappy's outbox
+  advanced to `state: decoded` and `cloud_state: decoded` with both UUIDs
+  preserved. The controlled decode added no practice credit or mastery data.
+- The normal kid-facing send flow correctly remained locked because Astrid's
+  current family summary contains only the six starter letters. Her mastery was
+  not altered to force the rehearsal; she will unlock Messages naturally after
+  `S` and `O`.
 
 ## Vision
 
