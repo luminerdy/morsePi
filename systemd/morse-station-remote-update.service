@@ -1,0 +1,9 @@
+[Unit]
+Description=Poll AWS IoT Jobs for MorsePi remote maintenance
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+Environment=MORSE_APP_DIR=/home/morse/morse-station
+ExecStart=/usr/bin/python3 /home/morse/morse-station/scripts/remote_update_iot.py --once

@@ -179,6 +179,12 @@ correctness checks. Each is encoded as an automated test per
   historical records still merge, while a supplied mismatched UUID is rejected.
   Generic creation of a canonical family display name produces a separate
   suffixed legacy ID and UUID and cannot write as that family student.
+- **AC-031** (FR-058 / API-027 / SEC-022) With a fake AWS IoT Jobs adapter, a
+  pending `update-app` job starts only `morse-station-update.service`, records
+  local in-progress and succeeded status, and marks the AWS job succeeded. A
+  job with an unknown action is marked failed, writes a local status summary,
+  and runs no local command. Missing IoT configuration skips cleanly without
+  failing the station.
 
 ## Coverage rule
 

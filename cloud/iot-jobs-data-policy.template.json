@@ -1,0 +1,16 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "PollOnlyThisStationJobs",
+      "Effect": "Allow",
+      "Action": [
+        "iotjobsdata:GetPendingJobExecutions",
+        "iotjobsdata:StartNextPendingJobExecution",
+        "iotjobsdata:DescribeJobExecution",
+        "iotjobsdata:UpdateJobExecution"
+      ],
+      "Resource": "arn:aws:iot:<region>:<account-id>:thing/<thing-name>"
+    }
+  ]
+}

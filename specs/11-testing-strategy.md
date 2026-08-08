@@ -61,6 +61,10 @@
   idempotent station/profile migration, preservation of legacy paths/history,
   UUID enrichment of new and historical records, stable rename behavior, Guest
   exclusion, and fail-closed handling of UUID/legacy-ID conflicts.
+- **TEST-019** Remote-update tests use a fake AWS CLI/Jobs response layer to
+  cover no-pending-job, missing configuration, accepted `update-app`, rejected
+  unknown action, local status writing, AWS job state updates, and systemd unit
+  wiring without contacting AWS.
 
 ## CI pipeline (per TR-011)
 

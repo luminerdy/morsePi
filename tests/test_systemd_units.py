@@ -29,6 +29,14 @@ class SystemdUnitTests(unittest.TestCase):
         self.assertIn("OnUnitActiveSec=30min", timer)
         self.assertIn("Persistent=true", timer)
 
+    def test_remote_update_timer_polls_iot_jobs(self):
+        service = (ROOT / "systemd" / "morse-station-remote-update.service").read_text(encoding="utf-8")
+        timer = (ROOT / "systemd" / "morse-station-remote-update.timer").read_text(encoding="utf-8")
+
+        self.assertIn("scripts/remote_update_iot.py --once", service)
+        self.assertIn("OnUnitActiveSec=15min", timer)
+        self.assertIn("Persistent=true", timer)
+
 
 if __name__ == "__main__":
     unittest.main()

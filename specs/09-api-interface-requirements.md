@@ -115,3 +115,8 @@ General rules:
   FR-033/034); `morsepi-status`; `update_station.sh` per FR-035. Flags keep
   today's names (`--label`, `--keep`, `--station-id`, `--s3-uri`,
   `--restore`, `--restore-root`, `--dry-run-s3`) for runbook compatibility.
+- **API-027** *(V2)* `scripts/remote_update_iot.py --once` polls AWS IoT Jobs
+  for the configured station Thing, accepts only the allow-listed maintenance
+  actions from FR-058, updates the AWS job execution state to
+  `IN_PROGRESS`/`SUCCEEDED`/`FAILED` when cloud access is available, and writes
+  `data/remote_update/latest_iot_job.json` for local/Admin-System visibility.

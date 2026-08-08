@@ -5,7 +5,7 @@ knows what it inherits. This file is updated on each re-review; requirement
 files only carry *(Delta: …)* notes, not status history.
 
 - **Baseline review:** `33df851` (2026-07-02)
-- **Latest legacy-code re-review:** permanent student UUID compatibility migration (2026-08-07)
+- **Latest legacy-code re-review:** AWS IoT Jobs remote update foundation (2026-08-08)
 - **Spec package location:** root `specs/`
 
 ## Changes landed since baseline
@@ -44,6 +44,7 @@ files only carry *(Delta: …)* notes, not status history.
 | Adaptive Words rotation | 2026-08-07 working tree | FR-056/AC-027 — new sessions start with unfinished work, advancement mixes three unfinished Words with two completed reviews, weaker reviews come first, and progress explicitly says `words complete` |
 | Attainable Words completion score | 2026-08-07 working tree | FR-056/AC-027 — kid-facing Words and Progress percentages now measure distinct words completed, allowing 42/42 to display 100%; lifetime accuracy remains stored for adult analysis |
 | Permanent family student UUIDs | `f3226ae`...`6e0080c` | FR-057/DR-020/SEC-021/AC-030 — canonical UUID registry, compatible profile/attempt/snapshot/message enrichment, backed-up idempotent migration, fail-closed identity checks, and offline updater catch-up are implemented. AWS router, Pappy, and Astrid/Liara are deployed. A live 701-attempt hash/UUID comparison and Pappy-to-Astrid decoded-receipt round trip passed; Campbell/Olivea is pending reconnection. |
+| AWS IoT Jobs remote update foundation | 2026-08-08 working tree | FR-058/API-027/SEC-022/AC-031/TEST-019 — local polling worker, systemd service/timer, station config examples, least-privilege IoT Jobs policy template, docs, and regression tests are implemented. AWS Things and per-station inline Jobs data-plane policies are provisioned for the three deployed station IDs. Live Pi install and first Job execution remain pending. |
 
 **Note 1 (FR-012):** over-limit text is silently **truncated** (`limited_text`),
 not rejected; only bodies > 16 KB get a hard 413. The OOM DoS is closed
@@ -80,6 +81,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-055 prominent practice result | ✅ | Shared title-bar result is covered across all touch practice modes without changing page height or scoring |
 | FR-056 adaptive attainable Words | ✅ | Unfinished/review cadence and distinct-word completion score are implemented and covered |
 | FR-057/DR-020/SEC-021 permanent identity | ✅ | Canonical family UUIDs, compatibility aliases, idempotent migration, Guest exclusion, and fail-closed mismatch checks are implemented and live-rehearsed |
+| FR-058/API-027/SEC-022 remote update Jobs | 🟡 | Local worker, systemd timer, config examples, docs, policy template, and AWS Things/policies are ready; live station install and first `update-app` Job execution remain pending |
 | SEC-001 CSRF | ❌ | No tokens anywhere |
 | SEC-002/003 mandatory PIN + lockout | 🟡 | PIN remains optional for development, but configured PINs now use constant-time comparison and a short in-memory lockout after repeated failures |
 | SEC-004 input validation | 🟡 | See FR-012 note |
@@ -124,3 +126,4 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | AC-028 touch settings PIN recovery | — | ✅ | Invalid settings PINs return to a usable 800x480 Timing screen |
 | AC-029 touch operator roster | — | ✅ | PIN, validation, backup, preservation, and picker behavior are route-tested |
 | AC-030 permanent student identity | — | ✅ | Registry/migration fixtures pass; 701 live attempts matched hashes and UUIDs, and a UUID-bearing message completed decoded receipt delivery |
+| AC-031 remote update Jobs | — | 🟡 | Fake Jobs adapter tests pass for accepted/rejected/no-op paths; live AWS Job execution pending station install |

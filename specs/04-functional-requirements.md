@@ -151,6 +151,15 @@ from the current code (legacy status per requirement is tracked in
   fails. *(Delta: legacy now backs up first, tests before restart, rolls back
   on test/health failure, and refreshes status/snapshots; signed releases
   remain open.)*
+- **FR-058** *(V2)* A deployed station MAY poll AWS IoT Jobs for adult-issued
+  remote maintenance jobs while powered on. The first supported job action
+  SHALL be `update-app`, which starts the existing local update service
+  described by FR-035. Additional allowed actions MAY include `sync-progress`,
+  `backup-data`, `write-status`, and `restart-app`; the worker SHALL reject any
+  unknown action without running it. Jobs SHALL be durable while a station is
+  offline, idempotent by AWS job id, and SHALL record a local status file with
+  the latest job id, action, result, timestamps, and non-secret error summary.
+  The remote worker SHALL never execute arbitrary shell text from AWS.
 - **FR-038** *(V1)* The 7-inch touch UI SHALL provide an adult System page
   reachable without a keyboard. It SHALL show Wi-Fi/network status useful for
   troubleshooting, and SHALL provide admin-PIN-gated actions to restart Wi-Fi

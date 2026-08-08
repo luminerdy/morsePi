@@ -83,3 +83,11 @@ belongs in the rebuilt repo's `SECURITY.md` (DOC-04).
   UUID against the canonical family registry. A UUID/legacy-ID conflict SHALL
   fail closed before upload, merge, delivery, or receipt processing. UUIDs are
   identifiers, not secrets, and SHALL not grant authorization by themselves.
+- **SEC-022** *(V2)* Remote maintenance through AWS IoT SHALL use one Thing
+  identity per station and least-privilege permissions scoped to that station's
+  Jobs data-plane operations. A station SHALL be able to read and update only
+  its own pending job executions and SHALL NOT receive permission to manage IoT
+  resources, IAM, S3 bucket policy, Lambda, or arbitrary command execution.
+  Job documents SHALL contain only declarative action names and optional
+  validated parameters; no command line or script body from AWS SHALL be
+  executed.

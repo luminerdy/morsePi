@@ -19,8 +19,8 @@ Use this shape first:
 ```text
 GitHub          source code
 S3              station backups and status files
-Systems Manager first remote-admin/update bridge
-AWS IoT Core    future lower-cost command/status/message layer
+Systems Manager optional remote-admin bridge
+AWS IoT Jobs    lower-cost remote update/status trigger
 Pi scripts      actual update, backup, and status work
 ```
 
@@ -30,18 +30,21 @@ The Pi should stay self-sufficient. AWS should trigger known local scripts, not 
 
 Systems Manager is the first remote-admin bridge because it gives Pappy a practical way to connect to a deployed Pi, troubleshoot, and run the local backup/update/status scripts without port forwarding or asking the family to open the home network.
 
-Use Systems Manager for:
+Use Systems Manager only when we need interactive remote hands:
 
 - remote shell access when a station is online
 - manual update triggers
 - service status checks
 - emergency troubleshooting
 
-Do not make Systems Manager the normal app sync path. S3 should handle backups and shared family summaries, and IoT can take over lightweight commands later if the cost and complexity make sense.
+Do not make Systems Manager the normal app sync path. S3 handles backups and
+shared family summaries, and AWS IoT Jobs is now the preferred lightweight
+command trigger for app updates.
 
-## Why AWS IoT Still Looks Promising
+## Why AWS IoT Jobs Is The Preferred Update Trigger
 
-AWS IoT fits the long-term station experience better than full server management because the devices may be off most of the time.
+AWS IoT Jobs fits the long-term station experience better than full server
+management because the devices may be off most of the time.
 
 Good fit:
 
@@ -50,6 +53,8 @@ Good fit:
 - Each station can have its own certificate and policy.
 - The same MQTT foundation can later carry family Morse messages.
 - Commands can be simple: update, backup, restart, status.
+- A pending Job waits for an offline station and is picked up when the station
+  boots or the timer runs.
 
 Systems Manager advanced hybrid-device access may cost roughly `$5/month/device` when a device is registered continuously. That can be acceptable for the first two deployed stations while we need remote hands, but the longer-term command path should remain open to AWS IoT if it reduces monthly cost.
 
@@ -254,20 +259,77 @@ Temporary setup user permissions needed for tomorrow's AWS work:
 
 After setup, disable or delete the temporary setup access key.
 
-Future AWS IoT pieces:
+AWS IoT remote-update pieces:
 
-- IoT Thing per station
-- Certificate per station
-- Least-privilege IoT policy
-- Tiny Pi agent that subscribes to command topics
-- Command topics:
-  - `morsepi/<station-id>/commands/update`
-  - `morsepi/<station-id>/commands/backup`
-  - `morsepi/<station-id>/commands/status`
-  - `morsepi/<station-id>/commands/restart`
-- Event topics:
-  - `morsepi/<station-id>/events`
-  - `morsepi/<station-id>/status`
+- IoT Thing per station, named the same as `station_id`
+- least-privilege Jobs data-plane policy per station
+- `scripts/remote_update_iot.py`, run by `morse-station-remote-update.timer`
+- allowed job actions:
+  - `update-app`
+  - `sync-progress`
+  - `backup-data`
+  - `write-status`
+  - `restart-app`
+
+The station worker rejects unknown actions and never executes shell text from
+AWS. The first production job should be `update-app`, which starts the existing
+local `morse-station-update.service`.
+
+## Remote Update Job Flow
+
+On the laptop, create a Job document such as:
+
+```json
+{
+  "action": "update-app",
+  "requested_by": "pappy",
+  "reason": "release pi update"
+}
+```
+
+Create a snapshot Job for one station:
+
+```bash
+aws iot create-job \
+  --job-id morsepi-update-<station-id>-<yyyymmddhhmm> \
+  --targets arn:aws:iot:<region>:<account-id>:thing/<station-id> \
+  --document file://remote-update-job.json \
+  --target-selection SNAPSHOT \
+  --profile morsepi-setup-admin
+```
+
+When the station is online, its timer runs:
+
+```bash
+python3 /home/morse/morse-station/scripts/remote_update_iot.py --once
+```
+
+The worker:
+
+1. asks AWS IoT Jobs for the next pending job for its Thing name;
+2. writes `data/remote_update/latest_iot_job.json`;
+3. rejects unknown actions;
+4. marks accepted jobs `IN_PROGRESS`;
+5. starts the known local system command; and
+6. marks the job `SUCCEEDED` or `FAILED`.
+
+Install the timer on a station:
+
+```bash
+mkdir -p /home/morse/.config/systemd/user
+install -m 0644 /home/morse/morse-station/systemd/morse-station-remote-update.service /home/morse/.config/systemd/user/morse-station-remote-update.service
+install -m 0644 /home/morse/morse-station/systemd/morse-station-remote-update.timer /home/morse/.config/systemd/user/morse-station-remote-update.timer
+systemctl --user daemon-reload
+systemctl --user enable --now morse-station-remote-update.timer
+```
+
+Check locally:
+
+```bash
+systemctl --user start morse-station-remote-update.service
+journalctl --user -u morse-station-remote-update.service -n 80 --no-pager
+cat /home/morse/morse-station/data/remote_update/latest_iot_job.json
+```
 
 ## First Rollout Checklist
 
@@ -288,7 +350,8 @@ Before a station leaves Pappy's house:
 
 - Exact AWS Region and final bucket name.
 - Whether the first station credentials should be IAM users with access keys or a more managed credential pattern later.
-- Use AWS IoT Jobs or a small custom MQTT command agent for update triggers.
+- Decide whether to activate AWS IoT Jobs on all stations immediately or only
+  after one more local soak on Pappy's station.
 - Decide whether status should live only in S3, IoT Device Shadow, or both.
 - Decide backup retention in S3.
 - Decide whether station data should be encrypted with a per-station KMS key later.

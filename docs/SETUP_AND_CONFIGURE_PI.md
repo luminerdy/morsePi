@@ -583,7 +583,47 @@ systemctl --user disable --now morse-station-update.timer
 
 Recommended rollout: keep automatic updates disabled on brand-new stations until the app is tested locally, then enable it once the Pi is physically deployed.
 
-Future remote rollout: once stations are connected to AWS, AWS IoT can trigger `/home/morse/morse-station/scripts/update_station.sh` on demand. Systems Manager could also trigger the same script if we decide the monthly device cost is worth the extra Linux fleet-management features.
+### Install the AWS IoT remote update timer
+
+Remote update uses AWS IoT Jobs to trigger the existing local update service.
+Leave it disabled until the station has a Thing, a Jobs endpoint, and the
+station IAM user has the narrow IoT Jobs data-plane policy.
+
+In `data/station_config.json`:
+
+```json
+{
+  "remote_update_enabled": true,
+  "iot_thing_name": "<station-id>",
+  "iot_jobs_endpoint": "<jobs-endpoint>",
+  "iot_jobs_region": "us-east-1"
+}
+```
+
+Install and enable the timer:
+
+```bash
+mkdir -p /home/morse/.config/systemd/user
+install -m 0644 /home/morse/morse-station/systemd/morse-station-remote-update.service /home/morse/.config/systemd/user/morse-station-remote-update.service
+install -m 0644 /home/morse/morse-station/systemd/morse-station-remote-update.timer /home/morse/.config/systemd/user/morse-station-remote-update.timer
+systemctl --user daemon-reload
+systemctl --user enable --now morse-station-remote-update.timer
+systemctl --user list-timers morse-station-remote-update.timer
+```
+
+Manual check:
+
+```bash
+systemctl --user start morse-station-remote-update.service
+journalctl --user -u morse-station-remote-update.service -n 80 --no-pager
+cat /home/morse/morse-station/data/remote_update/latest_iot_job.json
+```
+
+If no AWS Job is pending, the status should show `no-pending-job`. If remote
+update is disabled or missing configuration, it should skip cleanly and not
+affect the local station.
+
+Future remote rollout: AWS IoT Jobs can trigger `/home/morse/morse-station/scripts/update_station.sh` through the local `morse-station-update.service` on demand. Systems Manager could also trigger the same script if we decide the monthly device cost is worth the extra Linux fleet-management features.
 
 The update script creates a pre-update backup, optionally uploads it to S3, fast-forwards from GitHub only when safe, compile-checks and tests the app, restarts the service, verifies health, rolls back on failure, and refreshes station status/progress snapshots.
 

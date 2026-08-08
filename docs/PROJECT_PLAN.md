@@ -1,5 +1,29 @@
 # Pappy's Internet Telegraph Project Plan
 
+## 2026-08-08 - AWS IoT remote update trigger
+
+- Added the first AWS IoT Jobs based remote-update worker. A station can now
+  poll for a durable pending maintenance job and start only known local actions:
+  `update-app`, `sync-progress`, `backup-data`, `write-status`, or
+  `restart-app`.
+- Added `scripts/remote_update_iot.py`, the user systemd
+  `morse-station-remote-update.service`, and a 15-minute
+  `morse-station-remote-update.timer`.
+- Added a least-privilege station policy template for IoT Jobs data-plane
+  polling. The worker rejects unknown actions and never runs shell text from
+  AWS.
+- Created AWS IoT Things in `us-east-1` for `pappy-test-station`,
+  `astrid-liara-station`, and `campbell-olivea-station`.
+- Attached one narrow IoT Jobs inline policy to each existing station IAM user:
+  `morsepi-pappy-test-station`, `morsepi-astrid-liara-station`, and
+  `morsepi-campbell-olivea-station`.
+- Confirmed the account Jobs endpoint:
+  `l1dnyp15x2puh8.jobs.iot.us-east-1.amazonaws.com`.
+- Updated the station config examples, setup docs, remote deployment docs, and
+  specs before implementation.
+- Local validation passed: focused remote-update/systemd tests and full laptop
+  test discovery.
+
 ## 2026-08-07 - Permanent student identity
 
 - Added immutable UUIDs for Pappy, Astrid, Liara, Campbell, and Olivea while

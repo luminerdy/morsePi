@@ -15,11 +15,13 @@ Related docs:
 GitHub              source code
 S3                  backups, station status, progress snapshots, family summary
 Systems Manager     first remote-admin bridge
-AWS IoT Core         later lower-cost command/status/message layer
+AWS IoT Jobs         lower-cost command/status/update trigger
 Pi scripts           actual backup, status, update, and restart work
 ```
 
-Use S3 first. Add Systems Manager for remote hands. Add AWS IoT later only after backup/status works reliably.
+Use S3 first. Add AWS IoT Jobs for remote update triggers. Keep Systems
+Manager as an optional remote-hands fallback when interactive troubleshooting
+is worth the monthly device cost.
 
 ## Setup Values
 
@@ -85,6 +87,116 @@ Verified:
 Do not commit AWS access keys, secret keys, session tokens, activation IDs/codes, or real admin PINs.
 
 Reminder for later IoT work: keep the broad `admin` access key deactivated during normal operation. If AWS IoT setup needs permissions beyond `morsepi-setup-admin`, first prefer creating a purpose-limited IoT setup policy/user. Reactivate the broad `admin` key only if it is truly needed, and deactivate it again immediately after that setup task.
+
+## AWS IoT Jobs Remote Update
+
+The remote update path uses AWS IoT Jobs as a durable "please update yourself"
+queue. This is better than a one-time MQTT command for stations that may be
+powered off: the station checks for pending Jobs after boot and every 15
+minutes while online.
+
+Repository assets:
+
+```text
+scripts/remote_update_iot.py
+systemd/morse-station-remote-update.service
+systemd/morse-station-remote-update.timer
+cloud/iot-jobs-data-policy.template.json
+```
+
+Create one Thing per station:
+
+```bash
+aws iot create-thing \
+  --thing-name <station-id> \
+  --profile morsepi-setup-admin
+```
+
+Discover the account-specific Jobs endpoint:
+
+```bash
+aws iot describe-endpoint \
+  --endpoint-type iot:Jobs \
+  --profile morsepi-setup-admin
+```
+
+Copy the returned endpoint address into the station's local
+`data/station_config.json`:
+
+```json
+{
+  "remote_update_enabled": true,
+  "iot_thing_name": "<station-id>",
+  "iot_jobs_endpoint": "<jobs-endpoint>",
+  "iot_jobs_region": "us-east-1"
+}
+```
+
+Attach a narrow Jobs data-plane policy to the matching station IAM user. Start
+from `cloud/iot-jobs-data-policy.template.json` and replace:
+
+```text
+<region>       us-east-1
+<account-id>   AWS account id
+<thing-name>   station id / IoT Thing name
+```
+
+Then attach it as an inline policy:
+
+```bash
+aws iam put-user-policy \
+  --user-name morsepi-<station-id> \
+  --policy-name morsepi-<station-id>-iot-jobs \
+  --policy-document file://station-iot-jobs-policy.json \
+  --profile morsepi-setup-admin
+```
+
+Install the station timer:
+
+```bash
+mkdir -p /home/morse/.config/systemd/user
+install -m 0644 /home/morse/morse-station/systemd/morse-station-remote-update.service /home/morse/.config/systemd/user/morse-station-remote-update.service
+install -m 0644 /home/morse/morse-station/systemd/morse-station-remote-update.timer /home/morse/.config/systemd/user/morse-station-remote-update.timer
+systemctl --user daemon-reload
+systemctl --user enable --now morse-station-remote-update.timer
+```
+
+Create an update Job from the laptop:
+
+```json
+{
+  "action": "update-app",
+  "requested_by": "pappy",
+  "reason": "release pi update"
+}
+```
+
+```bash
+aws iot create-job \
+  --job-id morsepi-update-<station-id>-<yyyymmddhhmm> \
+  --targets arn:aws:iot:<region>:<account-id>:thing/<station-id> \
+  --document file://remote-update-job.json \
+  --target-selection SNAPSHOT \
+  --profile morsepi-setup-admin
+```
+
+Allowed station actions are intentionally limited to:
+
+```text
+update-app
+sync-progress
+backup-data
+write-status
+restart-app
+```
+
+Unknown actions are marked failed and no local command runs.
+
+Official AWS references:
+
+- AWS IoT Jobs: https://docs.aws.amazon.com/iot/latest/developerguide/iot-jobs.html
+- AWS IoT Jobs data-plane policy actions: https://docs.aws.amazon.com/service-authorization/latest/reference/list_awsiotjobsdataplane.html
+- AWS IoT Core pricing: https://aws.amazon.com/iot-core/pricing/
 
 ## Temporary Setup Identity
 
@@ -467,7 +579,9 @@ After backup/status is proven:
 - Create `family/family_summary.json`.
 - Add progress snapshot upload.
 - Add a small summarizer that combines station snapshots into family progress.
-- Evaluate AWS IoT Core for lower-cost command triggers and future family Morse messages.
+- Add IoT Job creation helpers once the manual create-job flow is proven.
+- Consider Device Shadows only if we want richer remote status than the current
+  S3 station status files.
 
 ## Phase 7B Message Router
 
