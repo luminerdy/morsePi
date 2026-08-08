@@ -7,6 +7,9 @@
 - Added compatibility enrichment for profiles, attempts, progress snapshots,
   and family messages without moving old folders or cloud paths.
 - Added a backed-up, repeatable station migration to the remote update flow.
+- Hardened offline rollout so pending migrations also run when a station is
+  already on the current release; this covers a station whose first update ran
+  the previous updater process before the new migration hook was loaded.
 - Kept Guest disposable and UUID-free; conflicting ID/UUID records fail closed.
 - Added regression coverage for migration safety, legacy enrichment, rename
   stability, registry uniqueness, and identity-conflict rejection.

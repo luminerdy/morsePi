@@ -80,7 +80,14 @@ run_update_checks() {
     fi
 }
 
+run_pending_migrations() {
+    if [ -f scripts/migrate_student_uuids.py ]; then
+        python3 scripts/migrate_student_uuids.py
+    fi
+}
+
 python3 scripts/backup_data.py "${backup_args[@]}"
+run_pending_migrations
 
 if ! git diff --quiet || ! git diff --cached --quiet; then
     echo "Tracked local changes are present; skipping update."
@@ -114,7 +121,7 @@ if ! run_update_checks; then
     exit 1
 fi
 
-if ! python3 scripts/migrate_student_uuids.py; then
+if ! run_pending_migrations; then
     echo "Student identity migration failed; rolling back to $LOCAL_COMMIT."
     git reset --hard "$LOCAL_COMMIT"
     write_status_and_snapshots

@@ -17,5 +17,6 @@ data/sync_conflicts/
 data/students/
 data/backups/
 data/student_backups/
+data/identity_migration_backups/
 data/message_sync/
 dist/
