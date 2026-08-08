@@ -177,6 +177,8 @@ correctness checks. Each is encoded as an automated test per
   and is byte-stable on a second run except for the first-run backup files. New
   attempts, snapshots, and messages include both UUID and legacy ID. UUID-less
   historical records still merge, while a supplied mismatched UUID is rejected.
+  Generic creation of a canonical family display name produces a separate
+  suffixed legacy ID and UUID and cannot write as that family student.
 
 ## Coverage rule
 

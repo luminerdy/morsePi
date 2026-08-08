@@ -12,9 +12,11 @@ os.environ.setdefault("GPIOZERO_PIN_FACTORY", "mock")
 
 try:
     app_module = importlib.import_module("app")
+    student_identity = importlib.import_module("student_identity")
     student_profiles = importlib.import_module("student_profiles")
 except ModuleNotFoundError as error:
     app_module = None
+    student_identity = None
     student_profiles = None
     IMPORT_ERROR = error
 else:
@@ -2260,7 +2262,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("reset_error=admin-pin", response.headers["Location"])
         self.assertTrue(self.student_file("pappy", "practice_attempts.jsonl").exists())
 
-    def test_add_student_requires_admin_pin_when_configured(self):
+    def test_add_student_requires_admin_pin_and_reserves_family_identity(self):
         self.write_station_config({"admin_pin": "1234"})
 
         denied = self.client.post(
@@ -2284,7 +2286,11 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(302, denied.status_code)
         self.assertIn("reset_error=admin-pin", denied.headers["Location"])
         self.assertEqual(302, allowed.status_code)
-        self.assertIn("campbell", {profile["id"] for profile in profiles})
+        created = next(profile for profile in profiles if profile["id"] == "campbell-2")
+        self.assertNotEqual(
+            student_identity.student_uuid_for_id("campbell"),
+            created.get("student_uuid"),
+        )
 
     def test_settings_require_admin_pin_when_configured(self):
         self.write_station_config({"admin_pin": "1234"})

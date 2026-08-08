@@ -210,6 +210,9 @@ from the current code (legacy status per requirement is tracked in
   disposable and station-local and SHALL NOT receive a family UUID. Existing
   records without a UUID SHALL be mapped through the canonical family registry;
   records whose supplied UUID conflicts with their legacy ID SHALL be rejected.
+  Canonical family legacy IDs SHALL be reserved: generic profile creation using
+  the same display name SHALL receive a distinct suffixed ID and new UUID rather
+  than assuming the existing family identity.
 - **FR-041** The 800x480 composer SHALL work without a keyboard. It SHALL
   support (a) touch word tiles filtered to the allowable letters and (b)
   physical-key entry that captures and decodes one complete word from the
