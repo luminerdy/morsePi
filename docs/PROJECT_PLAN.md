@@ -32,6 +32,71 @@
 - Local validation passed: focused remote-update/systemd tests and full laptop
   test discovery.
 
+### Daily Wrap-Up
+
+**Accomplishments**
+
+- Built and live-tested the AWS IoT Jobs remote-update path. Astrid/Liara
+  consumed a real `update-app` Job and stayed healthy through the existing
+  local update service.
+- Added and pushed the remote-maintenance cost guardrail: normal three-station
+  remote maintenance should stay under `$1/month` where practical, with
+  Systems Manager kept as optional temporary remote-hands support.
+- Updated the project architecture diagram for the current AWS design: S3
+  backup/status/snapshots/messages/attempts, Lambda message routing, guarded
+  student progress sync, AWS IoT Things/Jobs, rollout status, and optional SSM.
+- Generated new Astrid/Liara cartoon artwork from the station photos. Selected
+  option 2B for the boot splash and option 3 for the desktop wallpaper.
+- Replaced `docs/assets/morsepi-boot-splash.png` and
+  `docs/assets/morsepi-desktop-wallpaper.png`, kept selected concept source,
+  transparent, and preview files in `docs/assets/wallpaper-concepts/`, and
+  pushed the artwork to both `main` and `release/pi`.
+- Deployed the new splash and wallpaper to Pappy and Astrid/Liara. Pappy was
+  updated by direct asset copy because it is still a manual-file install.
+  Astrid/Liara updated to artwork commit `cecbb77` through the normal updater.
+- Verified Pappy and Astrid/Liara app services remained active after artwork
+  install; Astrid/Liara's remote-update timer remained active.
+
+**Decisions**
+
+- Use AWS IoT Jobs as the normal low-cost remote update trigger. Do not use
+  Systems Manager as the default maintenance channel because of fixed
+  per-device monthly cost.
+- Keep remote Jobs declarative and allow-listed. The station may run known
+  local actions such as `update-app`; it must not execute arbitrary shell text
+  from AWS.
+- Use option 2B as the boot splash and option 3 as the desktop wallpaper.
+- Before the Astrid/Liara station goes home, hide Pappy from the normal
+  kid-facing operator picker while preserving his background data and identity
+  so he can be re-enabled later if needed.
+
+**Station and data state**
+
+- Pappy: active, new wallpaper installed, new Plymouth boot splash installed.
+  Remote update is not enabled because the station is still a manual-file
+  install rather than a Git checkout.
+- Astrid/Liara: active on `cecbb77`, new wallpaper installed, new Plymouth boot
+  splash installed, AWS IoT remote-update timer enabled and active.
+- Campbell/Olivea: AWS IoT Thing and policy are ready, but station rollout is
+  pending reconnection at its home location.
+- Broad AWS admin access was used for setup today and should be disabled again
+  unless more AWS provisioning is planned immediately.
+
+**Next steps**
+
+1. Hide Pappy from Astrid/Liara's local roster before the station leaves, while
+   keeping Astrid, Liara, and Guest visible.
+2. Reboot Astrid/Liara once before delivery to visually confirm the new splash,
+   wallpaper, kiosk launch, app service, sync timer, and remote-update timer.
+3. At the grandkids' house, configure Wi-Fi if needed, then confirm the station
+   comes online, uploads backup/status, and continues guarded progress sync.
+4. After delivery, send one low-risk IoT `update-app` Job to Astrid/Liara after
+   the next release to confirm the remote update path works off-site.
+5. When Campbell/Olivea comes online, install/enable its remote-update timer
+   and run the same live AWS IoT Job smoke test.
+6. Decide later whether to convert Pappy to a Git checkout so it can use the
+   same remote update path, or leave it as the local lab/manual station.
+
 ## 2026-08-07 - Permanent student identity
 
 - Added immutable UUIDs for Pappy, Astrid, Liara, Campbell, and Olivea while
