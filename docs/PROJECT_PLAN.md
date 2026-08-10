@@ -28,6 +28,11 @@
 - Updated setup docs and specs/status for the private-registry transition.
 - Validation passed locally: `python -m unittest discover -s tests` ran 223
   tests successfully with 132 skipped.
+- Added 14 D/U-enabled Words prompts (`AND`, `END`, `SAD`, `SUN`, `RUN`,
+  `RED`, `KID`, `MUD`, `TUNE`, `DUNE`, `SEND`, `SAND`, `SOUND`, `ROUND`).
+  Once D/U are active, Words expands from 42 to 56 available words, so a student
+  who completed the earlier set should show 42/56, or 75%, until the new words
+  are completed.
 
 ### Daily Wrap-Up
 

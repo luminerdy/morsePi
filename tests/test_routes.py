@@ -948,6 +948,58 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("2% · 1/42 words complete", html)
         self.assertIn('/touch/words?word=NOT&phase=1', html)
 
+    def test_touch_words_completion_drops_when_d_u_adds_new_words(self):
+        so_letters = app_module.starter_practice_letters + ["S", "O"]
+        du_letters = so_letters + ["R", "K", "D", "U"]
+        self.complete_progress("pappy", du_letters)
+        self.set_learning_state(
+            "pappy",
+            {
+                "SO": {
+                    "first_learning_date": "2000-01-01",
+                    "letters": ["S", "O"],
+                },
+                "RK": {
+                    "first_learning_date": "2000-01-02",
+                    "letters": ["R", "K"],
+                },
+                "DU": {
+                    "first_learning_date": "2000-01-03",
+                    "letters": ["D", "U"],
+                },
+            },
+            last_learning_start_date="2000-01-03",
+        )
+        so_words = app_module.available_word_practice_words(so_letters)
+        path = self.student_file("pappy", "word_attempts.jsonl")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            "\n".join(
+                json.dumps(
+                    {
+                        "correct": True,
+                        "word": word,
+                        "timestamp": "2026-06-21T00:00:00+00:00",
+                    },
+                    sort_keys=True,
+                )
+                for word in so_words
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        summary = app_module.word_progress_summary(du_letters)
+        response = self.client.get("/touch/words")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(42, len(so_words))
+        self.assertEqual(56, summary["available"])
+        self.assertEqual(42, summary["unique_correct"])
+        self.assertEqual(75, summary["completion"])
+        self.assertIn("75% · 42/56 words complete", html)
+        self.assertIn('data-word-target="AND"', html)
+
     def test_desktop_practice_retry_does_not_print_raw_morse(self):
         app_module.practice_target = "A"
         app_module.get_current_key_morse = lambda: ".."
