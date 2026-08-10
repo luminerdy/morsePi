@@ -189,6 +189,12 @@ correctness checks. Each is encoded as an automated test per
   reference include a cost note showing the expected three-station remote
   update cost under normal use and explicitly compare it to any fixed
   per-device remote-admin option before that option is enabled.
+- **AC-033** (FR-056) Given a student with the starter, S/O, R/K, and D/U
+  groups active and all prior 42 Words prompts completed, opening
+  `/touch/words` and Progress SHALL display `75%` and `42/56 words complete`.
+  A D/U-enabled word such as `AND` SHALL be available for practice, and newly
+  available D/U words SHALL not inherit completion credit from the prior
+  catalog.
 
 ## Coverage rule
 
