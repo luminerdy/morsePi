@@ -259,7 +259,9 @@ word_practice_bank = [
     "AT", "TO", "SIT", "AN", "AS", "TEN", "SAT", "NET", "TEA", "MEN",
     "SET", "SEA", "MET", "MAT", "MAN", "SON", "TOO", "ANT", "MINE", "NAME",
     "MEAN", "MEAT", "MOON", "SOON", "TEAM", "TONE", "NOTE", "SEAT", "STEM",
-    "STONE"
+    "STONE",
+    "AND", "END", "SAD", "SUN", "RUN", "RED", "KID", "MUD", "TUNE", "DUNE",
+    "SEND", "SAND", "SOUND", "ROUND"
 ]
 word_practice_phases = ("unfinished", "unfinished", "unfinished", "review", "review")
 
