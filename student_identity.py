@@ -2,8 +2,11 @@ import json
 from pathlib import Path
 from uuid import UUID
 
+from paths import data_path
 
-REGISTRY_PATH = Path(__file__).resolve().parent / "config" / "family_registry.json"
+TRACKED_REGISTRY_PATH = Path(__file__).resolve().parent / "config" / "family_registry.json"
+PRIVATE_REGISTRY_PATH = data_path("family_registry.json")
+REGISTRY_PATH = PRIVATE_REGISTRY_PATH
 
 
 class StudentIdentityError(ValueError):
@@ -20,7 +23,16 @@ def normalize_student_uuid(value):
         raise StudentIdentityError("Invalid student UUID.") from error
 
 
-def load_family_registry(path=REGISTRY_PATH):
+def resolve_family_registry_path(path=None):
+    if path is not None:
+        return Path(path)
+    if PRIVATE_REGISTRY_PATH.exists():
+        return PRIVATE_REGISTRY_PATH
+    return TRACKED_REGISTRY_PATH
+
+
+def load_family_registry(path=None):
+    path = resolve_family_registry_path(path)
     try:
         payload = json.loads(Path(path).read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
@@ -48,11 +60,11 @@ def load_family_registry(path=REGISTRY_PATH):
     return students
 
 
-def family_registry_by_id(path=REGISTRY_PATH):
+def family_registry_by_id(path=None):
     return {student["id"]: student for student in load_family_registry(path)}
 
 
-def family_registry_by_uuid(path=REGISTRY_PATH):
+def family_registry_by_uuid(path=None):
     return {student["student_uuid"]: student for student in load_family_registry(path)}
 
 

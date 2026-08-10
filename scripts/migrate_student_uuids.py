@@ -9,7 +9,11 @@ if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from paths import data_path
-from student_identity import enrich_student_identity, family_registry_by_id
+from student_identity import (
+    TRACKED_REGISTRY_PATH,
+    enrich_student_identity,
+    family_registry_by_id,
+)
 
 
 def utc_stamp():
@@ -65,7 +69,11 @@ def migrate_file(path, transform, backup_dir):
 def migrate(data_dir, config_path):
     data_dir = Path(data_dir)
     config_path = Path(config_path)
-    registry = family_registry_by_id()
+    private_registry_path = data_dir / "family_registry.json"
+    if not private_registry_path.exists() and Path(TRACKED_REGISTRY_PATH).exists():
+        private_registry_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(TRACKED_REGISTRY_PATH, private_registry_path)
+    registry = family_registry_by_id(private_registry_path)
     backup_dir = data_dir / "identity_migration_backups" / utc_stamp()
     changed = []
 

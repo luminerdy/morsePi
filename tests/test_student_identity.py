@@ -101,6 +101,7 @@ class StudentIdentityTests(unittest.TestCase):
             self.assertEqual(first_profile, profile_path.read_bytes())
             self.assertEqual(history, attempts_path.read_text(encoding="utf-8"))
             self.assertTrue((data_dir / "students" / "astrid").is_dir())
+            self.assertTrue((data_dir / "family_registry.json").exists())
 
             profiles = json.loads(profiles_path.read_text(encoding="utf-8"))
             astrid = next(item for item in profiles if item["id"] == "astrid")
