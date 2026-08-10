@@ -48,6 +48,7 @@ files only carry *(Delta: …)* notes, not status history.
 | AWS IoT Jobs remote update foundation | `22a7589` + `f806498` | FR-058/API-027/SEC-022/AC-031/TEST-019 — local polling worker, systemd service/timer, station config examples, least-privilege IoT Jobs policy template, docs, and regression tests are implemented. AWS Things and per-station inline Jobs data-plane policies are provisioned for the three deployed station IDs. Astrid/Liara has the timer enabled and successfully consumed live `update-app` Job `morsepi-update-astrid-liara-20260808-0709`; Pappy remains manual-file install and Campbell/Olivea is pending reconnection. |
 | Remote maintenance cost guardrail | 2026-08-08 working tree | NFR-019/AC-032/TEST-020 — specs now require normal three-station remote maintenance to stay under `$1/month` where practical and require fixed monthly per-device tools such as Systems Manager to be documented as explicit temporary troubleshooting choices before activation. |
 | D/U Words catalog expansion | 2026-08-10 `cc41418` + working tree | FR-056/AC-033 — D/U now adds 14 practice words; a student who completed the prior 42-word catalog sees 42/56 words complete (75%) until the new words are practiced. Main is updated; station release rollout remains pending. |
+| C/W/H/L Words catalog expansion | 2026-08-10 working tree | FR-056/AC-034 — C/W/H/L now adds 24 practice words; a student who completed the prior 56-word catalog sees 56/80 words complete (70%) until the new words are practiced. Station release rollout remains pending. |
 
 **Note 1 (FR-012):** over-limit text is silently **truncated** (`limited_text`),
 not rejected; only bodies > 16 KB get a hard 413. The OOM DoS is closed
@@ -133,3 +134,4 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | AC-031 remote update Jobs | — | 🟡 | Fake Jobs adapter tests pass for accepted/rejected/no-op paths, including AWS string job documents; Astrid/Liara live Job succeeded; remaining station rollout pending |
 | AC-032 remote maintenance cost guardrail | — | 🟡 | Spec guardrail added; keep reviewing AWS docs/billing before activating any fixed monthly remote-admin service |
 | AC-033 D/U Words expansion | — | 🟡 | Regression fixture covers 42/56 completion after D/U unlock; live station rollout remains pending |
+| AC-034 C/W/H/L Words expansion | — | 🟡 | Regression fixture covers 56/80 completion after C/W/H/L unlock; live station rollout remains pending |

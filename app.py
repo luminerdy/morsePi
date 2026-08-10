@@ -261,7 +261,10 @@ word_practice_bank = [
     "MEAN", "MEAT", "MOON", "SOON", "TEAM", "TONE", "NOTE", "SEAT", "STEM",
     "STONE",
     "AND", "END", "SAD", "SUN", "RUN", "RED", "KID", "MUD", "TUNE", "DUNE",
-    "SEND", "SAND", "SOUND", "ROUND"
+    "SEND", "SAND", "SOUND", "ROUND",
+    "COW", "HOW", "LOW", "LAW", "CALL", "WALL", "WELL", "HILL", "COOL",
+    "COLD", "HOLD", "DUCK", "LUCK", "LOCK", "ROCK", "ROLL", "TELL",
+    "HELLO", "WORLD", "WORD", "CODE", "HOME", "HOUSE", "MOUSE"
 ]
 word_practice_phases = ("unfinished", "unfinished", "unfinished", "review", "review")
 

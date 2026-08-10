@@ -292,7 +292,9 @@ from the current code (legacy status per requirement is tracked in
   available to adult analysis but SHALL not be the primary student score. When
   a newly active letter group expands the available Words catalog, the newly
   available words SHALL start incomplete; for example, adding D and U after the
-  prior 42-word set is complete SHALL show 42/56 words complete, not 100%.
+  prior 42-word set is complete SHALL show 42/56 words complete, not 100%, and
+  adding C, W, H, and L after the prior 56-word set is complete SHALL show
+  56/80 words complete, not 100%.
 
 ## Student identity
 

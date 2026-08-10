@@ -195,6 +195,12 @@ correctness checks. Each is encoded as an automated test per
   A D/U-enabled word such as `AND` SHALL be available for practice, and newly
   available D/U words SHALL not inherit completion credit from the prior
   catalog.
+- **AC-034** (FR-056) Given a student with the starter, S/O, R/K, D/U, and
+  C/W/H/L groups active and all prior 56 Words prompts completed, opening
+  `/touch/words` and Progress SHALL display `70%` and `56/80 words complete`.
+  A C/W/H/L-enabled word such as `COW` SHALL be available for practice, and
+  newly available C/W/H/L words SHALL not inherit completion credit from the
+  prior catalog.
 
 ## Coverage rule
 

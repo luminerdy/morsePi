@@ -1000,6 +1000,62 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("75% · 42/56 words complete", html)
         self.assertIn('data-word-target="AND"', html)
 
+    def test_touch_words_completion_drops_when_c_w_h_l_adds_new_words(self):
+        du_letters = app_module.starter_practice_letters + ["S", "O", "R", "K", "D", "U"]
+        cwhl_letters = du_letters + ["C", "W", "H", "L"]
+        self.complete_progress("pappy", cwhl_letters)
+        self.set_learning_state(
+            "pappy",
+            {
+                "SO": {
+                    "first_learning_date": "2000-01-01",
+                    "letters": ["S", "O"],
+                },
+                "RK": {
+                    "first_learning_date": "2000-01-02",
+                    "letters": ["R", "K"],
+                },
+                "DU": {
+                    "first_learning_date": "2000-01-03",
+                    "letters": ["D", "U"],
+                },
+                "CWHL": {
+                    "first_learning_date": "2000-01-04",
+                    "letters": ["C", "W", "H", "L"],
+                },
+            },
+            last_learning_start_date="2000-01-04",
+        )
+        du_words = app_module.available_word_practice_words(du_letters)
+        path = self.student_file("pappy", "word_attempts.jsonl")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            "\n".join(
+                json.dumps(
+                    {
+                        "correct": True,
+                        "word": word,
+                        "timestamp": "2026-06-21T00:00:00+00:00",
+                    },
+                    sort_keys=True,
+                )
+                for word in du_words
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        summary = app_module.word_progress_summary(cwhl_letters)
+        response = self.client.get("/touch/words")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(56, len(du_words))
+        self.assertEqual(80, summary["available"])
+        self.assertEqual(56, summary["unique_correct"])
+        self.assertEqual(70, summary["completion"])
+        self.assertIn("70% · 56/80 words complete", html)
+        self.assertIn('data-word-target="COW"', html)
+
     def test_desktop_practice_retry_does_not_print_raw_morse(self):
         app_module.practice_target = "A"
         app_module.get_current_key_morse = lambda: ".."
