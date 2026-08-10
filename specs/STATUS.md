@@ -5,7 +5,7 @@ knows what it inherits. This file is updated on each re-review; requirement
 files only carry *(Delta: …)* notes, not status history.
 
 - **Baseline review:** `33df851` (2026-07-02)
-- **Latest legacy-code re-review:** AWS IoT Jobs remote update foundation (2026-08-08)
+- **Latest legacy-code re-review:** Private family registry transition (2026-08-10)
 - **Spec package location:** root `specs/`
 
 ## Changes landed since baseline
@@ -44,6 +44,7 @@ files only carry *(Delta: …)* notes, not status history.
 | Adaptive Words rotation | 2026-08-07 working tree | FR-056/AC-027 — new sessions start with unfinished work, advancement mixes three unfinished Words with two completed reviews, weaker reviews come first, and progress explicitly says `words complete` |
 | Attainable Words completion score | 2026-08-07 working tree | FR-056/AC-027 — kid-facing Words and Progress percentages now measure distinct words completed, allowing 42/42 to display 100%; lifetime accuracy remains stored for adult analysis |
 | Permanent family student UUIDs | `f3226ae`...`6e0080c` | FR-057/DR-020/SEC-021/AC-030 — canonical UUID registry, compatible profile/attempt/snapshot/message enrichment, backed-up idempotent migration, fail-closed identity checks, and offline updater catch-up are implemented. AWS router, Pappy, and Astrid/Liara are deployed. A live 701-attempt hash/UUID comparison and Pappy-to-Astrid decoded-receipt round trip passed; Campbell/Olivea is pending reconnection. |
+| Private family registry transition | `ac07658` | DR-020/SEC-012/SEC-021 - app now prefers ignored `data/family_registry.json`, falls back to tracked `config/family_registry.json`, and migration copies the tracked registry into private station data so real family names/UUIDs can later be removed from public examples without breaking deployed identity checks. |
 | AWS IoT Jobs remote update foundation | `22a7589` + `f806498` | FR-058/API-027/SEC-022/AC-031/TEST-019 — local polling worker, systemd service/timer, station config examples, least-privilege IoT Jobs policy template, docs, and regression tests are implemented. AWS Things and per-station inline Jobs data-plane policies are provisioned for the three deployed station IDs. Astrid/Liara has the timer enabled and successfully consumed live `update-app` Job `morsepi-update-astrid-liara-20260808-0709`; Pappy remains manual-file install and Campbell/Olivea is pending reconnection. |
 | Remote maintenance cost guardrail | 2026-08-08 working tree | NFR-019/AC-032/TEST-020 — specs now require normal three-station remote maintenance to stay under `$1/month` where practical and require fixed monthly per-device tools such as Systems Manager to be documented as explicit temporary troubleshooting choices before activation. |
 
@@ -82,7 +83,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-053 cloud message router | ✅ | Narrow-role Lambda and three S3 notifications deployed in `us-east-1`; live routing and receipts verified |
 | FR-055 prominent practice result | ✅ | Shared title-bar result is covered across all touch practice modes without changing page height or scoring |
 | FR-056 adaptive attainable Words | ✅ | Unfinished/review cadence and distinct-word completion score are implemented and covered |
-| FR-057/DR-020/SEC-021 permanent identity | ✅ | Canonical family UUIDs, compatibility aliases, idempotent migration, Guest exclusion, and fail-closed mismatch checks are implemented and live-rehearsed |
+| FR-057/DR-020/SEC-021 permanent identity | ✅ | Canonical family UUIDs, compatibility aliases, private registry preference with tracked fallback, idempotent migration, Guest exclusion, and fail-closed mismatch checks are implemented and live-rehearsed |
 | FR-058/API-027/SEC-022 remote update Jobs | 🟡 | Local worker, systemd timer, config examples, docs, policy template, and AWS Things/policies are ready; Astrid/Liara live `update-app` Job succeeded; Pappy/Campbell rollout pending |
 | SEC-001 CSRF | ❌ | No tokens anywhere |
 | SEC-002/003 mandatory PIN + lockout | 🟡 | PIN remains optional for development, but configured PINs now use constant-time comparison and a short in-memory lockout after repeated failures |

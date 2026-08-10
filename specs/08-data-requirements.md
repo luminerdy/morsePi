@@ -5,8 +5,8 @@
   MAY override it with `MORSE_DATA_DIR`. Layout:
   `data/station_config.json`, `data/timing_settings.json`,
   `data/volume_settings.json`,
-  `data/student_profiles.json`, `data/students/<id>/…`, `data/backups/`,
-  `data/student_backups/`.
+  `data/student_profiles.json`, `data/family_registry.json`,
+  `data/students/<id>/…`, `data/backups/`, `data/student_backups/`.
 - **DR-002** Per-student files: `profile.json`, `practice_progress.json`,
   `learning_state.json`, `practice_attempts.jsonl`, `word_attempts.jsonl`,
   `bonus_attempts.jsonl`. Every file's schema SHALL be documented (DOC-06)
@@ -32,7 +32,10 @@
   `students[]` defines who can sign in locally; `family_students[]` defines the
   approved messaging directory and MAY include students who normally use a
   different station.
-  Named entries SHALL carry the UUID assigned by `config/family_registry.json`.
+  Named entries SHALL carry the UUID assigned by the canonical family registry.
+  Real deployed-family registry data SHOULD live in ignored
+  `data/family_registry.json`; tracked `config/family_registry.json` is only a
+  fallback/template after stations have migrated.
 - **DR-006** Backup archive: zip named `<UTCstamp>-<station>-<label>.zip`
   containing `data/…` relative paths + `manifest.json`
   (`format: morse-station-data-backup-v1`); restore SHALL validate the
@@ -102,10 +105,14 @@
   older records without `attempt_id` SHALL use a deterministic legacy fallback
   key. The detailed merge contract is documented in
   `docs/STUDENT_PROGRESS_SYNC_DESIGN.md`.
-- **DR-020** `config/family_registry.json` SHALL assign exactly one immutable,
-  unique RFC 4122 UUID to each named family student. UUIDs are canonical person
-  identity; legacy IDs remain folder, cookie, and cloud-path aliases during the
-  compatibility phase. Migration SHALL be idempotent, create timestamped
-  metadata/config backups, never rename student directories, and preserve old
-  records. Readers SHALL enrich UUID-less records through the registry and
-  reject a supplied ID/UUID conflict. Display-name edits SHALL not change UUIDs.
+- **DR-020** The canonical family registry SHALL assign exactly one immutable,
+  unique RFC 4122 UUID to each named family student. Deployed stations SHALL
+  prefer ignored `data/family_registry.json` for real family identities and MAY
+  fall back to tracked `config/family_registry.json` only during transition or
+  setup. UUIDs are canonical person identity; legacy IDs remain folder, cookie,
+  and cloud-path aliases during the compatibility phase. Migration SHALL be
+  idempotent, create timestamped metadata/config backups, copy the tracked
+  registry into private station data when needed, never rename student
+  directories, and preserve old records. Readers SHALL enrich UUID-less records
+  through the registry and reject a supplied ID/UUID conflict. Display-name
+  edits SHALL not change UUIDs.

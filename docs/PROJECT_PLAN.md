@@ -1,5 +1,84 @@
 # Pappy's Internet Telegraph Project Plan
 
+## 2026-08-10 - Home Wi-Fi checklist and family-data privacy groundwork
+
+- Added a screenshot-based Home Wi-Fi setup checklist for stations arriving at
+  a new house. The guide walks an adult through the operator picker, touch menu,
+  Admin System status, Wi-Fi setup, sync expectations, and basic recovery.
+- Sanitized the checklist screenshots so they use sample names (`Alex`,
+  `Jordan`, `Taylor`, `Morgan`, `Riley`) and sample network values
+  (`Home-WiFi`, `Station-01`, `192.168.x.x`) instead of family names, home
+  network names, or local IPs.
+- Linked the checklist from the README and grandkid deployment checklist.
+- Reviewed the repo for family names. Confirmed real names remain in tracked
+  config examples, AWS/station docs, specs/status history, tests, scripts, and
+  older historical screenshots.
+- Decided not to immediately replace every real name in GitHub because
+  `config/family_registry.json` is still a live canonical UUID registry used by
+  deployed stations, messaging, and progress sync.
+- Added private family-registry support: the app now prefers ignored
+  `data/family_registry.json` and falls back to tracked
+  `config/family_registry.json` until a station has completed migration.
+- Updated the student-UUID migration to copy the tracked registry into
+  `data/family_registry.json` on each station if the private file does not
+  already exist.
+- Added `data/family_registry.json` to `.gitignore`.
+- Added `docs/PRIVACY_AND_FAMILY_DATA.md` with the safe anonymization sequence
+  and screenshot guidance.
+- Updated setup docs and specs/status for the private-registry transition.
+- Validation passed locally: `python -m unittest discover -s tests` ran 223
+  tests successfully with 132 skipped.
+
+### Daily Wrap-Up
+
+**Accomplishments**
+
+- Created and pushed the Home Wi-Fi setup checklist with sanitized screenshots.
+- Removed the visible real-name/network leak from the new checklist branch
+  history by replacing the checklist commit on both `main` and `release/pi`.
+- Built the first safe step toward anonymizing the broader GitHub repo:
+  real family identity data can now live in ignored station-local
+  `data/family_registry.json`.
+- Added tests covering the private-registry migration behavior.
+- Pushed privacy groundwork to `main` (`ac07658`) and `release/pi`
+  (`7f1cc41`).
+
+**Decisions**
+
+- Do not replace the tracked family registry with sample names until deployed
+  stations have copied the current real registry into ignored
+  `data/family_registry.json`.
+- Treat real names, UUIDs, and family rosters as operational private data.
+  Public examples, screenshots, and future docs should use sample operators.
+- Keep older public-name cleanup as a separate follow-up after the migration is
+  deployed and verified on each station.
+
+**Station and data state**
+
+- Pappy: still a manual-file install, so it will need a direct update or later
+  conversion to a Git checkout before it benefits from the same updater path.
+- Astrid/Liara: `release/pi` now contains the private-registry migration; next
+  online update should create `data/family_registry.json`.
+- Campbell/Olivea: `release/pi` contains the same migration; verify after the
+  station reconnects.
+- GitHub still contains real names in older docs/config/tests/history by
+  design for now; the new privacy doc captures the safe sequence to finish the
+  cleanup.
+
+**Next steps**
+
+1. Deploy or trigger update on each station so `data/family_registry.json` is
+   created from the current real registry.
+2. Verify `data/family_registry.json` exists on each station and that practice,
+   backup, sync, and messages still work.
+3. After verification, replace tracked examples/docs/screenshots/tests with
+   sample names and sample station IDs where practical.
+4. Review older historical screenshots under
+   `docs/screenshots/current-app-2026-07-04/` and either sanitize, archive
+   privately, or remove them from public docs.
+5. Continue delivery readiness: confirm grandkid stations connect to home
+   Wi-Fi, upload backup/status, sync progress, and remain remotely updateable.
+
 ## 2026-08-08 - AWS IoT remote update trigger
 
 - Added the first AWS IoT Jobs based remote-update worker. A station can now
