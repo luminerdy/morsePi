@@ -52,7 +52,10 @@ belongs in the rebuilt repo's `SECURITY.md` (DOC-04).
   names MAY be uploaded only with explicit config opt-in; default uploads use
   student IDs only. Family message text MAY be uploaded only for the messaging
   feature, SHALL be restricted to configured family recipients, and SHALL
-  follow the retention rules documented in `SECURITY.md` and DOC-13.
+  follow the retention rules documented in `SECURITY.md` and DOC-13. Tracked
+  examples, documentation screenshots, and public rebuild artifacts SHOULD use
+  sample names and sample network values instead of real child names, home
+  SSIDs, or local IPs.
 - **SEC-013** *(MVP)* Cookies: `SameSite=Lax`, `HttpOnly` for session/student
   cookies; session IDs from `uuid4`, validated as 32-hex on receipt.
 - **SEC-014** *(MVP)* Secrets (PIN, any future tokens) SHALL live outside
