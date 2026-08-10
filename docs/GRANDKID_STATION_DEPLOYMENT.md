@@ -6,6 +6,7 @@ Primary references:
 
 - Fresh Pi setup: [SETUP_AND_CONFIGURE_PI.md](SETUP_AND_CONFIGURE_PI.md)
 - Remote backup/update notes: [REMOTE_DEPLOYMENT_AWS.md](REMOTE_DEPLOYMENT_AWS.md)
+- Home Wi-Fi setup with screenshots: [HOME_WIFI_SETUP_CHECKLIST.md](HOME_WIFI_SETUP_CHECKLIST.md)
 - Hardware list: [BILL_OF_MATERIALS.md](BILL_OF_MATERIALS.md)
 - Kid handout: [KIDS_QUICK_START_HANDOUT.pdf](KIDS_QUICK_START_HANDOUT.pdf)
 
@@ -167,6 +168,9 @@ curl -I http://localhost:5000/touch
 ```
 
 Expected result: service is active and `/touch` responds.
+
+For new-house Wi-Fi setup without a keyboard, follow
+[HOME_WIFI_SETUP_CHECKLIST.md](HOME_WIFI_SETUP_CHECKLIST.md).
 
 ## 5. Student Profiles
 
