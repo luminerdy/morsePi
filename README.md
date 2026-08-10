@@ -78,6 +78,7 @@ GPIO layout:
 - [Fresh Pi setup](docs/SETUP_AND_CONFIGURE_PI.md)
 - [Grandkid station deployment checklist](docs/GRANDKID_STATION_DEPLOYMENT.md)
 - [Home Wi-Fi setup checklist](docs/HOME_WIFI_SETUP_CHECKLIST.md)
+- [Privacy and family data](docs/PRIVACY_AND_FAMILY_DATA.md)
 - [Remote backup, status, and update runbook](docs/REMOTE_BACKUP_STATUS_RUNBOOK.md)
 - [AWS setup reference](docs/AWS_SETUP_REFERENCE.md)
 - [AWS backup and sync design](docs/AWS_BACKUP_SYNC_DESIGN.md)

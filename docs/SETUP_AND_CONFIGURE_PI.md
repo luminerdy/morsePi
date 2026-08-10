@@ -286,6 +286,8 @@ config/stations/campbell-olivea-station.example.json
 ```
 
 `data/station_config.json` is intentionally ignored by Git because it is different for each Pi.
+Real family identity data should also live in ignored
+`data/family_registry.json`; see [PRIVACY_AND_FAMILY_DATA.md](PRIVACY_AND_FAMILY_DATA.md).
 
 ## 6. Wire the Hardware
 
