@@ -1118,6 +1118,22 @@ class RouteRenderTests(unittest.TestCase):
     def test_touch_message_word_bank_browses_and_appends_known_words(self):
         self.unlock_messages("pappy")
         self.unlock_messages("astrid")
+        self.write_text_file(
+            "pappy",
+            "word_attempts.jsonl",
+            "\n".join([
+                json.dumps({
+                    "correct": True,
+                    "timestamp": "2026-06-21T00:00:00+00:00",
+                    "word": "ME",
+                }, sort_keys=True),
+                json.dumps({
+                    "correct": False,
+                    "timestamp": "2026-06-21T00:01:00+00:00",
+                    "word": "SO",
+                }, sort_keys=True),
+            ]) + "\n",
+        )
 
         browse_response = self.client.get("/touch/messages/word-bank")
         choose_response = self.client.get("/touch/messages/word-bank?to=astrid")
@@ -1134,6 +1150,10 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("Words I Know", browse_html)
         self.assertIn("42", browse_html)
         self.assertIn("First Words", browse_html)
+        self.assertIn("word-status-done", browse_html)
+        self.assertIn("word-status-tried", browse_html)
+        self.assertIn(">Done<", browse_html)
+        self.assertIn(">Tried<", browse_html)
         self.assertEqual(200, choose_response.status_code)
         self.assertIn("Words With Astrid", choose_html)
         self.assertIn('name="action" value="append-word"', choose_html)

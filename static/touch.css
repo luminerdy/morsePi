@@ -957,7 +957,7 @@
     display: grid;
     place-items: center;
     align-content: center;
-    gap: 4px;
+    gap: 2px;
     color: var(--text);
     background: #f7f9fb;
     border: 1px solid var(--border);
@@ -977,6 +977,43 @@
     font-size: 13px;
     font-weight: 900;
     line-height: 14px;
+}
+
+.touch-word-bank-grid button em,
+.touch-word-bank-tile em {
+    padding: 1px 6px;
+    color: var(--muted);
+    background: #edf1f4;
+    border-radius: 999px;
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 900;
+    line-height: 13px;
+    text-transform: uppercase;
+}
+
+.touch-word-bank-grid .word-status-tried,
+.touch-word-bank-tile.word-status-tried {
+    background: #fff7df;
+    border-color: #e9c66c;
+}
+
+.touch-word-bank-grid .word-status-tried em,
+.touch-word-bank-tile.word-status-tried em {
+    color: #80580f;
+    background: #ffeab3;
+}
+
+.touch-word-bank-grid .word-status-done,
+.touch-word-bank-tile.word-status-done {
+    background: #e8f7ee;
+    border-color: #87cda5;
+}
+
+.touch-word-bank-grid .word-status-done em,
+.touch-word-bank-tile.word-status-done em {
+    color: #17633a;
+    background: #c9ecd7;
 }
 
 .touch-review-layout {

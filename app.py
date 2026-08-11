@@ -3736,8 +3736,19 @@ def message_word_tiles(text):
     ]
 
 
-def word_bank_groups(allowed_letters):
+def word_bank_groups(allowed_letters, attempts=None):
     allowed = {str(letter).upper() for letter in allowed_letters}
+    attempts = load_word_attempts() if attempts is None else attempts
+    word_stats = {}
+    for attempt in attempts:
+        word = str(attempt.get("word", "")).upper()
+        if not word:
+            continue
+        stats = word_stats.setdefault(word, {"attempts": 0, "correct": 0})
+        stats["attempts"] += 1
+        if attempt.get("correct"):
+            stats["correct"] += 1
+
     steps = [
         {
             "label": "First Words",
@@ -3773,6 +3784,15 @@ def word_bank_groups(allowed_letters):
                     {
                         "word": word,
                         "morse": text_to_morse(word),
+                        "attempts": word_stats.get(word, {}).get("attempts", 0),
+                        "correct": word_stats.get(word, {}).get("correct", 0),
+                        "status": (
+                            "done"
+                            if word_stats.get(word, {}).get("correct", 0)
+                            else "tried"
+                            if word_stats.get(word, {}).get("attempts", 0)
+                            else "new"
+                        ),
                     }
                     for word in words
                 ],
