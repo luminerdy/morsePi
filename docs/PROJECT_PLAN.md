@@ -1,5 +1,50 @@
 # Pappy's Internet Telegraph Project Plan
 
+## 2026-08-11 - Pappy Git update path
+
+- Converted the Pappy station from a manual-file install into a Git checkout
+  tracking `origin/release/pi` at `4fe2dbd`.
+- Preserved Pappy's existing `data/` folder, student progress, station config,
+  backup/sync state, and message data during the conversion.
+- Kept timestamped safety copies on the Pi:
+  `/home/morse/morse-station.pre-git-20260811T123104Z` and
+  `/home/morse/morse-station.manual-20260811T123104Z`.
+- Reinstalled the current user systemd app service, local update service/timer,
+  and AWS IoT remote-update service/timer from the repo.
+- Enabled `morse-station-update.timer` and
+  `morse-station-remote-update.timer`; both timers are active.
+- Ran the local update service successfully. It backed up, confirmed the
+  checkout was current, wrote station status/snapshots, uploaded the latest
+  progress snapshot, and left the app service healthy.
+- Ran the IoT remote-update poller successfully. It reached AWS IoT Jobs and
+  recorded `no-pending-job` for `pappy-test-station`.
+- Confirmed least privilege: the station IAM user cannot create IoT Jobs
+  (`iot:CreateJob` denied). That is expected; Pappy can consume update jobs,
+  but jobs must be created by the admin/control-plane credentials.
+- Live app check passed after conversion: `/touch` responds, the app service is
+  active, and `Words I Know` still renders.
+
+### Daily Start Notes
+
+- Pappy can now be used as the normal test station while exercising the same
+  Git + local update + IoT poller path as the remote stations.
+- To test a full remote update, create an AWS IoT Job from the admin AWS
+  credentials with action `update-app`; Pappy should consume it within about 15
+  minutes or immediately if `morse-station-remote-update.service` is started.
+- Continue to treat `release/pi` as the deliberate deployment branch. Test on
+  Pappy first, then push/trigger the grandkid stations when ready.
+
+**Next steps**
+
+1. Create one admin-side smoke `update-app` Job for Pappy to verify the full
+   remote trigger path end to end.
+2. Decide whether to keep Pappy's 6-hour local update timer active alongside
+   IoT Jobs, or only use on-demand update jobs.
+3. Continue Message Builder Slice 2: require students to key each selected word
+   before sending.
+4. When Campbell/Olivea reconnects, confirm it reaches the current
+   `release/pi` and has the same update timers active.
+
 ## 2026-08-10 - Home Wi-Fi checklist and family-data privacy groundwork
 
 - Added a screenshot-based Home Wi-Fi setup checklist for stations arriving at
