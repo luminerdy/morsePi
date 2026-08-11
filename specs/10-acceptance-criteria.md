@@ -74,10 +74,12 @@ correctness checks. Each is encoded as an automated test per
 - **AC-015** (FR-039...FR-043 / NFR-013 / NFR-016) On an 800x480 fixture,
   an eligible student can choose a family recipient, add a filtered word, key
   another complete available word with natural letter pauses, see
-  letter-over-Morse tiles grouped by word, replace and delete a tile, play the
+  letter-over-Morse tiles grouped by word, open a scrollable Word Bank with all
+  shared available words grouped by unlock set, append a selected word, replace
+  an existing word from the Word Bank, move and remove word tiles, play the
   draft, return from Review to edit, and explicitly send it without a keyboard
-  or page scrolling. Primary message actions have centered labels. An
-  incomplete, unknown, or unavailable keyed word is not added.
+  or scrolling on the core compose/review screens. Primary message actions have
+  centered labels. An incomplete, unknown, or unavailable keyed word is not added.
   Retrying a partially keyed word clears only the live key buffer and preserves
   every completed word already in the draft. Live decoded readouts remain blank
   until the student keys input, then show the decoded character or `?` for an

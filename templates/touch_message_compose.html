@@ -36,11 +36,23 @@
                 {% endfor %}
             </main>
         {% else %}
-            <main class="touch-compose-layout {% if edit_index is not none %}editing{% endif %}" data-message-compose>
+            <main class="touch-compose-layout {% if edit_index is not none or edit_word_index is not none %}editing{% endif %}" data-message-compose>
                 <section class="touch-message-panel touch-compose-draft">
                     <div class="touch-compose-heading">
                         <span>Your Message</span>
                         <small>{{ draft.text | replace(" ", "") | length }}/20 letters · 3 words max</small>
+                    </div>
+                    <div class="touch-word-draft {% if not draft_words %}empty{% endif %}">
+                        {% if draft_words %}
+                            {% for item in draft_words %}
+                                <a href="/touch/messages/compose?to={{ recipient.id }}&edit_word={{ item.index }}" class="touch-draft-word {% if edit_word_index == item.index %}selected{% endif %}">
+                                    <strong>{{ item.word }}</strong>
+                                    <small>{{ item.morse | morse_visual }}</small>
+                                </a>
+                            {% endfor %}
+                        {% else %}
+                            <p>Pick words you both know.</p>
+                        {% endif %}
                     </div>
                     <div class="touch-letter-tiles {% if not tiles %}empty{% endif %}">
                         {% if tiles %}
@@ -62,7 +74,31 @@
                     {% if error %}<div class="touch-message-error">{{ error }}</div>{% endif %}
                 </section>
 
-                {% if edit_index is not none %}
+                {% if edit_word_index is not none %}
+                    <section class="touch-message-panel touch-compose-word-editor">
+                        <span>Change {{ draft_words[edit_word_index].word }}</span>
+                        <a class="button primary" href="/touch/messages/word-bank?to={{ recipient.id }}&action=replace-word&word_index={{ edit_word_index }}">Replace</a>
+                        <form method="post" action="/touch/messages/draft">
+                            <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
+                            <input type="hidden" name="action" value="move-word-left">
+                            <input type="hidden" name="word_index" value="{{ edit_word_index }}">
+                            <button class="button secondary" type="submit">Move Left</button>
+                        </form>
+                        <form method="post" action="/touch/messages/draft">
+                            <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
+                            <input type="hidden" name="action" value="move-word-right">
+                            <input type="hidden" name="word_index" value="{{ edit_word_index }}">
+                            <button class="button secondary" type="submit">Move Right</button>
+                        </form>
+                        <form method="post" action="/touch/messages/draft">
+                            <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
+                            <input type="hidden" name="action" value="delete-word">
+                            <input type="hidden" name="word_index" value="{{ edit_word_index }}">
+                            <button class="button secondary" type="submit">Remove</button>
+                        </form>
+                        <a class="button secondary" href="/touch/messages/compose?to={{ recipient.id }}">Done</a>
+                    </section>
+                {% elif edit_index is not none %}
                     <section class="touch-message-panel touch-compose-editor">
                         <span>Change {{ draft.text[edit_index] }}</span>
                         <div class="touch-letter-picker">
@@ -113,6 +149,7 @@
                                     <button name="word" value="{{ word }}">{{ word }}</button>
                                 </form>
                             {% endfor %}
+                            <a class="touch-word-bank-link" href="/touch/messages/word-bank?to={{ recipient.id }}">More Words<br><small>{{ word_count }} total</small></a>
                         </div>
                     </section>
 

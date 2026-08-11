@@ -3680,6 +3680,27 @@ def mutate_message_draft(draft, action, recipient):
         text = ""
         pending_space = False
         clear_key_state()
+    elif action in ("replace-word", "delete-word", "move-word-left", "move-word-right"):
+        words = text.split()
+        try:
+            index = int(request.form.get("word_index", "-1"))
+        except ValueError as error:
+            raise MessageValidationError("Choose a word to change.") from error
+        if index < 0 or index >= len(words):
+            raise MessageValidationError("Choose a word to change.")
+        if action == "replace-word":
+            word = str(request.form.get("word") or "").strip().upper()
+            if word not in available_message_words(word_practice_bank, allowed):
+                raise MessageValidationError("That word is not available.")
+            words[index] = word
+        elif action == "delete-word":
+            words.pop(index)
+        elif action == "move-word-left" and index > 0:
+            words[index - 1], words[index] = words[index], words[index - 1]
+        elif action == "move-word-right" and index < len(words) - 1:
+            words[index + 1], words[index] = words[index], words[index + 1]
+        text = " ".join(words)
+        pending_space = False
     elif action in ("replace", "delete"):
         try:
             index = int(request.form.get("index", "-1"))
@@ -3701,6 +3722,62 @@ def mutate_message_draft(draft, action, recipient):
     draft["text"] = normalize_draft_candidate(text, allowed)
     draft["pending_space"] = pending_space
     return save_message_draft(student_profile_store.DATA_DIR, draft)
+
+
+def message_word_tiles(text):
+    return [
+        {
+            "index": index,
+            "word": word,
+            "morse": text_to_morse(word),
+            "letters": len(word),
+        }
+        for index, word in enumerate(str(text or "").split())
+    ]
+
+
+def word_bank_groups(allowed_letters):
+    allowed = {str(letter).upper() for letter in allowed_letters}
+    steps = [
+        {
+            "label": "First Words",
+            "letters": starter_practice_letters + word_practice_unlock_letters,
+        }
+    ]
+    active = list(starter_practice_letters)
+    for step in letter_unlock_steps:
+        active = active + [letter for letter in step["letters"] if letter not in active]
+        if all(letter in active for letter in word_practice_unlock_letters):
+            steps.append({
+                "label": f"{' '.join(step['letters'])} Words",
+                "letters": list(active),
+            })
+
+    groups = []
+    seen = set()
+    for step in steps:
+        step_letters = set(step["letters"])
+        words = [
+            word
+            for word in word_practice_bank
+            if word not in seen
+            and all(character in step_letters for character in word)
+            and all(character in allowed for character in word)
+        ]
+        if words:
+            seen.update(words)
+            groups.append({
+                "label": step["label"],
+                "letters": [letter for letter in all_practice_letters if letter in step_letters],
+                "words": [
+                    {
+                        "word": word,
+                        "morse": text_to_morse(word),
+                    }
+                    for word in words
+                ],
+            })
+    return groups
 
 
 def profile_name_map():
@@ -3955,8 +4032,11 @@ def touch_message_compose():
             recipients=message_recipient_options(),
             draft=None,
             tiles=[],
+            draft_words=[],
             word_tiles=[],
+            word_count=0,
             edit_index=None,
+            edit_word_index=None,
             error=request.args.get("error", ""),
         )
 
@@ -3967,6 +4047,14 @@ def touch_message_compose():
         edit_index = -1
     if edit_index < 0 or edit_index >= len(draft.get("text", "")) or draft.get("text", "")[edit_index] == " ":
         edit_index = None
+    try:
+        edit_word_index = int(request.args.get("edit_word", "-1"))
+    except ValueError:
+        edit_word_index = -1
+    draft_words = message_word_tiles(draft.get("text", ""))
+    if edit_word_index < 0 or edit_word_index >= len(draft_words):
+        edit_word_index = None
+    available_words = available_message_words(word_practice_bank, recipient["allowed_letters"])
 
     return render_template(
         "touch_message_compose.html",
@@ -3974,9 +4062,49 @@ def touch_message_compose():
         recipients=message_recipient_options(),
         draft=draft,
         tiles=message_tiles(draft.get("text", "")),
-        word_tiles=available_message_words(word_practice_bank, recipient["allowed_letters"])[:12],
+        draft_words=draft_words,
+        word_tiles=available_words[:6],
+        word_count=len(available_words),
         edit_index=edit_index,
+        edit_word_index=edit_word_index,
         error=request.args.get("error", ""),
+    )
+
+
+@app.route("/touch/messages/word-bank")
+def touch_message_word_bank():
+    if not message_page_allowed():
+        return redirect(url_for("touch_messages"))
+
+    recipient = message_recipient_for_id(request.args.get("to", ""))
+    action = request.args.get("action", "append-word")
+    if action not in ("append-word", "replace-word"):
+        action = "append-word"
+    try:
+        word_index = int(request.args.get("word_index", "-1"))
+    except ValueError:
+        word_index = -1
+
+    if recipient and recipient["eligible"]:
+        allowed_letters = recipient["allowed_letters"]
+        back_url = url_for("touch_message_compose", to=recipient["id"])
+        if action == "replace-word" and word_index >= 0:
+            back_url = url_for("touch_message_compose", to=recipient["id"], edit_word=word_index)
+    else:
+        recipient = None
+        allowed_letters = get_unlocked_practice_letters()
+        back_url = url_for("touch_messages")
+        action = ""
+        word_index = -1
+
+    return render_template(
+        "touch_message_word_bank.html",
+        recipient=recipient,
+        groups=word_bank_groups(allowed_letters),
+        word_count=len(available_message_words(word_practice_bank, allowed_letters)),
+        action=action,
+        word_index=word_index,
+        back_url=back_url,
     )
 
 

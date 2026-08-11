@@ -214,16 +214,20 @@ from the current code (legacy status per requirement is tracked in
 - **FR-041** The 800x480 composer SHALL work without a keyboard. It SHALL
   support (a) touch word tiles filtered to the allowable letters and (b)
   physical-key entry that captures and decodes one complete word from the
-  student's available Words practice set before adding it to the draft. Word
-  boundaries SHALL be inserted automatically. It SHALL provide touch controls
-  to retry the currently keyed word without changing the draft, undo the last
-  completed word, and clear the complete message as distinct actions.
+  student's available Words practice set before adding it to the draft. The
+  sender SHALL be able to open a scrollable touch Word Bank that lists all
+  available shared words grouped by unlock set and choose a word from that
+  list. Word boundaries SHALL be inserted automatically. It SHALL provide touch
+  controls to retry the currently keyed word without changing the draft, undo
+  the last completed word, and clear the complete message as distinct actions.
   Letter-at-a-time construction SHALL NOT be the primary message-keying flow.
 - **FR-042** A draft SHALL render as ordered letter tiles showing the plain
-  letter with its Morse code directly underneath. Selecting a tile SHALL let
-  the sender re-key it, replace it from the allowable-letter picker, or delete
-  it. The sender SHALL be able to play the complete draft through the speaker
-  and LED before sending.
+  letter with its Morse code directly underneath and SHALL also render ordered
+  word tiles for draft-level editing. Selecting a word SHALL let the sender
+  replace it from the Word Bank, remove it, or move it left/right without
+  erasing the rest of the draft. Selecting a letter MAY remain available for
+  fine correction. The sender SHALL be able to play the complete draft through
+  the speaker and LED before sending.
 - **FR-043** Sending SHALL require a separate review screen that shows the
   receiver, complete text, letter-by-letter Morse, and a Play action. The
   message SHALL remain editable until an explicit receiver-named Send action;
