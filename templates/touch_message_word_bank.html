@@ -39,15 +39,17 @@
                                         <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
                                         <input type="hidden" name="action" value="{{ action }}">
                                         {% if action == "replace-word" %}<input type="hidden" name="word_index" value="{{ word_index }}">{% endif %}
-                                        <button name="word" value="{{ item.word }}" type="submit">
+                                        <button class="word-status-{{ item.status }}" name="word" value="{{ item.word }}" type="submit">
                                             <strong>{{ item.word }}</strong>
                                             <small>{{ item.morse | morse_visual }}</small>
+                                            <em>{% if item.status == "done" %}Done{% elif item.status == "tried" %}Tried{% else %}New{% endif %}</em>
                                         </button>
                                     </form>
                                 {% else %}
-                                    <div class="touch-word-bank-tile">
+                                    <div class="touch-word-bank-tile word-status-{{ item.status }}">
                                         <strong>{{ item.word }}</strong>
                                         <small>{{ item.morse | morse_visual }}</small>
+                                        <em>{% if item.status == "done" %}Done{% elif item.status == "tried" %}Tried{% else %}New{% endif %}</em>
                                     </div>
                                 {% endif %}
                             {% endfor %}

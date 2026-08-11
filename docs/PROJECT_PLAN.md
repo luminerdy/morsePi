@@ -43,6 +43,9 @@
   `Words I Know` and shared recipient words, linked it from Messages and
   Compose, and added word-level draft controls so a selected word can be
   replaced, moved, or removed without clearing the whole message.
+- Added a Words practice shortcut to `Words I Know`; Word Bank tiles now show
+  whether each word is new, tried, or done based on the student's Words
+  practice attempts.
 - Decision: keep the normal compose/review screens fixed at 800x480, but allow
   the Word Bank to scroll because browsing is its purpose. Key-to-send
   validation is still Slice 2.

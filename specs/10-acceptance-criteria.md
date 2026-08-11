@@ -79,7 +79,9 @@ correctness checks. Each is encoded as an automated test per
   an existing word from the Word Bank, move and remove word tiles, play the
   draft, return from Review to edit, and explicitly send it without a keyboard
   or scrolling on the core compose/review screens. Primary message actions have
-  centered labels. An incomplete, unknown, or unavailable keyed word is not added.
+  centered labels. Words practice links to the same Word Bank, and the bank
+  marks words as new, tried, or done from the student's Words-practice attempt
+  log. An incomplete, unknown, or unavailable keyed word is not added.
   Retrying a partially keyed word clears only the live key buffer and preserves
   every completed word already in the draft. Live decoded readouts remain blank
   until the student keys input, then show the decoded character or `?` for an

@@ -217,10 +217,13 @@ from the current code (legacy status per requirement is tracked in
   student's available Words practice set before adding it to the draft. The
   sender SHALL be able to open a scrollable touch Word Bank that lists all
   available shared words grouped by unlock set and choose a word from that
-  list. Word boundaries SHALL be inserted automatically. It SHALL provide touch
-  controls to retry the currently keyed word without changing the draft, undo
-  the last completed word, and clear the complete message as distinct actions.
-  Letter-at-a-time construction SHALL NOT be the primary message-keying flow.
+  list. The Word Bank SHALL also be reachable from Words practice as `Words I
+  Know` and SHALL mark each word as new, tried, or done based on Words-practice
+  attempts. Word boundaries SHALL be inserted automatically. It SHALL provide
+  touch controls to retry the currently keyed word without changing the draft,
+  undo the last completed word, and clear the complete message as distinct
+  actions. Letter-at-a-time construction SHALL NOT be the primary
+  message-keying flow.
 - **FR-042** A draft SHALL render as ordered letter tiles showing the plain
   letter with its Morse code directly underneath and SHALL also render ordered
   word tiles for draft-level editing. Selecting a word SHALL let the sender
