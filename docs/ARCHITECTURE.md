@@ -175,8 +175,10 @@ flowchart LR
 1. Pappy promotes tested code to GitHub `release/pi`.
 2. Pappy creates an AWS IoT Job containing an allowed action such as
    `update-app`.
-3. A station polls IoT Jobs while online. Astrid/Liara currently has this
-   timer enabled and has completed a live `update-app` Job successfully.
+3. A station polls IoT Jobs while online. Pappy and Astrid/Liara currently
+   have this timer enabled; Astrid/Liara has completed a live `update-app` Job
+   successfully, and Pappy has completed a local update-service smoke test
+   after conversion to a Git checkout.
 4. The station worker starts the existing local update service, which backs up,
    fast-forwards, tests, restarts, health-checks, and reports status.
 5. The worker records local status and marks the AWS Job `SUCCEEDED` or
@@ -186,7 +188,7 @@ Current remote-update rollout:
 
 | Station | AWS IoT Thing | Remote-update timer | Status |
 |---|---|---|---|
-| `pappy-test-station` | Created | Not enabled | Pappy station is still a manual-file install; convert to Git checkout before remote `update-app` |
+| `pappy-test-station` | Created | Enabled | Converted to Git checkout on `release/pi`; local update timer and IoT Jobs poller enabled. Station credential can poll/consume Jobs but cannot create Jobs. |
 | `astrid-liara-station` | Created | Enabled | Live `update-app` Job succeeded |
 | `campbell-olivea-station` | Created | Pending | Station offline/pending reconnection |
 
