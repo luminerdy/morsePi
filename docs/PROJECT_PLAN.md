@@ -36,7 +36,7 @@
 - Added 24 C/W/H/L-enabled Words prompts (`COW`, `HOW`, `LOW`, `LAW`, `CALL`,
   `WALL`, `WELL`, `HILL`, `COOL`, `COLD`, `HOLD`, `DUCK`, `LUCK`, `LOCK`,
   `ROCK`, `ROLL`, `TELL`, `HELLO`, `WORLD`, `WORD`, `CODE`, `HOME`, `HOUSE`,
-  `MOUSE`). Once C/W/H/L are active, Words expands from 56 to 80 available
+  `CLOCK`). Once C/W/H/L are active, Words expands from 56 to 80 available
   words, so a student who completed the D/U set should show 56/80, or 70%,
   until the new words are completed.
 
