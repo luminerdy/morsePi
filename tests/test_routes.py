@@ -1115,6 +1115,67 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(1, len(list((self.students_dir / "pappy" / "message_outbox").glob("*.json"))))
         self.assertEqual(1, len(list((self.students_dir / "astrid" / "message_inbox").glob("*.json"))))
 
+    def test_touch_message_word_bank_browses_and_appends_known_words(self):
+        self.unlock_messages("pappy")
+        self.unlock_messages("astrid")
+
+        browse_response = self.client.get("/touch/messages/word-bank")
+        choose_response = self.client.get("/touch/messages/word-bank?to=astrid")
+        add_response = self.client.post(
+            "/touch/messages/draft",
+            data={"recipient_id": "astrid", "action": "append-word", "word": "ME"},
+        )
+        draft = json.loads(self.student_file("pappy", "message_draft.json").read_text(encoding="utf-8"))
+
+        browse_html = browse_response.get_data(as_text=True)
+        choose_html = choose_response.get_data(as_text=True)
+
+        self.assertEqual(200, browse_response.status_code)
+        self.assertIn("Words I Know", browse_html)
+        self.assertIn("42", browse_html)
+        self.assertIn("First Words", browse_html)
+        self.assertEqual(200, choose_response.status_code)
+        self.assertIn("Words With Astrid", choose_html)
+        self.assertIn('name="action" value="append-word"', choose_html)
+        self.assertIn('name="word" value="ME"', choose_html)
+        self.assertEqual(302, add_response.status_code)
+        self.assertEqual("ME", draft["text"])
+
+    def test_touch_message_word_level_edit_controls_update_draft(self):
+        self.unlock_messages("pappy")
+        self.unlock_messages("astrid")
+        for word in ["ME", "SO", "IN"]:
+            self.client.post(
+                "/touch/messages/draft",
+                data={"recipient_id": "astrid", "action": "append-word", "word": word},
+            )
+
+        edit_response = self.client.get("/touch/messages/compose?to=astrid&edit_word=1")
+        replace_response = self.client.post(
+            "/touch/messages/draft",
+            data={"recipient_id": "astrid", "action": "replace-word", "word_index": "1", "word": "AM"},
+        )
+        move_response = self.client.post(
+            "/touch/messages/draft",
+            data={"recipient_id": "astrid", "action": "move-word-left", "word_index": "2"},
+        )
+        delete_response = self.client.post(
+            "/touch/messages/draft",
+            data={"recipient_id": "astrid", "action": "delete-word", "word_index": "1"},
+        )
+        draft = json.loads(self.student_file("pappy", "message_draft.json").read_text(encoding="utf-8"))
+
+        edit_html = edit_response.get_data(as_text=True)
+
+        self.assertEqual(200, edit_response.status_code)
+        self.assertIn("Change SO", edit_html)
+        self.assertIn("Replace", edit_html)
+        self.assertIn("Move Left", edit_html)
+        self.assertEqual(302, replace_response.status_code)
+        self.assertEqual(302, move_response.status_code)
+        self.assertEqual(302, delete_response.status_code)
+        self.assertEqual("ME AM", draft["text"])
+
     def test_cloud_enabled_message_starts_queued_and_writes_learning_summary(self):
         self.unlock_messages("pappy")
         self.unlock_messages("astrid")

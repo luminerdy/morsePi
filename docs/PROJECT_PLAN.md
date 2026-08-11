@@ -39,6 +39,13 @@
   `CLOCK`). Once C/W/H/L are active, Words expands from 56 to 80 available
   words, so a student who completed the D/U set should show 56/80, or 70%,
   until the new words are completed.
+- Started Message Builder Slice 1: added a scrollable touch Word Bank for
+  `Words I Know` and shared recipient words, linked it from Messages and
+  Compose, and added word-level draft controls so a selected word can be
+  replaced, moved, or removed without clearing the whole message.
+- Decision: keep the normal compose/review screens fixed at 800x480, but allow
+  the Word Bank to scroll because browsing is its purpose. Key-to-send
+  validation is still Slice 2.
 
 ### Daily Wrap-Up
 

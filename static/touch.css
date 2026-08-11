@@ -22,6 +22,7 @@
 .touch-screen:has(.touch-message-locked),
 .touch-screen:has(.touch-recipient-grid),
 .touch-screen:has(.touch-compose-layout),
+.touch-screen:has(.touch-word-bank),
 .touch-screen:has(.touch-review-layout),
 .touch-screen:has(.touch-decode-layout),
 .touch-screen:has(.touch-key-layout),
@@ -522,7 +523,7 @@
     grid-column: 1;
     grid-row: 1;
     display: grid;
-    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-rows: auto 58px minmax(0, 1fr) auto;
     gap: 6px;
 }
 
@@ -558,6 +559,59 @@
     color: var(--muted);
     font-size: 17px;
     font-weight: 800;
+}
+
+.touch-word-draft {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+}
+
+.touch-word-draft.empty {
+    grid-template-columns: 1fr;
+    place-items: center;
+    color: var(--muted);
+    background: #f7f9fb;
+    border: 1px dashed var(--border);
+    border-radius: 7px;
+}
+
+.touch-word-draft.empty p {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.touch-draft-word {
+    min-width: 0;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 2px;
+    color: var(--text);
+    background: #edf5f0;
+    border: 1px solid #c7dfd0;
+    border-radius: 7px;
+    text-align: center;
+    text-decoration: none;
+}
+
+.touch-draft-word.selected {
+    background: #fff2c7;
+    border-color: #e6bd54;
+}
+
+.touch-draft-word strong {
+    color: var(--primary);
+    font-size: 18px;
+    line-height: 1;
+}
+
+.touch-draft-word small {
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 13px;
 }
 
 .touch-letter-tile {
@@ -670,25 +724,42 @@
 
 .touch-compose-words > div {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     grid-template-rows: repeat(2, minmax(48px, 1fr));
     gap: 5px;
 }
 
 .touch-compose-words form,
-.touch-compose-words button {
+.touch-compose-words button,
+.touch-word-bank-link {
     width: 100%;
     height: 100%;
     min-width: 0;
 }
 
 .touch-compose-words button,
-.touch-letter-picker button {
+.touch-letter-picker button,
+.touch-word-bank-link {
     color: var(--primary);
     background: #f7f9fb;
     border: 1px solid var(--border);
     border-radius: 7px;
     font-size: 16px;
+    font-weight: 900;
+}
+
+.touch-word-bank-link {
+    display: grid;
+    place-items: center;
+    align-content: center;
+    line-height: 17px;
+    text-align: center;
+    text-decoration: none;
+}
+
+.touch-word-bank-link small {
+    color: var(--muted);
+    font-size: 11px;
     font-weight: 900;
 }
 
@@ -732,6 +803,38 @@
     gap: 8px;
 }
 
+.touch-compose-word-editor {
+    grid-column: 1;
+    grid-row: 2;
+    display: grid;
+    grid-template-columns: 120px repeat(5, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 6px;
+}
+
+.touch-compose-word-editor > span {
+    align-self: center;
+    font-size: 16px;
+    font-weight: 900;
+    overflow-wrap: anywhere;
+}
+
+.touch-compose-word-editor form,
+.touch-compose-word-editor .button {
+    width: 100%;
+    height: 100%;
+}
+
+.touch-compose-word-editor .button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+    line-height: 18px;
+    text-align: center;
+    text-decoration: none;
+}
+
 .touch-compose-editor > span {
     align-self: center;
     font-size: 16px;
@@ -770,6 +873,110 @@
     align-items: center;
     justify-content: center;
     text-align: center;
+}
+
+.touch-word-bank {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 126px minmax(0, 1fr);
+    gap: 8px;
+}
+
+.touch-word-bank-summary {
+    min-width: 0;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 4px;
+    color: var(--text);
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.touch-word-bank-summary strong {
+    color: var(--primary);
+    font-size: 44px;
+    line-height: 1;
+}
+
+.touch-word-bank-summary span {
+    padding: 0 8px;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 16px;
+}
+
+.touch-word-bank-list {
+    min-height: 0;
+    display: grid;
+    align-content: start;
+    gap: 8px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.touch-word-bank-group {
+    display: grid;
+    gap: 5px;
+}
+
+.touch-word-bank-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.touch-word-bank-heading strong {
+    color: var(--text);
+}
+
+.touch-word-bank-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.touch-word-bank-grid form,
+.touch-word-bank-grid button,
+.touch-word-bank-tile {
+    min-width: 0;
+    width: 100%;
+}
+
+.touch-word-bank-grid button,
+.touch-word-bank-tile {
+    min-height: 64px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 4px;
+    color: var(--text);
+    background: #f7f9fb;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    text-align: center;
+}
+
+.touch-word-bank-grid button strong,
+.touch-word-bank-tile strong {
+    color: var(--primary);
+    font-size: 21px;
+    line-height: 1;
+}
+
+.touch-word-bank-grid button small,
+.touch-word-bank-tile small {
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 14px;
 }
 
 .touch-review-layout {

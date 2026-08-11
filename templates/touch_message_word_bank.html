@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+    <title>Word Bank - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260802-1">
+    <link rel="stylesheet" href="/static/touch.css?v=20260810-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="touch-ui">
+    <div class="touch-screen word-bank-screen">
+        <header class="touch-titlebar compact">
+            <div>
+                <p class="eyebrow">{% if recipient %}Words With {{ recipient.name }}{% else %}Words I Know{% endif %}</p>
+                <h1><a class="touch-student-link" href="/touch/students?next=/touch/daily">{{ current_student.name }}</a></h1>
+            </div>
+            <nav class="touch-top-actions">
+                <a class="touch-top-link" href="{{ back_url }}">Back</a>
+                <a class="touch-top-link" href="/touch/messages">Messages</a>
+            </nav>
+        </header>
+
+        <main class="touch-word-bank">
+            <section class="touch-word-bank-summary">
+                <strong>{{ word_count }}</strong>
+                <span>{% if recipient %}shared words ready{% else %}words ready{% endif %}</span>
+            </section>
+
+            <section class="touch-word-bank-list">
+                {% for group in groups %}
+                    <div class="touch-word-bank-group">
+                        <div class="touch-word-bank-heading">
+                            <strong>{{ group.label }}</strong>
+                            <span>{{ group.words | length }} words</span>
+                        </div>
+                        <div class="touch-word-bank-grid">
+                            {% for item in group.words %}
+                                {% if recipient %}
+                                    <form method="post" action="/touch/messages/draft">
+                                        <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
+                                        <input type="hidden" name="action" value="{{ action }}">
+                                        {% if action == "replace-word" %}<input type="hidden" name="word_index" value="{{ word_index }}">{% endif %}
+                                        <button name="word" value="{{ item.word }}" type="submit">
+                                            <strong>{{ item.word }}</strong>
+                                            <small>{{ item.morse | morse_visual }}</small>
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <div class="touch-word-bank-tile">
+                                        <strong>{{ item.word }}</strong>
+                                        <small>{{ item.morse | morse_visual }}</small>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </section>
+        </main>
+    </div>
+</body>
+</html>
