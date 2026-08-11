@@ -63,6 +63,22 @@
 - Added tests covering the private-registry migration behavior.
 - Pushed privacy groundwork to `main` (`ac07658`) and `release/pi`
   (`7f1cc41`).
+- Expanded Words practice for the D/U group and the C/W/H/L group. Words now
+  grows from 42 to 56 after D/U and from 56 to 80 after C/W/H/L, with
+  regression coverage for both completion drops.
+- Fixed the C/W/H/L word eligibility leak where `MOUSE` became available too
+  early at D/U; replaced it with `CLOCK` and added a lightweight curriculum
+  word-bank count test.
+- Added Message Builder Slice 1: a scrollable `Words I Know` / shared Word
+  Bank, word-level draft editing, replace/remove/move controls, and a compact
+  `More Words` path from Compose.
+- Added a Words practice `Known` link into `Words I Know`, plus word status
+  indicators: `New`, `Tried`, and `Done`.
+- Deployed the updated release to Pappy and verified live pages: Words shows
+  `42/56 words complete` after D/U, Messages shows `Words I Know`, and the
+  Word Bank renders practice-status badges.
+- Pushed the day's app work to `main` through `89121a4` and `release/pi`
+  through `ea443f8`.
 
 **Decisions**
 
@@ -73,15 +89,23 @@
   Public examples, screenshots, and future docs should use sample operators.
 - Keep older public-name cleanup as a separate follow-up after the migration is
   deployed and verified on each station.
+- Keep the Word Bank as the intentional scrollable reference screen while
+  keeping Words practice, Compose, and Review fixed for the 800x480 station.
+- Implement message building in slices: Slice 1 is word browse/pick/edit;
+  Slice 2 should require students to key each drafted word before sending.
 
 **Station and data state**
 
 - Pappy: still a manual-file install, so it will need a direct update or later
   conversion to a Git checkout before it benefits from the same updater path.
+  It was manually refreshed today from `release/pi` through `ea443f8`.
 - Astrid/Liara: `release/pi` now contains the private-registry migration; next
   online update should create `data/family_registry.json`.
 - Campbell/Olivea: `release/pi` contains the same migration; verify after the
   station reconnects.
+- `release/pi` also contains the D/U and C/W/H/L Words expansions, Word Bank,
+  and Words practice status indicators. Remote stations need their update path
+  to run before those changes appear there.
 - GitHub still contains real names in older docs/config/tests/history by
   design for now; the new privacy doc captures the safe sequence to finish the
   cleanup.
@@ -99,6 +123,11 @@
    privately, or remove them from public docs.
 5. Continue delivery readiness: confirm grandkid stations connect to home
    Wi-Fi, upload backup/status, sync progress, and remain remotely updateable.
+6. Message Builder Slice 2: require students to key each selected word before
+   sending, validate one word at a time, and allow retrying only the current
+   word without clearing the draft.
+7. Add later Words packs for P/F/Y/G, B/V/J/X, Q/Z, and numbers so each new
+   unlock continues to create practical word practice.
 
 ## 2026-08-08 - AWS IoT remote update trigger
 
