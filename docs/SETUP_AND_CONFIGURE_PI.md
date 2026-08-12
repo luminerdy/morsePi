@@ -309,6 +309,12 @@ GPIO27 / Pin 13 -> Resistor -> LED + ; LED - -> GND / Pin 14
 
 Use a resistor with the LED, usually `220` to `330` ohms. The active web app uses the USB speaker for sound.
 
+The Raspberry Pi 4 built-in 3.5 mm jack is audio/video output only; it is not a
+keyer or microphone input. A nicer plug-in keyer can still use a panel-mount
+3.5 mm jack, but that jack should be wired as a simple switch connector to
+GPIO17 and GND. Do not wire an external keyer into the Pi's built-in audio
+jack expecting the app to read it.
+
 ## 7. Test the Hardware
 
 Run each hardware test from the project folder.

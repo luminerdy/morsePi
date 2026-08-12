@@ -23,6 +23,13 @@
   but jobs must be created by the admin/control-plane credentials.
 - Live app check passed after conversion: `/touch` responds, the app service is
   active, and `Words I Know` still renders.
+- Hardware decision captured: the Raspberry Pi 4 built-in 3.5 mm jack is output
+  only. For a cleaner detachable key, use a separate panel-mount 3.5 mm jack
+  wired to GPIO17 and GND as a switch connector.
+- Operator visibility decision: it is safe to hide grandkids from Pappy's local
+  picker when Pappy is being used as the test station. Hiding a student from a
+  local picker does not delete their UUID, progress data, cloud backups,
+  snapshots, or home-station sync identity.
 
 ### Daily Start Notes
 
@@ -44,6 +51,31 @@
    before sending.
 4. When Campbell/Olivea reconnects, confirm it reaches the current
    `release/pi` and has the same update timers active.
+
+### Daily Wrap-Up
+
+**Accomplishments**
+
+- Confirmed Pappy is now using the normal Git + local update + IoT poller path
+  instead of direct file copy.
+- Updated architecture/spec status to remove stale "Pappy manual install"
+  language and reflect the current rollout.
+- Captured the keyer connector decision in setup docs: Pi built-in 3.5 mm is
+  output only; use GPIO17/GND for the key, optionally through a panel jack.
+- Confirmed hiding grandkids from Pappy's local operator picker is an interface
+  choice only; their home-station progress and cloud identity still sync when
+  their stations are online.
+
+**Next steps**
+
+1. Use admin AWS credentials to create a Pappy `update-app` smoke Job and prove
+   the full remote trigger path end to end.
+2. Continue Message Builder Slice 2: require students to key each selected word
+   before sending.
+3. Decide whether Pappy should keep both the 6-hour local update timer and the
+   on-demand IoT update trigger, or rely on IoT-triggered updates.
+4. When the grandkid stations reconnect, verify they update to the current
+   `release/pi` and continue uploading backup/sync data.
 
 ## 2026-08-10 - Home Wi-Fi checklist and family-data privacy groundwork
 
