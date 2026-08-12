@@ -87,7 +87,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-055 prominent practice result | ✅ | Shared title-bar result is covered across all touch practice modes without changing page height or scoring |
 | FR-056 adaptive attainable Words | ✅ | Unfinished/review cadence and distinct-word completion score are implemented and covered |
 | FR-057/DR-020/SEC-021 permanent identity | ✅ | Canonical family UUIDs, compatibility aliases, private registry preference with tracked fallback, idempotent migration, Guest exclusion, and fail-closed mismatch checks are implemented and live-rehearsed |
-| FR-058/API-027/SEC-022 remote update Jobs | 🟡 | Local worker, systemd timer, config examples, docs, policy template, and AWS Things/policies are ready; Astrid/Liara live `update-app` Job succeeded; Pappy/Campbell rollout pending |
+| FR-058/API-027/SEC-022 remote update Jobs | 🟡 | Local worker, systemd timer, config examples, docs, policy template, and AWS Things/policies are ready. Astrid/Liara live `update-app` Job succeeded. Pappy is now a `release/pi` Git checkout with local update and IoT poll timers active; its station credential can poll Jobs but cannot create them. Campbell/Olivea rollout remains pending reconnection |
 | SEC-001 CSRF | ❌ | No tokens anywhere |
 | SEC-002/003 mandatory PIN + lockout | 🟡 | PIN remains optional for development, but configured PINs now use constant-time comparison and a short in-memory lockout after repeated failures |
 | SEC-004 input validation | 🟡 | See FR-012 note |
@@ -132,7 +132,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | AC-028 touch settings PIN recovery | — | ✅ | Invalid settings PINs return to a usable 800x480 Timing screen |
 | AC-029 touch operator roster | — | ✅ | PIN, validation, backup, preservation, and picker behavior are route-tested |
 | AC-030 permanent student identity | — | ✅ | Registry/migration fixtures pass; 701 live attempts matched hashes and UUIDs, and a UUID-bearing message completed decoded receipt delivery |
-| AC-031 remote update Jobs | — | 🟡 | Fake Jobs adapter tests pass for accepted/rejected/no-op paths, including AWS string job documents; Astrid/Liara live Job succeeded; remaining station rollout pending |
+| AC-031 remote update Jobs | — | 🟡 | Fake Jobs adapter tests pass for accepted/rejected/no-op paths, including AWS string job documents; Astrid/Liara live Job succeeded; Pappy converted to Git checkout and passed local update + IoT no-pending-job poller checks; Campbell/Olivea remains pending |
 | AC-032 remote maintenance cost guardrail | — | 🟡 | Spec guardrail added; keep reviewing AWS docs/billing before activating any fixed monthly remote-admin service |
-| AC-033 D/U Words expansion | — | 🟡 | Regression fixture covers 42/56 completion after D/U unlock; live station rollout remains pending |
-| AC-034 C/W/H/L Words expansion | — | 🟡 | Regression fixture covers 56/80 completion after C/W/H/L unlock; live station rollout remains pending |
+| AC-033 D/U Words expansion | — | ✅ | Regression fixture covers 42/56 completion after D/U unlock; Pappy live page verified 42/56 after release update |
+| AC-034 C/W/H/L Words expansion | — | 🟡 | Regression fixture covers 56/80 completion after C/W/H/L unlock; release branch and Pappy contain the word pack, but live student unlock verification remains future testing |
