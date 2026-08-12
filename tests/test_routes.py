@@ -973,23 +973,20 @@ class RouteRenderTests(unittest.TestCase):
         so_words = app_module.available_word_practice_words(so_letters)
         path = self.student_file("pappy", "word_attempts.jsonl")
         path.parent.mkdir(parents=True, exist_ok=True)
+        word_attempts = [
+            {
+                "correct": True,
+                "word": word,
+                "timestamp": "2026-06-21T00:00:00+00:00",
+            }
+            for word in so_words
+        ]
         path.write_text(
-            "\n".join(
-                json.dumps(
-                    {
-                        "correct": True,
-                        "word": word,
-                        "timestamp": "2026-06-21T00:00:00+00:00",
-                    },
-                    sort_keys=True,
-                )
-                for word in so_words
-            )
-            + "\n",
+            "\n".join(json.dumps(attempt, sort_keys=True) for attempt in word_attempts) + "\n",
             encoding="utf-8",
         )
 
-        summary = app_module.word_progress_summary(du_letters)
+        summary = app_module.word_progress_summary(du_letters, word_attempts)
         response = self.client.get("/touch/words")
         html = response.get_data(as_text=True)
 
@@ -1029,23 +1026,20 @@ class RouteRenderTests(unittest.TestCase):
         du_words = app_module.available_word_practice_words(du_letters)
         path = self.student_file("pappy", "word_attempts.jsonl")
         path.parent.mkdir(parents=True, exist_ok=True)
+        word_attempts = [
+            {
+                "correct": True,
+                "word": word,
+                "timestamp": "2026-06-21T00:00:00+00:00",
+            }
+            for word in du_words
+        ]
         path.write_text(
-            "\n".join(
-                json.dumps(
-                    {
-                        "correct": True,
-                        "word": word,
-                        "timestamp": "2026-06-21T00:00:00+00:00",
-                    },
-                    sort_keys=True,
-                )
-                for word in du_words
-            )
-            + "\n",
+            "\n".join(json.dumps(attempt, sort_keys=True) for attempt in word_attempts) + "\n",
             encoding="utf-8",
         )
 
-        summary = app_module.word_progress_summary(cwhl_letters)
+        summary = app_module.word_progress_summary(cwhl_letters, word_attempts)
         response = self.client.get("/touch/words")
         html = response.get_data(as_text=True)
 
