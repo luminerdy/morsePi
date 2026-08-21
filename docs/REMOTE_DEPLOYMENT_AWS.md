@@ -201,6 +201,12 @@ cd /home/morse/morse-station
 scripts/update_station.sh
 ```
 
+App update is separate from data sync. `Sync Now` and `sync-progress` move
+practice data, backups, station status, snapshots, and messages. `Update App`
+and `update-app` install code from `release/pi` through the local update
+wrapper. This separation matters when explaining why a station may have current
+student progress but not yet have a newly released screen or feature.
+
 The update script:
 
 1. Creates a pre-update backup.

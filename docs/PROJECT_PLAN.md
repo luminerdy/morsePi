@@ -1,5 +1,63 @@
 # Pappy's Internet Telegraph Project Plan
 
+## 2026-08-21 - Warm-Up Review and update-path clarification
+
+- Added Warm-Up Review as a Daily-driven catch-up activity for students who
+  have been away from normal practice for at least 3 calendar days.
+- Warm-Up reviews only letters the student already has active, uses a
+  10-signal goal, and logs `warmup` attempts with `review_only=true` so effort
+  and rhythm history are preserved.
+- Kept Warm-Up review-only by design: it does not change Send/Read/Listen/Echo/
+  Learn mastery, unlock gates, or the 20-signal Daily Mission count.
+- Fixed Daily priority so active Learning Now letters remain ahead of Warm-Up;
+  Warm-Up appears only when the student is otherwise ready to resume.
+- Deployed the release to Pappy through the normal `release/pi` update path.
+  The first update attempt failed the Pi regression suite and automatically
+  rolled back, which proved the safety wrapper. After the fix, Pappy updated to
+  `a8d89f0`, passed 231 Pi tests, passed the `/touch` health check, and
+  refreshed station status/snapshots.
+- Clarified operations language: `Sync Now` moves student progress, messages,
+  station status, and backups; app features move through `Update App`, the
+  local update timer, or an AWS IoT `update-app` Job pulling `release/pi`.
+
+### Daily Start Notes
+
+- Pappy is current on `release/pi` at `a8d89f0`; no manual app copy was needed.
+- The remote grandkid stations will not receive the Warm-Up feature until they
+  are powered on, online, and run their local update path or consume an IoT
+  `update-app` Job.
+- Data sync and software update are separate paths. Use `Sync Now` to move
+  practice data; use `Update App` or remote update jobs to move new features.
+
+**Next steps**
+
+1. When Astrid/Liara and Campbell/Olivea are online, trigger or verify
+   `update-app` so both stations catch up to the current `release/pi`.
+2. Test Warm-Up on Pappy with a student whose last normal practice is more
+   than 3 days old.
+3. Decide whether deployed stations should keep automatic app update timers
+   active or rely mainly on adult-triggered IoT update jobs.
+4. Continue Message Builder Slice 2: require students to key each selected word
+   before sending.
+
+### Daily Wrap-Up
+
+**Accomplishments**
+
+- Implemented and released Warm-Up Review with regression coverage.
+- Verified the hardened updater's rollback behavior during a real Pappy update
+  failure, then verified the corrected release with the full Pi test suite.
+- Updated specs/status and operations docs so Warm-Up, Sync Now, and app update
+  behavior are explicit.
+
+**Next steps**
+
+1. Use the remote update path to bring both away stations to the current
+   release once they are online.
+2. Watch whether Warm-Up feels encouraging or repetitive after real use.
+3. Keep specs updated before larger changes, especially Message Builder and
+   remote update/sync work.
+
 ## 2026-08-11 - Pappy Git update path
 
 - Converted the Pappy station from a manual-file install into a Git checkout

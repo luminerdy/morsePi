@@ -5,7 +5,7 @@ knows what it inherits. This file is updated on each re-review; requirement
 files only carry *(Delta: …)* notes, not status history.
 
 - **Baseline review:** `33df851` (2026-07-02)
-- **Latest legacy-code re-review:** Private family registry transition (2026-08-10)
+- **Latest legacy-code re-review:** Warm-Up Review and Pappy release deploy (2026-08-21)
 - **Spec package location:** root `specs/`
 
 ## Changes landed since baseline
@@ -15,7 +15,7 @@ files only carry *(Delta: …)* notes, not status history.
 | Input caps: 16 KB request body (`MAX_CONTENT_LENGTH`), message ≤ 160, Morse ≤ 600, answer ≤ 20, word ≤ 20, student name ≤ 40 chars | `7818254` | FR-012, SEC-004 — largely met (see note 1) |
 | All `next` redirects routed through `safe_next_url()`, with tests | `7818254` | SEC-005 — **met**; AC-005 passes |
 | Unlock table unified: `letter_unlock_groups` in `app.py` now generates steps + letter list | `7818254` | FR-022 — partial (duplicate `LETTER_UNLOCKS` remains in `practice_progress.py`) |
-| Update channel: default branch now `release/pi`; pre-restart tests; post-restart HTTP health check; rollback on test/health failure | `5e835d3` + 2026-08-04 working tree | FR-035, SEC-010 — mostly met; signed tags/releases remain open |
+| Update channel: default branch now `release/pi`; pre-restart tests; post-restart HTTP health check; rollback on test/health failure | `5e835d3` + live Pappy verification 2026-08-21 | FR-035, SEC-010 — mostly met; signed tags/releases remain open; rollback was proven when the first Warm-Up release failed Pi tests and restored the previous commit |
 | `app.run(..., threaded=False)` | `7818254` | NFR-004 — mitigated by serializing requests; global-state root cause remains |
 | `scripts/check_dependencies.py` (manual required/optional binary + module check) | `7818254` | TR-008 — partial (manual script, not startup detection) |
 | Rhythm timing summaries per attempt + `/admin/rhythm` trends page; timing events capped at 240 | `674fdd8` | New scope — now FR-036/FR-037, API-017, AC-013 |
@@ -50,6 +50,7 @@ files only carry *(Delta: …)* notes, not status history.
 | Remote maintenance cost guardrail | 2026-08-08 working tree | NFR-019/AC-032/TEST-020 — specs now require normal three-station remote maintenance to stay under `$1/month` where practical and require fixed monthly per-device tools such as Systems Manager to be documented as explicit temporary troubleshooting choices before activation. |
 | D/U Words catalog expansion | 2026-08-10 `cc41418` + working tree | FR-056/AC-033 — D/U now adds 14 practice words; a student who completed the prior 42-word catalog sees 42/56 words complete (75%) until the new words are practiced. Main is updated; station release rollout remains pending. |
 | C/W/H/L Words catalog expansion | 2026-08-10 working tree | FR-056/AC-034 — C/W/H/L now adds 24 practice words; a student who completed the prior 56-word catalog sees 56/80 words complete (70%) until the new words are practiced. Station release rollout remains pending. |
+| Warm-Up Review | main `ffe0605` + `cf9c9c9`; release/pi `a8d89f0` | FR-059/AC-035 — Daily offers a 10-signal active-letter review after 3+ days away, logs review-only timing/effort attempts, leaves mastery/unlocks/Daily count unchanged, and keeps Learning Now higher priority. Pappy deployed successfully after the updater rolled back the first failing release attempt, then passed 231 Pi tests and health check. |
 
 **Note 1 (FR-012):** over-limit text is silently **truncated** (`limited_text`),
 not rejected; only bodies > 16 KB get a hard 413. The OOM DoS is closed
@@ -67,7 +68,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-012 input caps | 🟡 | Caps exist; truncates instead of rejecting |
 | FR-013…FR-021, FR-023…FR-034 | ✅ | Implemented in legacy (tiering is for the rebuild) |
 | FR-022 single unlock table | 🟡 | Unified in `app.py`; `practice_progress.py:LETTER_UNLOCKS` duplicate remains |
-| FR-035 hardened updater | ✅ | `release/pi` branch, dirty-tree guard, fast-forward only, pre-restart tests, health check, rollback on failure, and status/snapshot refresh |
+| FR-035 hardened updater | ✅ | `release/pi` branch, dirty-tree guard, fast-forward only, pre-restart tests, health check, rollback on failure, and status/snapshot refresh. Live Pappy Warm-Up deployment proved rollback on test failure, then passed after the fix |
 | FR-036/FR-037 rhythm analysis | ✅ | New feature, spec'd retroactively |
 | FR-038 touch System recovery | ✅ | `/touch/system` shows local status, keyboard availability, update state, app version/branch, latest backup, latest sync, and a silent touch keypad; `/touch/system/action` gates recovery/update actions behind admin PIN; `/touch/shutdown` provides kid-facing safe shutdown; `scripts/set_admin_pin.py` safely resets the local PIN |
 | FR-039...FR-046 family Morse experience | ✅ | Phase 7A local flow implemented in `message_store.py` and `/touch/messages/*` |
@@ -88,6 +89,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-056 adaptive attainable Words | ✅ | Unfinished/review cadence and distinct-word completion score are implemented and covered |
 | FR-057/DR-020/SEC-021 permanent identity | ✅ | Canonical family UUIDs, compatibility aliases, private registry preference with tracked fallback, idempotent migration, Guest exclusion, and fail-closed mismatch checks are implemented and live-rehearsed |
 | FR-058/API-027/SEC-022 remote update Jobs | 🟡 | Local worker, systemd timer, config examples, docs, policy template, and AWS Things/policies are ready. Astrid/Liara live `update-app` Job succeeded. Pappy is now a `release/pi` Git checkout with local update and IoT poll timers active; its station credential can poll Jobs but cannot create them. Campbell/Olivea rollout remains pending reconnection |
+| FR-059 Warm-Up Review | ✅ | Daily-driven 10-signal review for students away 3+ days; logs review-only attempts for effort/rhythm while leaving mastery, unlock gates, and Daily count unchanged |
 | SEC-001 CSRF | ❌ | No tokens anywhere |
 | SEC-002/003 mandatory PIN + lockout | 🟡 | PIN remains optional for development, but configured PINs now use constant-time comparison and a short in-memory lockout after repeated failures |
 | SEC-004 input validation | 🟡 | See FR-012 note |
@@ -136,3 +138,4 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | AC-032 remote maintenance cost guardrail | — | 🟡 | Spec guardrail added; keep reviewing AWS docs/billing before activating any fixed monthly remote-admin service |
 | AC-033 D/U Words expansion | — | ✅ | Regression fixture covers 42/56 completion after D/U unlock; Pappy live page verified 42/56 after release update |
 | AC-034 C/W/H/L Words expansion | — | 🟡 | Regression fixture covers 56/80 completion after C/W/H/L unlock; release branch and Pappy contain the word pack, but live student unlock verification remains future testing |
+| AC-035 Warm-Up Review | — | ✅ | Route tests cover stale-practice recommendation, 10-signal completion, review-only attempt logging, and unchanged mastery progress; Pappy release suite passed 231 tests |
