@@ -17,7 +17,7 @@
         </header>
 
         <main class="touch-menu-grid practice-modes">
-            {% for mode_key, mode_config in modes.items() %}
+            {% for mode_key, mode_config in menu_modes.items() %}
                 <a class="touch-menu-card {% if mode == mode_key %}primary{% endif %}" href="/touch/practice/run?mode={{ mode_key }}">
                     <strong>{{ mode_config.label }}</strong>
                     <span>{{ mode_config.progress_label }}</span>

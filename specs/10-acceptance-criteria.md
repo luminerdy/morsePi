@@ -45,6 +45,13 @@ correctness checks. Each is encoded as an automated test per
   error; migrated progress matches pre-migration summaries exactly.
 - **AC-011** (FR-029) `POST` celebrate at 19 attempts returns 409 and plays
   nothing; at 20 it plays `...-` exactly once even if double-clicked.
+- **AC-035** (FR-059) Given a student with prior normal practice activity more
+  than 3 calendar days ago and no completed warm-up today, Daily Mission
+  recommends `Warm Up First` and links to `/touch/practice/run?mode=warmup`.
+  Ten warm-up attempts today clear that recommendation. Posting a correct
+  warm-up result records a `warmup` attempt with `review_only=true`, counts it
+  toward effort history, and leaves `practice_progress.json` unchanged for the
+  reviewed letter.
 - **AC-012** (NFR-005) `pip install -e . && pytest` passes on
   Windows/macOS/Linux CI with no GPIO env vars.
 - **AC-013** (FR-036) For a synthetic event stream (known dot/dash durations

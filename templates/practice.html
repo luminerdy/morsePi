@@ -40,7 +40,7 @@
                 </div>
 
                 <div class="mode-tabs" aria-label="Practice modes">
-                    {% for mode_key, mode_config in modes.items() %}
+                    {% for mode_key, mode_config in menu_modes.items() %}
                         <a class="{% if mode == mode_key %}active{% endif %}" href="/practice?mode={{ mode_key }}">
                             {{ mode_config.label }}
                         </a>
@@ -49,14 +49,14 @@
 
                 <div class="practice-readout">
                     <div class="{% if mode in ['read', 'listen', 'echo'] %}read-answer-card{% endif %}">
-                        <div class="field-label">{% if mode in ['send', 'learn'] %}Letter{% elif mode == 'echo' %}Echo{% else %}Your Answer{% endif %}</div>
+                        <div class="field-label">{% if mode in ['send', 'learn', 'warmup'] %}Letter{% elif mode == 'echo' %}Echo{% else %}Your Answer{% endif %}</div>
                         <div class="target-letter" id="targetLetter">{% if mode in ['read', 'listen', 'echo'] %}?{% else %}{{ target }}{% endif %}</div>
                     </div>
 
                     <div>
                         <div class="field-label">{% if mode in ['listen', 'echo'] %}Audio Prompt{% else %}Morse{% endif %}</div>
                         <div class="expected-morse {% if mode in ['send', 'listen', 'echo'] %}prompt-placeholder{% endif %}" id="expectedMorse">
-                            {% if mode in ['read', 'learn'] %}{{ expected_morse | morse_visual }}{% elif mode in ['listen', 'echo'] %}Play Code{% else %}?{% endif %}
+                            {% if mode in ['read', 'learn', 'warmup'] %}{{ expected_morse | morse_visual }}{% elif mode in ['listen', 'echo'] %}Play Code{% else %}?{% endif %}
                         </div>
                     </div>
                 </div>
@@ -77,7 +77,7 @@
                     </div>
                 </div>
 
-                <div class="action-row send-actions" {% if mode not in ['send', 'echo', 'learn'] %}hidden{% endif %}>
+                <div class="action-row send-actions" {% if mode not in ['send', 'echo', 'learn', 'warmup'] %}hidden{% endif %}>
                     {% if mode in ['echo', 'learn'] %}
                         <button type="button" class="button primary" id="listenReplay">Play Again</button>
                     {% else %}

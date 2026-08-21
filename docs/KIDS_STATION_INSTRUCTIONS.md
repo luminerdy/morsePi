@@ -52,6 +52,22 @@ Start with the Next Step on Daily.
 
 When you finish a practice area, tap Daily again to see what to do next.
 
+## Warm-Up
+
+If you have been away for a few days, Daily may ask you to Warm Up first.
+
+Warm-Up is a quick review of letters you already know. It does not hurt your
+score or make you lose progress. It helps your brain remember the signals
+before you start today's mission.
+
+Your job:
+
+```text
+look at a familiar letter, then key its Morse code
+```
+
+After the warm-up is complete, go back to Daily.
+
 ## Learn
 
 Learn is for new letters.
