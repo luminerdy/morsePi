@@ -135,6 +135,20 @@ cd /home/morse/morse-station
 scripts/update_station.sh
 ```
 
+### Sync Now Versus Update App
+
+`Sync Now` is for data: student attempts, progress rebuilds, station status,
+snapshots, backups, and messages. It does not install new app features.
+
+`Update App` is for software: it runs the local update wrapper, pulls the
+current `release/pi` code, runs tests, restarts the station app, health-checks
+the touch page, and rolls back if the release is bad.
+
+Remote AWS IoT Jobs use the same split. A `sync-progress` Job moves data; an
+`update-app` Job starts the local update wrapper. If a station is powered off,
+it catches the pending remote job or timer-driven update only after it is
+powered on and online.
+
 The update wrapper:
 
 1. Creates a pre-update backup.
@@ -192,6 +206,11 @@ actual update: it backs up first, fast-forwards from `release/pi`, runs tests,
 restarts the app, health-checks it, rolls back on failure, and refreshes status
 and progress snapshots. If a station is off or away from Pappy's network, it
 will catch up from the automatic timer the next time it is online.
+
+Live note from 2026-08-21: Pappy's first Warm-Up Review release failed the Pi
+regression suite during update and the wrapper restored the previous commit.
+After the fix, Pappy updated to `a8d89f0`, passed 231 tests, passed the
+`/touch` health check, and uploaded refreshed status/snapshots.
 
 Use environment variables when cloud upload is desired during update:
 
