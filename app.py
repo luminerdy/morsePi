@@ -1647,6 +1647,21 @@ def load_today_attempts():
 
 
 def daily_warmup_review(active_letters):
+    if not has_request_context() or not getattr(g, "current_student", None):
+        return {
+            "due": False,
+            "complete": False,
+            "days_away": 0,
+            "goal": warmup_review_goal,
+            "attempts": 0,
+            "correct": 0,
+            "remaining": warmup_review_goal,
+            "accuracy": 0,
+            "letters": active_letters,
+            "letters_preview": active_letters[:10],
+            "letters_remaining_count": max(0, len(active_letters) - 10),
+        }
+
     attempts = load_attempt_records(student_data_path(g.current_student["id"], "practice_attempts.jsonl"))
     activity_attempts = list(attempts)
     for filename in ("word_attempts.jsonl", "bonus_attempts.jsonl"):
@@ -1840,10 +1855,10 @@ def daily_mission_summary():
             message = f"Daily mission complete. {state['learning_status']['next_need'].capitalize()}."
         else:
             message = "Daily mission complete."
-    elif warmup_review["due"]:
-        message = f"It has been {warmup_review['days_away']} days. Warm up with letters you already know."
     elif learning_focus["active"] and learning_focus["next_need"]:
         message = f"Daily mission: {learning_focus['next_need']}."
+    elif warmup_review["due"]:
+        message = f"It has been {warmup_review['days_away']} days. Warm up with letters you already know."
     elif word_focus["unlocked"] and not word_focus["complete"]:
         message = f"Daily mission: {word_focus['remaining']} correct Word{'s' if word_focus['remaining'] != 1 else ''} left."
     elif state["learning_letters"]:
@@ -2324,16 +2339,6 @@ def weakest_letters(letters, limit=3, exclude=None):
 
 
 def daily_next_action(state):
-    warmup = state.get("warmup_review") or {}
-    if warmup.get("due"):
-        return {
-            "label": "Warm Up",
-            "mode": "warmup",
-            "href": "/touch/practice/run?mode=warmup",
-            "title": "Warm Up First",
-            "detail": f"Review {warmup.get('remaining', warmup_review_goal)} familiar signals before today's mission."
-        }
-
     if state["learning_letters"]:
         letters = " ".join(state["learning_letters"])
         status = state.get("learning_status") or {}
@@ -2356,6 +2361,16 @@ def daily_next_action(state):
             "href": "/touch/practice/run?mode=learn",
             "title": f"Learn {letters}",
             "detail": "New signals are waiting. Learn them before they join the other practice modes."
+        }
+
+    warmup = state.get("warmup_review") or {}
+    if warmup.get("due"):
+        return {
+            "label": "Warm Up",
+            "mode": "warmup",
+            "href": "/touch/practice/run?mode=warmup",
+            "title": "Warm Up First",
+            "detail": f"Review {warmup.get('remaining', warmup_review_goal)} familiar signals before today's mission."
         }
 
     active_letters = state["active_letters"]
