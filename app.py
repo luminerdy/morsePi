@@ -228,6 +228,8 @@ word_ready_correct_attempts = 5
 daily_word_practice_goal = 3
 max_learning_groups_per_day = 2
 learn_new_letter_prompt_weight = 0.4
+warmup_review_gap_days = 3
+warmup_review_goal = 10
 letter_unlock_groups = [
     {"letters": ["S", "O"], "label": "Signal Builder"},
     {"letters": ["R", "K"], "label": "Rhythm Builder"},
@@ -606,6 +608,10 @@ def attempt_metadata():
 practice_target = "E"
 practice_feedback = ""
 practice_modes = {
+    "warmup": {
+        "label": "Warm-Up",
+        "progress_label": "Warm-Up Review"
+    },
     "send": {
         "label": "Send",
         "progress_label": "Send Progress"
@@ -627,6 +633,11 @@ practice_modes = {
         "progress_label": "Learn Progress"
     }
 }
+scored_practice_modes = ("send", "read", "listen", "echo", "learn")
+
+
+def scored_practice_mode_configs():
+    return {key: practice_modes[key] for key in scored_practice_modes}
 
 key_lock = threading.Lock()
 output_lock = threading.Lock()
@@ -1512,7 +1523,7 @@ def rebuild_practice_progress_for_student(student_id):
     for attempt in attempts:
         letter = str(attempt.get("target", "")).upper()
         mode = str(attempt.get("mode", "send")).lower()
-        if not letter or mode not in practice_modes:
+        if not letter or mode not in scored_practice_modes:
             continue
 
         letter_progress = progress.setdefault(letter, {})
@@ -1629,7 +1640,62 @@ def recover_practice_session(session_id, action, target_student_id=""):
 
 
 def load_today_attempts():
-    return load_attempt_records(student_data_path(g.current_student["id"], "practice_attempts.jsonl"), today_only=True)
+    return [
+        attempt for attempt in load_attempt_records(student_data_path(g.current_student["id"], "practice_attempts.jsonl"), today_only=True)
+        if str(attempt.get("mode", "")).lower() != "warmup"
+    ]
+
+
+def daily_warmup_review(active_letters):
+    attempts = load_attempt_records(student_data_path(g.current_student["id"], "practice_attempts.jsonl"))
+    activity_attempts = list(attempts)
+    for filename in ("word_attempts.jsonl", "bonus_attempts.jsonl"):
+        activity_attempts.extend(load_attempt_records(student_data_path(g.current_student["id"], filename)))
+    activity_attempts.extend(
+        attempt for attempt in load_attempt_records(student_data_path(g.current_student["id"], "message_events.jsonl"))
+        if attempt.get("effort")
+    )
+    today = today_key()
+    warmup_today = [
+        attempt for attempt in attempts
+        if str(attempt.get("mode", "")).lower() == "warmup"
+        and str(attempt.get("timestamp", ""))[:10] == today
+    ]
+    correct_today = sum(1 for attempt in warmup_today if attempt.get("correct"))
+
+    latest = None
+    for attempt in activity_attempts:
+        if str(attempt.get("mode", "")).lower() == "warmup":
+            continue
+
+        parsed = parse_attempt_time(attempt.get("timestamp"))
+        if parsed is None:
+            continue
+
+        if latest is None or parsed > latest:
+            latest = parsed
+
+    days_away = 0
+    if latest is not None:
+        latest_date = latest.astimezone().date() if latest.tzinfo else latest.date()
+        days_away = max(0, (datetime.now().date() - latest_date).days)
+
+    complete = len(warmup_today) >= warmup_review_goal
+    due = bool(active_letters) and latest is not None and days_away >= warmup_review_gap_days and not complete
+
+    return {
+        "due": due,
+        "complete": complete,
+        "days_away": days_away,
+        "goal": warmup_review_goal,
+        "attempts": min(len(warmup_today), warmup_review_goal),
+        "correct": correct_today,
+        "remaining": max(0, warmup_review_goal - len(warmup_today)),
+        "accuracy": int(round((correct_today / len(warmup_today)) * 100)) if warmup_today else 0,
+        "letters": active_letters,
+        "letters_preview": active_letters[:10],
+        "letters_remaining_count": max(0, len(active_letters) - 10),
+    }
 
 
 def load_today_effort_attempts():
@@ -1753,6 +1819,8 @@ def daily_mission_summary():
     attempt_progress = min(100, int(round((total / DAILY_MISSION_GOAL) * 100))) if DAILY_MISSION_GOAL else 100
     learning_focus = daily_learning_focus(state["learning_letters"])
     word_focus = daily_word_focus(state["active_letters"])
+    warmup_review = daily_warmup_review(state["active_letters"])
+    state["warmup_review"] = warmup_review
     state["daily_signals_complete"] = total >= DAILY_MISSION_GOAL
     progress = attempt_progress
     completed = total >= DAILY_MISSION_GOAL
@@ -1772,6 +1840,8 @@ def daily_mission_summary():
             message = f"Daily mission complete. {state['learning_status']['next_need'].capitalize()}."
         else:
             message = "Daily mission complete."
+    elif warmup_review["due"]:
+        message = f"It has been {warmup_review['days_away']} days. Warm up with letters you already know."
     elif learning_focus["active"] and learning_focus["next_need"]:
         message = f"Daily mission: {learning_focus['next_need']}."
     elif word_focus["unlocked"] and not word_focus["complete"]:
@@ -1804,6 +1874,7 @@ def daily_mission_summary():
         "learning_letters": state["learning_letters"],
         "learning_focus": learning_focus,
         "word_focus": word_focus,
+        "warmup_review": warmup_review,
         "letter_morse": get_practice_letter_morse(),
         "message": message,
         "next_action": next_action,
@@ -2191,7 +2262,7 @@ def daily_practice_coach(state):
 def weakest_letter_mode_items(letters, limit=3):
     candidates = []
 
-    for mode in practice_modes:
+    for mode in scored_practice_modes:
         for item in progress_summary(letters, mode):
             score = item["strength_percent"]
             attempts = item["attempts"]
@@ -2220,7 +2291,7 @@ def letter_strength_rollup(letters):
 
     for letter in letters:
         mode_items = [
-            item for mode in practice_modes
+            item for mode in scored_practice_modes
             for item in progress_summary([letter], mode)
         ]
         attempts = sum(item["attempts"] for item in mode_items)
@@ -2253,6 +2324,16 @@ def weakest_letters(letters, limit=3, exclude=None):
 
 
 def daily_next_action(state):
+    warmup = state.get("warmup_review") or {}
+    if warmup.get("due"):
+        return {
+            "label": "Warm Up",
+            "mode": "warmup",
+            "href": "/touch/practice/run?mode=warmup",
+            "title": "Warm Up First",
+            "detail": f"Review {warmup.get('remaining', warmup_review_goal)} familiar signals before today's mission."
+        }
+
     if state["learning_letters"]:
         letters = " ".join(state["learning_letters"])
         status = state.get("learning_status") or {}
@@ -2279,10 +2360,10 @@ def daily_next_action(state):
 
     active_letters = state["active_letters"]
     word_focus = daily_word_focus(active_letters)
-    mode_order = {mode: index for index, mode in enumerate(practice_modes)}
+    mode_order = {mode: index for index, mode in enumerate(scored_practice_modes)}
     mode_scores = [
         (mode, mode_score(active_letters, mode))
-        for mode in practice_modes
+        for mode in scored_practice_modes
     ]
 
     weakest_mode, weakest_score = min(
@@ -2847,7 +2928,7 @@ def get_practice_letter_state():
             learning_status = get_learning_step_status(step, group_state)
             break
 
-        scores = [mode_score(active, mode) for mode in practice_modes]
+        scores = [mode_score(active, mode) for mode in scored_practice_modes]
 
         if all(score["mastery"] >= step["threshold"] for score in scores):
             unlock_wait_status = next_unlock_wait_status(active, state, latest_group_state)
@@ -2933,11 +3014,11 @@ def get_next_letter_unlock(unlocked_letters):
 
 def get_learning_overall(letters):
     state = get_practice_letter_state()
-    overall = overall_score(state["active_letters"], practice_modes.keys())
+    overall = overall_score(state["active_letters"], scored_practice_modes)
     active_alphabet_count = sum(1 for letter in state["active_letters"] if letter in alphabet_letters)
     alphabet_total = len(alphabet_letters)
     alphabet_percent = int(round((active_alphabet_count / alphabet_total) * 100)) if alphabet_total else 100
-    mode_masteries = [mode_score(state["active_letters"], mode)["mastery"] for mode in practice_modes]
+    mode_masteries = [mode_score(state["active_letters"], mode)["mastery"] for mode in scored_practice_modes]
     learning_focus = daily_learning_focus(state["learning_letters"])
 
     overall["current_mastery"] = overall["mastery"]
@@ -2988,7 +3069,7 @@ def get_learning_overall(letters):
 
 def get_progress_mode_details():
     state = get_practice_letter_state()
-    details = all_mode_details(state["active_letters"], practice_modes.keys())
+    details = all_mode_details(state["active_letters"], scored_practice_modes)
 
     for mode, mode_details in details.items():
         mode_details["scope"] = "current_set"
@@ -3016,6 +3097,19 @@ def get_progress_mode_details():
 
 
 def practice_mode_score(letters, mode):
+    if mode == "warmup":
+        warmup = daily_warmup_review(letters)
+        return {
+            "mode": mode,
+            "level": 1,
+            "title": "Warm-Up Review",
+            "mastery": min(100, int(round((warmup["attempts"] / warmup["goal"]) * 100))) if warmup["goal"] else 100,
+            "accuracy": warmup["accuracy"],
+            "streak": 0,
+            "attempts": warmup["attempts"],
+            "next_goal": "Warm-up complete. Go to Daily for today's mission." if warmup["complete"] else f"{warmup['remaining']} review signals left"
+        }
+
     score = mode_score(letters, mode)
 
     if mode == "learn":
@@ -3109,7 +3203,7 @@ def render_practice_template(template_name):
     expected_morse = text_to_morse(practice_target)
     feedback = practice_feedback
 
-    if not feedback and overall["learning_letters"]:
+    if not feedback and overall["learning_letters"] and mode != "warmup":
         learning = " ".join(overall["learning_letters"])
         if mode == "learn":
             feedback = f"New letters unlocked: {learning}. Learn them here first."
@@ -3131,7 +3225,8 @@ def render_practice_template(template_name):
         messages=message_feature_summary(),
         letter_morse=get_practice_letter_morse(),
         progress_label=practice_modes[mode]["progress_label"],
-        timing=get_practice_timing(mode, practice_target)
+        timing=get_practice_timing(mode, practice_target),
+        menu_modes=scored_practice_mode_configs()
     )
 
 
@@ -3911,7 +4006,7 @@ def touch_daily():
 
     return render_template(
         "touch_daily.html",
-        modes=practice_modes,
+        modes=scored_practice_mode_configs(),
         overall=overall,
         daily=daily,
         badges=student_badges(overall, daily),
@@ -4373,7 +4468,7 @@ def touch_progress():
 
     return render_template(
         "touch_progress.html",
-        modes=practice_modes,
+        modes=scored_practice_mode_configs(),
         overall=overall,
         daily=daily,
         effort=effort,
@@ -4891,6 +4986,29 @@ def practice_result():
             "overall": get_learning_overall(practice_letters)
         })
 
+    if mode == "warmup":
+        attempt_record = append_practice_attempt({
+            "mode": mode,
+            **attempt_metadata(),
+            "target": letter,
+            "expected_morse": expected_morse,
+            "actual_morse": actual_morse,
+            "answer": answer,
+            "correct": is_correct,
+            "review_only": True,
+            "timing": get_practice_timing(mode, letter),
+            "timing_events": timing_events
+        })
+
+        return jsonify({
+            "status": "recorded",
+            "attempt": attempt_record,
+            "timing": get_practice_timing(mode, letter),
+            "progress": progress_summary(practice_letters, "send"),
+            "score": practice_mode_score(practice_letters, mode),
+            "overall": get_learning_overall(practice_letters)
+        })
+
     record_attempt(letter, is_correct, practice_letters, mode)
     attempt_record = append_practice_attempt({
         "mode": mode,
@@ -4917,13 +5035,15 @@ def practice_result():
 @app.route("/progress")
 def progress():
     mode = get_practice_mode()
+    if mode not in scored_practice_modes:
+        mode = "send"
     practice_letters = get_unlocked_practice_letters()
     effort = effort_summary(load_all_effort_attempts())
 
     return render_template(
         "progress.html",
         mode=mode,
-        modes=practice_modes,
+        modes=scored_practice_mode_configs(),
         overall=get_learning_overall(practice_letters),
         details=get_progress_mode_details(),
         effort=effort,

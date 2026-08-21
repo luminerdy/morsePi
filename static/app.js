@@ -898,7 +898,7 @@ function scheduleWordAutoAdvance() {
 function schedulePracticeAutoCheck(rawMorse) {
     const panel = getPracticePanel();
 
-    if (!panel || !["send", "echo", "learn"].includes(getPracticeMode()) || !practiceActive || practiceBusy) {
+    if (!panel || !["send", "echo", "learn", "warmup"].includes(getPracticeMode()) || !practiceActive || practiceBusy) {
         return;
     }
 
@@ -970,8 +970,18 @@ function checkPracticeAnswer(actualMorse, expectedMorse, target) {
     }
 
     if (actualMorse === expectedMorse) {
-        setPracticeFeedback(`Correct: ${target}. Next letter coming up.`);
-        recordPracticeResult(target, true).finally(() => {
+        setPracticeFeedback(getPracticeMode() === "warmup"
+            ? `Correct: ${target}. Keep warming up.`
+            : `Correct: ${target}. Next letter coming up.`
+        );
+        recordPracticeResult(target, true).then(data => {
+            if (getPracticeMode() === "warmup" && data && data.score && Number(data.score.mastery) >= 100) {
+                setPracticeFeedback("Warm-up complete. Go to Daily for today's mission.");
+                practiceActive = false;
+                practiceBusy = false;
+                return;
+            }
+
             setTimeout(loadNextPracticePrompt, 950);
         });
     } else {
@@ -979,6 +989,8 @@ function checkPracticeAnswer(actualMorse, expectedMorse, target) {
             ? `Try ${target} again. Follow the example and keep your rhythm steady.`
             : getPracticeMode() === "echo"
             ? `Listen again, then echo ${target}.`
+            : getPracticeMode() === "warmup"
+            ? `Review ${target}. Clear, then key it again.`
             : `Try ${target} again. Clear, then follow the example.`;
         setPracticeFeedback(feedback);
         recordPracticeResult(target, false).finally(() => {
@@ -1052,6 +1064,8 @@ async function loadNextPracticePrompt() {
         } else if (getPracticeMode() === "learn") {
             setPracticeFeedback(`Follow ${data.target}: ${data.expected_morse}.`);
             playPracticePromptInBrowser();
+        } else if (getPracticeMode() === "warmup") {
+            setPracticeFeedback(`Review ${data.target}: ${data.expected_morse}.`);
         } else {
             setPracticeFeedback(getPracticeMode() === "read" ? "Next one." : `Now try ${data.target}.`);
         }

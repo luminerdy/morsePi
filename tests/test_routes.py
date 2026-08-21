@@ -1659,6 +1659,63 @@ class RouteRenderTests(unittest.TestCase):
         self.assertNotIn("New: S O", html)
         self.assertNotIn("Learn S O", html)
 
+    def test_touch_daily_recommends_warmup_after_practice_gap(self):
+        path = self.student_file("pappy", "practice_attempts.jsonl")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            json.dumps(
+                {
+                    "correct": True,
+                    "target": "E",
+                    "mode": "send",
+                    "timestamp": "2026-08-10T12:00:00+00:00",
+                },
+                sort_keys=True,
+            ) + "\n",
+            encoding="utf-8",
+        )
+
+        response = self.client.get("/touch/daily")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Warm Up First", html)
+        self.assertIn("/touch/practice/run?mode=warmup", html)
+        self.assertIn("Warm up with letters you already know", html)
+
+    def test_touch_daily_stops_recommending_warmup_after_review_goal(self):
+        path = self.student_file("pappy", "practice_attempts.jsonl")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        attempts = [
+            {
+                "correct": True,
+                "target": "E",
+                "mode": "send",
+                "timestamp": "2026-08-10T12:00:00+00:00",
+            }
+        ]
+        attempts.extend(
+            {
+                "correct": True,
+                "target": "E",
+                "mode": "warmup",
+                "review_only": True,
+                "timestamp": f"{app_module.today_key()}T00:{index:02d}:00+00:00",
+            }
+            for index in range(app_module.warmup_review_goal)
+        )
+        path.write_text(
+            "\n".join(json.dumps(attempt, sort_keys=True) for attempt in attempts) + "\n",
+            encoding="utf-8",
+        )
+
+        response = self.client.get("/touch/daily")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertNotIn("Warm Up First", html)
+        self.assertNotIn("/touch/practice/run?mode=warmup", html)
+
     def test_touch_daily_prioritizes_learning_now_next_step(self):
         active_letters = app_module.starter_practice_letters + ["S", "O"]
         progress = {}
@@ -2117,6 +2174,50 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(0, attempt_record["timing_summary"]["gap_count"])
         self.assertIn("overall_rhythm_score", attempt_record["timing_summary"])
         self.assertIn("primary_rhythm_feedback", attempt_record["timing_summary"])
+
+    def test_warmup_result_records_review_without_changing_mastery_progress(self):
+        self.write_station_config({"station_id": "pappy-station"})
+        self.write_json(
+            "pappy",
+            "practice_progress.json",
+            {
+                "E": {
+                    "send": {
+                        "attempts": 4,
+                        "correct": 4,
+                        "last_seen": "2026-08-10T12:00:00+00:00",
+                        "streak": 4,
+                        "strength": 0.8,
+                    }
+                }
+            },
+        )
+
+        response = self.client.post(
+            "/practice/result",
+            json={
+                "mode": "warmup",
+                "target": "E",
+                "expected_morse": ".",
+                "actual_morse": ".",
+                "timing_events": [
+                    {"type": "symbol", "symbol": ".", "duration_ms": 100}
+                ],
+            },
+        )
+        payload = response.get_json()
+        progress = json.loads(self.student_file("pappy", "practice_progress.json").read_text(encoding="utf-8"))
+        attempts = self.student_file("pappy", "practice_attempts.jsonl").read_text(encoding="utf-8").splitlines()
+        attempt_record = json.loads(attempts[0])
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("recorded", payload["status"])
+        self.assertEqual("warmup", payload["attempt"]["mode"])
+        self.assertTrue(payload["attempt"]["review_only"])
+        self.assertEqual(10, payload["score"]["mastery"])
+        self.assertEqual(4, progress["E"]["send"]["attempts"])
+        self.assertNotIn("warmup", progress["E"])
+        self.assertEqual("warmup", attempt_record["mode"])
 
     def test_practice_result_recomputes_keyed_correctness_server_side(self):
         response = self.client.post(

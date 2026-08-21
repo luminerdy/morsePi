@@ -11,11 +11,37 @@ Prices are captured estimates and may change. Equivalent parts can be used if th
 | CanaKit 3.5A Raspberry Pi 4 Power Supply with PiSwitch | Stable Pi 4 power with inline switch | [Amazon B07TSFYXBC](https://www.amazon.com/dp/B07TSFYXBC) | $12.99 |
 | USB Mini Speaker Computer Speaker | Station audio for prompts and keyer feedback | [Amazon B075M7FHM1](https://www.amazon.com/dp/B075M7FHM1) | $13.99 |
 | Raspberry Pi 4, 2GB or more | Main station computer | Vendor of choice | $55.00 |
-| TGKY01 Telegraph Key | Physical Morse key input | [Amazon B01MT3T676](https://www.amazon.com/dp/B01MT3T676) | $19.07 |
+| TGKY01 Telegraph Key | Low-cost physical Morse key input | [Amazon B01MT3T676](https://www.amazon.com/dp/B01MT3T676) | $19.07 |
 | MicroSD card, 32 GB | Raspberry Pi OS and station storage | Vendor of choice | $25.00 |
-| Jumper wires | Wiring the status LED and resistor to GPIO/GND | Vendor of choice | TBD |
+| Jumper wires | Lowest-cost wiring for the key, status LED, and resistor to GPIO/GND | Vendor of choice | TBD |
 
 Estimated priced total: **$175.03**
+
+## Optional Hardware Upgrades
+
+These parts are not required for the lowest-cost build, but they may make the
+station sturdier or more pleasant to use.
+
+| Item | Purpose | Link | Estimated Cost |
+|---|---|---|---:|
+| Straight Key Morse Code Single Paddle | Better-feeling key for the Pappy/test station or students who outgrow the basic key | [Amazon B0H4GF8B5S](https://www.amazon.com/dp/B0H4GF8B5S) | TBD |
+| Pi screw terminal block breakout module | More secure GPIO connections than loose jumper wires; useful for stations that will be moved between homes | [Amazon B01M27459S](https://www.amazon.com/dp/B01M27459S) | TBD |
+
+### Keyer Options
+
+- Budget build: use the TGKY01 telegraph key wired directly to GPIO17 and GND.
+- Upgrade build: use the straight key with a 3.5 mm jack or screw terminals.
+- The station app expects the key to act as a simple switch between GPIO17 and
+  GND. Do not connect the key to 3.3V or 5V.
+
+### Wiring Options
+
+- Budget build: jumper wires are acceptable for bench testing and supervised
+  home use.
+- Durable build: use the Pi screw terminal block breakout module so the key and
+  LED wires are clamped in place.
+- Current wiring: telegraph key on GPIO17/GND, status LED on GPIO27/GND through
+  a 220 to 330 ohm resistor.
 
 Not included above:
 
