@@ -401,6 +401,9 @@ class RouteRenderTests(unittest.TestCase):
         html = response.get_data(as_text=True)
 
         self.assertEqual(200, response.status_code)
+        self.assertIn("<strong>Warm Up</strong>", html)
+        self.assertIn("Quick review", html)
+        self.assertIn('href="/touch/practice/run?mode=warmup"', html)
         self.assertIn("<strong>Words</strong>", html)
         self.assertIn("Unlock after S O", html)
         self.assertIn('href="/touch/progress"', html)

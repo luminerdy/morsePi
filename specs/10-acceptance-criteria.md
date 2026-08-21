@@ -48,7 +48,8 @@ correctness checks. Each is encoded as an automated test per
 - **AC-035** (FR-059) Given a student with prior normal practice activity more
   than 3 calendar days ago and no completed warm-up today, Daily Mission
   recommends `Warm Up First` and links to `/touch/practice/run?mode=warmup`.
-  Ten warm-up attempts today clear that recommendation. Posting a correct
+  The Practice menu also shows a manual `Warm Up` button with the same link.
+  Ten warm-up attempts today clear the Daily recommendation. Posting a correct
   warm-up result records a `warmup` attempt with `review_only=true`, counts it
   toward effort history, and leaves `practice_progress.json` unchanged for the
   reviewed letter.

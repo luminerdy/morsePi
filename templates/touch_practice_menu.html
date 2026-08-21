@@ -23,6 +23,10 @@
                     <span>{{ mode_config.progress_label }}</span>
                 </a>
             {% endfor %}
+            <a class="touch-menu-card {% if mode == 'warmup' %}primary{% endif %}" href="/touch/practice/run?mode=warmup">
+                <strong>Warm Up</strong>
+                <span>Quick review</span>
+            </a>
             {% if word_practice.unlocked %}
                 <a class="touch-menu-card primary" href="/touch/words">
                     <strong>Words</strong>
