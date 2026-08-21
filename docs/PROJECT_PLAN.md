@@ -19,6 +19,9 @@
 - Clarified operations language: `Sync Now` moves student progress, messages,
   station status, and backups; app features move through `Update App`, the
   local update timer, or an AWS IoT `update-app` Job pulling `release/pi`.
+- Added a manual Warm-Up button to the Practice menu so students can start a
+  quick review whenever they want, even when Daily has not automatically
+  recommended it.
 
 ### Daily Start Notes
 
@@ -28,6 +31,8 @@
   `update-app` Job.
 - Data sync and software update are separate paths. Use `Sync Now` to move
   practice data; use `Update App` or remote update jobs to move new features.
+- Warm-Up can now be started two ways: Daily suggests it after a long break,
+  and the Practice menu lets a student start it on demand.
 
 **Next steps**
 
@@ -49,6 +54,8 @@
   failure, then verified the corrected release with the full Pi test suite.
 - Updated specs/status and operations docs so Warm-Up, Sync Now, and app update
   behavior are explicit.
+- Updated specs to require both automatic Daily Warm-Up and manual Practice
+  menu Warm-Up.
 
 **Next steps**
 

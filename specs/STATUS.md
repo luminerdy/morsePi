@@ -50,7 +50,7 @@ files only carry *(Delta: …)* notes, not status history.
 | Remote maintenance cost guardrail | 2026-08-08 working tree | NFR-019/AC-032/TEST-020 — specs now require normal three-station remote maintenance to stay under `$1/month` where practical and require fixed monthly per-device tools such as Systems Manager to be documented as explicit temporary troubleshooting choices before activation. |
 | D/U Words catalog expansion | 2026-08-10 `cc41418` + working tree | FR-056/AC-033 — D/U now adds 14 practice words; a student who completed the prior 42-word catalog sees 42/56 words complete (75%) until the new words are practiced. Main is updated; station release rollout remains pending. |
 | C/W/H/L Words catalog expansion | 2026-08-10 working tree | FR-056/AC-034 — C/W/H/L now adds 24 practice words; a student who completed the prior 56-word catalog sees 56/80 words complete (70%) until the new words are practiced. Station release rollout remains pending. |
-| Warm-Up Review | main `ffe0605` + `cf9c9c9`; release/pi `a8d89f0` | FR-059/AC-035 — Daily offers a 10-signal active-letter review after 3+ days away, logs review-only timing/effort attempts, leaves mastery/unlocks/Daily count unchanged, and keeps Learning Now higher priority. Pappy deployed successfully after the updater rolled back the first failing release attempt, then passed 231 Pi tests and health check. |
+| Warm-Up Review | main `ffe0605` + `cf9c9c9`; release/pi `a8d89f0`; manual entry 2026-08-21 working tree | FR-059/AC-035 — Daily offers a 10-signal active-letter review after 3+ days away, Practice menu provides a manual Warm-Up button, review logs timing/effort attempts, leaves mastery/unlocks/Daily count unchanged, and keeps Learning Now higher priority. Pappy deployed successfully after the updater rolled back the first failing release attempt, then passed 231 Pi tests and health check. |
 
 **Note 1 (FR-012):** over-limit text is silently **truncated** (`limited_text`),
 not rejected; only bodies > 16 KB get a hard 413. The OOM DoS is closed
@@ -89,7 +89,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-056 adaptive attainable Words | ✅ | Unfinished/review cadence and distinct-word completion score are implemented and covered |
 | FR-057/DR-020/SEC-021 permanent identity | ✅ | Canonical family UUIDs, compatibility aliases, private registry preference with tracked fallback, idempotent migration, Guest exclusion, and fail-closed mismatch checks are implemented and live-rehearsed |
 | FR-058/API-027/SEC-022 remote update Jobs | 🟡 | Local worker, systemd timer, config examples, docs, policy template, and AWS Things/policies are ready. Astrid/Liara live `update-app` Job succeeded. Pappy is now a `release/pi` Git checkout with local update and IoT poll timers active; its station credential can poll Jobs but cannot create them. Campbell/Olivea rollout remains pending reconnection |
-| FR-059 Warm-Up Review | ✅ | Daily-driven 10-signal review for students away 3+ days; logs review-only attempts for effort/rhythm while leaving mastery, unlock gates, and Daily count unchanged |
+| FR-059 Warm-Up Review | ✅ | Daily-driven or manually started 10-signal review; logs review-only attempts for effort/rhythm while leaving mastery, unlock gates, and Daily count unchanged |
 | SEC-001 CSRF | ❌ | No tokens anywhere |
 | SEC-002/003 mandatory PIN + lockout | 🟡 | PIN remains optional for development, but configured PINs now use constant-time comparison and a short in-memory lockout after repeated failures |
 | SEC-004 input validation | 🟡 | See FR-012 note |
@@ -138,4 +138,4 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | AC-032 remote maintenance cost guardrail | — | 🟡 | Spec guardrail added; keep reviewing AWS docs/billing before activating any fixed monthly remote-admin service |
 | AC-033 D/U Words expansion | — | ✅ | Regression fixture covers 42/56 completion after D/U unlock; Pappy live page verified 42/56 after release update |
 | AC-034 C/W/H/L Words expansion | — | 🟡 | Regression fixture covers 56/80 completion after C/W/H/L unlock; release branch and Pappy contain the word pack, but live student unlock verification remains future testing |
-| AC-035 Warm-Up Review | — | ✅ | Route tests cover stale-practice recommendation, 10-signal completion, review-only attempt logging, and unchanged mastery progress; Pappy release suite passed 231 tests |
+| AC-035 Warm-Up Review | — | ✅ | Route tests cover stale-practice recommendation, manual Practice-menu entry point, 10-signal completion, review-only attempt logging, and unchanged mastery progress; Pappy release suite passed 231 tests |

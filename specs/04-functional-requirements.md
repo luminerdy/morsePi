@@ -305,11 +305,13 @@ from the current code (legacy status per requirement is tracked in
 - **FR-059** Warm-Up Review SHALL be offered from Daily when a student has
   non-warm-up practice history but has been away from normal practice for at
   least 3 calendar days and has not already completed today's warm-up. The
-  warm-up SHALL review only currently active letters, require 10 review signals,
-  log attempts with mode `warmup` and `review_only=true`, count toward effort
-  and rhythm history, and SHALL NOT change Send/Read/Listen/Echo/Learn mastery,
-  unlock gates, or the 20-signal Daily Mission count. Completing the warm-up
-  SHALL return the student to the normal Daily next-step flow.
+  Practice menu SHALL also provide a manual Warm-Up entry point so a student or
+  adult can start review on demand. The warm-up SHALL review only currently
+  active letters, require 10 review signals, log attempts with mode `warmup` and
+  `review_only=true`, count toward effort and rhythm history, and SHALL NOT
+  change Send/Read/Listen/Echo/Learn mastery, unlock gates, or the 20-signal
+  Daily Mission count. Completing the warm-up SHALL return the student to the
+  normal Daily next-step flow.
 
 ## Student identity
 

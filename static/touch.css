@@ -2371,7 +2371,11 @@
 }
 
 .practice-modes .touch-menu-card strong {
-    font-size: 32px;
+    font-size: 28px;
+}
+
+.practice-modes {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .touch-drill {
