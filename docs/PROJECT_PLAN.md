@@ -790,6 +790,9 @@ Create or refine these GitHub issues next:
 10. Add web app tutorial documentation
 11. Move hardware/audio code out of `app.py`
 12. Test Kindle Fire/Silk browser compatibility for Practice modes, audio playback, and touch layout
+13. Add student/operator names to `Words I Know` once the student has learned
+    every letter in that name; for example, `PAPPY` should appear as soon as
+    `P` is learned because the remaining letters are already available.
 
 ## Progress Log
 

@@ -314,6 +314,12 @@ from the current code (legacy status per requirement is tracked in
   letter after a short readable pause, but completing the 10-signal goal SHALL
   NOT force the student out of Warm-Up; the student SHALL decide when to keep
   reviewing or return to the normal Daily next-step flow.
+- **FR-060** *(Future)* `Words I Know` SHOULD include eligible student/operator
+  display names once the viewing student has learned every letter required for
+  that name. Name words SHOULD follow the same active-letter filtering as the
+  normal Words catalog while keeping a distinct source label so adults can
+  decide whether name practice counts toward Words completion, messaging, or
+  both.
 
 ## Student identity
 
