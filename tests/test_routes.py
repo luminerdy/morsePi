@@ -419,8 +419,8 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn('data-practice-target="A"', html)
         self.assertIn('<div class="target-letter" id="targetLetter">A</div>', html)
         self.assertIn('id="expectedMorse">', html)
-        self.assertIn('morse-symbol dot', html)
-        self.assertIn('morse-symbol dash', html)
+        self.assertIn('morse-dot', html)
+        self.assertIn('morse-dash', html)
 
     def test_home_message_is_limited_before_encoding(self):
         response = self.client.post("/", data={"message": "A" * (app_module.MAX_MESSAGE_CHARS + 25)})
