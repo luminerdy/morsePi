@@ -310,8 +310,10 @@ from the current code (legacy status per requirement is tracked in
   active letters, require 10 review signals, log attempts with mode `warmup` and
   `review_only=true`, count toward effort and rhythm history, and SHALL NOT
   change Send/Read/Listen/Echo/Learn mastery, unlock gates, or the 20-signal
-  Daily Mission count. Completing the warm-up SHALL return the student to the
-  normal Daily next-step flow.
+  Daily Mission count. Correct Warm-Up keying SHALL NOT auto-advance; the
+  student SHALL decide when to move to the next review prompt. Completing the
+  warm-up SHALL leave the student free to keep reviewing or return to the normal
+  Daily next-step flow.
 
 ## Student identity
 

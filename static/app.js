@@ -971,13 +971,14 @@ function checkPracticeAnswer(actualMorse, expectedMorse, target) {
 
     if (actualMorse === expectedMorse) {
         setPracticeFeedback(getPracticeMode() === "warmup"
-            ? `Correct: ${target}. Keep warming up.`
+            ? `Correct: ${target}. Take your time, then tap Next.`
             : `Correct: ${target}. Next letter coming up.`
         );
         recordPracticeResult(target, true).then(data => {
-            if (getPracticeMode() === "warmup" && data && data.score && Number(data.score.mastery) >= 100) {
-                setPracticeFeedback("Warm-up complete. Go to Daily for today's mission.");
-                practiceActive = false;
+            if (getPracticeMode() === "warmup") {
+                if (data && data.score && Number(data.score.mastery) >= 100) {
+                    setPracticeFeedback("Warm-up complete. Keep reviewing or go to Daily when you are ready.");
+                }
                 practiceBusy = false;
                 return;
             }
@@ -1232,9 +1233,13 @@ function updateScoreCard(score) {
     }
 
     if (goal) {
-        goal.innerText = masteryValue >= 100
-            ? "Mode complete. Go to Daily for the next step."
-            : score.next_goal;
+        if (score.mode === "warmup") {
+            goal.innerText = score.next_goal;
+        } else {
+            goal.innerText = masteryValue >= 100
+                ? "Mode complete. Go to Daily for the next step."
+                : score.next_goal;
+        }
     }
 }
 
