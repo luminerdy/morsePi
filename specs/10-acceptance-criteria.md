@@ -140,7 +140,9 @@ correctness checks. Each is encoded as an automated test per
   and server comparisons while every kid-facing rendering uses centered dot
   and dash elements with accessible labels. At 800x480 the marks remain
   aligned, letter groups do not split internally, and the printable handout
-  uses the same centered geometry.
+  uses the same centered geometry. Practice feedback/instruction text describes
+  the next action without embedding raw ASCII Morse strings such as `.-`; the
+  visible prompt owns the Morse pattern display.
 - **AC-022** (FR-051) With `E T A N I M S O` active, Words still exposes the
   complete 42-word set, starts with `AM`, and presents `NOT` and `MOM` within
   the first six prompts. Every available word contains only active letters.

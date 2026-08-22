@@ -630,6 +630,30 @@ function countMorseSymbols(value) {
     return value.replace(/[\s/]/g, "").length;
 }
 
+function practiceInstructionForMode(mode) {
+    if (mode === "listen") {
+        return "Listen and choose the letter.";
+    }
+
+    if (mode === "echo") {
+        return "Listen, then key it back.";
+    }
+
+    if (mode === "learn") {
+        return "Study the pattern, then key it.";
+    }
+
+    if (mode === "warmup") {
+        return "Review the pattern, then key it.";
+    }
+
+    if (mode === "read") {
+        return "Choose the matching letter.";
+    }
+
+    return "Key the letter shown.";
+}
+
 function feedbackResult(message) {
     const text = (message || "").trim();
 
@@ -1054,21 +1078,20 @@ async function loadNextPracticePrompt() {
         updateOverallScoreCard(data.overall || null);
         updateBonusScore(data.bonus || null);
         resetInputDisplay();
+        const mode = getPracticeMode();
         if (bonus) {
             setPracticeFeedback("Next signal. Key it once.");
-        } else if (getPracticeMode() === "listen") {
-            setPracticeFeedback("Next one. Listen and choose the letter.");
+        } else if (mode === "listen") {
+            setPracticeFeedback(practiceInstructionForMode(mode));
             playPracticePromptInBrowser();
-        } else if (getPracticeMode() === "echo") {
-            setPracticeFeedback("Next one. Listen, then key it back.");
+        } else if (mode === "echo") {
+            setPracticeFeedback(practiceInstructionForMode(mode));
             playPracticePromptInBrowser();
-        } else if (getPracticeMode() === "learn") {
-            setPracticeFeedback(`Follow ${data.target}: ${data.expected_morse}.`);
+        } else if (mode === "learn") {
+            setPracticeFeedback(practiceInstructionForMode(mode));
             playPracticePromptInBrowser();
-        } else if (getPracticeMode() === "warmup") {
-            setPracticeFeedback(`Review ${data.target}. Key it once.`);
         } else {
-            setPracticeFeedback(getPracticeMode() === "read" ? "Next one." : `Now try ${data.target}.`);
+            setPracticeFeedback(practiceInstructionForMode(mode));
         }
         focusReadInput();
     } catch (error) {
@@ -1632,11 +1655,7 @@ function initializePracticeMode() {
         clearKeyInput();
     }
     if (panel && ["listen", "echo", "learn"].includes(getPracticeMode())) {
-        setPracticeFeedback(getPracticeMode() === "learn"
-            ? `Follow the example for ${panel.dataset.practiceTarget}.`
-            : getPracticeMode() === "echo"
-            ? "Listen, then key it back."
-            : "Listen and choose the letter.");
+        setPracticeFeedback(practiceInstructionForMode(getPracticeMode()));
         setTimeout(playPracticePromptInBrowser, 350);
     }
     initializeWordPractice();

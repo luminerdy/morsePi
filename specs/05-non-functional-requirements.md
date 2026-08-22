@@ -51,7 +51,9 @@
   symbol and letter spacing across Learn, practice, Words, Progress, Messages,
   live key displays, and printable student materials. Canonical stored,
   transmitted, and compared Morse SHALL remain ASCII `.` and `-`. The visual
-  renderer SHALL expose an accessible dot/dash text label.
+  renderer SHALL expose an accessible dot/dash text label. Student-facing
+  feedback text SHALL NOT embed raw ASCII Morse patterns in prose, because
+  sentence punctuation can be confused for Morse dots.
 - **NFR-018** *(V1)* A deployed station SHOULD show morsePi branding during
   boot and on the adult recovery desktop. Boot branding SHALL use a static
   Plymouth-compatible image, keep a restorable copy of the original OS splash,
