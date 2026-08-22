@@ -49,9 +49,9 @@ correctness checks. Each is encoded as an automated test per
   than 3 calendar days ago and no completed warm-up today, Daily Mission
   recommends `Warm Up First` and links to `/touch/practice/run?mode=warmup`.
   The Practice menu also shows a manual `Warm Up` button with the same link.
-  Warm-Up prompts show the target letter and hide the Morse answer until the
-  student keys it. Ten warm-up attempts today clear the Daily recommendation.
-  Posting a correct warm-up result records a `warmup` attempt with
+  Warm-Up prompts show both the target letter and its Morse pattern for memory
+  reinforcement while the student keys it. Ten warm-up attempts today clear the
+  Daily recommendation. Posting a correct warm-up result records a `warmup` attempt with
   `review_only=true`, counts it toward effort history, and leaves
   `practice_progress.json` unchanged for the reviewed letter.
 - **AC-012** (NFR-005) `pip install -e . && pytest` passes on

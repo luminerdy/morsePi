@@ -1119,7 +1119,7 @@ function updatePracticePrompt(target, expectedMorse, readChoices = []) {
     panel.dataset.expectedMorse = expectedMorse;
     if (["send", "learn", "warmup"].includes(getPracticeMode())) {
         targetLetter.innerText = target;
-        if (getPracticeMode() === "learn") {
+        if (["learn", "warmup"].includes(getPracticeMode())) {
             renderMorseVisual(expected, expectedMorse);
         } else {
             expected.innerText = "?";
