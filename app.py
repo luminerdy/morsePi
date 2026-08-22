@@ -1283,6 +1283,19 @@ def parse_attempt_time(value):
         return None
 
 
+def attempt_is_today(attempt, today=None):
+    today = today or today_key()
+    parsed = parse_attempt_time(attempt.get("timestamp"))
+
+    if parsed is None:
+        return str(attempt.get("timestamp", ""))[:10] == today
+
+    if parsed.tzinfo is not None:
+        parsed = parsed.astimezone()
+
+    return parsed.date().isoformat() == today
+
+
 def load_attempt_records(path, today_only=False):
     path = Path(path)
     attempts = []
@@ -1300,8 +1313,7 @@ def load_attempt_records(path, today_only=False):
         except json.JSONDecodeError:
             continue
 
-        timestamp = str(attempt.get("timestamp", ""))
-        if not today_only or timestamp[:10] == today:
+        if not today_only or attempt_is_today(attempt, today):
             attempts.append(attempt)
 
     return attempts
@@ -1674,7 +1686,7 @@ def daily_warmup_review(active_letters):
     warmup_today = [
         attempt for attempt in attempts
         if str(attempt.get("mode", "")).lower() == "warmup"
-        and str(attempt.get("timestamp", ""))[:10] == today
+        and attempt_is_today(attempt, today)
     ]
     correct_today = sum(1 for attempt in warmup_today if attempt.get("correct"))
 
@@ -2638,7 +2650,7 @@ def daily_word_focus(active_letters=None):
 
     attempts = [
         attempt for attempt in load_word_attempts()
-        if str(attempt.get("timestamp", ""))[:10] == today_key()
+        if attempt_is_today(attempt)
     ]
     total = len(attempts)
     correct = sum(1 for attempt in attempts if attempt.get("correct"))
