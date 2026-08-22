@@ -138,4 +138,4 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | AC-032 remote maintenance cost guardrail | — | 🟡 | Spec guardrail added; keep reviewing AWS docs/billing before activating any fixed monthly remote-admin service |
 | AC-033 D/U Words expansion | — | ✅ | Regression fixture covers 42/56 completion after D/U unlock; Pappy live page verified 42/56 after release update |
 | AC-034 C/W/H/L Words expansion | — | 🟡 | Regression fixture covers 56/80 completion after C/W/H/L unlock; release branch and Pappy contain the word pack, but live student unlock verification remains future testing |
-| AC-035 Warm-Up Review | — | ✅ | Route tests cover stale-practice recommendation, manual Practice-menu entry point, 10-signal completion, review-only attempt logging, and unchanged mastery progress; Pappy release suite passed 231 tests |
+| AC-035 Warm-Up Review | — | ✅ | Route tests cover stale-practice recommendation, manual Practice-menu entry point, hidden Morse answer, 10-signal completion, review-only attempt logging, and unchanged mastery progress; Pappy release suite passed 231 tests |
