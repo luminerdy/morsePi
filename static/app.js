@@ -1065,7 +1065,7 @@ async function loadNextPracticePrompt() {
             setPracticeFeedback(`Follow ${data.target}: ${data.expected_morse}.`);
             playPracticePromptInBrowser();
         } else if (getPracticeMode() === "warmup") {
-            setPracticeFeedback(`Review ${data.target}: ${data.expected_morse}.`);
+            setPracticeFeedback(`Review ${data.target}. Key it once.`);
         } else {
             setPracticeFeedback(getPracticeMode() === "read" ? "Next one." : `Now try ${data.target}.`);
         }
@@ -1117,7 +1117,7 @@ function updatePracticePrompt(target, expectedMorse, readChoices = []) {
 
     panel.dataset.practiceTarget = target;
     panel.dataset.expectedMorse = expectedMorse;
-    if (["send", "learn"].includes(getPracticeMode())) {
+    if (["send", "learn", "warmup"].includes(getPracticeMode())) {
         targetLetter.innerText = target;
         if (getPracticeMode() === "learn") {
             renderMorseVisual(expected, expectedMorse);
