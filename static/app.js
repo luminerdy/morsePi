@@ -977,9 +977,9 @@ function checkPracticeAnswer(actualMorse, expectedMorse, target) {
         recordPracticeResult(target, true).then(data => {
             if (getPracticeMode() === "warmup") {
                 if (data && data.score && Number(data.score.mastery) >= 100) {
-                    setPracticeFeedback("Warm-up complete. Keep reviewing or go to Daily when you are ready.");
+                    setPracticeFeedback("Warm-up complete. Next review coming up.");
                 }
-                practiceBusy = false;
+                setTimeout(loadNextPracticePrompt, 1800);
                 return;
             }
 

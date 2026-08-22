@@ -24,8 +24,9 @@
   recommended it.
 - Adjusted Warm-Up review to show both the target letter and its Morse pattern
   because this mode is meant to refresh memory before independent practice.
-- Changed Warm-Up to be self-paced after a correct key: it records progress and
-  waits for the student to tap Next instead of advancing automatically.
+- Tuned Warm-Up rotation: after a correct key it pauses long enough to read the
+  feedback, then rotates to another learned letter; reaching the 10-signal goal
+  no longer forces the student out of Warm-Up.
 
 ### Daily Start Notes
 
