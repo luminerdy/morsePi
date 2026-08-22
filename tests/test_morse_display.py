@@ -43,6 +43,17 @@ class MorseDisplayTests(unittest.TestCase):
 
         self.assertEqual([], offenders)
 
+    def test_practice_feedback_does_not_embed_raw_morse_strings(self):
+        root = Path(__file__).resolve().parents[1]
+        source = (root / "static" / "app.js").read_text(encoding="utf-8")
+
+        raw_morse_feedback = re.compile(
+            r"setPracticeFeedback\([^;]*(expected_morse|expectedMorse)",
+            re.DOTALL,
+        )
+
+        self.assertIsNone(raw_morse_feedback.search(source))
+
 
 if __name__ == "__main__":
     unittest.main()

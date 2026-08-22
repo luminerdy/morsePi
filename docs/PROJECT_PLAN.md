@@ -27,6 +27,11 @@
 - Tuned Warm-Up rotation: after a correct key it pauses long enough to read the
   feedback, then rotates to another learned letter; reaching the 10-signal goal
   no longer forces the student out of Warm-Up.
+- Cleaned up practice instruction text across Learn, Send, Read, Listen, Echo,
+  and Warm-Up so the bottom-left feedback box gives plain next-step guidance
+  instead of embedding raw Morse in a sentence. Decision: the main prompt owns
+  the Morse display; feedback text should not include raw dot/dash strings
+  where punctuation can look like an extra Morse dot.
 
 ### Daily Start Notes
 
