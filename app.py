@@ -1285,10 +1285,15 @@ def parse_attempt_time(value):
 
 def attempt_is_today(attempt, today=None):
     today = today or today_key()
-    parsed = parse_attempt_time(attempt.get("timestamp"))
+    timestamp = str(attempt.get("timestamp", ""))
+
+    if timestamp[:10] == today:
+        return True
+
+    parsed = parse_attempt_time(timestamp)
 
     if parsed is None:
-        return str(attempt.get("timestamp", ""))[:10] == today
+        return False
 
     if parsed.tzinfo is not None:
         parsed = parsed.astimezone()
