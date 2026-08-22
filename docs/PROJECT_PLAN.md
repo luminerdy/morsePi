@@ -11,11 +11,11 @@
   Learn mastery, unlock gates, or the 20-signal Daily Mission count.
 - Fixed Daily priority so active Learning Now letters remain ahead of Warm-Up;
   Warm-Up appears only when the student is otherwise ready to resume.
-- Deployed the release to Pappy through the normal `release/pi` update path.
-  The first update attempt failed the Pi regression suite and automatically
-  rolled back, which proved the safety wrapper. After the fix, Pappy updated to
-  `a8d89f0`, passed 231 Pi tests, passed the `/touch` health check, and
-  refreshed station status/snapshots.
+- Deployed the releases to Pappy through the normal `release/pi` update path.
+  Early Warm-Up update attempts failed the Pi regression suite and
+  automatically rolled back, which proved the safety wrapper. After the final
+  fixes, Pappy updated to `9c62f70`, passed 232 Pi tests, passed the `/touch`
+  health check, and refreshed station status/snapshots.
 - Clarified operations language: `Sync Now` moves student progress, messages,
   station status, and backups; app features move through `Update App`, the
   local update timer, or an AWS IoT `update-app` Job pulling `release/pi`.
@@ -30,7 +30,7 @@
 
 ### Daily Start Notes
 
-- Pappy is current on `release/pi` at `a8d89f0`; no manual app copy was needed.
+- Pappy is current on `release/pi` at `9c62f70`; no manual app copy was needed.
 - The remote grandkid stations will not receive the Warm-Up feature until they
   are powered on, online, and run their local update path or consume an IoT
   `update-app` Job.
@@ -38,13 +38,15 @@
   practice data; use `Update App` or remote update jobs to move new features.
 - Warm-Up can now be started two ways: Daily suggests it after a long break,
   and the Practice menu lets a student start it on demand.
+- Current Warm-Up behavior: show the letter and Morse pattern, key it, show the
+  result briefly, rotate to another learned letter, and keep reviewing after
+  the 10-signal goal until the student chooses to leave.
 
 **Next steps**
 
-1. When Astrid/Liara and Campbell/Olivea are online, trigger or verify
-   `update-app` so both stations catch up to the current `release/pi`.
-2. Test Warm-Up on Pappy with a student whose last normal practice is more
-   than 3 days old.
+1. When Astrid/Liara is online, trigger or verify `update-app` so it catches up
+   to the current `release/pi`.
+2. Continue live-testing Warm-Up on Pappy for pacing and clarity.
 3. Decide whether deployed stations should keep automatic app update timers
    active or rely mainly on adult-triggered IoT update jobs.
 4. Continue Message Builder Slice 2: require students to key each selected word
@@ -56,19 +58,25 @@
 
 - Implemented and released Warm-Up Review with regression coverage.
 - Verified the hardened updater's rollback behavior during a real Pappy update
-  failure, then verified the corrected release with the full Pi test suite.
+  failure, then verified the corrected releases with the full Pi test suite.
 - Updated specs/status and operations docs so Warm-Up, Sync Now, and app update
   behavior are explicit.
 - Updated specs to require both automatic Daily Warm-Up and manual Practice
   menu Warm-Up.
+- Iterated Warm-Up UX based on live testing: manual start, visible Morse
+  review pattern, learned-letter rotation, readable success pause, and no
+  forced exit at 10 review signals.
+- Pappy is deployed on `release/pi` commit `9c62f70`; service is active and the
+  232-test Pi suite passed.
 
 **Next steps**
 
-1. Use the remote update path to bring both away stations to the current
-   release once they are online.
-2. Watch whether Warm-Up feels encouraging or repetitive after real use.
+1. Use the remote update path to bring Astrid/Liara to the current release once
+   it is online; Campbell/Olivea already showed fresh cloud activity today.
+2. Watch whether Warm-Up's 1.8-second pause feels right or should be adjustable.
 3. Keep specs updated before larger changes, especially Message Builder and
    remote update/sync work.
+4. Continue Message Builder Slice 2 when Warm-Up testing feels settled.
 
 ## 2026-08-11 - Pappy Git update path
 
