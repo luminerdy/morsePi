@@ -55,8 +55,8 @@
 
                     <div>
                         <div class="field-label">{% if mode in ['listen', 'echo'] %}Audio Prompt{% else %}Morse{% endif %}</div>
-                        <div class="expected-morse {% if mode in ['send', 'listen', 'echo', 'warmup'] %}prompt-placeholder{% endif %}" id="expectedMorse">
-                            {% if mode in ['read', 'learn'] %}{{ expected_morse | morse_visual }}{% elif mode in ['listen', 'echo'] %}Play Code{% else %}?{% endif %}
+                        <div class="expected-morse {% if mode in ['send', 'listen', 'echo'] %}prompt-placeholder{% endif %}" id="expectedMorse">
+                            {% if mode in ['read', 'learn', 'warmup'] %}{{ expected_morse | morse_visual }}{% elif mode in ['listen', 'echo'] %}Play Code{% else %}?{% endif %}
                         </div>
                     </div>
                 </div>

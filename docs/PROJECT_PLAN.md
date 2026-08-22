@@ -22,6 +22,8 @@
 - Added a manual Warm-Up button to the Practice menu so students can start a
   quick review whenever they want, even when Daily has not automatically
   recommended it.
+- Adjusted Warm-Up review to show both the target letter and its Morse pattern
+  because this mode is meant to refresh memory before independent practice.
 
 ### Daily Start Notes
 

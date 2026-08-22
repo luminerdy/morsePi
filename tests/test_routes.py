@@ -408,7 +408,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("Unlock after S O", html)
         self.assertIn('href="/touch/progress"', html)
 
-    def test_touch_warmup_shows_letter_without_morse_answer(self):
+    def test_touch_warmup_shows_letter_with_morse_review(self):
         app_module.practice_target = "A"
 
         response = self.client.get("/touch/practice/run?mode=warmup")
@@ -418,9 +418,9 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn('data-practice-mode="warmup"', html)
         self.assertIn('data-practice-target="A"', html)
         self.assertIn('<div class="target-letter" id="targetLetter">A</div>', html)
-        self.assertIn('id="expectedMorse">\n                        ?', html)
-        self.assertNotIn('morse-symbol dot', html)
-        self.assertNotIn('morse-symbol dash', html)
+        self.assertIn('id="expectedMorse">', html)
+        self.assertIn('morse-symbol dot', html)
+        self.assertIn('morse-symbol dash', html)
 
     def test_home_message_is_limited_before_encoding(self):
         response = self.client.post("/", data={"message": "A" * (app_module.MAX_MESSAGE_CHARS + 25)})
