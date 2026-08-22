@@ -35,7 +35,7 @@
 
 ### Daily Start Notes
 
-- Pappy is current on `release/pi` at `9c62f70`; no manual app copy was needed.
+- Pappy is current on `release/pi` at `8b0cc7c`; no manual app copy was needed.
 - The remote grandkid stations will not receive the Warm-Up feature until they
   are powered on, online, and run their local update path or consume an IoT
   `update-app` Job.
@@ -46,6 +46,8 @@
 - Current Warm-Up behavior: show the letter and Morse pattern, key it, show the
   result briefly, rotate to another learned letter, and keep reviewing after
   the 10-signal goal until the student chooses to leave.
+- Practice-mode feedback behavior: the bottom-left box now uses plain next-step
+  instructions only; raw dot/dash Morse stays in the centered visual prompt.
 
 **Next steps**
 
@@ -71,8 +73,8 @@
 - Iterated Warm-Up UX based on live testing: manual start, visible Morse
   review pattern, learned-letter rotation, readable success pause, and no
   forced exit at 10 review signals.
-- Pappy is deployed on `release/pi` commit `9c62f70`; service is active and the
-  232-test Pi suite passed.
+- Pappy is deployed on `release/pi` commit `8b0cc7c`; service is active and the
+  Pi-local `/touch` health check passed.
 
 **Next steps**
 
