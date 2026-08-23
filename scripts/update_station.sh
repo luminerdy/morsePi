@@ -73,6 +73,7 @@ run_update_checks() {
         scripts/station_status.py \
         scripts/progress_snapshot.py \
         scripts/family_progress.py \
+        scripts/cleanup_removed_messages.py \
         scripts/migrate_student_uuids.py
 
     if [ "$RUN_TESTS" = "1" ]; then
@@ -81,6 +82,9 @@ run_update_checks() {
 }
 
 run_pending_migrations() {
+    if [ -f scripts/cleanup_removed_messages.py ]; then
+        python3 scripts/cleanup_removed_messages.py
+    fi
     if [ -f scripts/migrate_student_uuids.py ]; then
         python3 scripts/migrate_student_uuids.py
     fi

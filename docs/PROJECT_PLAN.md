@@ -1,5 +1,16 @@
 # Pappy's Internet Telegraph Project Plan
 
+## 2026-08-23 - Message history cleanup
+
+- Removed the old Pappy-to-Astrid `AM` cloud message rehearsal from live Pappy
+  message history and S3 message-sync storage because Astrid did not create or
+  perform that test.
+- Added a small updater migration, `scripts/cleanup_removed_messages.py`, so
+  any station that still has the rehearsal message locally removes it during
+  its next app update after the normal pre-update backup.
+- Added regression coverage to verify the cleanup removes only the selected
+  rehearsal message and preserves unrelated message history.
+
 ## 2026-08-21 - Warm-Up Review and update-path clarification
 
 - Added Warm-Up Review as a Daily-driven catch-up activity for students who
