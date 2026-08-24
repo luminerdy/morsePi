@@ -2549,6 +2549,7 @@
 .touch-screensaver-character {
     visibility: hidden;
     opacity: 0;
+    height: 101px;
     color: #f6c445;
     font-size: 112px;
     font-weight: 900;

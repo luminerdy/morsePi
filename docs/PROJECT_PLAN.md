@@ -8,6 +8,9 @@
 - Decision: hide immediately, clear the character element for the entire
   10-second recall phase, and populate it only when the 5-second reveal begins.
   This prevents both prior-answer and next-answer flashes.
+- Pi frame sampling found that an empty character element initially collapsed
+  its grid row and moved the Morse pattern during reveal. Reserve a fixed
+  answer-row height so Morse remains stationary in both phases.
 
 ## 2026-08-24 - Browser supervision hardening
 
