@@ -1545,6 +1545,7 @@ function initializeSignalDrop() {
     let spawnElapsed = 0;
     let animationFrame = null;
     let morseTimer = null;
+    let pendingMorse = "";
     let lastSubmittedMorse = "";
     let score = 0;
     let attempts = 0;
@@ -1737,6 +1738,7 @@ function initializeSignalDrop() {
             showFeedback("Try that again", "The result was not saved.", target.letter, true);
         } finally {
             busy = false;
+            pendingMorse = "";
             lastSubmittedMorse = "";
             await clearKeyInput();
             if (running && targets.size === 0) {
@@ -1770,6 +1772,13 @@ function initializeSignalDrop() {
         if (!morse || morse === lastSubmittedMorse) {
             return;
         }
+
+        // Physical-key polling repeats the same value every 300 ms. Only a
+        // changed pattern should restart the letter-completion timer.
+        if (morse === pendingMorse) {
+            return;
+        }
+        pendingMorse = morse;
 
         if (morseTimer) {
             window.clearTimeout(morseTimer);
