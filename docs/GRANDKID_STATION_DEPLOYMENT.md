@@ -129,7 +129,7 @@ Stop each GPIO test with `Ctrl+C` before starting another test.
 
 ## 4. App Boot And Touchscreen
 
-Install the user service and browser autostart from the setup guide.
+Install the app user service and supervised browser service from the setup guide.
 
 Install the morsePi desktop wallpaper so the adult recovery desktop is clearly
 part of the station:

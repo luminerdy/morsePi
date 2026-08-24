@@ -57,9 +57,18 @@ def service_state(service_name):
     return result["output"] or ("inactive" if not result["ok"] else "unknown")
 
 
-def build_status(station_id, backup_dir=DEFAULT_BACKUP_DIR, service_name="morse-station.service"):
+def build_status(
+    station_id,
+    backup_dir=DEFAULT_BACKUP_DIR,
+    service_name="morse-station.service",
+    browser_service_name="morse-station-browser.service",
+):
     return {
         "app": "morsePi",
+        "browser_service": {
+            "name": browser_service_name,
+            "state": service_state(browser_service_name),
+        },
         "checked_at": datetime.now(timezone.utc).isoformat(),
         "git_branch": git_value(["rev-parse", "--abbrev-ref", "HEAD"]),
         "git_commit": git_value(["rev-parse", "--short", "HEAD"]),
@@ -87,6 +96,11 @@ def parse_args():
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT_PATH), help="Status JSON output path.")
     parser.add_argument("--s3-uri", help="Optional S3 URI such as s3://morsepi-backups.")
     parser.add_argument("--service", default="morse-station.service", help="User systemd service name to check.")
+    parser.add_argument(
+        "--browser-service",
+        default="morse-station-browser.service",
+        help="Supervised browser user service name to check.",
+    )
     parser.add_argument("--station-id", help="Station id for status and cloud path.")
     parser.add_argument("--dry-run-s3", action="store_true", help="Print the S3 status destination without uploading.")
     return parser.parse_args()
@@ -97,7 +111,7 @@ def main():
     station_id = resolve_station_id(args.station_id, args.config)
     config = load_station_config(args.config)
     s3_uri = args.s3_uri or config.get("backup_s3_uri", "")
-    status = build_status(station_id, args.backup_dir, args.service)
+    status = build_status(station_id, args.backup_dir, args.service, args.browser_service)
     output_path = write_status(status, args.output)
 
     print(f"Wrote status: {output_path}")

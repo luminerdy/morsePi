@@ -26,12 +26,19 @@ class StationStatusTests(unittest.TestCase):
         os.utime(older, (1, 1))
         os.utime(newer, (2, 2))
 
-        status = build_status("liara-station", self.backup_dir, service_name="")
+        status = build_status(
+            "liara-station",
+            self.backup_dir,
+            service_name="",
+            browser_service_name="",
+        )
 
         self.assertEqual("morsePi", status["app"])
         self.assertEqual("liara-station", status["station_id"])
         self.assertEqual("newer.zip", status["last_backup"])
         self.assertEqual("unknown", status["service"]["state"])
+        self.assertEqual("", status["browser_service"]["name"])
+        self.assertEqual("unknown", status["browser_service"]["state"])
 
     def test_write_status_creates_parent_directory(self):
         output_path = self.base / "status" / "station_status.json"
@@ -52,6 +59,8 @@ class StationStatusTests(unittest.TestCase):
                 "--station-id",
                 "astrid-station",
                 "--service",
+                "",
+                "--browser-service",
                 "",
                 "--backup-dir",
                 str(self.backup_dir),

@@ -3623,7 +3623,11 @@ def restart_wifi_in_background():
 def exit_kiosk_in_background():
     def worker():
         sleep(1)
-        run_system_command(["pkill", "-f", "chromium.*localhost:5000"], timeout=8)
+        run_system_command(
+            ["systemctl", "--user", "stop", "morse-station-browser.service"],
+            timeout=12,
+        )
+        run_system_command(["pkill", "-x", "chromium"], timeout=8)
 
     threading.Thread(target=worker, daemon=True).start()
 

@@ -331,6 +331,18 @@ from the current code (legacy status per requirement is tracked in
   Physical-keyer wake input SHALL be cleared and SHALL NOT count as a practice
   or Words attempt. The existing 10-minute idle return to `/touch` SHALL remain
   in effect. Shutdown-in-progress screens SHALL not start the screensaver.
+- **FR-062** *(V1)* Deployed Pi stations SHALL run the Chromium kiosk as a
+  supervised user service rather than a one-shot desktop autostart process.
+  The service SHALL wait for the graphical Wayland socket and Morse web app,
+  run Chromium as its tracked main process, and restart it automatically after
+  an unexpected exit. Installation SHALL be idempotent, remove legacy Labwc
+  and XDG browser autostart entries only after the supervised service starts,
+  and be applied by the normal station update path. The adult `Exit Kiosk`
+  action SHALL stop supervision before closing Chromium so the recovery
+  desktop remains available until an adult restarts the service or station.
+  A successful software update SHALL restart an active supervised browser so
+  new frontend assets load immediately. Uploaded station status SHALL include
+  the browser service name and active state.
 
 ## Student identity
 

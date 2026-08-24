@@ -1,21 +1,25 @@
 #!/bin/sh
 set -eu
 
-URL="http://localhost:5000/touch"
+URL="${MORSE_BROWSER_URL:-http://localhost:5000/touch}"
+RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+WAYLAND_SOCKET="${WAYLAND_DISPLAY:-wayland-0}"
+READY=0
 
-if pgrep -f "chromium.*localhost:5000/touch" >/dev/null 2>&1; then
-    exit 0
-fi
+export XDG_RUNTIME_DIR="$RUNTIME_DIR"
+export WAYLAND_DISPLAY="$WAYLAND_SOCKET"
 
-for _ in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
-    if curl -fsS "$URL" >/dev/null 2>&1; then
+for _ in $(seq 1 120); do
+    if [ -S "$RUNTIME_DIR/$WAYLAND_SOCKET" ] && curl -fsS "$URL" >/dev/null 2>&1; then
+        READY=1
         break
     fi
     sleep 1
 done
 
-if [ -n "${WAYLAND_DISPLAY:-}" ]; then
-    exec /usr/bin/chromium --ozone-platform=wayland --kiosk --new-window "$URL"
+if [ "$READY" -ne 1 ]; then
+    echo "Morse browser prerequisites were not ready within 120 seconds." >&2
+    exit 1
 fi
 
-exec /usr/bin/chromium --kiosk --new-window "$URL"
+exec /usr/bin/chromium --ozone-platform=wayland --kiosk --new-window "$URL"

@@ -230,6 +230,16 @@ correctness checks. Each is encoded as an automated test per
   creates no scored attempt. Continued inactivity still invokes the existing
   10-minute `/touch` redirect. The operator picker may display the screensaver
   but does not redirect itself, and the shutdown page never starts it.
+- **AC-037** (FR-062 / NFR-021) On a Pi graphical session, exactly one enabled
+  `morse-station-browser.service` owns the Chromium kiosk and the legacy Labwc
+  and XDG browser entries are absent. Killing Chromium unexpectedly causes the
+  service to restore `/touch` in kiosk mode within 15 seconds while the app
+  service remains active and student data is unchanged. Stopping Chromium
+  through the PIN-gated `Exit Kiosk` action leaves the desktop visible without
+  an automatic relaunch. Restarting the browser service restores the kiosk.
+  Running the installer twice remains successful and still produces one
+  browser. A completed app update restarts an active browser, and the generated
+  station status reports both app and browser service states.
 
 ## Coverage rule
 

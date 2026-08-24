@@ -1,0 +1,18 @@
+[Unit]
+Description=Pappy's Internet Telegraph supervised Chromium kiosk
+After=morse-station.service
+Wants=morse-station.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Environment=XDG_RUNTIME_DIR=%t
+Environment=WAYLAND_DISPLAY=wayland-0
+ExecStart=/home/morse/bin/start-morse-browser.sh
+Restart=always
+RestartSec=5
+TimeoutStopSec=10
+KillMode=mixed
+
+[Install]
+WantedBy=default.target
