@@ -17,6 +17,16 @@
   newly added updater lines from its replaced script file. Added an idempotent
   supervision preflight before the already-current exit as well as after a
   merge, so a second update check repairs stations arriving from older code.
+- Pappy live acceptance passed on `57c8b63`: supervision is enabled and owns
+  exactly one kiosk; legacy Labwc/XDG entries are absent; a forced Chromium
+  kill recovered in 6 seconds while the app PID and student-data fingerprint
+  remained unchanged.
+- The PIN-gated `Exit Kiosk` action left the desktop visible with Chromium and
+  the browser service stopped. Two successive installer runs restored exactly
+  one kiosk. Station status reports both app and browser services as active.
+- Cold reboot acceptance passed without manual launch: app and browser services
+  were active, `/touch/students` returned HTTP 200, zero user services were
+  failed, and the physical display showed the normal operator picker.
 
 ## 2026-08-24 - Screensaver recall reveal
 
