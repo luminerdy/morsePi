@@ -74,7 +74,8 @@
   mapping, wake-only touch/keyer handling, shutdown exclusion, and preservation
   of the 10-minute operator reset. A browser rehearsal at 800x480 uses
   shortened timers to verify the hidden/revealed character sequence, full
-  coverage, safe movement, readable centered marks, and that the first wake
+  coverage, immediate clearing with no transition flash, safe movement,
+  readable centered marks, and that the first wake
   touch does not activate the control beneath it.
 - **TEST-022** Browser-supervision contract tests verify the user unit restart
   policy, graphical/app readiness waits, absence of the old duplicate-process

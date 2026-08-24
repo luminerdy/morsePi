@@ -324,7 +324,9 @@ from the current code (legacy status per requirement is tracked in
   screensaver after 3 minutes without touch, keyboard-test, or physical-keyer
   activity. Each recall cycle SHALL show one random A-Z or 0-9 Morse pattern
   alone on a black background for 10 seconds, then reveal its matching
-  character for 5 seconds while keeping the Morse visible. The next cycle SHALL
+  character for 5 seconds while keeping the Morse visible. The character
+  element SHALL remain empty as well as visually hidden during recall so the
+  prior or next answer cannot flash during a cycle transition. The next cycle SHALL
   choose a different character and safe screen position. The screensaver SHALL
   produce no automatic sound or LED activity. The first touch or keyer press
   SHALL dismiss the screensaver and be consumed as wake-only input.

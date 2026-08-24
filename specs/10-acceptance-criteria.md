@@ -222,7 +222,9 @@ correctness checks. Each is encoded as an automated test per
 - **AC-036** (FR-061 / NFR-020) At 800x480, an active touch page shows no
   screensaver before 3 minutes and then shows a black full-screen overlay with
   one A-Z or 0-9 shared centered Morse visual with its character hidden. After
-  10 seconds, the matching character appears without moving or hiding the
+  each cycle begins, the character element is empty and immediately hidden;
+  neither the prior nor next answer flashes. After 10 seconds, the matching
+  character is populated and appears without moving or hiding the
   Morse. After 5 more seconds, a different pattern begins at a safe
   in-viewport position with its character hidden again. No phase makes sound
   or LED requests. The first touch dismisses and does not activate the covered
