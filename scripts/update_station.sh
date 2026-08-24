@@ -91,8 +91,29 @@ run_pending_migrations() {
     fi
 }
 
+install_browser_supervisor() {
+    local installed_unit="$HOME/.config/systemd/user/morse-station-browser.service"
+
+    if [ ! -x "$BROWSER_INSTALLER" ]; then
+        return 0
+    fi
+
+    if [ ! -f "$installed_unit" ] || systemctl --user is-active --quiet morse-station-browser.service; then
+        "$BROWSER_INSTALLER" --start
+        return
+    fi
+
+    "$BROWSER_INSTALLER"
+}
+
 python3 scripts/backup_data.py "${backup_args[@]}"
 run_pending_migrations
+
+if ! install_browser_supervisor; then
+    echo "Browser supervision preflight failed."
+    write_status_and_snapshots
+    exit 1
+fi
 
 if ! git diff --quiet || ! git diff --cached --quiet; then
     echo "Tracked local changes are present; skipping update."
@@ -133,7 +154,7 @@ if ! run_pending_migrations; then
     exit 1
 fi
 
-if [ -x "$BROWSER_INSTALLER" ] && ! "$BROWSER_INSTALLER" --start; then
+if ! install_browser_supervisor; then
     echo "Browser supervision installation failed; rolling back to $LOCAL_COMMIT."
     git reset --hard "$LOCAL_COMMIT"
     systemctl --user restart "$SERVICE"

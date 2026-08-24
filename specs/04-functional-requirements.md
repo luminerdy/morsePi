@@ -342,7 +342,11 @@ from the current code (legacy status per requirement is tracked in
   desktop remains available until an adult restarts the service or station.
   A successful software update SHALL restart an active supervised browser so
   new frontend assets load immediately. Uploaded station status SHALL include
-  the browser service name and active state.
+  the browser service name and active state. The update path SHALL rerun the
+  idempotent installer before an already-current exit so a station whose first
+  self-update could not execute newly fetched installer logic heals on the
+  next update check. An intentionally stopped, already-installed browser SHALL
+  remain stopped during that preflight.
 
 ## Student identity
 
