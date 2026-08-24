@@ -937,7 +937,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("data-word-clear", words_html)
         self.assertIn('/touch/words?word=ME&phase=1', words_html)
         self.assertNotIn("autoplay=1", words_html)
-        self.assertIn('app.js?v=20260824-3', words_html)
+        self.assertIn('app.js?v=20260824-4', words_html)
         self.assertNotIn(">Read</a>", words_html)
         self.assertIn('class="morse-visual"', words_html)
         self.assertIn('aria-label="dot dash"', words_html)
