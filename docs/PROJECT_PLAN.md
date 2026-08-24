@@ -1,5 +1,14 @@
 # Pappy's Internet Telegraph Project Plan
 
+## 2026-08-24 - Screensaver answer-flash correction
+
+- Observation: at the start of a new recall cycle, the prior letter remained
+  visible briefly because CSS delayed `visibility: hidden` during its opacity
+  transition.
+- Decision: hide immediately, clear the character element for the entire
+  10-second recall phase, and populate it only when the 5-second reveal begins.
+  This prevents both prior-answer and next-answer flashes.
+
 ## 2026-08-24 - Browser supervision hardening
 
 - Decision: replace the one-shot Labwc Chromium launch with a supervised user

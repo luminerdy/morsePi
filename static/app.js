@@ -1741,6 +1741,7 @@ function initializeTouchIdleExperience() {
     let keyerPollTimer = null;
     let active = false;
     let lastCharacter = "";
+    let pendingCharacter = "";
     let suppressCoveredInputUntil = 0;
 
     overlay.className = "touch-screensaver";
@@ -1762,6 +1763,7 @@ function initializeTouchIdleExperience() {
     };
 
     const revealCharacter = () => {
+        character.innerText = pendingCharacter;
         item.classList.add("answer-visible");
         character.setAttribute("aria-hidden", "false");
         rotationTimer = window.setTimeout(beginRecallCycle, screensaverRevealMs);
@@ -1773,8 +1775,9 @@ function initializeTouchIdleExperience() {
 
         item.classList.remove("answer-visible");
         character.setAttribute("aria-hidden", "true");
+        character.innerText = "";
         lastCharacter = choice.character;
-        character.innerText = choice.character;
+        pendingCharacter = choice.character;
         renderMorseVisual(morse, choice.morse);
         item.style.left = `${25 + Math.random() * 50}%`;
         item.style.top = `${25 + Math.random() * 50}%`;

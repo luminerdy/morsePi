@@ -19,6 +19,9 @@ class TouchScreensaverTests(unittest.TestCase):
     def test_recall_cycle_hides_then_reveals_the_character(self):
         self.assertIn('item.classList.remove("answer-visible")', self.app_source)
         self.assertIn('character.setAttribute("aria-hidden", "true")', self.app_source)
+        self.assertIn('character.innerText = ""', self.app_source)
+        self.assertIn("pendingCharacter = choice.character", self.app_source)
+        self.assertIn("character.innerText = pendingCharacter", self.app_source)
         self.assertIn('item.classList.add("answer-visible")', self.app_source)
         self.assertIn('character.setAttribute("aria-hidden", "false")', self.app_source)
         self.assertIn("window.setTimeout(revealCharacter, screensaverGuessMs)", self.app_source)
@@ -50,11 +53,11 @@ class TouchScreensaverTests(unittest.TestCase):
 
         for path in templates:
             source = path.read_text(encoding="utf-8")
-            self.assertIn("/static/touch.css?v=20260824-2", source, path.name)
+            self.assertIn("/static/touch.css?v=20260824-3", source, path.name)
             if path.name == "touch_shutdown.html":
                 self.assertNotIn("/static/app.js", source, path.name)
             else:
-                self.assertIn("/static/app.js?v=20260824-1", source, path.name)
+                self.assertIn("/static/app.js?v=20260824-2", source, path.name)
 
     def test_overlay_is_full_screen_and_safe_at_800_by_480(self):
         self.assertRegex(
@@ -64,6 +67,7 @@ class TouchScreensaverTests(unittest.TestCase):
         self.assertIn("background: #020305;", self.css_source)
         self.assertIn("width: min(360px, 70%);", self.css_source)
         self.assertIn(".touch-screensaver-item.answer-visible .touch-screensaver-character", self.css_source)
+        self.assertNotIn("visibility 0s linear 0.35s", self.css_source)
         self.assertIn(".touch-screensaver-morse .morse-mark", self.css_source)
         self.assertIn("background: #62d6d1", self.css_source)
         self.assertIn("@media (prefers-reduced-motion: reduce)", self.css_source)
