@@ -21,6 +21,39 @@
   refreshed the station snapshot; hands-on physical-keyer wake testing remains
   the final live acceptance check.
 
+### Daily Wrap-Up
+
+**Accomplishments**
+
+- Removed the old Pappy-to-Astrid rehearsal message from local and cloud
+  history and added a safe cleanup migration for stations that were offline.
+- Added, specified, tested, released, and deployed the idle Morse screensaver.
+- Verified the screensaver at 800x480, including movement, character rotation,
+  first-touch wake protection, shutdown exclusion, and the existing operator
+  reset. The complete regression suite passes 240 tests.
+- Updated the functional, non-functional, acceptance, testing, status, README,
+  and project-memory documentation. The screensaver was accepted in live use.
+
+**Decisions**
+
+- Keep the screensaver inside the app so normal remote software updates deliver
+  it without separate Raspberry Pi desktop configuration.
+- Start it after 3 idle minutes, rotate a random A-Z or 0-9 signal every 10
+  seconds, and retain the 10-minute return to the operator flow.
+- Keep automatic screensaver activity silent. Treat the first touch or physical
+  keyer signal as wake-only input so it cannot submit an accidental answer.
+
+**Next steps**
+
+1. Perform the final live physical-keyer wake check on Pappy and confirm the
+   wake signal does not appear as a scored attempt.
+2. When the grandkid stations reconnect to Wi-Fi, verify they update to the
+   current `release/pi` and report fresh sync/update status.
+3. Continue Message Builder Slice 2: require students to key each selected word
+   before sending while allowing an easy correction for a mistaken word.
+4. Implement the backlog rule that adds an operator's name to `Words I Know`
+   once all letters in that name are active.
+
 ## 2026-08-23 - Message history cleanup
 
 - Removed the old Pappy-to-Astrid `AM` cloud message rehearsal from live Pappy
