@@ -57,7 +57,7 @@ class TouchScreensaverTests(unittest.TestCase):
             if path.name == "touch_shutdown.html":
                 self.assertNotIn("/static/app.js", source, path.name)
             else:
-                self.assertIn("/static/app.js?v=20260824-3", source, path.name)
+                self.assertIn("/static/app.js?v=20260824-4", source, path.name)
 
     def test_overlay_is_full_screen_and_safe_at_800_by_480(self):
         self.assertRegex(
