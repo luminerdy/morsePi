@@ -69,6 +69,12 @@
   remote-maintenance design includes the NFR-019 cost guardrail, expected
   three-station normal-use cost, and a clear note before enabling a fixed
   monthly per-device service.
+- **TEST-021** Touch idle tests verify the 3-minute screensaver and 10-second
+  rotation constants, A-Z/0-9 Morse mapping, wake-only touch/keyer handling,
+  shutdown exclusion, and preservation of the 10-minute operator reset. A
+  browser rehearsal at 800x480 uses shortened timers to verify full coverage,
+  safe movement, readable centered marks, and that the first wake touch does
+  not activate the control beneath it.
 
 ## CI pipeline (per TR-011)
 

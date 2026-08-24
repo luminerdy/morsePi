@@ -23,10 +23,15 @@ let lastCheckedWordMorse = "";
 let pendingWordMorse = "";
 let wordStartedAt = null;
 let wordAutoAdvanceTimer = null;
+let touchIdleExperience = null;
+let lastObservedPhysicalMorse = "";
 
 const KEYBOARD_DASH_THRESHOLD_UNITS = 2.5;
 const WORD_AUTO_ADVANCE_DELAY_MS = 4000;
 const WORD_AUTOPLAY_DELAY_MS = 1800;
+const TOUCH_SCREENSAVER_IDLE_MS = 3 * 60 * 1000;
+const TOUCH_SCREENSAVER_CHANGE_MS = 10 * 1000;
+const TOUCH_OPERATOR_RESET_MS = 10 * 60 * 1000;
 const MORSE_DECODE = {
     ".": "E",
     "-": "T",
@@ -505,6 +510,21 @@ async function updateLiveKey() {
     try {
         const response = await fetch("/live-key");
         const data = await response.json();
+        const observedMorse = normalizeMorse(data.morse || "");
+
+        if (observedMorse && observedMorse !== lastObservedPhysicalMorse && touchIdleExperience) {
+            const wakeOnly = await touchIdleExperience.notePhysicalKey();
+            lastObservedPhysicalMorse = observedMorse;
+
+            if (wakeOnly) {
+                await fetch("/clear-key", { method: "POST" });
+                lastObservedPhysicalMorse = "";
+                resetLiveKeyDisplay();
+                return;
+            }
+        } else if (!observedMorse) {
+            lastObservedPhysicalMorse = "";
+        }
 
         if (data.morse) {
             renderMorseVisual(liveMorse, data.morse);
@@ -1682,30 +1702,192 @@ function initializeTouchRedirect() {
     }
 }
 
-function initializeTouchIdleTimeout() {
+function touchIdleDuration(name, fallback) {
+    const localTestHost = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+
+    if (!localTestHost) {
+        return fallback;
+    }
+
+    const value = Number(new URLSearchParams(window.location.search).get(name));
+    return Number.isFinite(value) && value >= 50 ? value : fallback;
+}
+
+function initializeTouchIdleExperience() {
     if (!document.body || !document.body.classList.contains("touch-ui")) {
         return;
     }
 
-    if (window.location.pathname === "/touch/students") {
+    if (window.location.pathname.startsWith("/touch/shutdown")) {
         return;
     }
 
-    const timeoutMs = 10 * 60 * 1000;
-    let timeoutId = null;
+    const screensaverIdleMs = touchIdleDuration("screensaver_ms", TOUCH_SCREENSAVER_IDLE_MS);
+    const screensaverChangeMs = touchIdleDuration("screensaver_change_ms", TOUCH_SCREENSAVER_CHANGE_MS);
+    const redirectMs = touchIdleDuration("operator_reset_ms", TOUCH_OPERATOR_RESET_MS);
+    const redirectEnabled = window.location.pathname !== "/touch/students";
+    const choices = Object.entries(MORSE_DECODE)
+        .filter(([, character]) => /^[A-Z0-9]$/.test(character))
+        .map(([morse, character]) => ({ morse, character }));
+    const overlay = document.createElement("div");
+    const item = document.createElement("div");
+    const character = document.createElement("strong");
+    const morse = document.createElement("div");
+    let screensaverTimer = null;
+    let redirectTimer = null;
+    let rotationTimer = null;
+    let keyerPollTimer = null;
+    let active = false;
+    let lastCharacter = "";
+    let suppressCoveredInputUntil = 0;
 
-    const resetTimer = () => {
-        window.clearTimeout(timeoutId);
-        timeoutId = window.setTimeout(() => {
-            window.location.replace("/touch");
-        }, timeoutMs);
+    overlay.className = "touch-screensaver";
+    overlay.hidden = true;
+    overlay.setAttribute("aria-hidden", "true");
+    item.className = "touch-screensaver-item";
+    character.className = "touch-screensaver-character";
+    morse.className = "touch-screensaver-morse";
+    item.append(character, morse);
+    overlay.appendChild(item);
+    document.body.appendChild(overlay);
+
+    const clearTimer = timer => {
+        if (timer) {
+            window.clearTimeout(timer);
+            window.clearInterval(timer);
+        }
+    };
+
+    const rotateCharacter = () => {
+        const available = choices.filter(choice => choice.character !== lastCharacter);
+        const choice = available[Math.floor(Math.random() * available.length)] || choices[0];
+
+        lastCharacter = choice.character;
+        character.innerText = choice.character;
+        renderMorseVisual(morse, choice.morse);
+        item.style.left = `${25 + Math.random() * 50}%`;
+        item.style.top = `${25 + Math.random() * 50}%`;
+    };
+
+    const stopKeyerWatch = () => {
+        clearTimer(keyerPollTimer);
+        keyerPollTimer = null;
+    };
+
+    const hideScreensaver = () => {
+        active = false;
+        clearTimer(rotationTimer);
+        rotationTimer = null;
+        stopKeyerWatch();
+        overlay.hidden = true;
+        overlay.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("touch-screensaver-active");
+    };
+
+    const resetTimers = () => {
+        clearTimer(screensaverTimer);
+        clearTimer(redirectTimer);
+        screensaverTimer = window.setTimeout(showScreensaver, screensaverIdleMs);
+
+        if (redirectEnabled) {
+            redirectTimer = window.setTimeout(() => {
+                window.location.replace("/touch");
+            }, redirectMs);
+        }
+    };
+
+    const wakeFromPhysicalKey = async () => {
+        if (!active) {
+            resetTimers();
+            return false;
+        }
+
+        hideScreensaver();
+        resetTimers();
+
+        try {
+            await fetch("/clear-key", { method: "POST" });
+        } catch (error) {
+            console.log("Unable to clear screensaver wake key", error);
+        }
+
+        lastObservedPhysicalMorse = "";
+        resetLiveKeyDisplay();
+        return true;
+    };
+
+    const pollForWakeKey = async () => {
+        if (!active) {
+            return;
+        }
+
+        try {
+            const response = await fetch("/live-key");
+            const data = await response.json();
+            if (normalizeMorse(data.morse || "")) {
+                await wakeFromPhysicalKey();
+            }
+        } catch (error) {
+            console.log("Unable to check screensaver wake key", error);
+        }
+    };
+
+    const startKeyerWatch = async () => {
+        try {
+            await fetch("/clear-key", { method: "POST" });
+        } catch (error) {
+            console.log("Unable to prepare screensaver wake key", error);
+        }
+
+        if (active && !document.getElementById("liveMorse")) {
+            keyerPollTimer = window.setInterval(pollForWakeKey, 300);
+        }
+    };
+
+    function showScreensaver() {
+        if (active) {
+            return;
+        }
+
+        active = true;
+        rotateCharacter();
+        overlay.hidden = false;
+        overlay.setAttribute("aria-hidden", "false");
+        document.body.classList.add("touch-screensaver-active");
+        rotationTimer = window.setInterval(rotateCharacter, screensaverChangeMs);
+        startKeyerWatch();
+    }
+
+    const handleUserActivity = event => {
+        if (Date.now() < suppressCoveredInputUntil) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            return;
+        }
+
+        if (active) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            suppressCoveredInputUntil = Date.now() + 700;
+            hideScreensaver();
+        }
+
+        resetTimers();
     };
 
     ["pointerdown", "touchstart", "keydown", "click"].forEach(eventName => {
-        document.addEventListener(eventName, resetTimer, { passive: true });
+        document.addEventListener(eventName, handleUserActivity, {
+            capture: true,
+            passive: false
+        });
     });
 
-    resetTimer();
+    touchIdleExperience = {
+        isActive: () => active,
+        notePhysicalKey: wakeFromPhysicalKey
+    };
+
+    resetTimers();
 }
 
 function initializeMessageControls() {
@@ -1816,7 +1998,7 @@ function initializeTouchPinPads() {
 
 document.addEventListener("DOMContentLoaded", () => {
     initializeTouchRedirect();
-    initializeTouchIdleTimeout();
+    initializeTouchIdleExperience();
     initializePracticeMode();
     initializeDailyMissionReward();
     initializeMessageControls();

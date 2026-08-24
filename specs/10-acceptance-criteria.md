@@ -219,6 +219,16 @@ correctness checks. Each is encoded as an automated test per
   A C/W/H/L-enabled word such as `COW` SHALL be available for practice, and
   newly available C/W/H/L words SHALL not inherit completion credit from the
   prior catalog.
+- **AC-036** (FR-061 / NFR-020) At 800x480, an active touch page shows no
+  screensaver before 3 minutes and then shows a black full-screen overlay with
+  one A-Z or 0-9 character and the matching shared centered Morse visual. The
+  character and safe in-viewport position change every 10 seconds without
+  sound or LED requests. The first touch dismisses and does not activate the
+  covered control. A physical keyer press dismisses, clears that wake signal,
+  and creates no scored attempt. Continued inactivity still invokes the
+  existing 10-minute `/touch` redirect. The operator picker may display the
+  screensaver but does not redirect itself, and the shutdown page never starts
+  it.
 
 ## Coverage rule
 
