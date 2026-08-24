@@ -11,6 +11,10 @@
 - Pi frame sampling found that an empty character element initially collapsed
   its grid row and moved the Morse pattern during reveal. Reserve a fixed
   answer-row height so Morse remains stationary in both phases.
+- Pappy frame sampling across repeated shortened cycles found zero yellow
+  answer pixels at every new-cycle boundary. Final release `79c8ebd` reserves
+  the answer row, is deployed with fresh CSS/JavaScript asset versions, and
+  leaves the supervised app/browser health checks passing.
 
 ## 2026-08-24 - Browser supervision hardening
 
