@@ -2,6 +2,13 @@
 
 ## 2026-08-24 - Screensaver recall reveal
 
+- Post-restart Pi inspection found the answer visible over an empty-looking
+  Morse row. The shared `currentColor` marks rendered dark on the Pi Chromium
+  compositor even though desktop-browser rehearsal showed cyan marks.
+- Recovery: restarted only the Chromium kiosk, preserving the app and student
+  data. The normal operator screen returned immediately.
+- Fix: give screensaver dots and dashes an explicit cyan background and bump
+  the touch stylesheet version so the kiosk cannot reuse the faulty CSS.
 - Live acceptance completed for both wake methods: the physical keyer and the
   touchscreen dismiss the screensaver correctly.
 - Decision: turn each idle display into a gentle recall prompt. Show Morse
