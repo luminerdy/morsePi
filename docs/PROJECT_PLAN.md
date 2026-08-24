@@ -1,5 +1,22 @@
 # Pappy's Internet Telegraph Project Plan
 
+## 2026-08-23 - Idle Morse screensaver
+
+- Added an app-level screensaver for the 7-inch touch station. It starts after
+  3 minutes without activity and keeps the existing 10-minute return to the
+  operator flow.
+- The saver uses a black background and the shared centered Morse renderer to
+  show a random A-Z or 0-9 character. It changes character and safe screen
+  position every 10 seconds without playing sound or lighting the LED.
+- The first touch is wake-only and cannot activate a covered control. A
+  physical keyer press also wakes the station, clears that wake signal, and
+  does not submit a scored answer.
+- Shutdown is excluded. The operator picker can remain safely on the saver
+  until touched because it contains no student progress or message content.
+- Added FR-061, NFR-020, AC-036, and TEST-021. The complete local suite passes
+  240 tests, and an 800x480 browser rehearsal confirmed movement, layout,
+  touch wake protection, shutdown exclusion, and the operator reset.
+
 ## 2026-08-23 - Message history cleanup
 
 - Removed the old Pappy-to-Astrid `AM` cloud message rehearsal from live Pappy

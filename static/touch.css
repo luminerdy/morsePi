@@ -2518,3 +2518,70 @@
     font-size: 36px;
     line-height: 1;
 }
+
+.touch-screensaver[hidden] {
+    display: none;
+}
+
+.touch-screensaver {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    overflow: hidden;
+    background: #020305;
+    color: #ffffff;
+    cursor: none;
+    touch-action: none;
+}
+
+.touch-screensaver-item {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    display: grid;
+    width: min(360px, 70%);
+    justify-items: center;
+    gap: 20px;
+    transform: translate(-50%, -50%);
+    transition: left 1.8s ease-in-out, top 1.8s ease-in-out;
+}
+
+.touch-screensaver-character {
+    color: #f6c445;
+    font-size: 112px;
+    font-weight: 900;
+    line-height: 0.9;
+}
+
+.touch-screensaver-morse {
+    color: #62d6d1;
+    font-size: 48px;
+    line-height: 1;
+}
+
+.touch-screensaver-morse .morse-visual {
+    flex-wrap: nowrap;
+}
+
+.touch-screensaver-item > * {
+    animation: touch-screensaver-float 5s ease-in-out infinite;
+}
+
+@keyframes touch-screensaver-float {
+    0%, 100% {
+        transform: translateY(-4px);
+    }
+    50% {
+        transform: translateY(4px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .touch-screensaver-item {
+        transition-duration: 0.01ms;
+    }
+
+    .touch-screensaver-item > * {
+        animation: none;
+    }
+}

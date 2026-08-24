@@ -66,3 +66,9 @@
   Manager or another fixed monthly remote-admin service MAY be used only as an
   explicit temporary troubleshooting choice, with the expected per-device cost
   documented before activation.
+- **NFR-020** *(V1)* The idle screensaver SHALL remain smooth and fully visible
+  at 800x480, keep its letter and Morse pattern inside the viewport at every
+  allowed position, and avoid storing or displaying student names, progress,
+  messages, or other personal data. Its timers and animation SHALL add no
+  server-side dependency and negligible steady-state CPU use; physical-keyer
+  polling MAY run only while the screensaver is visible.
