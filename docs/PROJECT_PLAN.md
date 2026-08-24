@@ -16,6 +16,10 @@
 - Added FR-061, NFR-020, AC-036, and TEST-021. The complete local suite passes
   240 tests, and an 800x480 browser rehearsal confirmed movement, layout,
   touch wake protection, shutdown exclusion, and the operator reset.
+- Promoted the feature to `release/pi` at `5053f37` and deployed it through
+  Pappy's normal update service. The updater passed, restarted the app, and
+  refreshed the station snapshot; hands-on physical-keyer wake testing remains
+  the final live acceptance check.
 
 ## 2026-08-23 - Message history cleanup
 
