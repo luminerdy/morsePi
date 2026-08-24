@@ -2592,6 +2592,9 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("level = Math.max(1, level - 1)", source)
         self.assertIn('toggle.innerText = running ? "Pause"', source)
         self.assertIn("matchingTargets(target.letter)", source)
+        self.assertIn('let pendingMorse = "";', source)
+        self.assertIn("if (morse === pendingMorse)", source)
+        self.assertIn("pendingMorse = morse;", source)
         self.assertIn(".signal-drop-layout", css)
         self.assertIn("grid-template-columns: minmax(0, 1fr) 205px", css)
 
