@@ -10,10 +10,19 @@ class TouchScreensaverTests(unittest.TestCase):
         cls.app_source = (cls.root / "static" / "app.js").read_text(encoding="utf-8")
         cls.css_source = (cls.root / "static" / "touch.css").read_text(encoding="utf-8")
 
-    def test_idle_and_rotation_timing_match_spec(self):
+    def test_idle_guess_reveal_and_reset_timing_match_spec(self):
         self.assertIn("const TOUCH_SCREENSAVER_IDLE_MS = 3 * 60 * 1000;", self.app_source)
-        self.assertIn("const TOUCH_SCREENSAVER_CHANGE_MS = 10 * 1000;", self.app_source)
+        self.assertIn("const TOUCH_SCREENSAVER_GUESS_MS = 10 * 1000;", self.app_source)
+        self.assertIn("const TOUCH_SCREENSAVER_REVEAL_MS = 5 * 1000;", self.app_source)
         self.assertIn("const TOUCH_OPERATOR_RESET_MS = 10 * 60 * 1000;", self.app_source)
+
+    def test_recall_cycle_hides_then_reveals_the_character(self):
+        self.assertIn('item.classList.remove("answer-visible")', self.app_source)
+        self.assertIn('character.setAttribute("aria-hidden", "true")', self.app_source)
+        self.assertIn('item.classList.add("answer-visible")', self.app_source)
+        self.assertIn('character.setAttribute("aria-hidden", "false")', self.app_source)
+        self.assertIn("window.setTimeout(revealCharacter, screensaverGuessMs)", self.app_source)
+        self.assertIn("window.setTimeout(beginRecallCycle, screensaverRevealMs)", self.app_source)
 
     def test_character_pool_is_limited_to_letters_and_numbers(self):
         self.assertIn('/^[A-Z0-9]$/.test(character)', self.app_source)
@@ -41,11 +50,11 @@ class TouchScreensaverTests(unittest.TestCase):
 
         for path in templates:
             source = path.read_text(encoding="utf-8")
-            self.assertIn("/static/touch.css?v=20260823-1", source, path.name)
+            self.assertIn("/static/touch.css?v=20260824-1", source, path.name)
             if path.name == "touch_shutdown.html":
                 self.assertNotIn("/static/app.js", source, path.name)
             else:
-                self.assertIn("/static/app.js?v=20260823-1", source, path.name)
+                self.assertIn("/static/app.js?v=20260824-1", source, path.name)
 
     def test_overlay_is_full_screen_and_safe_at_800_by_480(self):
         self.assertRegex(
@@ -54,6 +63,7 @@ class TouchScreensaverTests(unittest.TestCase):
         )
         self.assertIn("background: #020305;", self.css_source)
         self.assertIn("width: min(360px, 70%);", self.css_source)
+        self.assertIn(".touch-screensaver-item.answer-visible .touch-screensaver-character", self.css_source)
         self.assertIn("@media (prefers-reduced-motion: reduce)", self.css_source)
         self.assertIn("25 + Math.random() * 50", self.app_source)
 
