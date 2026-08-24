@@ -12,6 +12,11 @@
 - Local verification passes: 241 regression tests plus an 800x480 browser
   rehearsal covering Morse-only recall, fixed-position answer reveal, next-cycle
   reset, safe movement, and first-touch wake protection.
+- Published as `f88f3ca` on `main` and `1f179db` on `release/pi`. Pappy's
+  updater installed `1f179db`; the app service is active, the update result is
+  successful, and the local touchscreen health check returns HTTP 200.
+- Final live observation of the 10-second recall and 5-second reveal timing on
+  Pappy remains the only acceptance check still open.
 
 ## 2026-08-23 - Idle Morse screensaver
 
