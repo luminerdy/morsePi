@@ -90,7 +90,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-057/DR-020/SEC-021 permanent identity | ✅ | Canonical family UUIDs, compatibility aliases, private registry preference with tracked fallback, idempotent migration, Guest exclusion, and fail-closed mismatch checks are implemented and live-rehearsed |
 | FR-058/API-027/SEC-022 remote update Jobs | 🟡 | Local worker, systemd timer, config examples, docs, policy template, and AWS Things/policies are ready. Astrid/Liara live `update-app` Job succeeded. Pappy is now a `release/pi` Git checkout with local update and IoT poll timers active; its station credential can poll Jobs but cannot create them. Campbell/Olivea rollout remains pending reconnection |
 | FR-059 Warm-Up Review | ✅ | Daily-driven or manually started 10-signal review; logs review-only attempts for effort/rhythm while leaving mastery, unlock gates, and Daily count unchanged |
-| FR-061 idle Morse screensaver | 🟡 | Requirement and acceptance coverage defined; implementation pending release verification |
+| FR-061 idle Morse screensaver | ✅ | Implemented, 800x480 browser-rehearsed, and deployed to Pappy through `release/pi` at `5053f37`; hands-on keyer wake remains under AC-036 |
 | SEC-001 CSRF | ❌ | No tokens anywhere |
 | SEC-002/003 mandatory PIN + lockout | 🟡 | PIN remains optional for development, but configured PINs now use constant-time comparison and a short in-memory lockout after repeated failures |
 | SEC-004 input validation | 🟡 | See FR-012 note |
