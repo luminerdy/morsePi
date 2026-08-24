@@ -2597,6 +2597,8 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("pendingMorse = morse;", source)
         self.assertIn(".signal-drop-layout", css)
         self.assertIn("grid-template-columns: minmax(0, 1fr) 205px", css)
+        self.assertIn("grid-template-rows: 128px minmax(0, 1fr) 106px", css)
+        self.assertIn("grid-template-columns: repeat(2, minmax(0, 1fr))", css)
 
     def test_bonus_result_records_without_changing_practice_progress(self):
         response = self.client.post(
