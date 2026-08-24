@@ -2572,6 +2572,10 @@
     flex-wrap: nowrap;
 }
 
+.touch-screensaver-morse .morse-mark {
+    background: #62d6d1;
+}
+
 .touch-screensaver-item > * {
     animation: touch-screensaver-float 5s ease-in-out infinite;
 }
