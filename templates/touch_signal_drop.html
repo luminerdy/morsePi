@@ -3,7 +3,7 @@
 <head>
     <title>Signal Drop - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260621-4">
-    <link rel="stylesheet" href="/static/touch.css?v=20260824-5">
+    <link rel="stylesheet" href="/static/touch.css?v=20260824-6">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body class="touch-ui"
@@ -73,18 +73,17 @@
                     <span id="signalDropFeedbackText">The game uses only letters you know.</span>
                     <div class="signal-drop-review-morse" id="signalDropReviewMorse" hidden></div>
                 </section>
+                <section class="signal-drop-controls {% if game_mode == 'read' %}read-controls{% endif %}">
+                    <button type="button" class="button primary" id="signalDropToggle">Start</button>
+                    {% if game_mode == 'send' %}
+                        <button type="button" class="button secondary" onclick="clearKeyInput()">Clear</button>
+                        <button type="button" class="button secondary" id="keyboardKeyerToggle">Spacebar: Off</button>
+                    {% else %}
+                        <a class="button secondary" href="/touch/games/signal-drop?mode=read">Restart</a>
+                    {% endif %}
+                    <a class="button secondary" href="/touch/daily">Daily</a>
+                </section>
             </aside>
-
-            <section class="signal-drop-controls {% if game_mode == 'read' %}read-controls{% endif %}">
-                <button type="button" class="button primary" id="signalDropToggle">Start</button>
-                {% if game_mode == 'send' %}
-                    <button type="button" class="button secondary" onclick="clearKeyInput()">Clear</button>
-                    <button type="button" class="button secondary" id="keyboardKeyerToggle">Spacebar: Off</button>
-                {% else %}
-                    <a class="button secondary" href="/touch/games/signal-drop?mode=read">Restart</a>
-                {% endif %}
-                <a class="button secondary" href="/touch/daily">Daily</a>
-            </section>
         </main>
     </div>
 
