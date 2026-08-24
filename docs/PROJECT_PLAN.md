@@ -9,6 +9,11 @@
   data. The normal operator screen returned immediately.
 - Fix: give screensaver dots and dashes an explicit cyan background and bump
   the touch stylesheet version so the kiosk cannot reuse the faulty CSS.
+- Published as `352d91e` on `main` and `1067212` on `release/pi`; Pappy's
+  updater installed `1067212` successfully.
+- Live 800x480 Pi captures now verify both phases: cyan Morse alone, followed
+  by the yellow answer above the unchanged cyan pattern. The standard
+  three-minute launcher was restored and the normal operator screen verified.
 - Live acceptance completed for both wake methods: the physical keyer and the
   touchscreen dismiss the screensaver correctly.
 - Decision: turn each idle display into a gentle recall prompt. Show Morse
@@ -22,8 +27,7 @@
 - Published as `f88f3ca` on `main` and `1f179db` on `release/pi`. Pappy's
   updater installed `1f179db`; the app service is active, the update result is
   successful, and the local touchscreen health check returns HTTP 200.
-- Final live observation of the 10-second recall and 5-second reveal timing on
-  Pappy remains the only acceptance check still open.
+- Final live observation of the recall and reveal sequence now passes on Pappy.
 
 ## 2026-08-23 - Idle Morse screensaver
 
