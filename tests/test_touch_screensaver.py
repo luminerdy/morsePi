@@ -53,7 +53,7 @@ class TouchScreensaverTests(unittest.TestCase):
 
         for path in templates:
             source = path.read_text(encoding="utf-8")
-            self.assertIn("/static/touch.css?v=20260824-3", source, path.name)
+            self.assertIn("/static/touch.css?v=20260824-4", source, path.name)
             if path.name == "touch_shutdown.html":
                 self.assertNotIn("/static/app.js", source, path.name)
             else:
@@ -68,6 +68,7 @@ class TouchScreensaverTests(unittest.TestCase):
         self.assertIn("width: min(360px, 70%);", self.css_source)
         self.assertIn(".touch-screensaver-item.answer-visible .touch-screensaver-character", self.css_source)
         self.assertNotIn("visibility 0s linear 0.35s", self.css_source)
+        self.assertIn("height: 101px", self.css_source)
         self.assertIn(".touch-screensaver-morse .morse-mark", self.css_source)
         self.assertIn("background: #62d6d1", self.css_source)
         self.assertIn("@media (prefers-reduced-motion: reduce)", self.css_source)
