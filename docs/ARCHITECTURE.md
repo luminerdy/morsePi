@@ -17,7 +17,7 @@ flowchart TB
         Learning["Learning and curriculum<br/>Daily, Learn, Send, Read,<br/>Listen, Echo, Words, Sprint"]
         Messages["Family messages<br/>compose, review, decode"]
         Data["Local student data<br/>JSON and JSONL files"]
-        Services["systemd services and timers<br/>app, kiosk, backup, status,<br/>update, message sync"]
+        Services["systemd services and timers<br/>app, supervised kiosk, backup, status,<br/>update, message sync"]
         RemoteWorker["Remote update worker<br/>AWS IoT Jobs poller"]
         Recovery["PIN-gated System screen<br/>Wi-Fi, keyboard, desktop, update"]
         Keyer["Telegraph key<br/>GPIO17"]

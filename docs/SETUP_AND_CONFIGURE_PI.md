@@ -697,9 +697,11 @@ Stop it before running hardware test scripts:
 sudo systemctl stop morse-station
 ```
 
-## 12. Launch the Browser at Desktop Startup
+## 12. Install the Supervised Browser Kiosk
 
-The Pi desktop can also open Chromium directly to the Morse Station web app after login.
+Chromium runs as a supervised user service. It waits for both the graphical
+Wayland session and Morse web app, opens `/touch` in kiosk mode, and restarts
+automatically if Chromium exits unexpectedly.
 
 Install the morsePi desktop wallpaper:
 
@@ -713,35 +715,37 @@ Raspberry Pi desktop wallpaper config for the connected display, and asks
 PCManFM to reconfigure if it is running. This matters when an adult exits kiosk
 mode to troubleshoot Wi-Fi or updates.
 
-Install the browser helper script:
+Install and start the browser supervisor:
 
 ```bash
-mkdir -p /home/morse/bin
-install -m 0755 /home/morse/morse-station/systemd/start-morse-browser.sh /home/morse/bin/start-morse-browser.sh
+bash /home/morse/morse-station/scripts/install_browser_supervisor.sh --start
 ```
 
-On Raspberry Pi OS Bookworm with Labwc, add the helper to the Labwc autostart file:
+Verify it:
 
 ```bash
-mkdir -p /home/morse/.config/labwc
-grep -qxF '/home/morse/bin/start-morse-browser.sh &' /home/morse/.config/labwc/autostart 2>/dev/null || \
-  printf '\n/home/morse/bin/start-morse-browser.sh &\n' >> /home/morse/.config/labwc/autostart
+systemctl --user is-enabled morse-station-browser.service
+systemctl --user is-active morse-station-browser.service
+systemctl --user status morse-station-browser.service
 ```
 
-Do not also install the XDG desktop autostart entry on the same Pi, because Raspberry Pi OS may generate a second browser autostart service from it. The helper waits for `http://localhost:5000/touch` to answer before launching Chromium in kiosk mode. On Labwc/Wayland sessions, the helper passes Chromium the Wayland platform flag. If graphical auto-login is disabled, Chromium opens after the `morse` user signs in to the desktop.
+The installer is safe to run again. It installs the tracked launcher and user
+unit, confirms the supervised service is active, and then removes the legacy
+Labwc and XDG browser autostart entries. Graphical auto-login must remain
+enabled because Chromium needs the desktop's Wayland session. User lingering
+keeps the app and maintenance timers available independently of that session.
+
+View browser restart history with:
+
+```bash
+journalctl --user -u morse-station-browser.service -b
+```
 
 The touch menu includes a kid-facing `Power` button. Students can tap it,
 confirm `Power Off`, wait for the screen to go dark, and then turn off the
 CanaKit USB-C PiSwitch safely.
 
-The touch menu also includes a `System` page for adult recovery. Use it to check hostname, IP address, Wi-Fi connection, Wi-Fi signal, NetworkManager tool availability, on-screen keyboard availability, and update service state without a physical keyboard. The page also has admin-PIN-gated buttons to open the on-screen keyboard, start the app update service, restart Wi-Fi, and exit Chromium kiosk mode so the Raspberry Pi desktop is visible for troubleshooting.
-
-For a non-Labwc desktop environment only, use the fallback desktop autostart entry instead of the Labwc line:
-
-```bash
-mkdir -p /home/morse/.config/autostart
-install -m 0644 /home/morse/morse-station/systemd/morse-station-browser.desktop /home/morse/.config/autostart/morse-station-browser.desktop
-```
+The touch menu also includes a `System` page for adult recovery. Use it to check hostname, IP address, Wi-Fi connection, Wi-Fi signal, NetworkManager tool availability, on-screen keyboard availability, and update service state without a physical keyboard. The page also has admin-PIN-gated buttons to open the on-screen keyboard, start the app update service, restart Wi-Fi, and exit Chromium kiosk mode so the Raspberry Pi desktop is visible for troubleshooting. `Exit Kiosk` intentionally stops browser supervision before closing Chromium; reboot the station or run `systemctl --user start morse-station-browser.service` to restore the kiosk.
 
 ## 13. Troubleshooting
 

@@ -91,6 +91,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-058/API-027/SEC-022 remote update Jobs | 🟡 | Local worker, systemd timer, config examples, docs, policy template, and AWS Things/policies are ready. Astrid/Liara live `update-app` Job succeeded. Pappy is now a `release/pi` Git checkout with local update and IoT poll timers active; its station credential can poll Jobs but cannot create them. Campbell/Olivea rollout remains pending reconnection |
 | FR-059 Warm-Up Review | ✅ | Daily-driven or manually started 10-signal review; logs review-only attempts for effort/rhythm while leaving mastery, unlock gates, and Daily count unchanged |
 | FR-061 idle Morse screensaver | ✅ | 10-second Morse-only recall plus 5-second answer reveal is implemented, tested, published to `main` and `release/pi`, and deployed successfully to Pappy at `1f179db` |
+| FR-062 browser supervision | 🟡 | Service, readiness-aware launcher, idempotent installer, update integration, intentional kiosk exit, status reporting, docs, and contract tests are implemented locally; live Pappy recovery and reboot checks remain pending |
 | SEC-001 CSRF | ❌ | No tokens anywhere |
 | SEC-002/003 mandatory PIN + lockout | 🟡 | PIN remains optional for development, but configured PINs now use constant-time comparison and a short in-memory lockout after repeated failures |
 | SEC-004 input validation | 🟡 | See FR-012 note |
@@ -141,3 +142,4 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | AC-034 C/W/H/L Words expansion | — | 🟡 | Regression fixture covers 56/80 completion after C/W/H/L unlock; release branch and Pappy contain the word pack, but live student unlock verification remains future testing |
 | AC-035 Warm-Up Review | — | ✅ | Route tests cover stale-practice recommendation, manual Practice-menu entry point, visible Morse review prompt, learned-letter rotation, 10-signal completion without forced exit, review-only attempt logging, and unchanged mastery progress; Pappy release suite passed 232 tests |
 | AC-036 idle Morse screensaver | — | ✅ | 241 automated tests and live Pappy checks pass: cyan Morse-only recall, yellow answer reveal over the unchanged pattern, random movement, and prior physical-keyer/touch wake verification; Pi-only dark-mark rendering was corrected at `1067212` |
+| AC-037 browser supervision | — | 🟡 | Local service/installer/update/status contracts pass; live Pappy unexpected-exit recovery, intentional exit, idempotent reinstall, and reboot acceptance remain pending |

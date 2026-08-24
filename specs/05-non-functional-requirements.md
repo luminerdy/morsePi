@@ -72,3 +72,9 @@
   messages, or other personal data. Its timers and animation SHALL add no
   server-side dependency and negligible steady-state CPU use; physical-keyer
   polling MAY run only while the screensaver is visible.
+- **NFR-021** *(V1)* An unexpected Chromium exit on a logged-in station SHALL
+  return to the kiosk automatically within 15 seconds without restarting the
+  Morse app, changing student data, or requiring a keyboard. Browser startup
+  failures and restart attempts SHALL be retained in the user journal for
+  remote diagnosis, and repeated failures SHALL not create multiple kiosk
+  processes.

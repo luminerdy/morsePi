@@ -76,6 +76,13 @@
   shortened timers to verify the hidden/revealed character sequence, full
   coverage, safe movement, readable centered marks, and that the first wake
   touch does not activate the control beneath it.
+- **TEST-022** Browser-supervision contract tests verify the user unit restart
+  policy, graphical/app readiness waits, absence of the old duplicate-process
+  guard, idempotent installer wiring, update-path installation, intentional
+  `Exit Kiosk` service stop, and browser state in station-status JSON. A live
+  Pappy rehearsal kills Chromium, measures automatic recovery, confirms one
+  kiosk process, exercises intentional exit and manual restoration, then
+  reboot-checks the app and supervised browser together.
 
 ## CI pipeline (per TR-011)
 

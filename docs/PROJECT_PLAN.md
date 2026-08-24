@@ -1,5 +1,18 @@
 # Pappy's Internet Telegraph Project Plan
 
+## 2026-08-24 - Browser supervision hardening
+
+- Decision: replace the one-shot Labwc Chromium launch with a supervised user
+  service that waits for Wayland and the app, owns the kiosk process, restarts
+  unexpected exits, and records failures in the user journal.
+- Preserve adult recovery: the PIN-gated `Exit Kiosk` action stops supervision
+  before closing Chromium, leaving the desktop available until service start
+  or reboot.
+- Integrate the idempotent installer into the normal update path, remove legacy
+  browser autostart only after a successful supervised start, refresh Chromium
+  after app updates, and add browser service health to station status uploads.
+- Added FR-062, NFR-021, AC-037, and TEST-022 before implementation.
+
 ## 2026-08-24 - Screensaver recall reveal
 
 - Post-restart Pi inspection found the answer visible over an empty-looking

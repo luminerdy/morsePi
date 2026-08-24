@@ -1110,7 +1110,7 @@ Remote update operations should:
 | GitHub repo setup | Complete |
 | Fresh Pi setup guide | Complete |
 | Pi app autostart | Complete with user systemd service |
-| Pi browser autostart | Complete for Labwc desktop session, opens `/touch` in kiosk mode |
+| Pi browser supervision | Supervised user service opens `/touch`, restarts unexpected Chromium exits, and preserves intentional adult desktop escape |
 | Optional Pi auto-update timer | Started with conservative user systemd updater files |
 | Station identity config | Started with `data/station_config.json` |
 | Cloud backup upload | Started with S3 upload support in `scripts/backup_data.py` |

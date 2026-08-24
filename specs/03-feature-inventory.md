@@ -28,6 +28,7 @@ Tiers: **MVP** (Phase 1–3), **V1** (Phase 4), **V2** (Phase 5–6). See
 | F-21 | Rhythm timing analysis + admin trends view | V2 | `practice_attempts.timing_summary`, `/admin/rhythm` (added `674fdd8`) |
 | F-22 | Dependency preflight check | MVP | `scripts/check_dependencies.py` (added `7818254`; rebuild moves this to app startup per TR-008) |
 | F-23 | Touch System page for Wi-Fi status, on-screen keyboard launch, app update, Wi-Fi restart, kiosk escape, and kid-facing safe shutdown | V1 | `/touch/system`, `/touch/shutdown` |
+| F-24 | Supervised Chromium kiosk with automatic recovery, intentional adult exit, and remote status reporting | V1 | `morse-station-browser.service`, installer, station status |
 | F-24 | Kid-friendly family messages: touch/keyer composition, letter-by-letter review, inbox, and guided decoding | V2 | `message_store.py`, `/touch/messages/*`, touch message templates (Phase 7A local delivery) |
 | F-25 | Durable student-addressed message delivery across stations, with S3 storage and optional AWS IoT arrival notices | V2 | Planned Phase 7B |
 | F-26 | Station branding for recovery desktop and boot splash | V1 | `docs/assets/morsepi-desktop-wallpaper.png`, `docs/assets/morsepi-boot-splash.png`, install scripts |

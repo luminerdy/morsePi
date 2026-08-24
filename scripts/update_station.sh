@@ -10,6 +10,7 @@ BACKUP_S3_URI="${MORSE_BACKUP_S3_URI:-}"
 HEALTH_URL="${MORSE_HEALTH_URL:-http://127.0.0.1:5000/touch}"
 HEALTH_TIMEOUT_SECONDS="${MORSE_HEALTH_TIMEOUT_SECONDS:-30}"
 RUN_TESTS="${MORSE_UPDATE_RUN_TESTS:-1}"
+BROWSER_INSTALLER="$APP_DIR/scripts/install_browser_supervisor.sh"
 
 check_health() {
     python3 - "$HEALTH_URL" "$HEALTH_TIMEOUT_SECONDS" <<'PY'
@@ -128,6 +129,15 @@ fi
 if ! run_pending_migrations; then
     echo "Student identity migration failed; rolling back to $LOCAL_COMMIT."
     git reset --hard "$LOCAL_COMMIT"
+    write_status_and_snapshots
+    exit 1
+fi
+
+if [ -x "$BROWSER_INSTALLER" ] && ! "$BROWSER_INSTALLER" --start; then
+    echo "Browser supervision installation failed; rolling back to $LOCAL_COMMIT."
+    git reset --hard "$LOCAL_COMMIT"
+    systemctl --user restart "$SERVICE"
+    check_health
     write_status_and_snapshots
     exit 1
 fi
