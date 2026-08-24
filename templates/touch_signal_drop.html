@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+<head>
+    <title>Signal Drop - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260621-4">
+    <link rel="stylesheet" href="/static/touch.css?v=20260824-5">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="touch-ui"
+      data-tone-hz="{{ timing.tone_hz }}"
+      data-dot-ms="{{ timing.dot_ms }}"
+      data-dash-ms="{{ timing.dash_ms }}"
+      data-symbol-gap-ms="{{ timing.symbol_gap_ms }}"
+      data-letter-gap-ms="{{ timing.letter_gap_ms }}"
+      data-word-gap-ms="{{ timing.word_gap_ms }}"
+      data-input-dash-threshold-ms="{{ timing.input_dash_threshold_ms }}">
+    <div class="touch-screen">
+        <header class="touch-titlebar compact">
+            <div>
+                <p class="eyebrow">Signal Drop</p>
+                <h1><a class="touch-student-link" href="/touch/students?next=/touch/daily">{{ current_student.name }}</a></h1>
+            </div>
+            <div class="signal-drop-mode" aria-label="Game mode">
+                <a class="{% if game_mode == 'send' %}active{% endif %}" href="/touch/games/signal-drop?mode=send">Send</a>
+                <a class="{% if game_mode == 'read' %}active{% endif %}" href="/touch/games/signal-drop?mode=read">Read</a>
+            </div>
+            <a class="touch-top-link" href="/touch/practice">Practice</a>
+        </header>
+
+        <main class="signal-drop-layout"
+              data-signal-drop
+              data-game-mode="{{ game_mode }}"
+              data-session-id="{{ session_id }}"
+              data-active-letters='{{ active_letters | tojson }}'
+              data-letter-morse='{{ letter_morse | tojson }}'>
+            <section class="signal-drop-board" id="signalDropBoard" aria-label="Falling signals">
+                <div class="signal-drop-board-heading">
+                    <strong>{% if game_mode == 'send' %}Key the falling letter{% else %}Touch the matching letter{% endif %}</strong>
+                    <span>Known: {{ active_letters | join(" ") }}</span>
+                </div>
+                <div class="signal-drop-field" id="signalDropField">
+                    <div class="signal-drop-start" id="signalDropStart">
+                        <strong>Ready?</strong>
+                        <span>Accuracy first. The signals speed up as your streak grows.</span>
+                    </div>
+                </div>
+
+                {% if game_mode == 'send' %}
+                    <div class="signal-drop-key-dock">
+                        <div>
+                            <span>Tapped</span>
+                            <strong id="liveMorse">Waiting...</strong>
+                        </div>
+                        <div>
+                            <span>Decoded</span>
+                            <strong id="liveDecoded"></strong>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="signal-drop-choices" id="signalDropChoices" aria-label="Letter choices"></div>
+                {% endif %}
+            </section>
+
+            <aside class="signal-drop-side">
+                <section class="signal-drop-score">
+                    <span>Score</span>
+                    <strong id="signalDropScore">0</strong>
+                    <p><span id="signalDropCleared">0</span> cleared · <span id="signalDropAccuracy">0%</span></p>
+                    <p>Streak <span id="signalDropStreak">0</span> · Speed <span id="signalDropLevel">1</span></p>
+                </section>
+                <section class="signal-drop-feedback" id="signalDropFeedback" role="status" aria-live="polite">
+                    <strong id="signalDropFeedbackTitle">Press Start</strong>
+                    <span id="signalDropFeedbackText">The game uses only letters you know.</span>
+                    <div class="signal-drop-review-morse" id="signalDropReviewMorse" hidden></div>
+                </section>
+            </aside>
+
+            <section class="signal-drop-controls {% if game_mode == 'read' %}read-controls{% endif %}">
+                <button type="button" class="button primary" id="signalDropToggle">Start</button>
+                {% if game_mode == 'send' %}
+                    <button type="button" class="button secondary" onclick="clearKeyInput()">Clear</button>
+                    <button type="button" class="button secondary" id="keyboardKeyerToggle">Spacebar: Off</button>
+                {% else %}
+                    <a class="button secondary" href="/touch/games/signal-drop?mode=read">Restart</a>
+                {% endif %}
+                <a class="button secondary" href="/touch/daily">Daily</a>
+            </section>
+        </main>
+    </div>
+
+<script src="/static/app.js?v=20260824-3"></script>
+</body>
+</html>

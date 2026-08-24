@@ -116,3 +116,9 @@
   directories, and preserve old records. Readers SHALL enrich UUID-less records
   through the registry and reject a supplied ID/UUID conflict. Display-name
   edits SHALL not change UUIDs.
+- **DR-021** Signal Drop SHALL append records to the student's bonus attempt
+  log with a stable `attempt_id`, UTC timestamp, station/student identity,
+  `kind=signal-drop`, session ID, game mode, target, expected and actual Morse
+  or selected answer, correctness, clear count, miss reason, timing events,
+  and derived timing summary. These records SHALL be syncable and count toward
+  effort reporting, but SHALL not be replayed into `practice_progress.json`.

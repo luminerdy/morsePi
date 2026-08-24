@@ -1,5 +1,41 @@
 # Pappy's Internet Telegraph Project Plan
 
+## 2026-08-24 - Signal Drop learning game
+
+- Researched established typing-tutor game patterns, including falling-letter
+  and invader-style drills, and selected a non-punitive Morse adaptation.
+- Added Signal Drop to the touch Practice menu with two modes: Send shows a
+  falling letter for physical-keyer or spacebar input; Read shows falling Morse
+  with large touch letter choices.
+- Kept curriculum boundaries authoritative: normal games use only the current
+  student's active letters. Learning Now and locked letters cannot be returned
+  by the selector or accepted by the result endpoint.
+- Prompt selection uses approximately 60% established, 25% most recently
+  activated, and 15% weak/overdue pools, with safe fallback when a pool is
+  empty. Missed letters enter a local review queue and return soon.
+- Correct input clears every visible duplicate. Four-answer streaks gradually
+  increase bounded fall/spawn speed; misses lower speed, show the target's
+  centered Morse pattern, and never remove points or end play.
+- Game attempts are server-checked and written to `bonus_attempts.jsonl` as
+  `kind=signal-drop`, preserving effort and timing history without changing
+  practice mastery, Daily Mission counts, or unlock gates.
+- Added FR-063, NFR-022, DR-021, API-028, AC-038, and TEST-023 before the code.
+  The complete suite passes 250 tests. Send and Read passed an 800x480 browser
+  rehearsal with no scrolling, overlap, or browser errors; correct and
+  needs-work feedback and touch pause/restart paths were exercised.
+
+### Next steps
+
+1. Promote the tested change to `release/pi` and deploy it to Pappy through the
+   normal update path.
+2. Test Signal Drop with the physical straight key, especially incomplete-code
+   timing and the starting fall speed.
+3. Observe whether the 60/25/15 mix feels balanced for students with newly
+   activated letters, then tune using recorded game attempts rather than score
+   alone.
+4. After Send/Read settles, consider a Listen variant and known-letter Words
+   round using the same game shell.
+
 ## 2026-08-24 - Screensaver answer-flash correction
 
 - Observation: at the start of a new recall cycle, the prior letter remained

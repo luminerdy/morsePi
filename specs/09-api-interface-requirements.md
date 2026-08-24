@@ -120,3 +120,7 @@ General rules:
   actions from FR-058, updates the AWS job execution state to
   `IN_PROGRESS`/`SUCCEEDED`/`FAILED` when cloud access is available, and writes
   `data/remote_update/latest_iot_job.json` for local/Admin-System visibility.
+- **API-028** *(V1)* `POST /signal-drop/next` SHALL return one server-selected
+  active letter, canonical Morse, and the student's ordered active-letter set.
+  `POST /signal-drop/result` SHALL server-validate Send Morse or a Read answer,
+  reject non-active targets, append DR-021, and return the authoritative result.

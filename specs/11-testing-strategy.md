@@ -84,6 +84,11 @@
   Pappy rehearsal kills Chromium, measures automatic recovery, confirms one
   kiosk process, exercises intentional exit and manual restoration, then
   reboot-checks the app and supervised browser together.
+- **TEST-023** Signal Drop tests cover active-letter-only weighted selection,
+  empty-pool fallback, Send and Read server validation, duplicate clear counts,
+  bottom-miss records, unchanged mastery data, touch-menu entry, fixed-screen
+  layout, adaptive speed bounds, pause/restart controls, and physical/spacebar
+  keyer integration.
 
 ## CI pipeline (per TR-011)
 

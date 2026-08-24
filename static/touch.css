@@ -36,6 +36,10 @@
     grid-template-rows: 54px minmax(0, 1fr);
 }
 
+.touch-screen:has(.signal-drop-layout) {
+    grid-template-rows: 54px minmax(0, 1fr);
+}
+
 .touch-titlebar {
     position: relative;
     min-width: 0;
@@ -2376,6 +2380,315 @@
 
 .practice-modes {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.signal-drop-mode {
+    height: 42px;
+    display: grid;
+    grid-template-columns: repeat(2, 92px);
+    padding: 3px;
+    background: #dfe5ea;
+    border-radius: 8px;
+}
+
+.signal-drop-mode a {
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 900;
+    text-decoration: none;
+}
+
+.signal-drop-mode a.active {
+    color: #123f8c;
+    background: #ffffff;
+    box-shadow: 0 1px 4px rgba(23, 33, 43, 0.18);
+}
+
+.signal-drop-layout {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 205px;
+    grid-template-rows: minmax(0, 1fr) 54px;
+    gap: 8px;
+}
+
+.signal-drop-board {
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    background: #07121b;
+    border: 2px solid #24495f;
+    border-radius: 8px;
+}
+
+.signal-drop-board-heading {
+    position: absolute;
+    z-index: 4;
+    inset: 0 0 auto;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 10px;
+    color: #ffffff;
+    background: #102532;
+    border-bottom: 1px solid #36677f;
+}
+
+.signal-drop-board-heading strong {
+    font-size: 17px;
+}
+
+.signal-drop-board-heading span {
+    max-width: 58%;
+    overflow: hidden;
+    color: #9dd9eb;
+    font-size: 13px;
+    font-weight: 900;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.signal-drop-field {
+    position: absolute;
+    inset: 38px 0 76px;
+    overflow: hidden;
+}
+
+.signal-drop-start {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 8px;
+    padding: 20px;
+    color: #ffffff;
+    background: rgba(7, 18, 27, 0.92);
+    text-align: center;
+}
+
+.signal-drop-start[hidden] {
+    display: none;
+}
+
+.signal-drop-start strong {
+    color: #66d5e8;
+    font-size: 42px;
+}
+
+.signal-drop-start span {
+    max-width: 390px;
+    color: #d9e8ee;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.signal-drop-target {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 94px;
+    height: 58px;
+    display: grid;
+    place-items: center;
+    color: #07121b;
+    background: #f2c84b;
+    border: 3px solid #fff1a2;
+    border-radius: 8px;
+    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.28);
+    font-size: 39px;
+    font-weight: 900;
+    will-change: transform;
+}
+
+.signal-drop-target.read-target {
+    width: 112px;
+    background: #58cbe0;
+    border-color: #b8f4ff;
+    font-size: 25px;
+}
+
+.signal-drop-target .morse-visual {
+    justify-content: center;
+}
+
+.signal-drop-target.correct {
+    color: #ffffff;
+    background: #13864a;
+    border-color: #8ce1ae;
+}
+
+.signal-drop-target.missed {
+    color: #332000;
+    background: #f0a93c;
+    border-color: #ffd58a;
+}
+
+.signal-drop-key-dock,
+.signal-drop-choices {
+    position: absolute;
+    z-index: 5;
+    inset: auto 0 0;
+    height: 76px;
+    background: #102532;
+    border-top: 1px solid #36677f;
+}
+
+.signal-drop-key-dock {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 135px;
+    gap: 8px;
+    padding: 6px 10px;
+}
+
+.signal-drop-key-dock > div {
+    min-width: 0;
+    display: grid;
+    align-content: center;
+}
+
+.signal-drop-key-dock span {
+    color: #9dd9eb;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.signal-drop-key-dock strong {
+    min-width: 0;
+    overflow: hidden;
+    color: #ffffff;
+    font-size: 26px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.signal-drop-key-dock #liveDecoded {
+    font-size: 35px;
+}
+
+.signal-drop-choices {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 5px;
+    padding: 7px;
+}
+
+.signal-drop-choices button {
+    min-width: 0;
+    min-height: 58px;
+    padding: 0;
+    color: #123f8c;
+    background: #ffffff;
+    border: 2px solid #a9c5e9;
+    border-radius: 7px;
+    font-size: 27px;
+    font-weight: 900;
+}
+
+.signal-drop-side {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    min-height: 0;
+    display: grid;
+    grid-template-rows: 155px minmax(0, 1fr);
+    gap: 8px;
+}
+
+.signal-drop-score,
+.signal-drop-feedback {
+    min-height: 0;
+    padding: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.signal-drop-score > span {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.signal-drop-score > strong {
+    display: block;
+    margin: 3px 0 8px;
+    color: var(--primary);
+    font-size: 46px;
+    line-height: 1;
+}
+
+.signal-drop-score p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.signal-drop-feedback {
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 8px;
+    text-align: center;
+}
+
+.signal-drop-feedback strong {
+    color: #155f36;
+    font-size: 24px;
+    line-height: 1.05;
+}
+
+.signal-drop-feedback.needs-work strong {
+    color: #8b5310;
+}
+
+.signal-drop-feedback span {
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.signal-drop-review-morse {
+    min-height: 38px;
+    display: grid;
+    place-items: center;
+    color: #123f8c;
+    font-size: 26px;
+}
+
+.signal-drop-review-morse[hidden] {
+    display: none;
+}
+
+.signal-drop-controls {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 7px;
+}
+
+.signal-drop-controls.read-controls,
+.signal-drop-layout:has(.signal-drop-choices) .signal-drop-controls {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.signal-drop-controls .button {
+    width: 100%;
+    min-height: 54px;
+    display: grid;
+    place-items: center;
+    padding: 0 7px;
+    text-align: center;
+    text-decoration: none;
 }
 
 .touch-drill {

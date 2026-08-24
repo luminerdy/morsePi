@@ -242,6 +242,13 @@ correctness checks. Each is encoded as an automated test per
   Running the installer twice remains successful and still produces one
   browser. A completed app update restarts an active browser, and the generated
   station status reports both app and browser service states.
+- **AC-038** (FR-063 / NFR-022 / DR-021 / API-028) At 800x480, Signal Drop
+  offers Send and Read without scrolling. A student with six active letters and
+  two Learning Now letters receives only the six active letters. Correct Send
+  Morse and correct Read choices clear all matching visible targets and append
+  bonus records; incorrect input and bottom misses provide corrective feedback
+  without changing practice mastery or Daily counts. Repeated success speeds
+  play within a bounded range, a miss slows it, and pause/leave work by touch.
 
 ## Coverage rule
 

@@ -349,6 +349,18 @@ from the current code (legacy status per requirement is tracked in
   self-update could not execute newly fetched installer logic heals on the
   next update check. An intentionally stopped, already-installed browser SHALL
   remain stopped during that preflight.
+- **FR-063** *(V1)* Signal Drop SHALL provide kid-facing Send and Read games
+  using only the current student's active letters. Send SHALL show falling
+  letters and accept physical-keyer or spacebar Morse; Read SHALL show falling
+  Morse and accept large touch letter choices. A correct answer SHALL clear
+  every visible copy of that target. A missed or incorrect signal SHALL give
+  immediate corrective feedback, return that letter to the review mix, and
+  SHALL NOT remove mastery or end the game. Prompt selection SHOULD target
+  approximately 60% established letters, 25% recently activated letters, and
+  15% weak or overdue letters, with safe fallback when a pool is empty. Fall
+  speed MAY increase after sustained correct play and SHALL slow after misses.
+  Signal Drop attempts SHALL count as effort/rhythm history but SHALL NOT
+  change normal practice mastery, Daily Mission counts, or letter-unlock gates.
 
 ## Student identity
 

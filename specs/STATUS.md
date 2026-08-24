@@ -5,7 +5,7 @@ knows what it inherits. This file is updated on each re-review; requirement
 files only carry *(Delta: …)* notes, not status history.
 
 - **Baseline review:** `33df851` (2026-07-02)
-- **Latest legacy-code re-review:** Idle Morse screensaver implementation (2026-08-23)
+- **Latest legacy-code re-review:** Signal Drop learning game implementation (2026-08-24)
 - **Spec package location:** root `specs/`
 
 ## Changes landed since baseline
@@ -51,6 +51,7 @@ files only carry *(Delta: …)* notes, not status history.
 | D/U Words catalog expansion | 2026-08-10 `cc41418` + working tree | FR-056/AC-033 — D/U now adds 14 practice words; a student who completed the prior 42-word catalog sees 42/56 words complete (75%) until the new words are practiced. Main is updated; station release rollout remains pending. |
 | C/W/H/L Words catalog expansion | 2026-08-10 working tree | FR-056/AC-034 — C/W/H/L now adds 24 practice words; a student who completed the prior 56-word catalog sees 56/80 words complete (70%) until the new words are practiced. Station release rollout remains pending. |
 | Warm-Up Review + practice feedback clarity | main `a251bd3`; release/pi `8b0cc7c` | FR-059/AC-035/NFR-017/AC-021 — Daily offers a 10-signal active-letter review after 3+ days away, Practice menu provides a manual Warm-Up button, shows letter plus Morse pattern, rotates learned letters after a readable success pause, keeps reviewing after the 10-signal goal, logs timing/effort attempts, leaves mastery/unlocks/Daily count unchanged, keeps Learning Now higher priority, and keeps raw dot/dash Morse out of bottom-left feedback text. Pappy is deployed on `release/pi` `8b0cc7c` and passed a Pi-local `/touch` health check. |
+| Signal Drop learning game | 2026-08-24 working tree | FR-063/NFR-022/DR-021/API-028/AC-038/TEST-023 — Send and Read games use active letters only, weight established/recent/weak review pools, clear duplicate targets, adapt speed within bounds, give non-punitive review feedback, and log bonus effort without changing mastery or Daily counts. The full 250-test suite and 800x480 browser rehearsal pass; release/Pappy rollout remains pending. |
 
 **Note 1 (FR-012):** over-limit text is silently **truncated** (`limited_text`),
 not rejected; only bodies > 16 KB get a hard 413. The OOM DoS is closed
@@ -92,6 +93,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-059 Warm-Up Review | ✅ | Daily-driven or manually started 10-signal review; logs review-only attempts for effort/rhythm while leaving mastery, unlock gates, and Daily count unchanged |
 | FR-061 idle Morse screensaver | ✅ | 10-second Morse-only recall plus 5-second answer reveal is implemented, tested, published to `main` and `release/pi`, and deployed successfully to Pappy at `1f179db` |
 | FR-062 browser supervision | ✅ | Supervised service, readiness-aware launcher, idempotent/self-healing installer, update integration, intentional kiosk exit, status reporting, docs, and contract tests are implemented; Pappy live crash recovery and reboot checks pass at `57c8b63` |
+| FR-063 Signal Drop | ✅ | Active-letter-only Send/Read game, weighted reinforcement, duplicate clearing, adaptive speed, review return, touch/keyer input, and bonus-only attempt logging are implemented and tested at 800x480 |
 | SEC-001 CSRF | ❌ | No tokens anywhere |
 | SEC-002/003 mandatory PIN + lockout | 🟡 | PIN remains optional for development, but configured PINs now use constant-time comparison and a short in-memory lockout after repeated failures |
 | SEC-004 input validation | 🟡 | See FR-012 note |
@@ -143,3 +145,4 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | AC-035 Warm-Up Review | — | ✅ | Route tests cover stale-practice recommendation, manual Practice-menu entry point, visible Morse review prompt, learned-letter rotation, 10-signal completion without forced exit, review-only attempt logging, and unchanged mastery progress; Pappy release suite passed 232 tests |
 | AC-036 idle Morse screensaver | — | ✅ | 245 automated tests and live Pappy checks pass: cyan Morse-only recall, delayed yellow answer reveal, no answer pixels at new-cycle boundaries, reserved stable answer space, random movement, and physical-keyer/touch wake verification; final no-flash release is `79c8ebd` |
 | AC-037 browser supervision | — | ✅ | Pappy forced Chromium exit recovered in 6 seconds with unchanged app PID/student data and one kiosk; intentional exit stayed stopped, two installer runs remained idempotent, status reported active browser health, and cold reboot returned to the operator picker with zero failed user services |
+| AC-038 Signal Drop | — | ✅ | Route/selector tests and an 800x480 browser rehearsal cover known-letter boundaries, weighted recent-letter selection, server validation, bonus-only logging, Send/Read layout, touch answers, adaptive bounds, pause, corrective feedback, and zero page scrolling |
