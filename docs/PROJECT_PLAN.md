@@ -23,17 +23,19 @@
   The complete suite passes 250 tests. Send and Read passed an 800x480 browser
   rehearsal with no scrolling, overlap, or browser errors; correct and
   needs-work feedback and touch pause/restart paths were exercised.
+- Published main `f8aa8d7` and station release `a24ed0a`. Pappy's normal safe
+  updater installed `a24ed0a`; the app and supervised browser are active, and
+  the live Signal Drop route returns HTTP 200 with Pappy's active set through
+  `L` while later letters remain excluded.
 
 ### Next steps
 
-1. Promote the tested change to `release/pi` and deploy it to Pappy through the
-   normal update path.
-2. Test Signal Drop with the physical straight key, especially incomplete-code
+1. Test Signal Drop with the physical straight key, especially incomplete-code
    timing and the starting fall speed.
-3. Observe whether the 60/25/15 mix feels balanced for students with newly
+2. Observe whether the 60/25/15 mix feels balanced for students with newly
    activated letters, then tune using recorded game attempts rather than score
    alone.
-4. After Send/Read settles, consider a Listen variant and known-letter Words
+3. After Send/Read settles, consider a Listen variant and known-letter Words
    round using the same game shell.
 
 ## 2026-08-24 - Screensaver answer-flash correction
