@@ -12,6 +12,11 @@
   browser autostart only after a successful supervised start, refresh Chromium
   after app updates, and add browser service health to station status uploads.
 - Added FR-062, NFR-021, AC-037, and TEST-022 before implementation.
+- First Pappy update exposed a self-update edge case: an updater process that
+  began on the prior release could fetch the new installer but could not run
+  newly added updater lines from its replaced script file. Added an idempotent
+  supervision preflight before the already-current exit as well as after a
+  merge, so a second update check repairs stations arriving from older code.
 
 ## 2026-08-24 - Screensaver recall reveal
 

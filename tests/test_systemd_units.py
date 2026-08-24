@@ -36,6 +36,10 @@ class SystemdUnitTests(unittest.TestCase):
 
         self.assertIn('BROWSER_INSTALLER="$APP_DIR/scripts/install_browser_supervisor.sh"', updater)
         self.assertIn('"$BROWSER_INSTALLER" --start', updater)
+        self.assertGreaterEqual(updater.count("install_browser_supervisor"), 3)
+        preflight = updater.index("Browser supervision preflight failed.")
+        already_current = updater.index('if [ "$LOCAL_COMMIT" = "$REMOTE_COMMIT" ]')
+        self.assertLess(preflight, already_current)
 
     def test_exit_kiosk_stops_supervision_before_closing_chromium(self):
         app_source = (ROOT / "app.py").read_text(encoding="utf-8")
