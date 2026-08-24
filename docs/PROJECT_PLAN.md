@@ -1,5 +1,18 @@
 # Pappy's Internet Telegraph Project Plan
 
+## 2026-08-24 - Screensaver recall reveal
+
+- Live acceptance completed for both wake methods: the physical keyer and the
+  touchscreen dismiss the screensaver correctly.
+- Decision: turn each idle display into a gentle recall prompt. Show Morse
+  alone for 10 seconds, reveal the matching letter or number for 5 seconds
+  while keeping the Morse visible, then move to a new signal and position.
+- Keep the saver silent and keep all wake-only, shutdown-exclusion, and
+  10-minute operator-reset behavior unchanged.
+- Local verification passes: 241 regression tests plus an 800x480 browser
+  rehearsal covering Morse-only recall, fixed-position answer reveal, next-cycle
+  reset, safe movement, and first-touch wake protection.
+
 ## 2026-08-23 - Idle Morse screensaver
 
 - Added an app-level screensaver for the 7-inch touch station. It starts after

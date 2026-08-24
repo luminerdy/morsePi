@@ -30,7 +30,8 @@ const KEYBOARD_DASH_THRESHOLD_UNITS = 2.5;
 const WORD_AUTO_ADVANCE_DELAY_MS = 4000;
 const WORD_AUTOPLAY_DELAY_MS = 1800;
 const TOUCH_SCREENSAVER_IDLE_MS = 3 * 60 * 1000;
-const TOUCH_SCREENSAVER_CHANGE_MS = 10 * 1000;
+const TOUCH_SCREENSAVER_GUESS_MS = 10 * 1000;
+const TOUCH_SCREENSAVER_REVEAL_MS = 5 * 1000;
 const TOUCH_OPERATOR_RESET_MS = 10 * 60 * 1000;
 const MORSE_DECODE = {
     ".": "E",
@@ -1723,7 +1724,8 @@ function initializeTouchIdleExperience() {
     }
 
     const screensaverIdleMs = touchIdleDuration("screensaver_ms", TOUCH_SCREENSAVER_IDLE_MS);
-    const screensaverChangeMs = touchIdleDuration("screensaver_change_ms", TOUCH_SCREENSAVER_CHANGE_MS);
+    const screensaverGuessMs = touchIdleDuration("screensaver_guess_ms", TOUCH_SCREENSAVER_GUESS_MS);
+    const screensaverRevealMs = touchIdleDuration("screensaver_reveal_ms", TOUCH_SCREENSAVER_REVEAL_MS);
     const redirectMs = touchIdleDuration("operator_reset_ms", TOUCH_OPERATOR_RESET_MS);
     const redirectEnabled = window.location.pathname !== "/touch/students";
     const choices = Object.entries(MORSE_DECODE)
@@ -1746,6 +1748,7 @@ function initializeTouchIdleExperience() {
     overlay.setAttribute("aria-hidden", "true");
     item.className = "touch-screensaver-item";
     character.className = "touch-screensaver-character";
+    character.setAttribute("aria-hidden", "true");
     morse.className = "touch-screensaver-morse";
     item.append(character, morse);
     overlay.appendChild(item);
@@ -1758,15 +1761,24 @@ function initializeTouchIdleExperience() {
         }
     };
 
-    const rotateCharacter = () => {
+    const revealCharacter = () => {
+        item.classList.add("answer-visible");
+        character.setAttribute("aria-hidden", "false");
+        rotationTimer = window.setTimeout(beginRecallCycle, screensaverRevealMs);
+    };
+
+    const beginRecallCycle = () => {
         const available = choices.filter(choice => choice.character !== lastCharacter);
         const choice = available[Math.floor(Math.random() * available.length)] || choices[0];
 
+        item.classList.remove("answer-visible");
+        character.setAttribute("aria-hidden", "true");
         lastCharacter = choice.character;
         character.innerText = choice.character;
         renderMorseVisual(morse, choice.morse);
         item.style.left = `${25 + Math.random() * 50}%`;
         item.style.top = `${25 + Math.random() * 50}%`;
+        rotationTimer = window.setTimeout(revealCharacter, screensaverGuessMs);
     };
 
     const stopKeyerWatch = () => {
@@ -1779,6 +1791,8 @@ function initializeTouchIdleExperience() {
         clearTimer(rotationTimer);
         rotationTimer = null;
         stopKeyerWatch();
+        item.classList.remove("answer-visible");
+        character.setAttribute("aria-hidden", "true");
         overlay.hidden = true;
         overlay.setAttribute("aria-hidden", "true");
         document.body.classList.remove("touch-screensaver-active");
@@ -1850,11 +1864,10 @@ function initializeTouchIdleExperience() {
         }
 
         active = true;
-        rotateCharacter();
+        beginRecallCycle();
         overlay.hidden = false;
         overlay.setAttribute("aria-hidden", "false");
         document.body.classList.add("touch-screensaver-active");
-        rotationTimer = window.setInterval(rotateCharacter, screensaverChangeMs);
         startKeyerWatch();
     }
 

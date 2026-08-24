@@ -2547,10 +2547,19 @@
 }
 
 .touch-screensaver-character {
+    visibility: hidden;
+    opacity: 0;
     color: #f6c445;
     font-size: 112px;
     font-weight: 900;
     line-height: 0.9;
+    transition: opacity 0.35s ease, visibility 0s linear 0.35s;
+}
+
+.touch-screensaver-item.answer-visible .touch-screensaver-character {
+    visibility: visible;
+    opacity: 1;
+    transition-delay: 0s;
 }
 
 .touch-screensaver-morse {

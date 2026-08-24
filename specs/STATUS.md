@@ -90,7 +90,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-057/DR-020/SEC-021 permanent identity | ✅ | Canonical family UUIDs, compatibility aliases, private registry preference with tracked fallback, idempotent migration, Guest exclusion, and fail-closed mismatch checks are implemented and live-rehearsed |
 | FR-058/API-027/SEC-022 remote update Jobs | 🟡 | Local worker, systemd timer, config examples, docs, policy template, and AWS Things/policies are ready. Astrid/Liara live `update-app` Job succeeded. Pappy is now a `release/pi` Git checkout with local update and IoT poll timers active; its station credential can poll Jobs but cannot create them. Campbell/Olivea rollout remains pending reconnection |
 | FR-059 Warm-Up Review | ✅ | Daily-driven or manually started 10-signal review; logs review-only attempts for effort/rhythm while leaving mastery, unlock gates, and Daily count unchanged |
-| FR-061 idle Morse screensaver | ✅ | Implemented, 800x480 browser-rehearsed, and deployed to Pappy through `release/pi` at `5053f37`; hands-on keyer wake remains under AC-036 |
+| FR-061 idle Morse screensaver | 🟡 | Original saver and live keyer/touch wake checks pass on Pappy; 10-second recall plus 5-second answer-reveal revision is under implementation |
 | SEC-001 CSRF | ❌ | No tokens anywhere |
 | SEC-002/003 mandatory PIN + lockout | 🟡 | PIN remains optional for development, but configured PINs now use constant-time comparison and a short in-memory lockout after repeated failures |
 | SEC-004 input validation | 🟡 | See FR-012 note |
@@ -140,4 +140,4 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | AC-033 D/U Words expansion | — | ✅ | Regression fixture covers 42/56 completion after D/U unlock; Pappy live page verified 42/56 after release update |
 | AC-034 C/W/H/L Words expansion | — | 🟡 | Regression fixture covers 56/80 completion after C/W/H/L unlock; release branch and Pappy contain the word pack, but live student unlock verification remains future testing |
 | AC-035 Warm-Up Review | — | ✅ | Route tests cover stale-practice recommendation, manual Practice-menu entry point, visible Morse review prompt, learned-letter rotation, 10-signal completion without forced exit, review-only attempt logging, and unchanged mastery progress; Pappy release suite passed 232 tests |
-| AC-036 idle Morse screensaver | — | 🟡 | Automated coverage and 800x480 browser verification pass; final hands-on physical-keyer wake/no-score observation remains |
+| AC-036 idle Morse screensaver | — | 🟡 | Live keyer and touch wake checks pass; revised Morse-only then character-reveal sequence awaits automated, browser, and Pappy verification |
