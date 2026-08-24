@@ -25,6 +25,7 @@ let wordStartedAt = null;
 let wordAutoAdvanceTimer = null;
 let touchIdleExperience = null;
 let lastObservedPhysicalMorse = "";
+let signalDropExperience = null;
 
 const KEYBOARD_DASH_THRESHOLD_UNITS = 2.5;
 const WORD_AUTO_ADVANCE_DELAY_MS = 4000;
@@ -542,6 +543,9 @@ async function updateLiveKey() {
 
         schedulePracticeAutoCheck(data.morse || "");
         scheduleWordAutoCheck(data.morse || "", data.decoded || "");
+        if (signalDropExperience) {
+            signalDropExperience.handleMorse(data.morse || "", data.decoded || "");
+        }
     } catch (error) {
         console.log("Unable to update key display", error);
     }
@@ -1503,6 +1507,356 @@ function updateVirtualKeyerDisplay() {
 
     schedulePracticeAutoCheck(morse);
     scheduleWordAutoCheck(morse, MORSE_DECODE[morse] || "");
+    if (signalDropExperience) {
+        signalDropExperience.handleMorse(morse, MORSE_DECODE[morse] || "");
+    }
+}
+
+function initializeSignalDrop() {
+    const panel = document.querySelector("[data-signal-drop]");
+    if (!panel) {
+        return;
+    }
+
+    const field = document.getElementById("signalDropField");
+    const startOverlay = document.getElementById("signalDropStart");
+    const toggle = document.getElementById("signalDropToggle");
+    const choices = document.getElementById("signalDropChoices");
+    const feedback = document.getElementById("signalDropFeedback");
+    const feedbackTitle = document.getElementById("signalDropFeedbackTitle");
+    const feedbackText = document.getElementById("signalDropFeedbackText");
+    const reviewMorse = document.getElementById("signalDropReviewMorse");
+    const scoreElement = document.getElementById("signalDropScore");
+    const clearedElement = document.getElementById("signalDropCleared");
+    const accuracyElement = document.getElementById("signalDropAccuracy");
+    const streakElement = document.getElementById("signalDropStreak");
+    const levelElement = document.getElementById("signalDropLevel");
+    const mode = panel.dataset.gameMode === "read" ? "read" : "send";
+    const sessionId = panel.dataset.sessionId || "";
+    const activeLetters = JSON.parse(panel.dataset.activeLetters || "[]");
+    const letterMorse = JSON.parse(panel.dataset.letterMorse || "{}");
+    const targets = new Map();
+    const reviewQueue = [];
+    let running = false;
+    let started = false;
+    let busy = false;
+    let nextTargetId = 1;
+    let lastFrameAt = 0;
+    let spawnElapsed = 0;
+    let animationFrame = null;
+    let morseTimer = null;
+    let lastSubmittedMorse = "";
+    let score = 0;
+    let attempts = 0;
+    let correct = 0;
+    let cleared = 0;
+    let streak = 0;
+    let level = 1;
+
+    const maxTargets = mode === "read" ? 4 : 5;
+    const fallSpeed = () => Math.min(42, 15 + ((level - 1) * 4));
+    const spawnDelay = () => Math.max(1500, 3300 - ((level - 1) * 260));
+
+    function updateScore() {
+        scoreElement.innerText = score;
+        clearedElement.innerText = cleared;
+        accuracyElement.innerText = attempts ? `${Math.round((correct / attempts) * 100)}%` : "0%";
+        streakElement.innerText = streak;
+        levelElement.innerText = level;
+    }
+
+    function showFeedback(title, text, target = "", needsWork = false) {
+        feedbackTitle.innerText = title;
+        feedbackText.innerText = text;
+        feedback.classList.toggle("needs-work", needsWork);
+
+        if (target && letterMorse[target]) {
+            reviewMorse.hidden = false;
+            renderMorseVisual(reviewMorse, letterMorse[target]);
+        } else {
+            reviewMorse.hidden = true;
+            reviewMorse.innerText = "";
+        }
+    }
+
+    function frontTarget() {
+        return Array.from(targets.values()).sort((left, right) => right.y - left.y)[0] || null;
+    }
+
+    function removeTarget(target, className = "") {
+        targets.delete(target.id);
+        if (className) {
+            target.node.classList.add(className);
+            window.setTimeout(() => target.node.remove(), 220);
+        } else {
+            target.node.remove();
+        }
+    }
+
+    function matchingTargets(letter) {
+        return Array.from(targets.values()).filter(target => target.letter === letter);
+    }
+
+    function shuffle(items) {
+        const copy = [...items];
+        for (let index = copy.length - 1; index > 0; index -= 1) {
+            const swapIndex = Math.floor(Math.random() * (index + 1));
+            [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
+        }
+        return copy;
+    }
+
+    function updateReadChoices() {
+        if (!choices) {
+            return;
+        }
+
+        const visible = [...new Set(Array.from(targets.values()).map(target => target.letter))];
+        const fill = shuffle(activeLetters.filter(letter => !visible.includes(letter)));
+        const options = shuffle([...visible, ...fill].slice(0, Math.min(8, activeLetters.length)));
+        choices.innerHTML = "";
+
+        options.forEach(letter => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.innerText = letter;
+            button.addEventListener("click", () => handleReadChoice(letter));
+            choices.appendChild(button);
+        });
+    }
+
+    async function requestTarget() {
+        const reviewLetter = reviewQueue.length ? reviewQueue.shift() : "";
+        const response = await fetch("/signal-drop/next", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ review_letter: reviewLetter })
+        });
+        return await response.json();
+    }
+
+    async function spawnTarget() {
+        if (!running || targets.size >= maxTargets) {
+            return;
+        }
+
+        try {
+            const item = await requestTarget();
+            if (!running || !item.target) {
+                return;
+            }
+
+            const id = nextTargetId;
+            nextTargetId += 1;
+            const node = document.createElement("div");
+            node.className = `signal-drop-target ${mode === "read" ? "read-target" : "send-target"}`;
+            node.dataset.letter = item.target;
+            if (mode === "read") {
+                renderMorseVisual(node, item.expected_morse);
+            } else {
+                node.innerText = item.target;
+            }
+
+            const width = mode === "read" ? 112 : 94;
+            const laneCount = mode === "read" ? 4 : 5;
+            const lane = Math.floor(Math.random() * laneCount);
+            const laneWidth = Math.max(width, field.clientWidth / laneCount);
+            const x = Math.min(
+                Math.max(0, (lane * laneWidth) + ((laneWidth - width) / 2)),
+                Math.max(0, field.clientWidth - width)
+            );
+            const target = { id, letter: item.target, morse: item.expected_morse, x, y: -62, node };
+            targets.set(id, target);
+            field.appendChild(node);
+            node.style.transform = `translate(${x}px, ${target.y}px)`;
+            updateReadChoices();
+        } catch (error) {
+            showFeedback("Connection paused", "Trying the station again.", "", true);
+        }
+    }
+
+    async function recordResult(target, values) {
+        const response = await fetch("/signal-drop/result", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                session_id: sessionId,
+                game_mode: mode,
+                target: target.letter,
+                actual_morse: values.actualMorse || "",
+                answer: values.answer || "",
+                clear_count: values.clearCount || 0,
+                reason: values.reason || "answer",
+                timing_events: keyboardKeyerActive ? keyboardTimingEvents : []
+            })
+        });
+        return await response.json();
+    }
+
+    async function finishAttempt(target, values) {
+        if (busy || !target) {
+            return;
+        }
+
+        busy = true;
+        const matches = values.expectedCorrect ? matchingTargets(target.letter) : [target];
+        matches.forEach(item => removeTarget(item, values.expectedCorrect ? "correct" : "missed"));
+        updateReadChoices();
+
+        try {
+            const result = await recordResult(target, {
+                ...values,
+                clearCount: values.expectedCorrect ? matches.length : 0
+            });
+            attempts += 1;
+
+            if (result.correct) {
+                correct += 1;
+                cleared += Math.max(1, result.clear_count || matches.length);
+                streak += 1;
+                score += Math.max(1, result.clear_count || matches.length) * 10 * level;
+                level = Math.min(8, Math.max(level, 1 + Math.floor(streak / 4)));
+                showFeedback(
+                    matches.length > 1 ? `Great! ${matches.length} cleared` : "Correct!",
+                    "Keep the streak going."
+                );
+            } else {
+                streak = 0;
+                level = Math.max(1, level - 1);
+                reviewQueue.push(target.letter);
+                showFeedback(
+                    values.reason === "bottom" ? `Review ${target.letter}` : "Not yet",
+                    values.reason === "bottom" ? "This signal will return soon." : `Review ${target.letter}; it will return soon.`,
+                    target.letter,
+                    true
+                );
+            }
+            updateScore();
+        } catch (error) {
+            reviewQueue.push(target.letter);
+            showFeedback("Try that again", "The result was not saved.", target.letter, true);
+        } finally {
+            busy = false;
+            lastSubmittedMorse = "";
+            await clearKeyInput();
+            if (running && targets.size === 0) {
+                spawnElapsed = spawnDelay();
+            }
+        }
+    }
+
+    function handleReadChoice(letter) {
+        if (!running || busy) {
+            return;
+        }
+        const matches = matchingTargets(letter);
+        const target = matches[0] || frontTarget();
+        if (!target) {
+            return;
+        }
+        finishAttempt(target, {
+            answer: letter,
+            expectedCorrect: matches.length > 0,
+            reason: "answer"
+        });
+    }
+
+    function handleMorse(rawMorse, decoded) {
+        if (mode !== "send" || !running || busy) {
+            return;
+        }
+
+        const morse = normalizeMorse(rawMorse);
+        if (!morse || morse === lastSubmittedMorse) {
+            return;
+        }
+
+        if (morseTimer) {
+            window.clearTimeout(morseTimer);
+        }
+        morseTimer = window.setTimeout(() => {
+            const letter = decoded || MORSE_DECODE[morse] || "";
+            const matches = matchingTargets(letter);
+            const target = matches[0] || frontTarget();
+            if (!target) {
+                clearKeyInput();
+                return;
+            }
+            lastSubmittedMorse = morse;
+            finishAttempt(target, {
+                actualMorse: morse,
+                expectedCorrect: matches.length > 0,
+                reason: "answer"
+            });
+        }, 1050);
+    }
+
+    function animate(now) {
+        if (!running) {
+            return;
+        }
+
+        if (!lastFrameAt) {
+            lastFrameAt = now;
+        }
+        const delta = Math.min(0.08, (now - lastFrameAt) / 1000);
+        lastFrameAt = now;
+        spawnElapsed += delta * 1000;
+
+        let bottomMiss = null;
+        targets.forEach(target => {
+            target.y += fallSpeed() * delta;
+            target.node.style.transform = `translate(${target.x}px, ${target.y}px)`;
+            if (!bottomMiss && target.y >= field.clientHeight - 58) {
+                bottomMiss = target;
+            }
+        });
+
+        if (bottomMiss && !busy) {
+            finishAttempt(bottomMiss, {
+                expectedCorrect: false,
+                reason: "bottom"
+            });
+        }
+
+        if (spawnElapsed >= spawnDelay() && targets.size < maxTargets) {
+            spawnElapsed = 0;
+            spawnTarget();
+        }
+
+        animationFrame = window.requestAnimationFrame(animate);
+    }
+
+    function setRunning(nextRunning) {
+        running = nextRunning;
+        toggle.innerText = running ? "Pause" : (started ? "Resume" : "Start");
+
+        if (running) {
+            started = true;
+            startOverlay.hidden = true;
+            lastFrameAt = 0;
+            if (targets.size === 0) {
+                spawnTarget();
+            }
+            animationFrame = window.requestAnimationFrame(animate);
+            showFeedback("Go!", mode === "send" ? "Key any falling letter." : "Touch a matching letter.");
+        } else {
+            if (animationFrame) {
+                window.cancelAnimationFrame(animationFrame);
+                animationFrame = null;
+            }
+            startOverlay.hidden = false;
+            startOverlay.querySelector("strong").innerText = started ? "Paused" : "Ready?";
+            startOverlay.querySelector("span").innerText = started
+                ? "Tap Resume when you are ready."
+                : "Accuracy first. The signals speed up as your streak grows.";
+        }
+    }
+
+    toggle.addEventListener("click", () => setRunning(!running));
+    updateReadChoices();
+    updateScore();
+    signalDropExperience = { handleMorse };
 }
 
 function updateKeyboardKeyerToggle() {
@@ -1680,6 +2034,7 @@ function initializePracticeMode() {
         setTimeout(playPracticePromptInBrowser, 350);
     }
     initializeWordPractice();
+    initializeSignalDrop();
     focusReadInput();
 }
 

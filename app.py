@@ -35,7 +35,7 @@ from message_store import (
 from message_sync import load_family_learning_summary, refresh_local_learning_summary
 from practice_attempts import append_practice_attempt, normalize_timing_events, rounded_ms, set_attempts_path, timing_summary
 from rhythm_coach import rhythm_coach
-from practice_progress import all_mode_details, choose_next_letter, mode_score, overall_score, progress_summary, record_attempt, save_progress, set_progress_path
+from practice_progress import all_mode_details, choose_next_letter, load_progress, mode_score, overall_score, progress_summary, record_attempt, save_progress, set_progress_path
 import student_profiles as student_profile_store
 from student_profiles import (
     STUDENT_COOKIE,
@@ -193,6 +193,11 @@ DEFAULT_STATION_VOLUME = 0.35
 DAILY_MISSION_GOAL = 20
 DAILY_CELEBRATION_MORSE = "...-"
 BONUS_SPRINT_GOAL = 20
+SIGNAL_DROP_POOL_WEIGHTS = {
+    "established": 0.60,
+    "recent": 0.25,
+    "weak": 0.15,
+}
 EFFORT_MIN_SECONDS_PER_ATTEMPT = 20
 EFFORT_MAX_GAP_SECONDS = 180
 FOCUSED_PRACTICE_MINUTES = 10
@@ -2009,6 +2014,73 @@ def choose_bonus_sprint_target():
     practice_target = random.choice(get_unlocked_practice_letters())
     clear_key_state()
     return practice_target
+
+
+def signal_drop_letter_pools(active_letters):
+    active_letters = [letter for letter in all_practice_letters if letter in active_letters]
+    if not active_letters:
+        return {"established": [], "recent": [], "weak": []}
+
+    active_set = set(active_letters)
+    state = load_learning_state()
+    recent = []
+    recent_started_at = ""
+
+    for step in letter_unlock_steps:
+        if not all(letter in active_set for letter in step["letters"]):
+            continue
+
+        group_state = state["groups"].get(step_key(step), {})
+        started_at = str(
+            group_state.get("first_learning_started_at")
+            or group_state.get("first_learning_date")
+            or ""
+        )
+        if started_at >= recent_started_at:
+            recent = list(step["letters"])
+            recent_started_at = started_at
+
+    progress = load_progress(active_letters)
+
+    def weakness_key(letter):
+        records = [
+            progress.get(letter, {}).get(mode, {})
+            for mode in scored_practice_modes
+        ]
+        strengths = [float(record.get("strength", 0.0)) for record in records]
+        latest_seen = max((str(record.get("last_seen", "")) for record in records), default="")
+        average_strength = sum(strengths) / len(strengths) if strengths else 0.0
+        return average_strength, latest_seen, active_letters.index(letter)
+
+    weak_candidates = [letter for letter in active_letters if letter not in recent]
+    weak_count = min(len(weak_candidates), max(1, math.ceil(len(active_letters) * 0.20)))
+    weak = sorted(weak_candidates, key=weakness_key)[:weak_count]
+    established = [letter for letter in active_letters if letter not in recent and letter not in weak]
+
+    return {
+        "established": established,
+        "recent": recent,
+        "weak": weak,
+    }
+
+
+def choose_signal_drop_target(review_letter=""):
+    active_letters = get_unlocked_practice_letters()
+    review_letter = limited_text(review_letter, 1).upper()
+    if review_letter in active_letters:
+        return review_letter
+
+    pools = signal_drop_letter_pools(active_letters)
+    available_names = [name for name, letters in pools.items() if letters]
+    if not available_names:
+        return random.choice(active_letters)
+
+    pool_name = random.choices(
+        available_names,
+        weights=[SIGNAL_DROP_POOL_WEIGHTS[name] for name in available_names],
+        k=1,
+    )[0]
+    return choose_next_letter(pools[pool_name], mode="send")
 
 
 def student_badges(overall, daily):
@@ -4067,6 +4139,23 @@ def touch_bonus_sprint():
     )
 
 
+@app.route("/touch/games/signal-drop")
+def touch_signal_drop():
+    mode = str(request.args.get("mode", "send")).lower()
+    if mode not in ("send", "read"):
+        mode = "send"
+
+    active_letters = get_unlocked_practice_letters()
+    return render_template(
+        "touch_signal_drop.html",
+        game_mode=mode,
+        session_id=request.args.get("session") or uuid4().hex,
+        active_letters=active_letters,
+        letter_morse={letter: text_to_morse(letter) for letter in active_letters},
+        timing=get_morse_timing(),
+    )
+
+
 @app.route("/touch/daily/celebrate", methods=["POST"])
 def touch_daily_celebrate():
     if daily_mission_summary()["completed"]:
@@ -4988,6 +5077,85 @@ def bonus_result():
         "attempt": attempt_record,
         "timing": get_practice_timing("send", letter),
         "bonus": bonus_sprint_summary(session_id),
+    })
+
+
+@app.route("/signal-drop/next", methods=["POST"])
+def signal_drop_next():
+    data = request.get_json(silent=True) or {}
+    active_letters = get_unlocked_practice_letters()
+    target = choose_signal_drop_target(data.get("review_letter", ""))
+
+    return jsonify({
+        "target": target,
+        "expected_morse": text_to_morse(target),
+        "active_letters": active_letters,
+    })
+
+
+@app.route("/signal-drop/result", methods=["POST"])
+def signal_drop_result():
+    data = request.get_json(silent=True) or {}
+    active_letters = get_unlocked_practice_letters()
+    session_id = limited_text(data.get("session_id", ""), 64)
+    game_mode = str(data.get("game_mode", "send")).lower()
+    target = limited_text(data.get("target", ""), 1).upper()
+    reason = str(data.get("reason", "answer")).lower()
+    answer = limited_text(data.get("answer", ""), 1).upper()
+    actual_morse = normalize_word_morse(data.get("actual_morse", ""))
+    timing_events = data.get("timing_events") or get_current_key_events()
+    clear_count = clamp_int(data.get("clear_count"), 0, 0, 20)
+
+    if not session_id:
+        return jsonify({"status": "missing-session"}), 400
+    if game_mode not in ("send", "read"):
+        return jsonify({"status": "invalid-mode"}), 400
+    if target not in active_letters:
+        return jsonify({"status": "inactive-target"}), 400
+
+    expected_morse = text_to_morse(target)
+    if reason == "bottom":
+        is_correct = False
+        answer = ""
+        actual_morse = ""
+    elif game_mode == "read":
+        answer, is_correct = server_checked_letter_answer(target, answer)
+        actual_morse = ""
+    else:
+        expected_morse, actual_morse, is_correct = server_checked_keying_result(
+            target,
+            actual_morse or get_current_key_morse().strip(),
+        )
+
+    if not is_correct:
+        clear_count = 0
+
+    attempt_record = append_bonus_attempt({
+        "kind": "signal-drop",
+        **attempt_metadata(),
+        "session_id": session_id,
+        "game_mode": game_mode,
+        "target": target,
+        "expected_morse": expected_morse,
+        "actual_morse": actual_morse,
+        "answer": answer,
+        "correct": is_correct,
+        "clear_count": clear_count,
+        "reason": reason,
+        "timing": get_practice_timing("send", target),
+        "timing_events": timing_events,
+    })
+    clear_key_state()
+
+    return jsonify({
+        "status": "recorded",
+        "correct": is_correct,
+        "target": target,
+        "expected_morse": expected_morse,
+        "actual_morse": actual_morse,
+        "decoded": morse_to_text(actual_morse).upper() if actual_morse else "",
+        "clear_count": clear_count,
+        "attempt": attempt_record,
     })
 
 

@@ -78,3 +78,9 @@
   failures and restart attempts SHALL be retained in the user journal for
   remote diagnosis, and repeated failures SHALL not create multiple kiosk
   processes.
+- **NFR-022** *(V1)* Signal Drop SHALL fit the fixed 800x480 touch viewport
+  without scrolling, maintain touch targets of at least 48 px, and remain
+  readable with the complete supported active-letter set. Animation SHALL use
+  browser-native transforms or animation frames and remain responsive on a
+  Raspberry Pi 4. Correctness, text, and shape SHALL accompany color feedback.
+  Students SHALL be able to pause or leave without a keyboard or penalty.

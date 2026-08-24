@@ -937,7 +937,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("data-word-clear", words_html)
         self.assertIn('/touch/words?word=ME&phase=1', words_html)
         self.assertNotIn("autoplay=1", words_html)
-        self.assertIn('app.js?v=20260824-2', words_html)
+        self.assertIn('app.js?v=20260824-3', words_html)
         self.assertNotIn(">Read</a>", words_html)
         self.assertIn('class="morse-visual"', words_html)
         self.assertIn('aria-label="dot dash"', words_html)
@@ -2456,6 +2456,144 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn('data-bonus-session="test-session"', html)
         self.assertIn('id="bonusAttempts">0</span>/20 signals', html)
         self.assertIn('id="touchResultBanner"', html)
+
+    def test_signal_drop_menu_and_screen_use_only_active_letters(self):
+        self.complete_starter_progress("pappy")
+
+        menu = self.client.get("/touch/practice").get_data(as_text=True)
+        response = self.client.get("/touch/games/signal-drop?mode=read&session=drop-1")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Signal Drop", menu)
+        self.assertIn("/touch/games/signal-drop", menu)
+        self.assertIn('data-game-mode="read"', html)
+        self.assertIn('data-session-id="drop-1"', html)
+        self.assertIn("Known: E T A N I M", html)
+        self.assertNotIn("Known: E T A N I M S O", html)
+        self.assertIn('id="signalDropChoices"', html)
+        self.assertIn('id="signalDropToggle"', html)
+
+    def test_signal_drop_next_replays_active_review_letter_and_rejects_learning_now(self):
+        self.complete_starter_progress("pappy")
+
+        response = self.client.post("/signal-drop/next", json={"review_letter": "A"})
+        payload = response.get_json()
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("A", payload["target"])
+        self.assertEqual(".-", payload["expected_morse"])
+        self.assertEqual(app_module.starter_practice_letters, payload["active_letters"])
+
+        inactive = self.client.post(
+            "/signal-drop/result",
+            json={
+                "session_id": "drop-1",
+                "game_mode": "send",
+                "target": "S",
+                "actual_morse": "...",
+            },
+        )
+        self.assertEqual(400, inactive.status_code)
+        self.assertEqual("inactive-target", inactive.get_json()["status"])
+
+    def test_signal_drop_weighted_selector_can_target_recent_active_group(self):
+        active_letters = app_module.starter_practice_letters + ["S", "O"]
+        self.complete_progress("pappy", active_letters)
+        self.set_learning_state(
+            "pappy",
+            {
+                "SO": {
+                    "letters": ["S", "O"],
+                    "first_learning_date": "2000-01-01",
+                    "first_learning_started_at": "2000-01-01T00:00:00",
+                }
+            },
+            last_learning_start_date="2000-01-01",
+        )
+
+        def select_recent_pool(population, weights, k):
+            if set(population).issubset({"established", "recent", "weak"}):
+                return ["recent"]
+            return [population[0]]
+
+        with patch.object(app_module.random, "choices", side_effect=select_recent_pool) as choose_pool:
+            response = self.client.post("/signal-drop/next", json={})
+
+        payload = response.get_json()
+        pool_call = next(
+            call for call in choose_pool.call_args_list
+            if set(call.args[0]).issubset({"established", "recent", "weak"})
+        )
+        pool_names = pool_call.args[0]
+        pool_weights = pool_call.kwargs["weights"]
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn(payload["target"], ["S", "O"])
+        self.assertEqual(active_letters, payload["active_letters"])
+        self.assertEqual(0.25, pool_weights[pool_names.index("recent")])
+
+    def test_signal_drop_results_are_server_checked_bonus_effort_only(self):
+        response = self.client.post(
+            "/signal-drop/result",
+            json={
+                "session_id": "drop-1",
+                "game_mode": "send",
+                "target": "E",
+                "actual_morse": ".",
+                "clear_count": 2,
+                "timing_events": [{"type": "symbol", "symbol": ".", "duration_ms": 110}],
+            },
+        )
+        read_miss = self.client.post(
+            "/signal-drop/result",
+            json={
+                "session_id": "drop-1",
+                "game_mode": "read",
+                "target": "T",
+                "answer": "E",
+                "clear_count": 4,
+            },
+        )
+        bottom_miss = self.client.post(
+            "/signal-drop/result",
+            json={
+                "session_id": "drop-1",
+                "game_mode": "send",
+                "target": "A",
+                "reason": "bottom",
+            },
+        )
+
+        self.assertTrue(response.get_json()["correct"])
+        self.assertEqual(2, response.get_json()["clear_count"])
+        self.assertFalse(read_miss.get_json()["correct"])
+        self.assertEqual(0, read_miss.get_json()["clear_count"])
+        self.assertFalse(bottom_miss.get_json()["correct"])
+
+        records = [
+            json.loads(line)
+            for line in self.student_file("pappy", "bonus_attempts.jsonl").read_text(encoding="utf-8").splitlines()
+        ]
+        self.assertEqual(3, len(records))
+        self.assertTrue(all(record["kind"] == "signal-drop" for record in records))
+        self.assertEqual({"send", "read"}, {record["game_mode"] for record in records})
+        self.assertEqual("bottom", records[2]["reason"])
+        self.assertIn("timing_summary", records[0])
+        self.assertFalse(self.student_file("pappy", "practice_progress.json").exists())
+        self.assertFalse(self.student_file("pappy", "practice_attempts.jsonl").exists())
+
+    def test_signal_drop_frontend_has_bounded_adaptive_speed_and_pause(self):
+        source = (Path(app_module.app.static_folder) / "app.js").read_text(encoding="utf-8")
+        css = (Path(app_module.app.static_folder) / "touch.css").read_text(encoding="utf-8")
+
+        self.assertIn("Math.min(42, 15 +", source)
+        self.assertIn("Math.max(1500, 3300 -", source)
+        self.assertIn("level = Math.max(1, level - 1)", source)
+        self.assertIn('toggle.innerText = running ? "Pause"', source)
+        self.assertIn("matchingTargets(target.letter)", source)
+        self.assertIn(".signal-drop-layout", css)
+        self.assertIn("grid-template-columns: minmax(0, 1fr) 205px", css)
 
     def test_bonus_result_records_without_changing_practice_progress(self):
         response = self.client.post(
