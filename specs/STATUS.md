@@ -5,7 +5,7 @@ knows what it inherits. This file is updated on each re-review; requirement
 files only carry *(Delta: …)* notes, not status history.
 
 - **Baseline review:** `33df851` (2026-07-02)
-- **Latest legacy-code re-review:** Signal Drop learning game implementation (2026-08-24)
+- **Latest legacy-code re-review:** Screensaver timing refinement (2026-08-25)
 - **Spec package location:** root `specs/`
 
 ## Changes landed since baseline
@@ -91,7 +91,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-057/DR-020/SEC-021 permanent identity | ✅ | Canonical family UUIDs, compatibility aliases, private registry preference with tracked fallback, idempotent migration, Guest exclusion, and fail-closed mismatch checks are implemented and live-rehearsed |
 | FR-058/API-027/SEC-022 remote update Jobs | 🟡 | Local worker, systemd timer, config examples, docs, policy template, and AWS Things/policies are ready. Astrid/Liara live `update-app` Job succeeded. Pappy is now a `release/pi` Git checkout with local update and IoT poll timers active; its station credential can poll Jobs but cannot create them. Campbell/Olivea rollout remains pending reconnection |
 | FR-059 Warm-Up Review | ✅ | Daily-driven or manually started 10-signal review; logs review-only attempts for effort/rhythm while leaving mastery, unlock gates, and Daily count unchanged |
-| FR-061 idle Morse screensaver | ✅ | 10-second Morse-only recall plus 5-second answer reveal is implemented, tested, published to `main` and `release/pi`, and deployed successfully to Pappy at `1f179db` |
+| FR-061 idle Morse screensaver | ✅ | 5-second Morse-only recall plus 3-second answer reveal is implemented and tested; sound, LED, movement, and wake behavior are unchanged |
 | FR-062 browser supervision | ✅ | Supervised service, readiness-aware launcher, idempotent/self-healing installer, update integration, intentional kiosk exit, status reporting, docs, and contract tests are implemented; Pappy live crash recovery and reboot checks pass at `57c8b63` |
 | FR-063 Signal Drop | ✅ | Active-letter-only Send/Read game, weighted reinforcement, duplicate clearing, adaptive speed, review return, touch/keyer input, and bonus-only attempt logging are implemented and tested at 800x480 |
 | SEC-001 CSRF | ❌ | No tokens anywhere |

@@ -223,9 +223,9 @@ correctness checks. Each is encoded as an automated test per
   screensaver before 3 minutes and then shows a black full-screen overlay with
   one A-Z or 0-9 shared centered Morse visual with its character hidden. After
   each cycle begins, the character element is empty and immediately hidden;
-  neither the prior nor next answer flashes. After 10 seconds, the matching
+  neither the prior nor next answer flashes. After 5 seconds, the matching
   character is populated and appears without moving or hiding the
-  Morse. After 5 more seconds, a different pattern begins at a safe
+  Morse. After 3 more seconds, a different pattern begins at a safe
   in-viewport position with its character hidden again. No phase makes sound
   or LED requests. The first touch dismisses and does not activate the covered
   control. A physical keyer press dismisses, clears that wake signal, and

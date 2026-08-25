@@ -1,5 +1,13 @@
 # Pappy's Internet Telegraph Project Plan
 
+## 2026-08-25 - Screensaver timing refinement
+
+- Shortened each idle learning cycle from 10 seconds Morse-only plus 5 seconds
+  revealed to 5 seconds Morse-only plus 3 seconds revealed.
+- Kept the three-minute activation delay, no-sound/no-LED behavior, random safe
+  movement, no-answer-flash protection, and touch/keyer wake behavior unchanged.
+- Updated FR-061, AC-036, TEST-021, and the compliance status before deployment.
+
 ## 2026-08-24 - Signal Drop learning game
 
 - Researched established typing-tutor game patterns, including falling-letter
