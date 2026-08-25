@@ -1594,6 +1594,15 @@ function initializeSignalDrop() {
         }
     }
 
+    function markTargetMiss(target) {
+        target.node.classList.add("missed");
+        window.setTimeout(() => {
+            if (targets.has(target.id)) {
+                target.node.classList.remove("missed");
+            }
+        }, 1000);
+    }
+
     function matchingTargets(letter) {
         return Array.from(targets.values()).filter(target => target.letter === letter);
     }
@@ -1701,7 +1710,13 @@ function initializeSignalDrop() {
 
         busy = true;
         const matches = values.expectedCorrect ? matchingTargets(target.letter) : [target];
-        matches.forEach(item => removeTarget(item, values.expectedCorrect ? "correct" : "missed"));
+        if (values.expectedCorrect) {
+            matches.forEach(item => removeTarget(item, "correct"));
+        } else if (mode === "send" && values.reason !== "bottom") {
+            markTargetMiss(target);
+        } else {
+            removeTarget(target, "missed");
+        }
         updateReadChoices();
 
         try {
@@ -1726,7 +1741,7 @@ function initializeSignalDrop() {
                 level = Math.max(1, level - 1);
                 reviewQueue.push(target.letter);
                 showFeedback(
-                    values.reason === "bottom" ? `Review ${target.letter}` : "Not yet",
+                    values.reason === "bottom" ? `Review ${target.letter}` : (mode === "send" ? "MISS" : "Not yet"),
                     values.reason === "bottom" ? "This signal will return soon." : `Review ${target.letter}; it will return soon.`,
                     target.letter,
                     true

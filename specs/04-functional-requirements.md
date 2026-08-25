@@ -355,7 +355,10 @@ from the current code (legacy status per requirement is tracked in
   Morse and accept large touch letter choices. A correct answer SHALL clear
   every visible copy of that target. A missed or incorrect signal SHALL give
   immediate corrective feedback, return that letter to the review mix, and
-  SHALL NOT remove mastery or end the game. Prompt selection SHOULD target
+  SHALL NOT remove mastery or end the game. In Send, an incorrectly keyed
+  answer SHALL mark the lowest target red, show a text `MISS` result with the
+  target's Morse pattern, and leave that target falling; only a correct answer
+  or reaching the bottom removes it. Prompt selection SHOULD target
   approximately 60% established letters, 25% recently activated letters, and
   15% weak or overdue letters, with safe fallback when a pool is empty. Fall
   speed MAY increase after sustained correct play and SHALL slow after misses.

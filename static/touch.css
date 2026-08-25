@@ -2526,9 +2526,10 @@
 }
 
 .signal-drop-target.missed {
-    color: #332000;
-    background: #f0a93c;
-    border-color: #ffd58a;
+    color: #ffffff;
+    background: #c62828;
+    border-color: #ffb2b2;
+    box-shadow: 0 0 0 4px rgba(198, 40, 40, 0.25), 0 5px 0 rgba(0, 0, 0, 0.28);
 }
 
 .signal-drop-key-dock,

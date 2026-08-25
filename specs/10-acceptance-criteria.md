@@ -246,8 +246,10 @@ correctness checks. Each is encoded as an automated test per
   offers Send and Read without scrolling. A student with six active letters and
   two Learning Now letters receives only the six active letters. Correct Send
   Morse and correct Read choices clear all matching visible targets and append
-  bonus records; incorrect input and bottom misses provide corrective feedback
-  without changing practice mastery or Daily counts. Repeated success speeds
+  bonus records. Incorrect Send input turns the lowest target red for visible
+  `MISS` feedback while that target remains in play; a bottom miss turns red
+  and then leaves. Both return the target to review without changing practice
+  mastery or Daily counts. Repeated success speeds
   play within a bounded range, a miss slows it, and pause/leave work by touch.
 
 ## Coverage rule
