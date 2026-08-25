@@ -12,8 +12,8 @@ class TouchScreensaverTests(unittest.TestCase):
 
     def test_idle_guess_reveal_and_reset_timing_match_spec(self):
         self.assertIn("const TOUCH_SCREENSAVER_IDLE_MS = 3 * 60 * 1000;", self.app_source)
-        self.assertIn("const TOUCH_SCREENSAVER_GUESS_MS = 10 * 1000;", self.app_source)
-        self.assertIn("const TOUCH_SCREENSAVER_REVEAL_MS = 5 * 1000;", self.app_source)
+        self.assertIn("const TOUCH_SCREENSAVER_GUESS_MS = 5 * 1000;", self.app_source)
+        self.assertIn("const TOUCH_SCREENSAVER_REVEAL_MS = 3 * 1000;", self.app_source)
         self.assertIn("const TOUCH_OPERATOR_RESET_MS = 10 * 60 * 1000;", self.app_source)
 
     def test_recall_cycle_hides_then_reveals_the_character(self):
@@ -57,7 +57,7 @@ class TouchScreensaverTests(unittest.TestCase):
             if path.name == "touch_shutdown.html":
                 self.assertNotIn("/static/app.js", source, path.name)
             else:
-                self.assertIn("/static/app.js?v=20260824-5", source, path.name)
+                self.assertIn("/static/app.js?v=20260825-1", source, path.name)
 
     def test_overlay_is_full_screen_and_safe_at_800_by_480(self):
         self.assertRegex(

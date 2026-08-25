@@ -69,8 +69,8 @@
   remote-maintenance design includes the NFR-019 cost guardrail, expected
   three-station normal-use cost, and a clear note before enabling a fixed
   monthly per-device service.
-- **TEST-021** Touch idle tests verify the 3-minute screensaver, 10-second
-  Morse-only recall phase, 5-second character reveal phase, A-Z/0-9 Morse
+- **TEST-021** Touch idle tests verify the 3-minute screensaver, 5-second
+  Morse-only recall phase, 3-second character reveal phase, A-Z/0-9 Morse
   mapping, wake-only touch/keyer handling, shutdown exclusion, and preservation
   of the 10-minute operator reset. A browser rehearsal at 800x480 uses
   shortened timers to verify the hidden/revealed character sequence, full
