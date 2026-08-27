@@ -23,6 +23,7 @@ DEFAULT_STATUS_PATH = DEFAULT_DATA_DIR / "sync_reports" / "latest_sync_status.js
 DEFAULT_ACTIVITY_PATH = DEFAULT_DATA_DIR / "app_activity.json"
 DEFAULT_LOCK_PATH = DEFAULT_DATA_DIR / "sync_reports" / "student_attempt_sync.lock"
 DEFAULT_IDLE_MINUTES = 10
+DEFAULT_STALE_LOCK_SECONDS = 2 * 60 * 60
 ATTEMPT_FILES = {
     "practice": "practice_attempts.jsonl",
     "words": "word_attempts.jsonl",
@@ -121,24 +122,66 @@ class SyncSkipped(RuntimeError):
 
 
 class SyncLock:
-    def __init__(self, path):
+    def __init__(self, path, stale_after_seconds=DEFAULT_STALE_LOCK_SECONDS):
         self.path = Path(path)
         self.fd = None
+        self.stale_after_seconds = max(0, int(stale_after_seconds))
+
+    @staticmethod
+    def process_exists(pid):
+        try:
+            pid = int(pid)
+        except (TypeError, ValueError):
+            return False
+        if pid <= 0:
+            return False
+        try:
+            os.kill(pid, 0)
+        except PermissionError:
+            return True
+        except OSError:
+            return False
+        return True
+
+    def is_stale(self):
+        payload = read_json(self.path, {})
+        owner_running = self.process_exists(payload.get("pid"))
+        started_at = parse_utc(payload.get("started_at", ""))
+        now = datetime.now(timezone.utc)
+
+        if started_at is not None:
+            age_seconds = max(0, (now - started_at).total_seconds())
+        else:
+            try:
+                modified_at = datetime.fromtimestamp(self.path.stat().st_mtime, timezone.utc)
+            except OSError:
+                return True
+            age_seconds = max(0, (now - modified_at).total_seconds())
+
+        return not owner_running or age_seconds >= self.stale_after_seconds
 
     def __enter__(self):
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            self.fd = os.open(str(self.path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-            os.write(self.fd, json.dumps({
-                "pid": os.getpid(),
-                "started_at": utc_now(),
-            }, sort_keys=True).encode("utf-8"))
-        except FileExistsError as exc:
-            raise SyncSkipped({
-                "status": "skipped",
-                "reason": "sync-lock-active",
-                "lock_path": str(self.path),
-            }) from exc
+        for attempt in range(2):
+            try:
+                self.fd = os.open(str(self.path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                os.write(self.fd, json.dumps({
+                    "pid": os.getpid(),
+                    "started_at": utc_now(),
+                }, sort_keys=True).encode("utf-8"))
+                break
+            except FileExistsError as exc:
+                if attempt == 0 and self.is_stale():
+                    try:
+                        self.path.unlink()
+                    except OSError:
+                        pass
+                    continue
+                raise SyncSkipped({
+                    "status": "skipped",
+                    "reason": "sync-lock-active",
+                    "lock_path": str(self.path),
+                }) from exc
         return self
 
     def __exit__(self, exc_type, exc, traceback):

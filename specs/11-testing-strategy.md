@@ -89,6 +89,9 @@
   bottom-miss records, unchanged mastery data, touch-menu entry, fixed-screen
   layout, persistent red keyed-miss feedback, bottom removal, adaptive speed
   bounds, pause/restart controls, and physical/spacebar keyer integration.
+- **TEST-024** Student-attempt sync lock tests cover active-owner exclusion,
+  abandoned-process recovery, maximum-age recovery, and lock cleanup after a
+  successful merge.
 
 ## CI pipeline (per TR-011)
 

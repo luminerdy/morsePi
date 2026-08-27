@@ -1,6 +1,6 @@
 # morsePi
 
-Last updated: 2026-08-25
+Last updated: 2026-08-26
 
 Pappy's Internet Telegraph is a Raspberry Pi Morse code learning station. It lets students type messages, see Morse code, hear Morse code, tap a physical telegraph key, and practice beginner letters with immediate feedback.
 
@@ -122,7 +122,7 @@ cd /home/morse/morse-station
 GPIOZERO_PIN_FACTORY=mock python3 -m unittest discover -s tests
 ```
 
-These tests use temporary progress files and do not modify student practice data. The current bank covers data backups, station status reporting, timing summaries, learning gates, alphabet progress, stale Learning Now cleanup, Daily Mission summary rules, Practice Coach recommendations, derived badges, rendered touch pages, profile cookie separation, admin reset behavior, practice POST routes, Signal Sprint bonus routes, Daily celebration, local messaging, duplicate-safe three-station cloud delivery contracts, family progress snapshots, admin PIN tooling, rollout/update helpers, rhythm coaching, and student-attempt sync.
+These tests use temporary progress files and do not modify student practice data. The current bank covers data backups, station status reporting, timing summaries, learning gates, alphabet progress, stale Learning Now cleanup, Daily Mission summary rules, Practice Coach recommendations, derived badges, rendered touch pages, profile cookie separation, admin reset behavior, practice POST routes, Signal Sprint bonus routes, Daily celebration, local messaging, duplicate-safe three-station cloud delivery contracts, family progress snapshots, admin PIN tooling, rollout/update helpers, rhythm coaching, and student-attempt sync including stale-lock recovery after power loss.
 
 ## Repository Layout
 
