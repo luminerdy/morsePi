@@ -9,8 +9,16 @@
   power-interrupted process left `student_attempt_sync.lock` behind.
 - Added automatic stale-lock recovery when the owner no longer exists or the
   lock is older than two hours, while preserving active-owner exclusion.
-- Added AC-039 and TEST-024 coverage; next operational step is a forced Pappy
-  sync followed by cloud-count and status verification.
+- Added AC-039 and TEST-024 coverage. Pappy updated through the protected
+  release path at `179ae62` and passed 252 tests.
+- The live forced recovery removed the abandoned lock, created sync backup
+  `20260827-013739`, uploaded 907 missing immutable attempts, read 1,608 cloud
+  attempts, and rebuilt Pappy from 1,192 practice attempts plus 239 Words and
+  177 bonus attempts. The lock cleared and app/browser/sync services remained
+  active.
+- Follow-up performance work: batch missing attempt objects into one recursive
+  S3 upload so a large offline backlog does not start one AWS CLI process per
+  record. This is a speed improvement; the completed run proved data integrity.
 
 ## 2026-08-25 - Screensaver timing refinement
 
