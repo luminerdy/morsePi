@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 import tempfile
 import unittest
@@ -484,6 +485,50 @@ class StudentAttemptSyncTests(unittest.TestCase):
         with SyncLock(lock_path):
             with self.assertRaises(SyncSkipped):
                 guarded_full_sync(self.data_dir, self.config, store=MemoryStore(), force=True, lock_path=lock_path)
+
+    def test_guarded_full_sync_recovers_abandoned_lock(self):
+        lock_path = self.data_dir / "sync_reports" / "student_attempt_sync.lock"
+        lock_path.parent.mkdir(parents=True)
+        lock_path.write_text(
+            json.dumps({
+                "pid": 99999999,
+                "started_at": "2026-08-08T20:57:30+00:00",
+            }),
+            encoding="utf-8",
+        )
+
+        result = guarded_full_sync(
+            self.data_dir,
+            self.config,
+            store=MemoryStore(),
+            force=True,
+            lock_path=lock_path,
+        )
+
+        self.assertEqual(0, result["uploaded"])
+        self.assertFalse(lock_path.exists())
+
+    def test_guarded_full_sync_recovers_expired_lock(self):
+        lock_path = self.data_dir / "sync_reports" / "student_attempt_sync.lock"
+        lock_path.parent.mkdir(parents=True)
+        lock_path.write_text(
+            json.dumps({
+                "pid": os.getpid(),
+                "started_at": "2026-08-08T20:57:30+00:00",
+            }),
+            encoding="utf-8",
+        )
+
+        result = guarded_full_sync(
+            self.data_dir,
+            self.config,
+            store=MemoryStore(),
+            force=True,
+            lock_path=lock_path,
+        )
+
+        self.assertEqual(0, result["uploaded"])
+        self.assertFalse(lock_path.exists())
 
     def test_sync_cli_skips_without_building_dry_run_report(self):
         status = {"reason": "recent-activity"}

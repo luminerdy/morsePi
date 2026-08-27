@@ -5,7 +5,7 @@ knows what it inherits. This file is updated on each re-review; requirement
 files only carry *(Delta: …)* notes, not status history.
 
 - **Baseline review:** `33df851` (2026-07-02)
-- **Latest legacy-code re-review:** Screensaver timing refinement (2026-08-25)
+- **Latest legacy-code re-review:** Offline sync recovery (2026-08-26)
 - **Spec package location:** root `specs/`
 
 ## Changes landed since baseline
@@ -29,7 +29,7 @@ files only carry *(Delta: …)* notes, not status history.
 | Touch operator roster management | 2026-08-07 working tree | FR-024, API-026, AC-029 — Admin System can add or hide local family operators with touch controls and an admin PIN while preserving student data |
 | Read-only station progress snapshots | 2026-08-03 working tree | FR-034, DR-017 — daily backup service now also writes/uploads `morsepi-progress-snapshot-v1` to the station snapshot prefix for family visibility; no cross-station merge yet |
 | Read-only family progress view | 2026-08-03 working tree | DR-018, API-025 — `scripts/family_progress.py` combines latest station snapshots into `data/family_progress/latest.json`; `/admin/family` shows the latest student source and unavailable station snapshots without writing student data |
-| Student progress sync design, attempt IDs, dry-run report, full-sync path, and guarded timer foundation | 2026-08-04 working tree | FR-054, DR-019 — new Practice/Words/Sprint attempts include stable `attempt_id`; merge contract documented; dry-run report lists local upload candidates/conflicts/cloud errors without writing student files; manual upload-only and full `--sync` modes are available; guarded sync skips recent app activity, writes status, uses a lock, and has optional systemd timer files; production timer soak remains future work |
+| Student progress sync design, attempt IDs, dry-run report, full-sync path, and guarded timer foundation | 2026-08-26 | FR-054, DR-019 — new Practice/Words/Sprint attempts include stable `attempt_id`; merge contract documented; guarded full sync skips recent activity, writes status, and now recovers a lock abandoned by power loss or older than two hours while preserving active-owner exclusion |
 | Local family Morse messaging with shared-letter validation, word-tile/whole-word keyer composition, review, playback, inbox, guided decoding, effort, and badges | 2026-08-02 working tree | FR-039...FR-046 — met for Phase 7A; FR-047...FR-050 remain partial pending cross-station transport |
 | Message Word Bank and word-level draft editing | 2026-08-10 working tree | FR-041/FR-042/AC-015 — composer links to a scrollable shared Word Bank, Words practice links to `Words I Know`, word tiles show new/tried/done practice status, draft words are selectable, and selected words can be replaced, removed, or moved without clearing the draft. Key-to-send validation remains the next slice. |
 | Durable S3/Lambda message routing, station sync worker, remote receipts, and three-station rehearsal | `29a665d`; activated 2026-08-02 | FR-047...FR-050, FR-052, FR-053, API-023, and AC-018...AC-020/AC-023 — met; Pappy and Astrid/Liara enabled at ten minutes, Campbell/Olivea remains disabled |
@@ -84,7 +84,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-028/DR-015 reset summary cleanup | ✅ | Student reset backs up and removes local and cached family learning summaries so old cloud eligibility cannot restore unlocked letters |
 | DR-017 read-only progress snapshots | ✅ | `scripts/progress_snapshot.py` writes a safe station snapshot and the daily backup service uploads it; two-way student data merge remains future work |
 | DR-018 family progress view | ✅ | Read-only local family progress file and `/admin/family` view implemented; live cross-station completeness depends on Pappy's AWS credential being allowed to read station snapshot objects |
-| FR-054/DR-019 student progress sync | 🟡 | Merge strategy documented, new attempts get `attempt_id`, and `scripts/student_attempt_sync.py` produces a no-write dry-run report, upload-only path, guarded full sync with backup/merge/rebuild, status file, and lock; optional systemd timer exists but needs station soak testing |
+| FR-054/DR-019 student progress sync | 🟡 | Merge strategy, immutable attempts, dry-run/upload/full-sync paths, backup/merge/rebuild, status, timer, and power-loss-safe stale-lock recovery are implemented; multi-station timer soak still needs observation after deployed stations reconnect |
 | FR-053 cloud message router | ✅ | Narrow-role Lambda and three S3 notifications deployed in `us-east-1`; live routing and receipts verified |
 | FR-055 prominent practice result | ✅ | Shared title-bar result is covered across all touch practice modes without changing page height or scoring |
 | FR-056 adaptive attainable Words | ✅ | Unfinished/review cadence and distinct-word completion score are implemented and covered |

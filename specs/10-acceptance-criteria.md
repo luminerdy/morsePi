@@ -251,6 +251,11 @@ correctness checks. Each is encoded as an automated test per
   and then leaves. Both return the target to review without changing practice
   mastery or Daily counts. Repeated success speeds
   play within a bounded range, a miss slows it, and pause/leave work by touch.
+- **AC-039** (FR-054) A student-attempt sync with a lock owned by a running
+  process skips without changing data. A lock whose recorded process no longer
+  exists, or whose age exceeds two hours, is removed and the sync completes;
+  normal completion removes its own lock. This recovery preserves immutable
+  attempt merge, conflict quarantine, and recent-activity safeguards.
 
 ## Coverage rule
 

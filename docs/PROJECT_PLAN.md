@@ -1,5 +1,17 @@
 # Pappy's Internet Telegraph Project Plan
 
+## 2026-08-26 - Offline recovery and stale sync lock
+
+- Confirmed Pappy retained progress during the internet outage and uploaded a
+  full shutdown backup plus a current progress snapshot after connectivity
+  returned at 11:26 AM.
+- Found that cross-station attempt merge had skipped since August 8 because a
+  power-interrupted process left `student_attempt_sync.lock` behind.
+- Added automatic stale-lock recovery when the owner no longer exists or the
+  lock is older than two hours, while preserving active-owner exclusion.
+- Added AC-039 and TEST-024 coverage; next operational step is a forced Pappy
+  sync followed by cloud-count and status verification.
+
 ## 2026-08-25 - Screensaver timing refinement
 
 - Shortened each idle learning cycle from 10 seconds Morse-only plus 5 seconds
