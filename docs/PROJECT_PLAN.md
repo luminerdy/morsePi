@@ -1,5 +1,21 @@
 # Pappy's Internet Telegraph Project Plan
 
+## 2026-08-28 - Spec and implementation reconciliation
+
+- Compared the current code, route contracts, regression tests, and recent
+  station releases with the requirements in `specs/`.
+- Confirmed FR-054/AC-039/TEST-024 match the two-hour or abandoned-owner sync
+  lock recovery implemented in `scripts/student_attempt_sync.py`.
+- Confirmed FR-061/AC-036/TEST-021 match the current three-minute idle start,
+  5-second Morse-only recall, 3-second answer reveal, and wake-only touch/keyer
+  behavior.
+- Confirmed FR-063/NFR-022/DR-021/API-028/AC-038/TEST-023 match the current
+  Signal Drop selector, server validation, 800x480 layout, physical-key input,
+  and persistent red retry feedback.
+- Corrected stale compliance references to the initial Signal Drop release,
+  obsolete physical-key follow-up, and older automated-test totals. No code
+  changes were required. The local suite passes 252 tests.
+
 ## 2026-08-26 - Offline recovery and stale sync lock
 
 - Confirmed Pappy retained progress during the internet outage and uploaded a
@@ -48,21 +64,22 @@
   `kind=signal-drop`, preserving effort and timing history without changing
   practice mastery, Daily Mission counts, or unlock gates.
 - Added FR-063, NFR-022, DR-021, API-028, AC-038, and TEST-023 before the code.
-  The complete suite passes 250 tests. Send and Read passed an 800x480 browser
-  rehearsal with no scrolling, overlap, or browser errors; correct and
+  The initial complete suite passed 250 tests. Send and Read passed an 800x480
+  browser rehearsal with no scrolling, overlap, or browser errors; correct and
   needs-work feedback and touch pause/restart paths were exercised.
 - Published main `f8aa8d7` and station release `a24ed0a`. Pappy's normal safe
   updater installed `a24ed0a`; the app and supervised browser are active, and
   the live Signal Drop route returns HTTP 200 with Pappy's active set through
   `L` while later letters remain excluded.
 
-### Next steps
+### Follow-up results and next steps
 
-1. Test Signal Drop with the physical straight key, especially incomplete-code
-   timing and the starting fall speed.
-2. Observe whether the 60/25/15 mix feels balanced for students with newly
-   activated letters, then tune using recorded game attempts rather than score
-   alone.
+1. Physical straight-key testing is complete. Follow-up releases fixed repeated
+   polling feedback, increased the playfield height, moved controls to the
+   right, and keep incorrectly keyed targets visible in red for retry.
+2. Continue observing whether the 60/25/15 mix feels balanced for students with
+   newly activated letters, then tune using recorded game attempts rather than
+   score alone.
 3. After Send/Read settles, consider a Listen variant and known-letter Words
    round using the same game shell.
 
