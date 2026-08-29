@@ -28,6 +28,14 @@
 - Deployment constraint: Pappy and Campbell can receive the hardened release
   normally. Astrid/Liara needs one local checkout recovery because its existing
   old updater blocks before it can install the fix.
+- Promoted the corrected release to `release/pi` at `4aa22f5`. Pappy passed all
+  261 discovered Pi tests, restarted cleanly, returned HTTP 200 from the touch
+  health check, and wrote a `current` report with matching start/target/end
+  commits. The app and supervised browser remained active.
+- Live AWS IoT Job `morsepi-hardened-pappy-20260829-1456` required commit
+  `4aa22f5`, was consumed by Pappy, verified the fresh local report, and was
+  marked `SUCCEEDED` by AWS with reason `already-current`. Both installed
+  update services now report a 20-minute start timeout.
 
 ## 2026-08-28 - Spec and implementation reconciliation
 

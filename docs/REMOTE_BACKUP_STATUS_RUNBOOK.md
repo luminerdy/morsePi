@@ -177,6 +177,9 @@ Every run writes `data/update/latest_update.json` with the starting, target,
 and ending commits plus a truthful terminal state: `current`, `succeeded`,
 `blocked`, `rolled-back`, or `failed`. Touch, timer, and IoT requests share
 `data/update/update.lock`; a second request reports `update-already-running`.
+After a successful merge or an already-current check, the updater also refreshes
+its installed wrapper and local/IoT user service definitions, then reloads the
+user service manager. Existing timer enablement is preserved.
 The station status upload includes only safe outcome fields. Changed paths and
 the preserved patch remain local.
 
