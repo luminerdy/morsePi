@@ -165,7 +165,10 @@ from the current code (legacy status per requirement is tracked in
   remote maintenance jobs while powered on. The first supported job action
   SHALL be `update-app`, which starts the existing local update service
   described by FR-035. Additional allowed actions MAY include `sync-progress`,
-  `backup-data`, `write-status`, and `restart-app`; the worker SHALL reject any
+  `enable-message-sync`, `backup-data`, `write-status`, and `restart-app`;
+  `enable-message-sync` SHALL only install the repository-owned message-sync
+  user units, enable the fixed timer, set the local configuration flag through
+  an atomic backed-up write, and start one sync. The worker SHALL reject any
   unknown action without running it. Jobs SHALL be durable while a station is
   offline, idempotent by AWS job id, and SHALL record a local status file with
   the latest job id, action, result, timestamps, and non-secret error summary.

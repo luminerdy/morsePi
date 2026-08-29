@@ -2,6 +2,17 @@
 
 ## 2026-08-29 - Hardened and truthful remote updates
 
+- Traced two Campbell-sent messages that did not appear on Pappy. Campbell had
+  no S3 outbox objects and Pappy's forced message sync downloaded zero; project
+  deployment records confirmed Campbell cloud message sync was intentionally
+  left disabled after the original isolated messaging rehearsal. The messages
+  should remain in Campbell's local outbox.
+- Added a fixed `enable-message-sync` IoT recovery action so Campbell can be
+  enrolled without another house visit. It accepts no job-supplied command or
+  setting, creates a private configuration backup, atomically enables message
+  sync, installs/enables the repository-owned timer, starts one sync, and
+  restores the original configuration if service startup fails.
+
 - Confirmed Astrid/Liara was online and syncing data but remained at `cecbb77`
   after repeated update attempts. Its older updater treated a dirty-checkout
   safety skip as exit code 0, so the IoT job incorrectly reported success.
