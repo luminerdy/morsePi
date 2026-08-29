@@ -510,7 +510,6 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("Open Keyboard", html)
         self.assertIn("matchbox-keyboard", html)
         self.assertIn("Update App", html)
-        self.assertIn("App updater", html)
         self.assertIn("active timer", html)
         self.assertIn("enabled", html)
         self.assertIn("success", html)

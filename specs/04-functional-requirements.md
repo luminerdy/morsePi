@@ -153,8 +153,11 @@ from the current code (legacy status per requirement is tracked in
   to the previous commit if tests, migrations, browser setup, or the health
   check fail. A dirty checkout, concurrent update, non-fast-forward release,
   fetch failure, or rollback SHALL return a nonzero result and SHALL NOT be
-  reported as a successful update. Update reports SHALL contain no credentials
-  or student data. *(Delta: legacy now backs up first, preserves dirty-tree
+  reported as a successful update. A successful or already-current run SHALL
+  refresh the installed update wrapper and local/IoT update systemd definitions
+  from the checked-out release without changing whether their timers are
+  enabled. Update reports SHALL contain no credentials or student data.
+  *(Delta: legacy now backs up first, preserves dirty-tree
   diagnostics, serializes requests, tests before restart, rolls back on
   test/health failure, verifies ending state, and refreshes status/snapshots;
   signed releases remain open.)*

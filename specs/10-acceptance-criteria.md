@@ -205,6 +205,9 @@ correctness checks. Each is encoded as an automated test per
   local report, and a failed AWS job rather than false success. A missing,
   failed, rolled-back, stale, or commit-mismatched report also fails the job. A
   second updater cannot acquire the update lock and reports a concurrent block.
+  A successful or already-current updater run refreshes the installed update
+  wrapper and update service/timer definitions, reloads the user service
+  manager, and preserves existing timer enablement.
   A `diagnose-update` job records only the fixed read-only diagnostic fields. A
   job with an unknown action is marked failed, writes a local status summary,
   and runs no local command. Missing IoT configuration skips cleanly without
