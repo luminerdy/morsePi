@@ -36,6 +36,12 @@
   `4aa22f5`, was consumed by Pappy, verified the fresh local report, and was
   marked `SUCCEEDED` by AWS with reason `already-current`. Both installed
   update services now report a 20-minute start timeout.
+- A second live expected-commit Job,
+  `morsepi-hardened-pappy-ff-20260829-1500`, proved a real hardened
+  fast-forward from `4aa22f5` to `e7f996b`. It ran the full 261-test Pi gate,
+  restarted and health-checked the app, wrote matching target/end commits,
+  left app/browser services active, and AWS reported `SUCCEEDED` with reason
+  `updated`.
 
 ## 2026-08-28 - Spec and implementation reconciliation
 
