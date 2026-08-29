@@ -42,6 +42,18 @@
   restarted and health-checked the app, wrote matching target/end commits,
   left app/browser services active, and AWS reported `SUCCEEDED` with reason
   `updated`.
+- Connected locally to Campbell/Olivea at its home network address and found
+  the app/AWS backup path healthy but the station still at `49ce373` with no
+  running Chromium kiosk, no browser supervisor, and no IoT update timer.
+- Ran the installed updater while local support was available. It uploaded a
+  pre-update backup, migrated identity configuration, fast-forwarded to
+  `e7f996b`, passed all 261 Pi tests, restarted with HTTP 200 health, and
+  installed the supervised browser. A second hardened current-release run
+  wrote the authoritative matching-commit report and refreshed update units.
+- Completed Campbell's station-local IoT Jobs configuration using its existing
+  narrow AWS identity, enabled the 15-minute timer, and confirmed a successful
+  AWS poll with `no-pending-job`. App, browser, local update timer, and IoT
+  update timer are all active; both timers are enabled.
 
 ## 2026-08-28 - Spec and implementation reconciliation
 
