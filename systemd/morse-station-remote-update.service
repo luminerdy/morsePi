@@ -5,5 +5,6 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
+TimeoutStartSec=20min
 Environment=MORSE_APP_DIR=/home/morse/morse-station
 ExecStart=/usr/bin/python3 /home/morse/morse-station/scripts/remote_update_iot.py --once

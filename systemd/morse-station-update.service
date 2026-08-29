@@ -5,6 +5,7 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
+TimeoutStartSec=20min
 Environment=MORSE_APP_DIR=/home/morse/morse-station
 Environment=MORSE_UPDATE_BRANCH=release/pi
 Environment=MORSE_UPDATE_REMOTE=origin

@@ -5,7 +5,7 @@ import unittest
 from unittest import mock
 from pathlib import Path
 
-from scripts.station_status import build_status, main, write_status
+from scripts.station_status import build_status, latest_update_summary, main, write_status
 
 
 class StationStatusTests(unittest.TestCase):
@@ -48,6 +48,30 @@ class StationStatusTests(unittest.TestCase):
         saved = json.loads(output_path.read_text(encoding="utf-8"))
 
         self.assertEqual(status, saved)
+
+    def test_latest_update_summary_exposes_only_safe_result_fields(self):
+        update_path = self.base / "latest_update.json"
+        update_path.write_text(
+            json.dumps(
+                {
+                    "status": "blocked",
+                    "reason": "tracked-local-changes",
+                    "updated_at": "2026-08-29T15:00:00+00:00",
+                    "ending_commit": "abc1234",
+                    "tracked_changes": [" M secret-looking-file"],
+                    "patch_path": "/private/path.patch",
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        summary = latest_update_summary(update_path)
+
+        self.assertEqual("blocked", summary["status"])
+        self.assertEqual("tracked-local-changes", summary["reason"])
+        self.assertEqual("abc1234", summary["ending_commit"])
+        self.assertNotIn("tracked_changes", summary)
+        self.assertNotIn("patch_path", summary)
 
     def test_status_dry_run_uploads_to_status_prefix(self):
         output_path = self.base / "station_status.json"

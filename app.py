@@ -3608,6 +3608,41 @@ def load_sync_status_summary(path=None, now=None, attempt_report_path=None):
     }
 
 
+def load_update_status_summary(path=None, now=None):
+    path = path or data_path("update", "latest_update.json")
+    try:
+        report = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        report = {}
+    if not isinstance(report, dict):
+        report = {}
+
+    status = str(report.get("status") or "unknown").strip().lower()
+    reason = str(report.get("reason") or "").strip()
+    updated_at = str(report.get("updated_at") or "")
+    labels = {
+        "blocked": "Update blocked",
+        "current": "Up to date",
+        "failed": "Update failed",
+        "in-progress": "Updating",
+        "rolled-back": "Rolled back",
+        "succeeded": "Updated",
+        "unknown": "No update report",
+    }
+    detail = reason.replace("-", " ").strip().capitalize() if reason else "No update attempted yet"
+    ending_commit = str(report.get("ending_commit") or "").strip()
+    if status in {"current", "succeeded"} and ending_commit:
+        detail = f"{detail} · {ending_commit[:8]}"
+
+    return {
+        "label": labels.get(status, status.replace("-", " ").title()),
+        "detail": detail,
+        "status": status,
+        "updated_at": updated_at,
+        "relative": relative_time_label(updated_at, now),
+    }
+
+
 def system_status():
     hostname = first_command_line(["hostname"], "Not reported")
     ip_addresses = first_command_line(["hostname", "-I"], "No IP address").split()
@@ -3669,6 +3704,7 @@ def system_status():
         "update_service_state": update_service_state,
         "update_service_label": service_state_label(update_service_state),
         "update_status": update_status,
+        "update_result": load_update_status_summary(),
         "update_timer_label": timer_state_label(update_status["timer_state"], update_status["timer_enabled"]),
         "sync_service_available": bool(shutil.which("systemctl")),
         "sync_service": sync_service,

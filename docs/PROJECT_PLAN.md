@@ -1,5 +1,26 @@
 # Pappy's Internet Telegraph Project Plan
 
+## 2026-08-29 - Hardened and truthful remote updates
+
+- Confirmed Astrid/Liara was online and syncing data but remained at `cecbb77`
+  after repeated update attempts. Its older updater treated a dirty-checkout
+  safety skip as exit code 0, so the IoT job incorrectly reported success.
+- Hardened the updater contract before implementation: one update lock,
+  preserved dirty-tree patch, nonzero blocked outcomes, starting/target/ending
+  commits, explicit rollback reasons, and ending-commit verification.
+- Added a sanitized cloud status summary. Admin System now shows Updated, Up to
+  date, Update blocked, Update failed, Updating, or Rolled back with a
+  plain-language reason and timestamp.
+- Hardened AWS IoT Jobs so `update-app` requires a fresh successful/current
+  local report and verifies optional `expected_commit`. Added fixed, read-only
+  `diagnose-update`; arbitrary command text remains rejected.
+- Added regression coverage for the observed false-success case, dirty blocks,
+  stale/missing results, expected-commit mismatch, diagnostics, locking, and
+  safe cloud status fields.
+- Deployment constraint: Pappy and Campbell can receive the hardened release
+  normally. Astrid/Liara needs one local checkout recovery because its existing
+  old updater blocks before it can install the fix.
+
 ## 2026-08-28 - Spec and implementation reconciliation
 
 - Compared the current code, route contracts, regression tests, and recent

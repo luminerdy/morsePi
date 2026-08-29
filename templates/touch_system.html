@@ -53,10 +53,10 @@
                 </div>
                 <div class="touch-system-card">
                     <span>Update</span>
-                    <strong>{{ system.update_service_label | default(system.update_service_state) }}</strong>
-                    <em>App updater</em>
+                    <strong>{{ system.update_result.label | default(system.update_service_label) }}</strong>
+                    <em>{{ system.update_result.relative | default("Never") }}</em>
+                    <small>{{ system.update_result.detail | default("No update attempted yet") }}</small>
                     <small>{{ system.update_timer_label | default(system.update_status.timer_state ~ " timer") }} · {{ system.update_status.timer_enabled }}</small>
-                    <small>Last result: {{ system.update_status.last_result }}</small>
                 </div>
                 <div class="touch-system-card">
                     <span>Last Sync</span>

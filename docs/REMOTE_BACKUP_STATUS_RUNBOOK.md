@@ -149,11 +149,20 @@ Remote AWS IoT Jobs use the same split. A `sync-progress` Job moves data; an
 it catches the pending remote job or timer-driven update only after it is
 powered on and online.
 
+Include `expected_commit` in an `update-app` job whenever possible. The IoT
+worker requires a fresh successful/current local report and a matching ending
+commit before it marks AWS `SUCCEEDED`. For read-only troubleshooting, the
+allow-listed `diagnose-update` action records branch, commit, tracked-change
+paths, free disk, and app/browser state without modifying the checkout or
+executing command text from AWS.
+
 The update wrapper:
 
 1. Creates a pre-update backup.
 2. Uploads that backup if `MORSE_BACKUP_S3_URI` is set.
-3. Skips update if tracked local changes exist.
+3. Blocks with a nonzero `tracked-local-changes` result if tracked local
+   changes exist, and preserves a binary patch under
+   `data/update/diagnostics/` before refusing to overwrite them.
 4. Fetches `origin/release/pi` by default.
 5. Applies only fast-forward updates.
 6. Compile-checks the app and support scripts.
@@ -163,6 +172,13 @@ The update wrapper:
 10. Rolls back to the previous commit if tests or health check fail.
 11. Writes station status and progress snapshots.
 12. Uploads status/snapshots if `MORSE_BACKUP_S3_URI` is set.
+
+Every run writes `data/update/latest_update.json` with the starting, target,
+and ending commits plus a truthful terminal state: `current`, `succeeded`,
+`blocked`, `rolled-back`, or `failed`. Touch, timer, and IoT requests share
+`data/update/update.lock`; a second request reports `update-already-running`.
+The station status upload includes only safe outcome fields. Changed paths and
+the preserved patch remain local.
 
 Release flow:
 

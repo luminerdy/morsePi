@@ -198,8 +198,14 @@ correctness checks. Each is encoded as an automated test per
   Generic creation of a canonical family display name produces a separate
   suffixed legacy ID and UUID and cannot write as that family student.
 - **AC-031** (FR-058 / API-027 / SEC-022) With a fake AWS IoT Jobs adapter, a
-  pending `update-app` job starts only `morse-station-update.service`, records
-  local in-progress and succeeded status, and marks the AWS job succeeded. A
+  pending `update-app` job starts only `morse-station-update.service`, requires
+  a terminal local update report, verifies an optional expected commit,
+  records local in-progress and succeeded status, and marks the AWS job
+  succeeded. A dirty checkout produces a preserved patch, a blocked/nonzero
+  local report, and a failed AWS job rather than false success. A missing,
+  failed, rolled-back, stale, or commit-mismatched report also fails the job. A
+  second updater cannot acquire the update lock and reports a concurrent block.
+  A `diagnose-update` job records only the fixed read-only diagnostic fields. A
   job with an unknown action is marked failed, writes a local status summary,
   and runs no local command. Missing IoT configuration skips cleanly without
   failing the station.
