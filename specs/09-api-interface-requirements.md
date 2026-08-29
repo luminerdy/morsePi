@@ -123,7 +123,10 @@ General rules:
   `update-app` job documents MAY include `expected_commit`; success requires a
   matching terminal `data/update/latest_update.json` report. The allow-listed
   `diagnose-update` action writes `data/update/latest_diagnostic.json` and
-  SHALL run no command supplied by the job document.
+  SHALL run no command supplied by the job document. The fixed
+  `enable-message-sync` action SHALL invoke only
+  `scripts/enable_message_sync.py`; job documents SHALL NOT supply paths,
+  service names, commands, or configuration values to that helper.
 - **API-028** *(V1)* `POST /signal-drop/next` SHALL return one server-selected
   active letter, canonical Morse, and the student's ordered active-letter set.
   `POST /signal-drop/result` SHALL server-validate Send Morse or a Read answer,

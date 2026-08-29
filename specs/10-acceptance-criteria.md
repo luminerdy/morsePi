@@ -209,7 +209,11 @@ correctness checks. Each is encoded as an automated test per
   wrapper and update service/timer definitions, reloads the user service
   manager, and preserves existing timer enablement.
   A `diagnose-update` job records only the fixed read-only diagnostic fields. A
-  job with an unknown action is marked failed, writes a local status summary,
+  fixed `enable-message-sync` job creates a private configuration backup,
+  atomically enables message sync, installs/enables the repository-owned user
+  timer, starts one sync, and cannot accept command/path/configuration values.
+  A service setup failure restores the original configuration. A job with an
+  unknown action is marked failed, writes a local status summary,
   and runs no local command. Missing IoT configuration skips cleanly without
   failing the station.
 - **AC-032** (NFR-019) The remote-maintenance design document and AWS setup

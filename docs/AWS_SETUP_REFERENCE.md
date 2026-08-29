@@ -187,6 +187,7 @@ Allowed station actions are intentionally limited to:
 update-app
 diagnose-update
 sync-progress
+enable-message-sync
 backup-data
 write-status
 restart-app
@@ -194,7 +195,10 @@ restart-app
 
 `update-app` succeeds only when the station's fresh local update report ends on
 the optional `expected_commit`. `diagnose-update` is read-only and uses a fixed
-local command; job documents can never supply shell text.
+local command. `enable-message-sync` invokes only the repository helper, which
+backs up and atomically updates station configuration, installs the fixed user
+units, enables the timer, and starts one sync. Job documents can never supply
+shell text, paths, service names, or configuration values.
 
 Unknown actions are marked failed and no local command runs.
 

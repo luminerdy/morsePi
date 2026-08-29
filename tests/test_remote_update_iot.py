@@ -273,6 +273,45 @@ class RemoteUpdateIotTests(unittest.TestCase):
             self.assertIn("scripts/update_diagnostics.py", commands[0])
             self.assertIn("--diagnose", commands[0])
 
+    def test_enable_message_sync_uses_only_fixed_helper(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            config = root / "station_config.json"
+            write_config(
+                config,
+                station_id="campbell-olivea-station",
+                remote_update_enabled=True,
+                iot_jobs_endpoint="abc-ats.iot.us-east-1.amazonaws.com",
+            )
+            client = FakeJobsClient(
+                {
+                    "jobId": "job-enable-messages",
+                    "jobDocument": {
+                        "action": "enable-message-sync",
+                        "command": "ignored",
+                        "path": "/tmp/ignored",
+                    },
+                }
+            )
+            commands = []
+
+            def runner(command, **kwargs):
+                commands.append((command, kwargs.get("cwd")))
+                return {"ok": True, "returncode": 0, "stdout": "enabled", "stderr": ""}
+
+            status = remote_update_iot.run_once(
+                config_path=config,
+                output_path=root / "latest.json",
+                client=client,
+                runner=runner,
+                app_dir=root,
+            )
+
+            self.assertEqual("succeeded", status["status"])
+            self.assertEqual(["python3", "scripts/enable_message_sync.py"], commands[0][0])
+            self.assertEqual(root, commands[0][1])
+            self.assertNotIn("ignored", " ".join(commands[0][0]))
+
     def test_unknown_action_fails_job_without_local_command(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

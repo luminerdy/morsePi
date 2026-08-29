@@ -163,6 +163,7 @@ def action_command(action, app_dir=DEFAULT_APP_DIR):
             app_dir,
         ),
         "sync-progress": (["systemctl", "--user", "start", DEFAULT_SYNC_SERVICE], None),
+        "enable-message-sync": (["python3", "scripts/enable_message_sync.py"], app_dir),
         "backup-data": (["python3", "scripts/backup_data.py", "--label", "remote"], DEFAULT_APP_DIR),
         "write-status": (["python3", "scripts/station_status.py"], DEFAULT_APP_DIR),
         "restart-app": (["systemctl", "--user", "restart", DEFAULT_APP_SERVICE], None),

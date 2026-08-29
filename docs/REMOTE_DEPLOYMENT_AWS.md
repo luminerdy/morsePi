@@ -273,6 +273,7 @@ AWS IoT remote-update pieces:
 - allowed job actions:
   - `update-app`
   - `sync-progress`
+  - `enable-message-sync`
   - `backup-data`
   - `write-status`
   - `restart-app`
@@ -280,6 +281,13 @@ AWS IoT remote-update pieces:
 The station worker rejects unknown actions and never executes shell text from
 AWS. The first production job should be `update-app`, which starts the existing
 local `morse-station-update.service`.
+
+`enable-message-sync` is a fixed enrollment/recovery action for a station whose
+local message experience is active but cloud message sync remains disabled. It
+accepts no job-supplied command or setting. The helper preserves a private
+configuration backup, atomically enables the flag, installs/enables the known
+message-sync timer, and starts one immediate sync so saved outbox messages are
+not discarded.
 
 ## Remote Update Job Flow
 
