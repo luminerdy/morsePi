@@ -156,6 +156,25 @@ install_browser_supervisor() {
     "$BROWSER_INSTALLER"
 }
 
+install_update_services() {
+    local user_unit_dir="$HOME/.config/systemd/user"
+    local bin_dir="$HOME/bin"
+    local source
+
+    mkdir -p "$user_unit_dir" "$bin_dir"
+    install -m 0755 "$APP_DIR/systemd/update-morse-station.sh" "$bin_dir/update-morse-station.sh"
+
+    for source in \
+        morse-station-update.service \
+        morse-station-update.timer \
+        morse-station-remote-update.service \
+        morse-station-remote-update.timer; do
+        install -m 0644 "$APP_DIR/systemd/$source" "$user_unit_dir/$source"
+    done
+
+    systemctl --user daemon-reload
+}
+
 if ! python3 scripts/backup_data.py "${backup_args[@]}"; then
     record_update "failed" "pre-update-backup-failed" 30
     exit 30
@@ -194,6 +213,11 @@ record_update "in-progress" "release-fetched" 0
 
 if [ "$LOCAL_COMMIT" = "$REMOTE_COMMIT" ]; then
     echo "Already up to date at $LOCAL_COMMIT."
+    if ! install_update_services; then
+        record_update "failed" "update-service-install-failed" 42
+        write_status_and_snapshots || true
+        exit 42
+    fi
     record_update "current" "already-current" 0
     write_status_and_snapshots || true
     exit 0
@@ -236,6 +260,15 @@ if ! install_browser_supervisor; then
     record_update "rolled-back" "browser-supervision-install-failed" 38
     write_status_and_snapshots || true
     exit 38
+fi
+
+if ! install_update_services; then
+    echo "Update service installation failed; rolling back to $LOCAL_COMMIT."
+    git reset --hard "$LOCAL_COMMIT"
+    systemctl --user restart "$SERVICE" || true
+    record_update "rolled-back" "update-service-install-failed" 42
+    write_status_and_snapshots || true
+    exit 42
 fi
 
 if ! systemctl --user restart "$SERVICE"; then

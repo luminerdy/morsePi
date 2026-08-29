@@ -51,6 +51,19 @@ class SystemdUnitTests(unittest.TestCase):
         self.assertIn('"succeeded" "updated" 0', updater)
         self.assertNotIn('Tracked local changes are present; skipping update.', updater)
 
+    def test_update_path_refreshes_its_own_service_definitions(self):
+        updater = (ROOT / "scripts" / "update_station.sh").read_text(encoding="utf-8")
+
+        self.assertIn("install_update_services()", updater)
+        self.assertIn('install -m 0755 "$APP_DIR/systemd/update-morse-station.sh"', updater)
+        self.assertIn("morse-station-update.service", updater)
+        self.assertIn("morse-station-update.timer", updater)
+        self.assertIn("morse-station-remote-update.service", updater)
+        self.assertIn("morse-station-remote-update.timer", updater)
+        self.assertIn("systemctl --user daemon-reload", updater)
+        self.assertGreaterEqual(updater.count("install_update_services"), 3)
+        self.assertIn('"rolled-back" "update-service-install-failed" 42', updater)
+
     def test_exit_kiosk_stops_supervision_before_closing_chromium(self):
         app_source = (ROOT / "app.py").read_text(encoding="utf-8")
         function = app_source[app_source.index("def exit_kiosk_in_background()") :]

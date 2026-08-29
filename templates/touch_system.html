@@ -51,11 +51,12 @@
                     <strong>{% if system.keyboard_available %}Ready{% else %}Missing{% endif %}</strong>
                     <em>{{ system.keyboard_command }}</em>
                 </div>
+                {% set update_result = system.get("update_result", {}) %}
                 <div class="touch-system-card">
                     <span>Update</span>
-                    <strong>{{ system.update_result.label | default(system.update_service_label) }}</strong>
-                    <em>{{ system.update_result.relative | default("Never") }}</em>
-                    <small>{{ system.update_result.detail | default("No update attempted yet") }}</small>
+                    <strong>{{ update_result.get("label", system.get("update_service_label", system.get("update_service_state", "Unknown"))) }}</strong>
+                    <em>{{ update_result.get("relative", "Never") }}</em>
+                    <small>{{ update_result.get("detail", "No update attempted yet") }}</small>
                     <small>{{ system.update_timer_label | default(system.update_status.timer_state ~ " timer") }} · {{ system.update_status.timer_enabled }}</small>
                 </div>
                 <div class="touch-system-card">

@@ -65,7 +65,8 @@
   cover no-pending-job, missing configuration, accepted `update-app`, rejected
   unknown action, expected-commit verification, missing/blocked/rolled-back
   local reports, read-only diagnostics, local status writing, AWS job state
-  updates, update-lock wiring, and systemd unit wiring without contacting AWS.
+  updates, update-lock wiring, self-refreshing systemd unit wiring, and Admin
+  System compatibility with older status payloads without contacting AWS.
 - **TEST-020** Documentation review for remote operations verifies that any
   remote-maintenance design includes the NFR-019 cost guardrail, expected
   three-station normal-use cost, and a clear note before enabling a fixed
