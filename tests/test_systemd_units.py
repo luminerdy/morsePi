@@ -41,6 +41,16 @@ class SystemdUnitTests(unittest.TestCase):
         already_current = updater.index('if [ "$LOCAL_COMMIT" = "$REMOTE_COMMIT" ]')
         self.assertLess(preflight, already_current)
 
+    def test_update_path_reports_blocked_state_and_serializes_runs(self):
+        updater = (ROOT / "scripts" / "update_station.sh").read_text(encoding="utf-8")
+
+        self.assertIn('flock -n 9', updater)
+        self.assertIn('"blocked" "tracked-local-changes" 20 1', updater)
+        self.assertIn('"blocked" "update-already-running" 21', updater)
+        self.assertIn('"rolled-back" "ending-commit-mismatch" 41', updater)
+        self.assertIn('"succeeded" "updated" 0', updater)
+        self.assertNotIn('Tracked local changes are present; skipping update.', updater)
+
     def test_exit_kiosk_stops_supervision_before_closing_chromium(self):
         app_source = (ROOT / "app.py").read_text(encoding="utf-8")
         function = app_source[app_source.index("def exit_kiosk_in_background()") :]
@@ -53,10 +63,10 @@ class SystemdUnitTests(unittest.TestCase):
     def test_updater_runs_pending_migrations_before_current_release_exit(self):
         updater = (ROOT / "scripts" / "update_station.sh").read_text(encoding="utf-8")
 
-        pre_update_call = updater.index(
-            'python3 scripts/backup_data.py "${backup_args[@]}"\nrun_pending_migrations'
-        )
+        backup_call = updater.index('python3 scripts/backup_data.py "${backup_args[@]}"')
+        pre_update_call = updater.index("if ! run_pending_migrations", backup_call)
         already_current = updater.index('if [ "$LOCAL_COMMIT" = "$REMOTE_COMMIT" ]')
+        self.assertLess(backup_call, pre_update_call)
         self.assertLess(pre_update_call, already_current)
         self.assertGreaterEqual(updater.count("run_pending_migrations"), 3)
 
@@ -80,6 +90,7 @@ class SystemdUnitTests(unittest.TestCase):
         self.assertIn("scripts/remote_update_iot.py --once", service)
         self.assertIn("OnUnitActiveSec=15min", timer)
         self.assertIn("Persistent=true", timer)
+        self.assertIn("TimeoutStartSec=20min", service)
 
 
 if __name__ == "__main__":

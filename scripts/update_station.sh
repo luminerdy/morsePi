@@ -11,6 +11,39 @@ HEALTH_URL="${MORSE_HEALTH_URL:-http://127.0.0.1:5000/touch}"
 HEALTH_TIMEOUT_SECONDS="${MORSE_HEALTH_TIMEOUT_SECONDS:-30}"
 RUN_TESTS="${MORSE_UPDATE_RUN_TESTS:-1}"
 BROWSER_INSTALLER="$APP_DIR/scripts/install_browser_supervisor.sh"
+UPDATE_REPORT="$APP_DIR/data/update/latest_update.json"
+UPDATE_ARTIFACT_DIR="$APP_DIR/data/update/diagnostics"
+UPDATE_LOCK="$APP_DIR/data/update/update.lock"
+UPDATE_DIAGNOSTIC_HELPER="$APP_DIR/data/update/update_diagnostics_runtime.py"
+STARTING_COMMIT=""
+TARGET_COMMIT=""
+
+record_update() {
+    local status="$1"
+    local reason="$2"
+    local returncode="$3"
+    local preserve_patch="${4:-0}"
+    local args=(
+        --app-dir "$APP_DIR"
+        --artifact-dir "$UPDATE_ARTIFACT_DIR"
+        --output "$UPDATE_REPORT"
+        --status "$status"
+        --reason "$reason"
+        --returncode "$returncode"
+    )
+
+    if [ -n "$STARTING_COMMIT" ]; then
+        args+=(--starting-commit "$STARTING_COMMIT")
+    fi
+    if [ -n "$TARGET_COMMIT" ]; then
+        args+=(--target-commit "$TARGET_COMMIT")
+    fi
+    if [ "$preserve_patch" = "1" ]; then
+        args+=(--preserve-patch)
+    fi
+
+    PYTHONPATH="$APP_DIR" python3 "$UPDATE_DIAGNOSTIC_HELPER" "${args[@]}"
+}
 
 check_health() {
     python3 - "$HEALTH_URL" "$HEALTH_TIMEOUT_SECONDS" <<'PY'
@@ -40,6 +73,23 @@ PY
 }
 
 cd "$APP_DIR"
+
+mkdir -p "$(dirname "$UPDATE_LOCK")" "$UPDATE_ARTIFACT_DIR"
+install -m 0644 "$APP_DIR/scripts/update_diagnostics.py" "$UPDATE_DIAGNOSTIC_HELPER"
+STARTING_COMMIT="$(git rev-parse --short HEAD 2>/dev/null || true)"
+
+if ! command -v flock >/dev/null 2>&1; then
+    record_update "blocked" "update-lock-unavailable" 21
+    exit 21
+fi
+
+exec 9>"$UPDATE_LOCK"
+if ! flock -n 9; then
+    record_update "blocked" "update-already-running" 21
+    exit 21
+fi
+
+record_update "in-progress" "starting" 0
 
 backup_args=(--label pre-update)
 status_args=()
@@ -106,52 +156,76 @@ install_browser_supervisor() {
     "$BROWSER_INSTALLER"
 }
 
-python3 scripts/backup_data.py "${backup_args[@]}"
-run_pending_migrations
+if ! python3 scripts/backup_data.py "${backup_args[@]}"; then
+    record_update "failed" "pre-update-backup-failed" 30
+    exit 30
+fi
+if ! run_pending_migrations; then
+    record_update "failed" "pre-update-migration-failed" 31
+    write_status_and_snapshots || true
+    exit 31
+fi
 
 if ! install_browser_supervisor; then
     echo "Browser supervision preflight failed."
-    write_status_and_snapshots
-    exit 1
+    record_update "failed" "browser-supervision-preflight-failed" 32
+    write_status_and_snapshots || true
+    exit 32
 fi
 
 if ! git diff --quiet || ! git diff --cached --quiet; then
-    echo "Tracked local changes are present; skipping update."
-    write_status_and_snapshots
-    exit 0
+    echo "Tracked local changes are present; blocking update."
+    record_update "blocked" "tracked-local-changes" 20 1
+    write_status_and_snapshots || true
+    exit 20
 fi
 
-git fetch "$REMOTE" "$BRANCH"
+if ! git fetch "$REMOTE" "$BRANCH"; then
+    record_update "failed" "release-fetch-failed" 33
+    write_status_and_snapshots || true
+    exit 33
+fi
 
 LOCAL_COMMIT="$(git rev-parse HEAD)"
 REMOTE_COMMIT="$(git rev-parse "$REMOTE/$BRANCH")"
+STARTING_COMMIT="$LOCAL_COMMIT"
+TARGET_COMMIT="$REMOTE_COMMIT"
+record_update "in-progress" "release-fetched" 0
 
 if [ "$LOCAL_COMMIT" = "$REMOTE_COMMIT" ]; then
     echo "Already up to date at $LOCAL_COMMIT."
-    write_status_and_snapshots
+    record_update "current" "already-current" 0
+    write_status_and_snapshots || true
     exit 0
 fi
 
 if ! git merge-base --is-ancestor "$LOCAL_COMMIT" "$REMOTE_COMMIT"; then
-    echo "Remote branch is not a fast-forward from local checkout; skipping update."
-    write_status_and_snapshots
-    exit 1
+    echo "Remote branch is not a fast-forward from local checkout; blocking update."
+    record_update "blocked" "release-not-fast-forward" 34
+    write_status_and_snapshots || true
+    exit 34
 fi
 
-git merge --ff-only "$REMOTE/$BRANCH"
+if ! git merge --ff-only "$REMOTE/$BRANCH"; then
+    record_update "failed" "fast-forward-merge-failed" 35
+    write_status_and_snapshots || true
+    exit 35
+fi
 
 if ! run_update_checks; then
     echo "Update checks failed; rolling back to $LOCAL_COMMIT."
     git reset --hard "$LOCAL_COMMIT"
-    write_status_and_snapshots
-    exit 1
+    record_update "rolled-back" "update-checks-failed" 36
+    write_status_and_snapshots || true
+    exit 36
 fi
 
 if ! run_pending_migrations; then
     echo "Student identity migration failed; rolling back to $LOCAL_COMMIT."
     git reset --hard "$LOCAL_COMMIT"
-    write_status_and_snapshots
-    exit 1
+    record_update "rolled-back" "post-update-migration-failed" 37
+    write_status_and_snapshots || true
+    exit 37
 fi
 
 if ! install_browser_supervisor; then
@@ -159,20 +233,40 @@ if ! install_browser_supervisor; then
     git reset --hard "$LOCAL_COMMIT"
     systemctl --user restart "$SERVICE"
     check_health
-    write_status_and_snapshots
-    exit 1
+    record_update "rolled-back" "browser-supervision-install-failed" 38
+    write_status_and_snapshots || true
+    exit 38
 fi
 
-systemctl --user restart "$SERVICE"
+if ! systemctl --user restart "$SERVICE"; then
+    git reset --hard "$LOCAL_COMMIT"
+    systemctl --user restart "$SERVICE" || true
+    record_update "rolled-back" "app-restart-failed" 39
+    write_status_and_snapshots || true
+    exit 39
+fi
 if ! check_health; then
     echo "Health check failed; rolling back to $LOCAL_COMMIT."
     git reset --hard "$LOCAL_COMMIT"
     systemctl --user restart "$SERVICE"
     check_health
-    write_status_and_snapshots
-    exit 1
+    record_update "rolled-back" "health-check-failed" 40
+    write_status_and_snapshots || true
+    exit 40
 fi
 
-write_status_and_snapshots
+ENDING_COMMIT="$(git rev-parse HEAD)"
+if [ "$ENDING_COMMIT" != "$REMOTE_COMMIT" ]; then
+    echo "Ending commit does not match the fetched release; rolling back."
+    git reset --hard "$LOCAL_COMMIT"
+    systemctl --user restart "$SERVICE"
+    check_health
+    record_update "rolled-back" "ending-commit-mismatch" 41
+    write_status_and_snapshots || true
+    exit 41
+fi
+
+record_update "succeeded" "updated" 0
+write_status_and_snapshots || true
 
 echo "Updated Morse station to $REMOTE_COMMIT and restarted $SERVICE."

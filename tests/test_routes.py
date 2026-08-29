@@ -469,6 +469,11 @@ class RouteRenderTests(unittest.TestCase):
                 "timer_state": "active",
                 "last_result": "success",
             },
+            "update_result": {
+                "label": "Update blocked",
+                "relative": "2 min ago",
+                "detail": "Tracked local changes",
+            },
             "sync_service_available": True,
             "sync_service": "morse-station-sync.service",
             "sync_service_state": "inactive",
@@ -499,6 +504,8 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("PiMorse", html)
         self.assertIn("FamilyWifi", html)
         self.assertIn("10.10.10.141", html)
+        self.assertIn("Update blocked", html)
+        self.assertIn("Tracked local changes", html)
         self.assertIn("Restart Wi-Fi", html)
         self.assertIn("Open Keyboard", html)
         self.assertIn("matchbox-keyboard", html)

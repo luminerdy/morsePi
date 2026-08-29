@@ -14,6 +14,8 @@ from scripts.backup_data import DEFAULT_CONFIG_PATH, load_station_config
 
 DEFAULT_OUTPUT_PATH = data_path("remote_update", "latest_iot_job.json")
 DEFAULT_APP_DIR = Path("/home/morse/morse-station")
+DEFAULT_UPDATE_REPORT = Path("data/update/latest_update.json")
+DEFAULT_UPDATE_DIAGNOSTIC = Path("data/update/latest_diagnostic.json")
 DEFAULT_UPDATE_SERVICE = "morse-station-update.service"
 DEFAULT_SYNC_SERVICE = "morse-station-sync.service"
 DEFAULT_APP_SERVICE = "morse-station.service"
@@ -128,27 +130,93 @@ class AwsJobsClient:
         return result
 
 
-def action_from_document(job_document):
+def document_dict(job_document):
     if isinstance(job_document, str):
         try:
             job_document = json.loads(job_document)
         except json.JSONDecodeError:
-            return ""
+            return {}
     if not isinstance(job_document, dict):
-        return ""
-    action = job_document.get("action") or job_document.get("operation")
+        return {}
+    return job_document
+
+
+def action_from_document(job_document):
+    document = document_dict(job_document)
+    action = document.get("action") or document.get("operation")
     return str(action or "").strip().lower()
 
 
-def action_command(action):
+def action_command(action, app_dir=DEFAULT_APP_DIR):
     commands = {
         "update-app": (["systemctl", "--user", "start", DEFAULT_UPDATE_SERVICE], None),
+        "diagnose-update": (
+            [
+                "python3",
+                "scripts/update_diagnostics.py",
+                "--diagnose",
+                "--app-dir",
+                str(app_dir),
+                "--output",
+                str(DEFAULT_UPDATE_DIAGNOSTIC),
+            ],
+            app_dir,
+        ),
         "sync-progress": (["systemctl", "--user", "start", DEFAULT_SYNC_SERVICE], None),
         "backup-data": (["python3", "scripts/backup_data.py", "--label", "remote"], DEFAULT_APP_DIR),
         "write-status": (["python3", "scripts/station_status.py"], DEFAULT_APP_DIR),
         "restart-app": (["systemctl", "--user", "restart", DEFAULT_APP_SERVICE], None),
     }
     return commands.get(action)
+
+
+def load_json(path):
+    try:
+        value = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return value if isinstance(value, dict) else {}
+
+
+def parse_timestamp(value):
+    try:
+        parsed = datetime.fromisoformat(str(value or "").replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def commits_match(expected, actual):
+    expected = str(expected or "").strip().lower()
+    actual = str(actual or "").strip().lower()
+    return bool(expected and actual and (expected.startswith(actual) or actual.startswith(expected)))
+
+
+def verify_update_report(report_path, requested_at, expected_commit=""):
+    report = load_json(report_path)
+    if not report:
+        return False, "missing-update-result", {}
+
+    updated_at = parse_timestamp(report.get("updated_at"))
+    requested = parse_timestamp(requested_at)
+    if not updated_at or (requested and updated_at < requested):
+        return False, "stale-update-result", report
+
+    status = str(report.get("status") or "").strip().lower()
+    if status not in {"current", "succeeded"}:
+        reason = str(report.get("reason") or status or "update-not-successful")
+        return False, reason, report
+
+    ending_commit = str(report.get("ending_commit") or "")
+    target_commit = str(report.get("target_commit") or "")
+    required_commit = str(expected_commit or target_commit or "")
+    if required_commit and not commits_match(required_commit, ending_commit):
+        return False, "ending-commit-mismatch", report
+    if not ending_commit:
+        return False, "missing-ending-commit", report
+    return True, str(report.get("reason") or status), report
 
 
 def load_remote_config(config_path=DEFAULT_CONFIG_PATH):
@@ -196,7 +264,9 @@ def run_once(config_path=DEFAULT_CONFIG_PATH, output_path=DEFAULT_OUTPUT_PATH, c
         return status
 
     job_id = str(execution.get("jobId") or "")
-    action = action_from_document(execution.get("jobDocument", {}))
+    job_document = document_dict(execution.get("jobDocument", {}))
+    action = action_from_document(job_document)
+    expected_commit = str(job_document.get("expected_commit") or "").strip()
     status = {
         "format": "morsepi-remote-update-status-v1",
         "checked_at": utc_now(),
@@ -207,7 +277,7 @@ def run_once(config_path=DEFAULT_CONFIG_PATH, output_path=DEFAULT_OUTPUT_PATH, c
     }
     write_status(status, output_path)
 
-    command_info = action_command(action)
+    command_info = action_command(action, app_dir)
     if not job_id or command_info is None:
         error = "unknown remote maintenance action" if action else "missing remote maintenance action"
         failed = {
@@ -226,6 +296,23 @@ def run_once(config_path=DEFAULT_CONFIG_PATH, output_path=DEFAULT_OUTPUT_PATH, c
     cwd = app_dir if cwd == DEFAULT_APP_DIR else cwd
     result = runner(command, cwd=cwd, timeout=900)
 
+    verification_reason = ""
+    update_report = {}
+    if action == "update-app":
+        report_path = Path(app_dir) / DEFAULT_UPDATE_REPORT
+        verified, verification_reason, update_report = verify_update_report(
+            report_path,
+            status["checked_at"],
+            expected_commit,
+        )
+        if not result["ok"] or not verified:
+            result = {
+                **result,
+                "ok": False,
+                "returncode": int(update_report.get("returncode", result.get("returncode", 1)) or 1),
+                "stderr": verification_reason or result.get("stderr", ""),
+            }
+
     finished = {
         **status,
         "finished_at": utc_now(),
@@ -234,15 +321,25 @@ def run_once(config_path=DEFAULT_CONFIG_PATH, output_path=DEFAULT_OUTPUT_PATH, c
         "stderr": compact(result["stderr"]),
         "status": "succeeded" if result["ok"] else "failed",
     }
+    if verification_reason:
+        finished["reason"] = verification_reason
+    if update_report:
+        finished["update_result"] = {
+            key: update_report.get(key)
+            for key in ("status", "reason", "starting_commit", "target_commit", "ending_commit")
+        }
     aws_status = "SUCCEEDED" if result["ok"] else "FAILED"
+    aws_details = {
+        "action": action,
+        "result": finished["status"],
+        "returncode": str(result["returncode"]),
+    }
+    if verification_reason:
+        aws_details["reason"] = compact(verification_reason, 100)
     client.update_job_execution(
         job_id,
         aws_status,
-        {
-            "action": action,
-            "result": finished["status"],
-            "returncode": str(result["returncode"]),
-        },
+        aws_details,
     )
     write_status(finished, output_path)
     return finished

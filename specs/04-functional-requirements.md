@@ -145,12 +145,19 @@ from the current code (legacy status per requirement is tracked in
   upload to `s3://<bucket>/stations/<station-id>/{backups,status,snapshots}/`.
 - **FR-035** *(V2)* The auto-updater SHALL: pull only from the dedicated
   release branch (`release/pi`); refuse to update if the working tree is
-  dirty; only fast-forward; run the test suite (not merely `py_compile`)
+  dirty; preserve a local diagnostic and binary patch before refusing; only
+  fast-forward; run the test suite (not merely `py_compile`)
   before restart; restart the service; verify a post-restart health check;
-  report status; and roll back to the previous commit if the health check
-  fails. *(Delta: legacy now backs up first, tests before restart, rolls back
-  on test/health failure, and refreshes status/snapshots; signed releases
-  remain open.)*
+  report starting, target, and ending commits plus a truthful terminal result;
+  serialize touch, timer, and IoT requests with one update lock; and roll back
+  to the previous commit if tests, migrations, browser setup, or the health
+  check fail. A dirty checkout, concurrent update, non-fast-forward release,
+  fetch failure, or rollback SHALL return a nonzero result and SHALL NOT be
+  reported as a successful update. Update reports SHALL contain no credentials
+  or student data. *(Delta: legacy now backs up first, preserves dirty-tree
+  diagnostics, serializes requests, tests before restart, rolls back on
+  test/health failure, verifies ending state, and refreshes status/snapshots;
+  signed releases remain open.)*
 - **FR-058** *(V2)* A deployed station MAY poll AWS IoT Jobs for adult-issued
   remote maintenance jobs while powered on. The first supported job action
   SHALL be `update-app`, which starts the existing local update service
@@ -160,6 +167,13 @@ from the current code (legacy status per requirement is tracked in
   offline, idempotent by AWS job id, and SHALL record a local status file with
   the latest job id, action, result, timestamps, and non-secret error summary.
   The remote worker SHALL never execute arbitrary shell text from AWS.
+  `update-app` SHALL be marked successful only after the local update report
+  has a successful/current terminal state and its ending commit matches the
+  job's optional expected commit. Missing, blocked, failed, or rolled-back
+  reports SHALL fail the AWS job with a non-secret reason. A read-only
+  `diagnose-update` action MAY collect branch, commit, tracked-change paths,
+  free disk space, and app/browser service state without modifying the
+  checkout.
 - **FR-038** *(V1)* The 7-inch touch UI SHALL provide an adult System page
   reachable without a keyboard. It SHALL show Wi-Fi/network status useful for
   troubleshooting, and SHALL provide admin-PIN-gated actions to restart Wi-Fi

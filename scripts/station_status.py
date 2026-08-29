@@ -15,6 +15,7 @@ from scripts.backup_data import DEFAULT_CONFIG_PATH, load_station_config, resolv
 
 DEFAULT_OUTPUT_PATH = data_path("station_status.json")
 DEFAULT_BACKUP_DIR = data_path("backups")
+DEFAULT_UPDATE_STATUS_PATH = data_path("update", "latest_update.json")
 
 
 def run_command(command):
@@ -57,11 +58,43 @@ def service_state(service_name):
     return result["output"] or ("inactive" if not result["ok"] else "unknown")
 
 
+def latest_update_summary(path=DEFAULT_UPDATE_STATUS_PATH):
+    try:
+        value = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {
+            "status": "unknown",
+            "reason": "no-update-report",
+            "updated_at": "",
+        }
+    if not isinstance(value, dict):
+        return {
+            "status": "unknown",
+            "reason": "invalid-update-report",
+            "updated_at": "",
+        }
+    return {
+        key: value.get(key, "")
+        for key in (
+            "status",
+            "reason",
+            "started_at",
+            "updated_at",
+            "finished_at",
+            "starting_commit",
+            "target_commit",
+            "ending_commit",
+            "returncode",
+        )
+    }
+
+
 def build_status(
     station_id,
     backup_dir=DEFAULT_BACKUP_DIR,
     service_name="morse-station.service",
     browser_service_name="morse-station-browser.service",
+    update_status_path=DEFAULT_UPDATE_STATUS_PATH,
 ):
     return {
         "app": "morsePi",
@@ -79,6 +112,7 @@ def build_status(
             "state": service_state(service_name),
         },
         "station_id": station_id,
+        "update": latest_update_summary(update_status_path),
     }
 
 

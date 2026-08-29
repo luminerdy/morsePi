@@ -166,6 +166,7 @@ Create an update Job from the laptop:
 ```json
 {
   "action": "update-app",
+  "expected_commit": "<release-pi-commit>",
   "requested_by": "pappy",
   "reason": "release pi update"
 }
@@ -184,11 +185,16 @@ Allowed station actions are intentionally limited to:
 
 ```text
 update-app
+diagnose-update
 sync-progress
 backup-data
 write-status
 restart-app
 ```
+
+`update-app` succeeds only when the station's fresh local update report ends on
+the optional `expected_commit`. `diagnose-update` is read-only and uses a fixed
+local command; job documents can never supply shell text.
 
 Unknown actions are marked failed and no local command runs.
 
