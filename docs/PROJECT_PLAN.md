@@ -21,9 +21,10 @@
   after a successful merge or when already current, while preserving timer
   enablement. This prevents new updater code from remaining under an obsolete
   systemd timeout policy.
-- First Pappy live rehearsal proved rollback: two Pi-only compatibility tests
-  failed, the updater restored the prior commit, and the app/browser remained
-  healthy. The template and test assumptions were corrected before retrying.
+- Pappy live rehearsals proved rollback: Pi-only compatibility checks caught
+  stale template assumptions and a platform-dependent rendered-text assertion.
+  Each run restored the prior commit and left the app/browser healthy; the
+  brittle assumptions were removed before retrying.
 - Deployment constraint: Pappy and Campbell can receive the hardened release
   normally. Astrid/Liara needs one local checkout recovery because its existing
   old updater blocks before it can install the fix.

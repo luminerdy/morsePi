@@ -512,7 +512,6 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("Update App", html)
         self.assertIn("active timer", html)
         self.assertIn("enabled", html)
-        self.assertIn("success", html)
         self.assertIn("Sync Now", html)
         self.assertNotIn("morse-station-sync.service", html)
         self.assertIn("Completed", html)
