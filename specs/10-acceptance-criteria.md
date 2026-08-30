@@ -244,7 +244,10 @@ correctness checks. Each is encoded as an automated test per
   control. A physical keyer press dismisses, clears that wake signal, and
   creates no scored attempt. Continued inactivity still invokes the existing
   10-minute `/touch` redirect. The operator picker may display the screensaver
-  but does not redirect itself, and the shutdown page never starts it.
+  but does not redirect itself, and the shutdown page never starts it. The
+  mouse cursor is not visible on any touch page or screensaver phase, including
+  when positioned over a control; exiting the kiosk leaves the desktop cursor
+  available.
 - **AC-037** (FR-062 / NFR-021) On a Pi graphical session, exactly one enabled
   `morse-station-browser.service` owns the Chromium kiosk and the legacy Labwc
   and XDG browser entries are absent. Killing Chromium unexpectedly causes the

@@ -53,7 +53,7 @@ class TouchScreensaverTests(unittest.TestCase):
 
         for path in templates:
             source = path.read_text(encoding="utf-8")
-            self.assertIn("/static/touch.css?v=20260824-7", source, path.name)
+            self.assertIn("/static/touch.css?v=20260830-1", source, path.name)
             if path.name == "touch_shutdown.html":
                 self.assertNotIn("/static/app.js", source, path.name)
             else:
@@ -73,6 +73,16 @@ class TouchScreensaverTests(unittest.TestCase):
         self.assertIn("background: #62d6d1", self.css_source)
         self.assertIn("@media (prefers-reduced-motion: reduce)", self.css_source)
         self.assertIn("25 + Math.random() * 50", self.app_source)
+
+    def test_cursor_is_hidden_throughout_touch_ui(self):
+        self.assertRegex(
+            self.css_source,
+            re.compile(r"\.touch-ui\s*\{[^}]*cursor:\s*none;", re.DOTALL),
+        )
+        self.assertRegex(
+            self.css_source,
+            re.compile(r"\.touch-ui \*\s*\{[^}]*cursor:\s*none\s*!important;", re.DOTALL),
+        )
 
     def test_shutdown_route_is_explicitly_excluded(self):
         self.assertIn(

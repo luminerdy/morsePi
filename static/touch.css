@@ -5,6 +5,11 @@
     min-height: 480px;
     overflow: hidden;
     background: #edf1f4;
+    cursor: none;
+}
+
+.touch-ui * {
+    cursor: none !important;
 }
 
 .touch-screen {
