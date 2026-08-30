@@ -3,7 +3,7 @@
 <head>
     <title>Review Message - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260802-1">
-    <link rel="stylesheet" href="/static/touch.css?v=20260830-1">
+    <link rel="stylesheet" href="/static/touch.css?v=20260830-2">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body class="touch-ui"
@@ -41,13 +41,17 @@
             </section>
             <section class="touch-message-panel touch-review-actions">
                 <button class="button secondary" type="button" data-message-play-draft data-recipient-id="{{ recipient.id }}">Play</button>
-                <form method="post" action="/touch/messages/send">
-                    <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
-                    <button class="button primary" type="submit">Send to {{ recipient.name }}</button>
-                </form>
+                {% if keying_complete %}
+                    <form method="post" action="/touch/messages/send">
+                        <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
+                        <button class="button primary" type="submit">Send to {{ recipient.name }}</button>
+                    </form>
+                {% else %}
+                    <a class="button primary" href="/touch/messages/key?to={{ recipient.id }}">Key It</a>
+                {% endif %}
             </section>
         </main>
     </div>
-<script src="/static/app.js?v=20260825-1"></script>
+<script src="/static/app.js?v=20260830-2"></script>
 </body>
 </html>

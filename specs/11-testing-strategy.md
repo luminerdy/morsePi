@@ -35,8 +35,10 @@
   records, complete keyed-word validation, state transitions, progressive
   hints, and duplicate-event credit.
 - **TEST-012** *(V2)* Message route/template contract tests with mock key,
-  audio, and LED backends cover AC-015...AC-017, including Guest denial and
-  server-side rejection of forged eligibility.
+  audio, and LED backends cover AC-015...AC-017, including Guest denial,
+  supported whole-word keying persistence and assistance gates, immutable
+  reviewed text, and server-side rejection of forged eligibility or skipped
+  keying.
 - **TEST-013** *(V2)* Offline/sync integration tests use a fake S3/IoT adapter
   to cover AC-018...AC-020: queued restart recovery, delayed delivery,
   duplicate object events, cross-station receipts, stale learning summaries,

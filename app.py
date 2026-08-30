@@ -3880,6 +3880,72 @@ def message_draft_for_recipient(recipient):
     return draft
 
 
+def message_keying_state(draft):
+    text = str(draft.get("text") or "")
+    words = text.split()
+    state = draft.get("keying")
+    valid = (
+        isinstance(state, dict)
+        and state.get("text") == text
+        and isinstance(state.get("words"), list)
+        and [item.get("word") for item in state["words"] if isinstance(item, dict)] == words
+    )
+    if not valid:
+        state = {
+            "version": 1,
+            "text": text,
+            "started_at": datetime.now(timezone.utc).isoformat(),
+            "completed_at": "",
+            "words": [
+                {
+                    "word": word,
+                    "attempts": 0,
+                    "status": "pending",
+                    "hint_used": False,
+                    "best_letters": [],
+                    "last_letters": [],
+                    "last_actual_morse": "",
+                }
+                for word in words
+            ],
+        }
+        draft["keying"] = state
+        save_message_draft(student_profile_store.DATA_DIR, draft)
+
+    complete = bool(state["words"]) and all(
+        item.get("status") in ("correct", "assisted") and int(item.get("attempts", 0)) >= 1
+        for item in state["words"]
+    )
+    if complete and not state.get("completed_at"):
+        state["completed_at"] = datetime.now(timezone.utc).isoformat()
+        save_message_draft(student_profile_store.DATA_DIR, draft)
+    return state
+
+
+def message_keying_complete(draft):
+    state = message_keying_state(draft)
+    return bool(state.get("completed_at"))
+
+
+def current_message_keying_word(state):
+    for index, item in enumerate(state.get("words", [])):
+        if item.get("status") not in ("correct", "assisted"):
+            return index, item
+    return None, None
+
+
+def message_keying_summary(state):
+    words = state.get("words", [])
+    return {
+        "words": len(words),
+        "correct_words": sum(1 for item in words if item.get("status") == "correct"),
+        "assisted_words": sum(1 for item in words if item.get("status") == "assisted"),
+        "attempts": sum(int(item.get("attempts", 0)) for item in words),
+        "hints_used": sum(1 for item in words if item.get("hint_used")),
+        "completed_at": state.get("completed_at", ""),
+    }
+
+
 def normalize_draft_candidate(value, allowed_letters):
     value = " ".join(str(value or "").upper().split())
     if not value:
@@ -3960,6 +4026,7 @@ def mutate_message_draft(draft, action, recipient):
 
     draft["text"] = normalize_draft_candidate(text, allowed)
     draft["pending_space"] = pending_space
+    draft.pop("keying", None)
     return save_message_draft(student_profile_store.DATA_DIR, draft)
 
 
@@ -4425,7 +4492,187 @@ def touch_message_review():
         morse=text_to_morse(text),
         tiles=message_tiles(text),
         timing=get_morse_timing(),
+        keying_complete=message_keying_complete(draft),
     )
+
+
+@app.route("/touch/messages/key")
+def touch_message_key():
+    if not message_page_allowed():
+        return redirect(url_for("touch_messages"))
+
+    recipient = message_recipient_for_id(request.args.get("to", ""))
+    if not recipient or not recipient["eligible"]:
+        return redirect(url_for("touch_message_compose"))
+    draft = message_draft_for_recipient(recipient)
+    try:
+        text = validate_message_text(draft.get("text", ""), recipient["allowed_letters"])
+    except MessageValidationError as error:
+        return redirect(url_for("touch_message_compose", to=recipient["id"], error=str(error)))
+
+    state = message_keying_state(draft)
+    word_index, word_state = current_message_keying_word(state)
+    return render_template(
+        "touch_message_key.html",
+        recipient=recipient,
+        draft=draft,
+        text=text,
+        keying=state,
+        keying_summary=message_keying_summary(state),
+        word_index=word_index,
+        word_state=word_state,
+        expected_morse=text_to_morse(word_state["word"]) if word_state else "",
+        timing=get_morse_timing(),
+    )
+
+
+@app.route("/touch/messages/key/result", methods=["POST"])
+def touch_message_key_result():
+    if not message_page_allowed():
+        return jsonify({"status": "unavailable"}), 403
+
+    data = request.get_json(silent=True) or {}
+    recipient = message_recipient_for_id(data.get("recipient_id", ""))
+    if not recipient or not recipient["eligible"]:
+        return jsonify({"status": "invalid-recipient"}), 400
+    draft = message_draft_for_recipient(recipient)
+    try:
+        validate_message_text(draft.get("text", ""), recipient["allowed_letters"])
+    except MessageValidationError as error:
+        return jsonify({"status": "invalid", "message": str(error)}), 400
+
+    state = message_keying_state(draft)
+    word_index, word_state = current_message_keying_word(state)
+    try:
+        requested_index = int(data.get("word_index", -1))
+    except (TypeError, ValueError):
+        requested_index = -1
+    if word_state is None:
+        return jsonify({"status": "complete", "next_url": url_for("touch_message_review", to=recipient["id"])})
+    if requested_index != word_index:
+        return jsonify({"status": "stale", "next_url": url_for("touch_message_key", to=recipient["id"])}), 409
+
+    actual_morse = normalize_word_morse(data.get("actual_morse") or get_current_key_morse())
+    if not actual_morse:
+        return jsonify({"status": "missing", "message": "Key the word first."}), 400
+    expected_morse = text_to_morse(word_state["word"])
+    actual_letters = actual_morse.split()
+    expected_letters = expected_morse.split()
+    letter_results = [
+        index < len(actual_letters) and actual_letters[index] == expected
+        for index, expected in enumerate(expected_letters)
+    ]
+    best_letters = sorted(set(word_state.get("best_letters", [])) | {
+        index for index, correct in enumerate(letter_results) if correct
+    })
+    correct = actual_morse == expected_morse
+    word_state["attempts"] = int(word_state.get("attempts", 0)) + 1
+    word_state["last_actual_morse"] = actual_morse
+    word_state["last_letters"] = letter_results
+    word_state["best_letters"] = best_letters
+    if correct:
+        word_state["status"] = "correct"
+        word_state["completed_at"] = datetime.now(timezone.utc).isoformat()
+
+    timing_events = normalize_timing_events(data.get("timing_events") or get_current_key_events())
+    try:
+        elapsed_ms = max(0, int(round(float(data.get("elapsed_ms")))))
+    except (TypeError, ValueError):
+        elapsed_ms = None
+    append_message_event(student_profile_store.DATA_DIR, g.current_student["id"], {
+        "event": "message_keying_attempt",
+        "draft_id": draft.get("draft_id", ""),
+        "recipient_student_id": recipient["id"],
+        "station_id": current_station_id(),
+        "practice_session_id": g.practice_session_id,
+        "word": word_state["word"],
+        "word_index": word_index,
+        "attempt": word_state["attempts"],
+        "expected_morse": expected_morse,
+        "actual_morse": actual_morse,
+        "correct": correct,
+        "elapsed_ms": elapsed_ms,
+        "timing_events": timing_events,
+        "timing_summary": timing_summary(timing_events),
+        "effort": True,
+    })
+    clear_key_state()
+    save_message_draft(student_profile_store.DATA_DIR, draft)
+    complete = message_keying_complete(draft)
+    return jsonify({
+        "status": "correct" if correct else "retry",
+        "correct": correct,
+        "word": word_state["word"],
+        "attempts": word_state["attempts"],
+        "letter_results": letter_results,
+        "best_letters": best_letters,
+        "can_continue": word_state["attempts"] >= 3,
+        "hint_used": bool(word_state.get("hint_used")),
+        "complete": complete,
+        "next_url": (
+            url_for("touch_message_review", to=recipient["id"])
+            if complete else url_for("touch_message_key", to=recipient["id"])
+        ),
+    })
+
+
+@app.route("/touch/messages/key/action", methods=["POST"])
+def touch_message_key_action():
+    if not message_page_allowed():
+        return jsonify({"status": "unavailable"}), 403
+
+    data = request.get_json(silent=True) or request.form
+    recipient = message_recipient_for_id(data.get("recipient_id", ""))
+    if not recipient or not recipient["eligible"]:
+        return jsonify({"status": "invalid-recipient"}), 400
+    draft = message_draft_for_recipient(recipient)
+    state = message_keying_state(draft)
+    word_index, word_state = current_message_keying_word(state)
+    try:
+        requested_index = int(data.get("word_index", -1))
+    except (TypeError, ValueError):
+        requested_index = -1
+    if word_state is None:
+        return jsonify({"status": "complete", "next_url": url_for("touch_message_review", to=recipient["id"])})
+    if requested_index != word_index:
+        return jsonify({"status": "stale", "next_url": url_for("touch_message_key", to=recipient["id"])}), 409
+
+    action = str(data.get("action") or "")
+    if action == "show-code":
+        if int(word_state.get("attempts", 0)) < 1:
+            return jsonify({"status": "try-first", "message": "Try the word once before showing its code."}), 400
+        word_state["hint_used"] = True
+        response = {"status": "shown", "morse": text_to_morse(word_state["word"])}
+    elif action == "continue-with-help":
+        if int(word_state.get("attempts", 0)) < 3:
+            return jsonify({"status": "try-more", "message": "Try three times before continuing with help."}), 400
+        word_state["status"] = "assisted"
+        word_state["completed_at"] = datetime.now(timezone.utc).isoformat()
+        response = {"status": "assisted"}
+    else:
+        return jsonify({"status": "invalid-action"}), 400
+
+    append_message_event(student_profile_store.DATA_DIR, g.current_student["id"], {
+        "event": f"message_keying_{action}",
+        "draft_id": draft.get("draft_id", ""),
+        "recipient_student_id": recipient["id"],
+        "station_id": current_station_id(),
+        "practice_session_id": g.practice_session_id,
+        "word": word_state["word"],
+        "word_index": word_index,
+        "attempts": int(word_state.get("attempts", 0)),
+        "effort": action == "continue-with-help",
+    })
+    save_message_draft(student_profile_store.DATA_DIR, draft)
+    complete = message_keying_complete(draft)
+    response.update({
+        "complete": complete,
+        "next_url": (
+            url_for("touch_message_review", to=recipient["id"])
+            if complete else url_for("touch_message_key", to=recipient["id"])
+        ),
+    })
+    return jsonify(response)
 
 
 @app.route("/touch/messages/play-draft", methods=["POST"])
@@ -4455,6 +4702,12 @@ def touch_message_send():
         return redirect(url_for("touch_message_compose", error="Choose an available operator."))
     draft = message_draft_for_recipient(recipient)
     try:
+        validate_message_text(draft.get("text", ""), recipient["allowed_letters"])
+    except MessageValidationError as error:
+        return redirect(url_for("touch_message_compose", to=recipient["id"], error=str(error)))
+    if not message_keying_complete(draft):
+        return redirect(url_for("touch_message_key", to=recipient["id"]))
+    try:
         message = create_message(
             g.current_student["id"],
             recipient["id"],
@@ -4467,6 +4720,9 @@ def touch_message_send():
     except MessageValidationError as error:
         return redirect(url_for("touch_message_compose", to=recipient["id"], error=str(error)))
 
+    keying_summary = message_keying_summary(draft["keying"])
+    message["send_keying"] = keying_summary
+
     if load_station_config().get("message_sync_enabled", False):
         message["cloud_state"] = "queued"
 
@@ -4477,7 +4733,8 @@ def touch_message_send():
         "recipient_student_id": recipient["id"],
         "station_id": current_station_id(),
         "practice_session_id": g.practice_session_id,
-        "effort": False,
+        "send_keying": keying_summary,
+        "effort": True,
     })
     clear_message_draft(student_profile_store.DATA_DIR, g.current_student["id"])
     return redirect(url_for("touch_messages", sent=recipient["name"]))

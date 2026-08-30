@@ -34,9 +34,13 @@ General rules:
   confirmation token is present and then renders the wait-for-screen-dark
   message.
 - **API-019** *(V2)* `GET /touch/messages`, `/touch/messages/compose`,
-  `/touch/messages/review`, `/touch/messages/inbox/<message_id>` — student
-  message menu, no-keyboard composer, review, and guided decode pages for
-  FR-039...FR-046. Guest receives 403 or a kid-friendly unavailable page.
+  `/touch/messages/review`, `/touch/messages/key`,
+  `/touch/messages/inbox/<message_id>` — student message menu, no-keyboard
+  composer, review, supported send-keying, and guided decode pages for
+  FR-039...FR-046. `POST /touch/messages/key/result` server-checks and records
+  a complete-word attempt; `POST /touch/messages/key/action` records hint use
+  or advances an eligible assisted word. Guest receives 403 or a kid-friendly
+  unavailable page.
 
 ## Station control (JSON unless noted)
 

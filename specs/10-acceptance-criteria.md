@@ -98,6 +98,14 @@ correctness checks. Each is encoded as an automated test per
   every completed word already in the draft. Live decoded readouts remain blank
   until the student keys input, then show the decoded character or `?` for an
   unknown pattern; they do not use dash placeholders that resemble Morse code.
+  Review does not expose Send until `Key It` is complete. The keying screen
+  checks one complete word at a time, retains correct-letter indicators after
+  a miss, enables Show Code after one attempt, enables Continue With Help after
+  three misses, and preserves completed words across refresh. Successful words
+  advance automatically. Editing the message resets keying progress. Directly
+  posting Send before every word has been attempted is rejected server-side;
+  after all words are correct or assisted, Final Review exposes the
+  receiver-named Send action and delivers the unchanged reviewed text.
 - **AC-024** (FR-037 / NFR-016) Words practice SHALL show a compact Rhythm
   Coach after a keyed attempt. The coach SHALL compare Target and Yours as
   stacked, full-width rows that fit longer early words such as `NOT` on the
