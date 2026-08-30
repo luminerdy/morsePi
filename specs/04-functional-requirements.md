@@ -252,9 +252,19 @@ from the current code (legacy status per requirement is tracked in
   fine correction. The sender SHALL be able to play the complete draft through
   the speaker and LED before sending.
 - **FR-043** Sending SHALL require a separate review screen that shows the
-  receiver, complete text, letter-by-letter Morse, and a Play action. The
-  message SHALL remain editable until an explicit receiver-named Send action;
-  a sent message is immutable.
+  receiver, complete text, letter-by-letter Morse, and a Play action. Review
+  SHALL lead to a supported `Key It` stage before the receiver-named Send
+  action becomes available. The sender SHALL attempt every word at least once
+  as a complete keyed word. Correct letters within an unsuccessful attempt
+  SHALL remain visibly credited; a successful word SHALL advance automatically.
+  After the first attempt the sender MAY reveal the target Morse, and after
+  three unsuccessful attempts the sender MAY mark that word practiced with
+  help and continue. Retry, hint, accuracy, elapsed-time, and timing-event data
+  SHALL be recorded without changing the reviewed text. Keying state SHALL
+  survive refreshes and SHALL reset whenever the draft text changes. The send
+  endpoint SHALL reject a draft that has not completed this stage. The message
+  SHALL remain editable until an explicit receiver-named Send action; a sent
+  message is immutable.
 - **FR-044** The receiver inbox SHALL show sender, received time, and state
   without revealing unopened message text. Opening a message SHALL first show
   blank letter slots grouped into words and provide whole-message playback

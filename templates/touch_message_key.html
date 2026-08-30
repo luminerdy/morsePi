@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+<head>
+    <title>Key Message - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260802-1">
+    <link rel="stylesheet" href="/static/touch.css?v=20260830-2">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="touch-ui"
+      data-tone-hz="{{ timing.tone_hz }}"
+      data-dot-ms="{{ timing.dot_ms }}"
+      data-dash-ms="{{ timing.dash_ms }}"
+      data-symbol-gap-ms="{{ timing.symbol_gap_ms }}"
+      data-letter-gap-ms="{{ timing.letter_gap_ms }}"
+      data-word-gap-ms="{{ timing.word_gap_ms }}">
+    <div class="touch-screen">
+        <header class="touch-titlebar compact">
+            <div>
+                <p class="eyebrow">Key Message To {{ recipient.name }}</p>
+                <h1>{{ current_student.name }}</h1>
+            </div>
+            <a class="touch-top-link" href="/touch/messages/review?to={{ recipient.id }}">Review</a>
+        </header>
+
+        {% if word_state %}
+            <main class="touch-message-key-layout"
+                  data-message-key
+                  data-recipient-id="{{ recipient.id }}"
+                  data-word-index="{{ word_index }}"
+                  data-message-key-word="{{ word_state.word }}"
+                  data-message-key-morse="{{ expected_morse }}">
+                <section class="touch-message-panel touch-message-key-target">
+                    <span>Word {{ word_index + 1 }} of {{ keying.words | length }}</span>
+                    <div class="touch-message-key-letters" id="messageKeyLetters">
+                        {% for letter in word_state.word %}
+                            <strong class="{% if loop.index0 in word_state.best_letters %}best{% endif %}">{{ letter }}</strong>
+                        {% endfor %}
+                    </div>
+                    <div class="touch-message-key-code {% if not word_state.hint_used %}hidden{% endif %}" id="messageKeyCode">
+                        {{ expected_morse | morse_visual }}
+                    </div>
+                    <small>{{ word_state.attempts }} attempt{% if word_state.attempts != 1 %}s{% endif %}</small>
+                </section>
+
+                <section class="touch-message-panel touch-message-key-live">
+                    <div><span>Keyed</span><strong id="liveMorse">Waiting for key...</strong></div>
+                    <div><span>Read As</span><strong id="liveDecoded"></strong></div>
+                    <p id="messageKeyFeedback">Key the whole word. The app will check after you pause.</p>
+                </section>
+
+                <section class="touch-message-panel touch-message-key-progress">
+                    {% for item in keying.words %}
+                        <div class="{{ item.status }}">
+                            <strong>{{ item.word }}</strong>
+                            <small>{% if item.status == "correct" %}Correct{% elif item.status == "assisted" %}Practiced{% elif loop.index0 == word_index %}Your turn{% else %}Next{% endif %}</small>
+                        </div>
+                    {% endfor %}
+                </section>
+
+                <section class="touch-message-panel touch-message-key-actions">
+                    <button class="button secondary" type="button" data-message-key-check>Check</button>
+                    <button class="button secondary" type="button" data-message-key-retry>Clear</button>
+                    <button class="button secondary" type="button" data-message-key-hint {% if word_state.attempts < 1 %}disabled{% endif %}>Show Code</button>
+                    <button class="button primary" type="button" data-message-key-continue {% if word_state.attempts < 3 %}disabled{% endif %}>Continue With Help</button>
+                </section>
+            </main>
+        {% else %}
+            <main class="touch-message-key-complete">
+                <section class="touch-message-panel">
+                    <span>Keying Complete</span>
+                    <strong>{{ text }}</strong>
+                    <p>{{ keying_summary.correct_words }} correct · {{ keying_summary.assisted_words }} practiced with help</p>
+                    <a class="button primary" href="/touch/messages/review?to={{ recipient.id }}">Final Review</a>
+                </section>
+            </main>
+        {% endif %}
+    </div>
+<script src="/static/app.js?v=20260830-2"></script>
+</body>
+</html>

@@ -226,6 +226,19 @@ class RouteRenderTests(unittest.TestCase):
         )
         return active_letters
 
+    def complete_message_keying(self, recipient_id, words):
+        for index, word in enumerate(words):
+            response = self.client.post(
+                "/touch/messages/key/result",
+                json={
+                    "recipient_id": recipient_id,
+                    "word_index": index,
+                    "actual_morse": app_module.text_to_morse(word),
+                },
+            )
+            self.assertEqual(200, response.status_code)
+            self.assertTrue(response.get_json()["correct"])
+
     def set_learning_state(self, student_id, groups, last_learning_start_date="2026-06-23"):
         self.write_json(
             student_id,
@@ -1118,18 +1131,90 @@ class RouteRenderTests(unittest.TestCase):
             data={"recipient_id": "astrid", "action": "append-word", "word": "ME"},
         )
         review_response = self.client.get("/touch/messages/review?to=astrid")
+        blocked_send = self.client.post("/touch/messages/send", data={"recipient_id": "astrid"})
+        key_response = self.client.post(
+            "/touch/messages/key/result",
+            json={"recipient_id": "astrid", "word_index": 0, "actual_morse": "-- ."},
+        )
+        final_review_response = self.client.get("/touch/messages/review?to=astrid")
         send_response = self.client.post("/touch/messages/send", data={"recipient_id": "astrid"})
 
         self.assertEqual(302, add_response.status_code)
         review_html = review_response.get_data(as_text=True)
         self.assertIn("Review For Astrid", review_html)
-        self.assertIn("Send to Astrid", review_html)
+        self.assertIn("Key It", review_html)
+        self.assertNotIn("Send to Astrid", review_html)
         self.assertIn('class="morse-visual"', review_html)
         self.assertIn('aria-label="dash dash"', review_html)
+        self.assertIn("/touch/messages/key?to=astrid", blocked_send.headers["Location"])
+        self.assertTrue(key_response.get_json()["correct"])
+        self.assertIn("Send to Astrid", final_review_response.get_data(as_text=True))
         self.assertEqual(302, send_response.status_code)
         self.assertIn("sent=Astrid", send_response.headers["Location"])
         self.assertEqual(1, len(list((self.students_dir / "pappy" / "message_outbox").glob("*.json"))))
         self.assertEqual(1, len(list((self.students_dir / "astrid" / "message_inbox").glob("*.json"))))
+
+    def test_touch_message_keying_persists_misses_and_unlocks_assistance_after_three_attempts(self):
+        self.unlock_messages("pappy")
+        self.unlock_messages("astrid")
+        self.client.post(
+            "/touch/messages/draft",
+            data={"recipient_id": "astrid", "action": "append-word", "word": "ME"},
+        )
+
+        early_hint = self.client.post(
+            "/touch/messages/key/action",
+            json={"recipient_id": "astrid", "word_index": 0, "action": "show-code"},
+        )
+        results = []
+        for morse in ("-- -", "-- ..", "-- --"):
+            results.append(self.client.post(
+                "/touch/messages/key/result",
+                json={"recipient_id": "astrid", "word_index": 0, "actual_morse": morse},
+            ).get_json())
+        refreshed = self.client.get("/touch/messages/key?to=astrid").get_data(as_text=True)
+        hint = self.client.post(
+            "/touch/messages/key/action",
+            json={"recipient_id": "astrid", "word_index": 0, "action": "show-code"},
+        )
+        assisted = self.client.post(
+            "/touch/messages/key/action",
+            json={"recipient_id": "astrid", "word_index": 0, "action": "continue-with-help"},
+        )
+        final_review = self.client.get("/touch/messages/review?to=astrid").get_data(as_text=True)
+
+        self.assertEqual(400, early_hint.status_code)
+        self.assertEqual([1, 2, 3], [result["attempts"] for result in results])
+        self.assertTrue(results[-1]["can_continue"])
+        self.assertIn("3 attempts", refreshed)
+        self.assertEqual("shown", hint.get_json()["status"])
+        self.assertEqual("assisted", assisted.get_json()["status"])
+        self.assertTrue(assisted.get_json()["complete"])
+        self.assertIn("Send to Astrid", final_review)
+
+    def test_touch_message_edit_resets_completed_keying(self):
+        self.unlock_messages("pappy")
+        self.unlock_messages("astrid")
+        self.client.post(
+            "/touch/messages/draft",
+            data={"recipient_id": "astrid", "action": "append-word", "word": "ME"},
+        )
+        self.client.post(
+            "/touch/messages/key/result",
+            json={"recipient_id": "astrid", "word_index": 0, "actual_morse": "-- ."},
+        )
+        self.client.post(
+            "/touch/messages/draft",
+            data={"recipient_id": "astrid", "action": "append-word", "word": "SO"},
+        )
+
+        review = self.client.get("/touch/messages/review?to=astrid").get_data(as_text=True)
+        draft = json.loads(self.student_file("pappy", "message_draft.json").read_text(encoding="utf-8"))
+
+        self.assertIn("Key It", review)
+        self.assertNotIn("Send to Astrid", review)
+        self.assertEqual("ME SO", draft["text"])
+        self.assertEqual([0, 0], [item["attempts"] for item in draft["keying"]["words"]])
 
     def test_touch_message_word_bank_browses_and_appends_known_words(self):
         self.unlock_messages("pappy")
@@ -1225,6 +1310,7 @@ class RouteRenderTests(unittest.TestCase):
             "/touch/messages/draft",
             data={"recipient_id": "astrid", "action": "append-word", "word": "ME"},
         )
+        self.complete_message_keying("astrid", ["ME"])
 
         response = self.client.post("/touch/messages/send", data={"recipient_id": "astrid"})
         messages_html = self.client.get("/touch/messages").get_data(as_text=True)
@@ -1338,6 +1424,7 @@ class RouteRenderTests(unittest.TestCase):
             "/touch/messages/draft",
             data={"recipient_id": "astrid", "action": "append-word", "word": "ME"},
         )
+        self.complete_message_keying("astrid", ["ME"])
         self.client.post("/touch/messages/send", data={"recipient_id": "astrid"})
         inbox_path = next((self.students_dir / "astrid" / "message_inbox").glob("*.json"))
         message_id = inbox_path.stem
@@ -1380,6 +1467,7 @@ class RouteRenderTests(unittest.TestCase):
             "/touch/messages/draft",
             data={"recipient_id": "astrid", "action": "append-word", "word": "ME"},
         )
+        self.complete_message_keying("astrid", ["ME"])
         self.client.post("/touch/messages/send", data={"recipient_id": "astrid"})
         message_id = next((self.students_dir / "astrid" / "message_inbox").glob("*.json")).stem
         self.set_student_cookie("astrid")

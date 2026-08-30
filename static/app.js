@@ -26,6 +26,11 @@ let wordAutoAdvanceTimer = null;
 let touchIdleExperience = null;
 let lastObservedPhysicalMorse = "";
 let signalDropExperience = null;
+let messageKeyCheckTimer = null;
+let messageKeyLastMorse = "";
+let messageKeyPendingMorse = "";
+let messageKeyBusy = false;
+let messageKeyStartedAt = null;
 
 const KEYBOARD_DASH_THRESHOLD_UNITS = 2.5;
 const WORD_AUTO_ADVANCE_DELAY_MS = 4000;
@@ -543,6 +548,7 @@ async function updateLiveKey() {
 
         schedulePracticeAutoCheck(data.morse || "");
         scheduleWordAutoCheck(data.morse || "", data.decoded || "");
+        scheduleMessageKeyAutoCheck(data.morse || "");
         if (signalDropExperience) {
             signalDropExperience.handleMorse(data.morse || "", data.decoded || "");
         }
@@ -1507,6 +1513,7 @@ function updateVirtualKeyerDisplay() {
 
     schedulePracticeAutoCheck(morse);
     scheduleWordAutoCheck(morse, MORSE_DECODE[morse] || "");
+    scheduleMessageKeyAutoCheck(morse);
     if (signalDropExperience) {
         signalDropExperience.handleMorse(morse, MORSE_DECODE[morse] || "");
     }
@@ -2285,9 +2292,216 @@ function initializeTouchIdleExperience() {
     resetTimers();
 }
 
+function getMessageKeyPanel() {
+    return document.querySelector("[data-message-key][data-message-key-morse]");
+}
+
+function setMessageKeyFeedback(message, needsWork = false) {
+    const element = document.getElementById("messageKeyFeedback");
+    if (!element) {
+        return;
+    }
+    element.innerText = message;
+    element.classList.toggle("needs-work", needsWork);
+}
+
+function resetMessageKeyCheck() {
+    if (messageKeyCheckTimer) {
+        clearTimeout(messageKeyCheckTimer);
+    }
+    messageKeyCheckTimer = null;
+    messageKeyLastMorse = "";
+    messageKeyPendingMorse = "";
+    messageKeyStartedAt = null;
+}
+
+function messageKeyCurrentMorse() {
+    if (keyboardKeyerActive) {
+        return normalizeMorse(keyboardMorse);
+    }
+    const liveMorse = document.getElementById("liveMorse");
+    return normalizeMorse(liveMorse ? (liveMorse.dataset.morse || "") : "");
+}
+
+function renderMessageKeyLetterResults(result) {
+    const letters = Array.from(document.querySelectorAll("#messageKeyLetters > strong"));
+    const current = Array.isArray(result.letter_results) ? result.letter_results : [];
+    const best = new Set(Array.isArray(result.best_letters) ? result.best_letters : []);
+    letters.forEach((letter, index) => {
+        letter.classList.toggle("best", best.has(index));
+        letter.classList.toggle("miss", current.length > index && !current[index] && !best.has(index));
+    });
+}
+
+async function submitMessageKeyAttempt(actualMorse) {
+    const panel = getMessageKeyPanel();
+    const normalized = normalizeMorse(actualMorse || "");
+    if (!panel || !normalized || messageKeyBusy || normalized === messageKeyLastMorse) {
+        if (!normalized) {
+            setMessageKeyFeedback("Key the whole word first.", true);
+        }
+        return;
+    }
+
+    messageKeyBusy = true;
+    messageKeyLastMorse = normalized;
+    const elapsedMs = messageKeyStartedAt === null ? null : Math.round(performance.now() - messageKeyStartedAt);
+    try {
+        const response = await fetch("/touch/messages/key/result", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                recipient_id: panel.dataset.recipientId || "",
+                word_index: Number(panel.dataset.wordIndex),
+                actual_morse: normalized,
+                elapsed_ms: elapsedMs,
+                timing_events: keyboardKeyerActive ? keyboardTimingEvents : []
+            })
+        });
+        const result = await response.json();
+        if (!response.ok) {
+            if (result.next_url) {
+                window.location.href = result.next_url;
+                return;
+            }
+            setMessageKeyFeedback(result.message || "Unable to check that word.", true);
+            return;
+        }
+
+        renderMessageKeyLetterResults(result);
+        const hint = document.querySelector("[data-message-key-hint]");
+        const continueButton = document.querySelector("[data-message-key-continue]");
+        if (hint) {
+            hint.disabled = false;
+        }
+        if (continueButton) {
+            continueButton.disabled = !result.can_continue;
+        }
+
+        if (result.correct) {
+            setMessageKeyFeedback(`Correct: ${result.word}. Moving to the next step.`);
+            window.setTimeout(() => {
+                window.location.href = result.next_url;
+            }, 2000);
+        } else {
+            setMessageKeyFeedback(`Not yet. Clear, then try ${result.word} again.`, true);
+        }
+    } catch (error) {
+        console.log("Unable to record message keying attempt", error);
+        setMessageKeyFeedback("Could not check the word. Please try again.", true);
+    } finally {
+        messageKeyBusy = false;
+        messageKeyPendingMorse = "";
+    }
+}
+
+function scheduleMessageKeyAutoCheck(rawMorse) {
+    const panel = getMessageKeyPanel();
+    if (!panel || messageKeyBusy) {
+        return;
+    }
+    const actual = normalizeMorse(rawMorse);
+    const expected = normalizeMorse(panel.dataset.messageKeyMorse || "");
+    if (!actual) {
+        if (messageKeyCheckTimer) {
+            clearTimeout(messageKeyCheckTimer);
+        }
+        messageKeyCheckTimer = null;
+        messageKeyPendingMorse = "";
+        messageKeyLastMorse = "";
+        messageKeyStartedAt = null;
+        return;
+    }
+    if (messageKeyStartedAt === null) {
+        messageKeyStartedAt = performance.now();
+    }
+    if (actual === messageKeyLastMorse || actual === messageKeyPendingMorse) {
+        return;
+    }
+    if (countMorseSymbols(actual) < countMorseSymbols(expected)) {
+        if (messageKeyCheckTimer) {
+            clearTimeout(messageKeyCheckTimer);
+        }
+        messageKeyCheckTimer = null;
+        messageKeyPendingMorse = "";
+        return;
+    }
+    if (messageKeyCheckTimer) {
+        clearTimeout(messageKeyCheckTimer);
+    }
+    messageKeyPendingMorse = actual;
+    messageKeyCheckTimer = setTimeout(() => submitMessageKeyAttempt(actual), 1400);
+}
+
+async function messageKeyAction(panel, action) {
+    const response = await fetch("/touch/messages/key/action", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            recipient_id: panel.dataset.recipientId || "",
+            word_index: Number(panel.dataset.wordIndex),
+            action
+        })
+    });
+    const result = await response.json();
+    if (!response.ok) {
+        setMessageKeyFeedback(result.message || "That action is not ready yet.", true);
+        return null;
+    }
+    return result;
+}
+
+function initializeMessageKeying(panel) {
+    resetMessageKeyCheck();
+    const check = document.querySelector("[data-message-key-check]");
+    const retry = document.querySelector("[data-message-key-retry]");
+    const hint = document.querySelector("[data-message-key-hint]");
+    const continueButton = document.querySelector("[data-message-key-continue]");
+
+    if (check) {
+        check.addEventListener("click", () => submitMessageKeyAttempt(messageKeyCurrentMorse()));
+    }
+    if (retry) {
+        retry.addEventListener("click", async () => {
+            await clearKeyInput();
+            resetMessageKeyCheck();
+            setMessageKeyFeedback(`Ready. Try ${panel.dataset.messageKeyWord || "the word"} again.`);
+        });
+    }
+    if (hint) {
+        hint.addEventListener("click", async () => {
+            hint.disabled = true;
+            try {
+                const result = await messageKeyAction(panel, "show-code");
+                if (result) {
+                    document.getElementById("messageKeyCode")?.classList.remove("hidden");
+                    setMessageKeyFeedback("Code shown. Clear, then key the whole word again.");
+                }
+            } finally {
+                hint.disabled = false;
+            }
+        });
+    }
+    if (continueButton) {
+        continueButton.addEventListener("click", async () => {
+            continueButton.disabled = true;
+            const result = await messageKeyAction(panel, "continue-with-help");
+            if (result) {
+                setMessageKeyFeedback("Good effort. Moving to the next step.");
+                window.setTimeout(() => {
+                    window.location.href = result.next_url;
+                }, 1200);
+            } else {
+                continueButton.disabled = false;
+            }
+        });
+    }
+}
+
 function initializeMessageControls() {
     const composer = document.querySelector("[data-message-compose]");
-    if (composer && document.getElementById("messageKeyedWordMorse")) {
+    const messageKeyPanel = document.querySelector("[data-message-key]");
+    if ((composer && document.getElementById("messageKeyedWordMorse")) || messageKeyPanel) {
         fetch("/clear-key", { method: "POST" }).catch(error => {
             console.log("Unable to clear message key", error);
         });
@@ -2332,6 +2546,10 @@ function initializeMessageControls() {
             }
         });
     });
+
+    if (messageKeyPanel) {
+        initializeMessageKeying(messageKeyPanel);
+    }
 }
 
 function updateTouchPinDisplay(input, display) {
