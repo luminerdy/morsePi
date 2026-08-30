@@ -12,6 +12,13 @@
   setting, creates a private configuration backup, atomically enables message
   sync, installs/enables the repository-owned timer, starts one sync, and
   restores the original configuration if service startup fails.
+- Promoted the recovery to `release/pi` at `8ab0307` after all 264 discovered
+  tests passed. Queued durable Campbell Jobs
+  `morsepi-campbell-message-recovery-update-20260829` followed by
+  `morsepi-campbell-enable-message-sync-20260829`. Campbell did not poll during
+  the monitoring window and is likely powered off; AWS retains both Jobs for
+  its next boot. The earlier update must complete before the fixed enrollment
+  action can run, after which the saved local outbox should upload normally.
 
 - Confirmed Astrid/Liara was online and syncing data but remained at `cecbb77`
   after repeated update attempts. Its older updater treated a dirty-checkout
