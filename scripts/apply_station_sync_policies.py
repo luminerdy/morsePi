@@ -6,6 +6,8 @@ import sys
 
 BUCKET = "morsepi-backups-luminerdy"
 POLICY_NAME = "morsepi-station-progress-sync"
+READER_GROUP = "morsepi-family-activity-readers"
+READER_POLICY_NAME = "morsepi-family-activity-read"
 FAMILY_STUDENTS = ["pappy", "astrid", "liara", "campbell", "olivea"]
 STATIONS = {
     "pappy-test-station": {
@@ -52,8 +54,8 @@ def family_activity_list_prefixes():
     prefixes = []
     for station_id in STATIONS:
         prefixes.extend([
+            f"stations/{station_id}/activity",
             f"stations/{station_id}/activity/*",
-            f"stations/{station_id}/status/*",
         ])
     return prefixes
 
@@ -66,6 +68,27 @@ def family_activity_object_arns(bucket):
             f"arn:aws:s3:::{bucket}/stations/{station_id}/status/station_status.json",
         ])
     return arns
+
+
+def build_family_activity_reader_policy(bucket):
+    return {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "ListFamilyActivityAndStatus",
+                "Effect": "Allow",
+                "Action": "s3:ListBucket",
+                "Resource": f"arn:aws:s3:::{bucket}",
+                "Condition": {"StringLike": {"s3:prefix": family_activity_list_prefixes()}},
+            },
+            {
+                "Sid": "ReadFamilyActivityAndStatus",
+                "Effect": "Allow",
+                "Action": "s3:GetObject",
+                "Resource": family_activity_object_arns(bucket),
+            },
+        ],
+    }
 
 
 def build_policy(bucket, student_ids, station_id=None):
@@ -101,26 +124,64 @@ def build_policy(bucket, student_ids, station_id=None):
             "Action": "s3:PutObject",
             "Resource": f"arn:aws:s3:::{bucket}/stations/{station_id}/activity/*",
         })
-    if station_id == "pappy-test-station":
-        statements.extend([
-            {
-                "Sid": "ListFamilyActivityAndStatus",
-                "Effect": "Allow",
-                "Action": "s3:ListBucket",
-                "Resource": f"arn:aws:s3:::{bucket}",
-                "Condition": {"StringLike": {"s3:prefix": family_activity_list_prefixes()}},
-            },
-            {
-                "Sid": "ReadFamilyActivityAndStatus",
-                "Effect": "Allow",
-                "Action": "s3:GetObject",
-                "Resource": family_activity_object_arns(bucket),
-            },
-        ])
     return {
         "Version": "2012-10-17",
         "Statement": statements,
     }
+
+
+def apply_reader_group_policy(
+    bucket,
+    profile,
+    dry_run=False,
+    runner=subprocess.run,
+    aws_executable="aws",
+):
+    policy = build_family_activity_reader_policy(bucket)
+    commands = [
+        [aws_executable, "iam", "create-group", "--group-name", READER_GROUP, "--profile", profile],
+        [
+            aws_executable,
+            "iam",
+            "put-group-policy",
+            "--group-name",
+            READER_GROUP,
+            "--policy-name",
+            READER_POLICY_NAME,
+            "--policy-document",
+            json.dumps(policy, separators=(",", ":")),
+            "--profile",
+            profile,
+        ],
+        [
+            aws_executable,
+            "iam",
+            "add-user-to-group",
+            "--group-name",
+            READER_GROUP,
+            "--user-name",
+            STATIONS["pappy-test-station"]["user"],
+            "--profile",
+            profile,
+        ],
+    ]
+    if dry_run:
+        return {"commands": commands, "policy": policy, "returncode": 0, "skipped": True}
+
+    results = []
+    for index, command in enumerate(commands):
+        result = runner(command, capture_output=True, text=True)
+        results.append(result)
+        group_already_exists = index == 0 and "EntityAlreadyExists" in (result.stderr or "")
+        if result.returncode != 0 and not group_already_exists:
+            return {
+                "commands": commands,
+                "policy": policy,
+                "results": results,
+                "returncode": result.returncode,
+                "skipped": False,
+            }
+    return {"commands": commands, "policy": policy, "results": results, "returncode": 0, "skipped": False}
 
 
 def put_user_policy(
@@ -196,6 +257,24 @@ def main(argv=None):
             print(f"FAILED: {station_id} returned {result['returncode']}", file=sys.stderr)
         else:
             print(f"OK: policy applied to {station['user']}")
+
+    print(f"== Pappy family activity reader group: {READER_GROUP} ==")
+    reader = apply_reader_group_policy(
+        args.bucket,
+        args.profile,
+        args.dry_run,
+        aws_executable=args.aws_executable,
+    )
+    if reader["skipped"]:
+        print(json.dumps(reader["policy"], indent=2, sort_keys=True))
+    elif reader["returncode"] != 0:
+        failures += 1
+        failed = reader["results"][-1]
+        if failed.stderr:
+            print(failed.stderr.rstrip(), file=sys.stderr)
+        print("FAILED: Pappy reader group policy", file=sys.stderr)
+    else:
+        print("OK: Pappy reader group policy applied")
 
     return 1 if failures else 0
 
