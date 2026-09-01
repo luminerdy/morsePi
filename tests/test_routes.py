@@ -2485,9 +2485,50 @@ class RouteRenderTests(unittest.TestCase):
         html = response.get_data(as_text=True)
 
         self.assertEqual(200, response.status_code)
-        self.assertIn("Take A Break", html)
-        self.assertIn("Daily complete. Take a short break", html)
+        self.assertIn("Practice Complete For Now", html)
+        self.assertIn("You can stop now", html)
+        self.assertIn('href="/touch/menu">Menu</a>', html)
+        self.assertNotIn(">Break<", html)
         self.assertNotIn("Bonus Round", html)
+
+    def test_touch_daily_learning_rest_recommends_real_practice_when_signals_remain(self):
+        progress = {}
+        for letter in app_module.starter_practice_letters:
+            progress[letter] = {
+                mode: {
+                    "attempts": 10,
+                    "correct": 10,
+                    "last_seen": "2026-06-21T00:00:00+00:00",
+                    "streak": 10,
+                    "strength": 1.0,
+                }
+                for mode in app_module.practice_modes
+            }
+        for letter in ["S", "O"]:
+            progress[letter] = {
+                "learn": {
+                    "attempts": 10,
+                    "correct": 10,
+                    "last_seen": "2026-06-21T00:00:00+00:00",
+                    "streak": 10,
+                    "strength": 1.0,
+                }
+            }
+        self.write_json("pappy", "practice_progress.json", progress)
+        self.set_learning_state(
+            "pappy",
+            {"SO": {"first_learning_date": app_module.today_key(), "letters": ["S", "O"]}},
+            last_learning_start_date=app_module.today_key(),
+        )
+
+        response = self.client.get("/touch/daily")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Practice Send", html)
+        self.assertIn("are resting", html)
+        self.assertIn("/touch/practice/run?mode=send", html)
+        self.assertNotIn(">Break<", html)
 
     def test_touch_daily_signal_goal_points_to_words_when_words_are_unfinished(self):
         self.set_student_cookie("astrid")
