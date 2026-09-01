@@ -1124,6 +1124,14 @@ Create or refine these GitHub issues next:
 13. Add student/operator names to `Words I Know` once the student has learned
     every letter in that name; for example, `PAPPY` should appear as soon as
     `P` is learned because the remaining letters are already available.
+14. Replace repeated PIN prompts with a bounded adult admin session. A valid
+    PIN should unlock Admin System, Family Activity, operator management, and
+    admin actions for the active session. Show a persistent **Exit Admin**
+    control and automatically lock after 10 minutes without admin activity,
+    reboot, or return to the student flow. Keep the session token server-owned
+    or securely cookie-backed; do not place the PIN in a cookie, URL, browser
+    storage, or page markup. Changing/resetting the admin PIN may still require
+    fresh PIN confirmation.
 
 ## Progress Log
 
