@@ -1883,6 +1883,9 @@ def daily_mission_summary():
         message = f"It has been {warmup_review['days_away']} days. Warm up with letters you already know."
     elif word_focus["unlocked"] and not word_focus["complete"]:
         message = f"Daily mission: {word_focus['remaining']} correct Word{'s' if word_focus['remaining'] != 1 else ''} left."
+    elif learning_focus["active"] and learning_focus["complete"] and (state.get("learning_status") or {}).get("needs"):
+        letters_label = " ".join(state["learning_letters"])
+        message = f"Daily mission: {letters_label} are resting. Practice {remaining} familiar signals while you wait."
     elif state["learning_letters"]:
         message = f"Daily mission: practice today and spend time with {' '.join(state['learning_letters'])}."
     else:
@@ -2428,6 +2431,8 @@ def weakest_letters(letters, limit=3, exclude=None):
 
 
 def daily_next_action(state):
+    learning_wait = False
+    learning_wait_detail = ""
     if state["learning_letters"]:
         letters = " ".join(state["learning_letters"])
         status = state.get("learning_status") or {}
@@ -2435,14 +2440,18 @@ def daily_next_action(state):
 
         if focus["complete"] and status.get("needs"):
             next_need = status.get("next_need", "New signals can join practice after a short break.")
-            needs_break = "break" in next_need
-            return {
-                "label": "Break" if needs_break else "Learn",
-                "mode": "",
-                "href": "/touch/daily",
-                "title": "Take A Break" if needs_break else "Keep Learning",
-                "detail": next_need.capitalize()
-            }
+            needs_break = any("break" in str(need).lower() for need in status.get("needs", []))
+            if needs_break:
+                learning_wait = True
+                learning_wait_detail = next_need.capitalize()
+            else:
+                return {
+                    "label": "Learn",
+                    "mode": "learn",
+                    "href": "/touch/practice/run?mode=learn",
+                    "title": "Keep Learning",
+                    "detail": next_need.capitalize()
+                }
 
         return {
             "label": "Learn",
@@ -2485,6 +2494,24 @@ def daily_next_action(state):
             "detail": word_focus["next_need"]
         }
 
+    if learning_wait and state.get("daily_signals_complete"):
+        return {
+            "label": "Menu",
+            "mode": "",
+            "href": "/touch/menu",
+            "title": "Practice Complete For Now",
+            "detail": f"{learning_wait_detail}. You can stop now or choose bonus practice from Menu."
+        }
+
+    if learning_wait and not state.get("daily_signals_complete"):
+        return {
+            "label": mode_label,
+            "mode": weakest_mode,
+            "href": f"/touch/practice/run?mode={weakest_mode}",
+            "title": f"Practice {mode_label}",
+            "detail": f"{' '.join(state['learning_letters'])} are resting. Practice familiar signals while you wait. {learning_wait_detail}."
+        }
+
     if weakest_score["mastery"] < 100:
         return {
             "label": mode_label,
@@ -2496,6 +2523,14 @@ def daily_next_action(state):
 
     if state["locked_until_tomorrow"]:
         wait_status = state.get("unlock_wait_status") or {}
+        if wait_status.get("waiting") and not state.get("daily_signals_complete"):
+            return {
+                "label": mode_label,
+                "mode": weakest_mode,
+                "href": f"/touch/practice/run?mode={weakest_mode}",
+                "title": f"Practice {mode_label}",
+                "detail": "New signals are resting. Practice familiar signals while you wait."
+            }
         return {
             "label": wait_status.get("label", "Next"),
             "mode": "",
@@ -2832,10 +2867,11 @@ def next_unlock_wait_status(active_letters, state, latest_group_state):
 
     if learning_groups_started_today(state) >= max_learning_groups_per_day:
         return {
-            "label": "Tomorrow",
-            "href": "/touch/daily",
-            "title": "Come Back Tomorrow",
-            "detail": "Great work. New signals can open tomorrow."
+            "label": "Menu",
+            "href": "/touch/menu",
+            "title": "Practice Complete For Today",
+            "detail": "Great work. New signals can open tomorrow. You can stop now or choose bonus practice from Menu.",
+            "waiting": True,
         }
 
     started_at = group_started_at(latest_group_state)
@@ -2851,10 +2887,15 @@ def next_unlock_wait_status(active_letters, state, latest_group_state):
             parts.append(f"{rest['remaining_label']} of break time")
 
         return {
-            "label": "Words" if words_remaining else "Break",
-            "href": "/touch/words" if words_remaining else "/touch/daily",
-            "title": "Practice Words" if words_remaining else "Take A Break",
-            "detail": f"{' and '.join(parts)} before new signals can open."
+            "label": "Words" if words_remaining else "Menu",
+            "href": "/touch/words" if words_remaining else "/touch/menu",
+            "title": "Practice Words" if words_remaining else "Practice Complete For Now",
+            "detail": (
+                f"{' and '.join(parts)} before new signals can open."
+                if words_remaining
+                else f"{' and '.join(parts)} before new signals can open. You can stop now or choose bonus practice from Menu."
+            ),
+            "waiting": not words_remaining,
         }
 
     return None

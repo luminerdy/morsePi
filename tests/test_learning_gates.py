@@ -557,8 +557,36 @@ class LearningGateTests(unittest.TestCase):
         self.assertEqual(20, daily["learning_focus"]["correct"])
         self.assertTrue(daily["completed"])
         self.assertIn("Take a short break", daily["message"])
-        self.assertEqual("Break", daily["next_action"]["label"])
-        self.assertEqual("Take A Break", daily["next_action"]["title"])
+        self.assertEqual("Menu", daily["next_action"]["label"])
+        self.assertEqual("Practice Complete For Now", daily["next_action"]["title"])
+        self.assertEqual("/touch/menu", daily["next_action"]["href"])
+
+    def test_completed_learning_recommends_familiar_practice_before_daily_signals_are_done(self):
+        self.write_progress(app_module.starter_practice_letters, self.all_modes(1.0))
+        progress = json.loads(self.progress_path.read_text(encoding="utf-8"))
+        for letter in ["S", "O"]:
+            progress[letter] = {
+                "learn": {
+                    "attempts": 10,
+                    "correct": 10,
+                    "last_seen": "2026-06-21T00:00:00+00:00",
+                    "streak": 10,
+                    "strength": 1.0,
+                }
+            }
+        self.progress_path.write_text(json.dumps(progress), encoding="utf-8")
+        original_loader = app_module.load_today_attempts
+        app_module.load_today_attempts = lambda: []
+
+        try:
+            daily = app_module.daily_mission_summary()
+        finally:
+            app_module.load_today_attempts = original_loader
+
+        self.assertEqual("Practice Send", daily["next_action"]["title"])
+        self.assertEqual("/touch/practice/run?mode=send", daily["next_action"]["href"])
+        self.assertIn("resting", daily["next_action"]["detail"])
+        self.assertIn("20 familiar signals", daily["message"])
 
     def test_later_learning_group_keeps_earned_letters_active(self):
         active_letters = app_module.starter_practice_letters + ["S", "O"]

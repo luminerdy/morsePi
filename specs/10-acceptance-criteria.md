@@ -44,7 +44,13 @@ correctness checks. Each is encoded as an automated test per
 - **AC-010** (DR-008) A copy of a real current `data/` tree loads without
   error; migrated progress matches pre-migration summaries exactly.
 - **AC-011** (FR-029) `POST` celebrate at 19 attempts returns 409 and plays
-  nothing; at 20 it plays `...-` exactly once even if double-clicked.
+  nothing; at 20 it plays `...-` exactly once even if double-clicked. When a
+  Learning Now set has met its Learn and Words requirements but still has rest
+  time remaining, a student at 0/20 sees a linked familiar-letter practice mode
+  as Next Step, not Break. At 20/20 with all daily Words complete, the same
+  state shows `Practice Complete For Now`, includes the approximate remaining
+  wait, and links a Menu button to `/touch/menu`; no inert Break button is
+  rendered.
 - **AC-035** (FR-059) Given a student with prior normal practice activity more
   than 3 calendar days ago and no completed warm-up today, Daily Mission
   recommends `Warm Up First` and links to `/touch/practice/run?mode=warmup`.

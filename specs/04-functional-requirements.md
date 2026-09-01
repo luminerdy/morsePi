@@ -125,7 +125,13 @@ from the current code (legacy status per requirement is tracked in
   mission is considered complete. Completion triggers a one-time celebration
   (station plays `...-` and flashes LED) only when actually complete. The
   recommended Next Step action SHALL use a full-width touch target with its
-  label centered.
+  label centered. A completed Learning Now set that is still inside its rest
+  gate SHALL NOT replace unfinished daily signal practice with an inert Break
+  action. While daily signals remain, Daily Mission SHALL recommend a real
+  practice mode using familiar active letters and explain that the new letters
+  are resting. When all required daily work is complete and only a rest gate
+  remains, the card SHALL say `Practice Complete For Now`, state the remaining
+  wait, and provide a functional Menu action rather than a Break button.
 - **FR-030** *(V2)* Bonus sprint: after mission completion, an optional
   20-target random round over active letters with accuracy and streak
   scoring, tracked per sprint-session ID.
