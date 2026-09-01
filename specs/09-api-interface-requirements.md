@@ -135,3 +135,10 @@ General rules:
   active letter, canonical Morse, and the student's ordered active-letter set.
   `POST /signal-drop/result` SHALL server-validate Send Morse or a Read answer,
   reject non-active targets, append DR-021, and return the authoritative result.
+- **API-029** *(V2)* `GET /touch/system/activity` SHALL render only a PIN-entry
+  view. `POST /touch/system/activity` SHALL validate the adult PIN, optionally
+  refresh the Pappy family activity cache from approved S3 prefixes, and render
+  the touch activity dashboard from the newest valid cache. The CLI
+  `scripts/family_activity.py` SHALL support scheduled/manual cache refresh and
+  exit successfully without cloud access when the station is not configured as
+  the family activity reader.

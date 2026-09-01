@@ -13,6 +13,7 @@ These files are station-specific and ignored by Git:
 - `data/students/`
 - `data/student_profiles.json`
 - `data/backups/`
+- `data/family_activity/`
 
 `data/family_registry.json` is the preferred registry for real family student
 IDs, display names, and UUIDs. The tracked `config/family_registry.json` remains
@@ -40,3 +41,11 @@ use sample values such as `Home-WiFi`, `Station-01`, and `192.168.x.x`.
 
 If a screenshot was captured from a real station, review it visually before
 committing. Text search cannot detect names or Wi-Fi details inside images.
+
+## Family Activity Feed
+
+The Pappy-only activity feed stores operational milestones, not student work.
+Its cloud events may contain stable station/student IDs needed to explain a
+message route, but they exclude student display names, message text, attempt
+answers, raw key timing, rhythm samples, credentials, and admin PINs. Display
+names are resolved locally on Pappy after the adult unlocks the view.

@@ -11,6 +11,7 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from family_activity import flush_activity_events, new_activity_event, queue_activity_event
 from message_sync import AwsCliObjectStore
 from paths import data_path
 from scripts.backup_data import DEFAULT_CONFIG_PATH, load_station_config
@@ -583,6 +584,7 @@ def upload_attempts(data_dir=DEFAULT_DATA_DIR, config_path=DEFAULT_CONFIG_PATH, 
         "cloud_existing": len(state["existing"]),
         "local_unique_attempts": len(state["attempts_by_key"]),
         "uploaded": len(uploaded),
+        "uploaded_at": uploaded_at,
         "uploaded_keys": uploaded[:200],
     }
 
@@ -838,6 +840,18 @@ def full_sync_attempts(data_dir=DEFAULT_DATA_DIR, config_path=DEFAULT_CONFIG_PAT
         raise RuntimeError("Local attempt ID conflicts must be fixed before syncing attempts.")
 
     upload_result = upload_attempts(data_dir, config_path, store=store)
+    if upload_result["uploaded"]:
+        queue_activity_event(
+            data_dir,
+            new_activity_event(
+                state["station_id"],
+                "progress_uploaded",
+                upload_result["uploaded_at"],
+                occurred_at=upload_result["uploaded_at"],
+                details={"uploaded": upload_result["uploaded"]},
+            ),
+        )
+    flush_activity_events(data_dir, store)
     cloud_attempts, cloud_errors = download_cloud_attempts(store, state["roster"])
     if cloud_errors:
         raise RuntimeError("Cloud download errors must be fixed before applying merged attempts.")

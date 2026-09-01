@@ -411,6 +411,18 @@ from the current code (legacy status per requirement is tracked in
   speed MAY increase after sustained correct play and SHALL slow after misses.
   Signal Drop attempts SHALL count as effort/rhythm history but SHALL NOT
   change normal practice mastery, Daily Mission counts, or letter-unlock gates.
+- **FR-064** *(V2)* Each station SHALL publish durable, duplicate-safe family
+  activity events after confirmed software-update, progress-upload,
+  message-upload, message-download, message-open, and message-decode outcomes.
+  A Pappy station configured as the family activity reader SHALL refresh and
+  cache events and latest station status from every approved station. Its
+  PIN-gated, touch-friendly Family Activity page SHALL show last contact,
+  installed commit, last confirmed update, last progress upload, message
+  activity, failures, and a chronological history filterable by Updates,
+  Progress, Messages, and Problems. A cloud refresh failure SHALL retain and
+  display the latest valid local cache rather than replacing it with an empty
+  view. Events SHALL distinguish an operation queued or uploaded to AWS from an
+  operation confirmed by the remote device.
 
 ## Student identity
 

@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+<head>
+    <title>Family Activity - Pappy's Internet Telegraph</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260621-4">
+    <link rel="stylesheet" href="/static/touch.css?v=20260901-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="touch-ui">
+    <div class="touch-screen">
+        <header class="touch-titlebar">
+            <div>
+                <p class="eyebrow">Admin System</p>
+                <h1>Family Activity</h1>
+            </div>
+            <a class="touch-top-link" href="/touch/system">System</a>
+        </header>
+
+        {% if not unlocked %}
+            <main class="touch-activity-lock">
+                <section class="touch-activity-intro">
+                    <span>Private family view</span>
+                    <strong>Enter the admin PIN</strong>
+                    <p>See station check-ins, updates, progress uploads, and message activity.</p>
+                </section>
+                <form method="post" class="touch-activity-pin">
+                    {% if activity_error %}
+                        <div class="feedback-box error">
+                            {% if activity_error == "admin-pin" %}PIN not accepted. Try again.{% else %}Activity is not enabled here.{% endif %}
+                        </div>
+                    {% endif %}
+                    <input name="admin_pin" type="password" autocomplete="off" inputmode="numeric" class="touch-pin-input" data-touch-pin-input>
+                    <div class="touch-pin-display" data-touch-pin-display aria-live="polite">PIN</div>
+                    <div class="touch-pin-pad compact" data-touch-pin-pad aria-label="Admin PIN keypad">
+                        {% for digit in ["1", "2", "3", "4", "5", "6", "7", "8", "9"] %}
+                            <button type="button" class="touch-pin-key" data-touch-pin-digit="{{ digit }}">{{ digit }}</button>
+                        {% endfor %}
+                        <button type="button" class="touch-pin-key utility" data-touch-pin-clear>Clear</button>
+                        <button type="button" class="touch-pin-key" data-touch-pin-digit="0">0</button>
+                        <button type="button" class="touch-pin-key utility" data-touch-pin-back>Back</button>
+                    </div>
+                    <button type="submit" class="button primary">Unlock &amp; Refresh</button>
+                </form>
+            </main>
+        {% else %}
+            <main class="touch-activity-layout{% if refresh_error or activity.refresh_errors %} has-warning{% endif %}">
+                <section class="touch-activity-stations" aria-label="Station status">
+                    {% for station in activity.stations %}
+                        <article class="touch-activity-station">
+                            <strong>{{ station.name }}</strong>
+                            <span>{{ station.last_contact }}</span>
+                            <small>{{ station.latest }} - {{ station.commit }}</small>
+                        </article>
+                    {% endfor %}
+                </section>
+
+                <nav class="touch-activity-filters" aria-label="Activity filters">
+                    {% for key, label in [("all", "All"), ("updates", "Updates"), ("progress", "Progress"), ("messages", "Messages"), ("problems", "Problems")] %}
+                        <button type="button" class="touch-activity-filter{% if key == 'all' %} active{% endif %}" data-activity-filter="{{ key }}">{{ label }}</button>
+                    {% endfor %}
+                    <span>Refreshed {{ activity.refreshed }}</span>
+                </nav>
+
+                {% if refresh_error or activity.refresh_errors %}
+                    <div class="touch-activity-warning">Some stations could not be refreshed. Showing their last known activity.</div>
+                {% endif %}
+
+                <section class="touch-activity-feed" data-activity-feed>
+                    {% for event in activity.events %}
+                        <article class="touch-activity-event {{ event.level }}" data-activity-category="{{ event.category }}">
+                            <div>
+                                <strong>{{ event.title }}</strong>
+                                <span>{{ event.station }}</span>
+                            </div>
+                            <p>{{ event.detail }}</p>
+                            <time datetime="{{ event.occurred_at }}">{{ event.relative }}</time>
+                        </article>
+                    {% else %}
+                        <div class="touch-activity-empty">No activity has arrived yet.</div>
+                    {% endfor %}
+                </section>
+            </main>
+        {% endif %}
+    </div>
+<script src="/static/app.js?v=20260830-2"></script>
+{% if unlocked %}
+<script>
+(() => {
+    const buttons = [...document.querySelectorAll("[data-activity-filter]")];
+    const events = [...document.querySelectorAll("[data-activity-category]")];
+    buttons.forEach((button) => button.addEventListener("click", () => {
+        const filter = button.dataset.activityFilter;
+        buttons.forEach((item) => item.classList.toggle("active", item === button));
+        events.forEach((event) => {
+            event.hidden = filter !== "all" && event.dataset.activityCategory !== filter;
+        });
+    }));
+})();
+</script>
+{% endif %}
+</body>
+</html>

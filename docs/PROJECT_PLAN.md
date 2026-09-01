@@ -1,5 +1,33 @@
 # Pappy's Internet Telegraph Project Plan
 
+## 2026-09-01 - Private family station activity
+
+- Chose an encouragement-safe operational history on Pappy before adding email
+  alerts. The view confirms station communication without ranking students or
+  exposing message text, display names, raw rhythm data, credentials, or PINs.
+- Added deterministic, immutable activity events for confirmed software-update
+  results, progress uploads, and message sent/received/opened/decoded
+  milestones. Offline events remain in a durable local queue and retry during
+  later cloud work without duplication.
+- Added a PIN-gated **Admin System > Activity** touch view on Pappy with station
+  check-ins, installed commits, last known activity, filters, and a scrollable
+  history sized for the 800x480 display. Every fresh visit is locked.
+- Kept partial outages truthful: Pappy preserves the last known cache for an
+  unavailable station and displays a warning instead of presenting missing
+  data as current.
+- Extended the 30-minute station sync to publish fresh station status and
+  refresh Pappy's family cache. Opening Activity also requests a current cloud
+  refresh; message workers publish their milestones on their own schedule.
+- Extended generated IAM policies so every station can write only its own
+  activity prefix, Pappy alone can read all family activity/status prefixes,
+  and no station receives delete permission.
+- Added FR-064, DR-023, API-029, SEC-023, AC-040, and TEST-025 plus focused
+  regression coverage for privacy allowlists, deterministic replay, offline
+  recovery, partial refresh, message/progress/update publishers, and IAM scope.
+- Deferred email notifications until the on-device history has been used in
+  practice; email can later alert only on prolonged silence or repeated
+  failures without becoming noisy.
+
 ## 2026-08-29 - Hardened and truthful remote updates
 
 - Traced two Campbell-sent messages that did not appear on Pappy. Campbell had

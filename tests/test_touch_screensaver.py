@@ -53,7 +53,7 @@ class TouchScreensaverTests(unittest.TestCase):
 
         for path in templates:
             source = path.read_text(encoding="utf-8")
-            self.assertIn("/static/touch.css?v=20260830-2", source, path.name)
+            self.assertIn("/static/touch.css?v=20260901-1", source, path.name)
             if path.name == "touch_shutdown.html":
                 self.assertNotIn("/static/app.js", source, path.name)
             else:

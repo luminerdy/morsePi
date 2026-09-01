@@ -5,7 +5,7 @@ import unittest
 from unittest import mock
 from pathlib import Path
 
-from scripts.station_status import build_status, latest_update_summary, main, write_status
+from scripts.station_status import build_status, latest_update_summary, main, queue_update_activity, write_status
 
 
 class StationStatusTests(unittest.TestCase):
@@ -99,6 +99,23 @@ class StationStatusTests(unittest.TestCase):
 
         printed = "\n".join(str(call.args[0]) for call in mock_print.call_args_list if call.args)
         self.assertIn("s3://morsepi-backups/stations/astrid-station/status/station_status.json", printed)
+
+    def test_successful_update_queues_private_safe_activity(self):
+        event = queue_update_activity(self.base, {
+            "station_id": "astrid-liara-station",
+            "update": {
+                "status": "succeeded",
+                "reason": "updated",
+                "updated_at": "2026-09-01T12:00:00+00:00",
+                "ending_commit": "abcdef123456",
+                "tracked_changes": ["private-file"],
+            },
+        })
+
+        self.assertEqual("software_update_succeeded", event["event_type"])
+        self.assertNotIn("tracked_changes", event["details"])
+        pending = list((self.base / "family_activity" / "pending").glob("*.json"))
+        self.assertEqual(1, len(pending))
 
 
 if __name__ == "__main__":

@@ -98,6 +98,11 @@
 - **TEST-024** Student-attempt sync lock tests cover active-owner exclusion,
   abandoned-process recovery, maximum-age recovery, and lock cleanup after a
   successful merge.
+- **TEST-025** Family activity tests cover schema/path validation, deterministic
+  event IDs, offline pending retention, successful flush, replay idempotency,
+  event-detail privacy allowlists, message/progress/update integration, partial
+  cloud refresh with cache preservation, reader-only IAM policy generation,
+  PIN-gated routes, client-side filters, and an 800x480 screenshot rehearsal.
 
 ## CI pipeline (per TR-011)
 

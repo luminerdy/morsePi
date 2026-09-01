@@ -279,6 +279,12 @@ class StudentAttemptSyncTests(unittest.TestCase):
         self.assertEqual(1, result["downloaded"])
         self.assertEqual(2, progress["E"]["send"]["attempts"])
         self.assertEqual(1, progress["E"]["send"]["correct"])
+        activity = [
+            value for key, value in store.objects.items()
+            if "/activity/" in key
+        ]
+        self.assertEqual("progress_uploaded", activity[0]["event_type"])
+        self.assertEqual(1, activity[0]["details"]["uploaded"])
 
     def test_full_sync_rebuilds_completed_learning_state_from_learn_attempts(self):
         cloud_objects = {}

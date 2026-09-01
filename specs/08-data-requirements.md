@@ -26,7 +26,8 @@
   `timing_summary` for older records.
 - **DR-005** Station config schema: `station_id` (slug, required),
   `timezone`, `students[]`, `family_students[]`, `guest_profile`, `allow_student_create`,
-  `backup_s3_uri`. `admin_pin` **must not** be stored here in plaintext
+  `backup_s3_uri`, and optional `family_activity_reader` (boolean; true only on
+  the designated Pappy reader). `admin_pin` **must not** be stored here in plaintext
   post-MVP (env/file per SEC-014) — the field is accepted for migration only
   and warned about.
   `students[]` defines who can sign in locally; `family_students[]` defines the
@@ -128,3 +129,13 @@
   its earliest recorded introduction; the canonical group begins when the last
   of its letters was first introduced. The migration SHALL be idempotent and
   SHALL never move an introduction time forward.
+- **DR-023** Family activity event format `morsepi-family-activity-v1` SHALL
+  contain `event_id`, allow-listed `event_type`, approved `station_id`, UTC
+  `occurred_at`, outcome level, deterministic source identity, and a small
+  allow-listed details object. Events SHALL be immutable and stored at
+  `stations/<station-id>/activity/YYYY/MM/DD/<event-id>.json`. A station SHALL
+  write an event to a local pending queue before cloud upload, retain it for a
+  later retry when offline, and move it to local sent history only after a
+  successful upload. Deterministic IDs SHALL make repeated worker runs
+  idempotent. The Pappy cache `morsepi-family-activity-cache-v1` SHALL retain
+  validated events, per-station latest status, refresh time, and refresh errors.

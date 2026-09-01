@@ -9,6 +9,8 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from family_activity import flush_activity_events, new_activity_event, queue_activity_event
+from message_sync import AwsCliObjectStore
 from paths import data_path
 from scripts.backup_data import DEFAULT_CONFIG_PATH, load_station_config, resolve_station_id, upload_status_to_s3
 
@@ -123,6 +125,32 @@ def write_status(status, output_path=DEFAULT_OUTPUT_PATH):
     return output_path
 
 
+def queue_update_activity(data_dir, status):
+    update = status.get("update") if isinstance(status.get("update"), dict) else {}
+    update_status = str(update.get("status") or "").strip().lower()
+    if update_status == "succeeded":
+        event_type = "software_update_succeeded"
+    elif update_status in {"blocked", "failed", "rolled-back"}:
+        event_type = "software_update_failed"
+    else:
+        return None
+    source_id = str(update.get("updated_at") or update.get("finished_at") or "").strip()
+    if not source_id:
+        return None
+    event = new_activity_event(
+        status.get("station_id"),
+        event_type,
+        source_id,
+        occurred_at=source_id,
+        details={
+            key: update.get(key)
+            for key in ("starting_commit", "target_commit", "ending_commit", "reason", "status")
+        },
+    )
+    queue_activity_event(data_dir, event)
+    return event
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Write Morse station status JSON.")
     parser.add_argument("--backup-dir", default=str(DEFAULT_BACKUP_DIR), help="Backup directory to inspect.")
@@ -147,6 +175,7 @@ def main():
     s3_uri = args.s3_uri or config.get("backup_s3_uri", "")
     status = build_status(station_id, args.backup_dir, args.service, args.browser_service)
     output_path = write_status(status, args.output)
+    queue_update_activity(output_path.parent, status)
 
     print(f"Wrote status: {output_path}")
     print(json.dumps(status, indent=2, sort_keys=True))
@@ -155,6 +184,9 @@ def main():
         upload = upload_status_to_s3(output_path, s3_uri, station_id, args.dry_run_s3)
         action = "Would upload" if args.dry_run_s3 else "Uploaded"
         print(f"{action} status to: {upload['destination']}")
+        if not args.dry_run_s3:
+            activity = flush_activity_events(output_path.parent, AwsCliObjectStore(s3_uri))
+            print(f"Activity events uploaded: {activity['uploaded']}; pending: {activity['pending']}")
 
 
 if __name__ == "__main__":
