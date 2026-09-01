@@ -168,7 +168,9 @@ install_update_services() {
         morse-station-update.service \
         morse-station-update.timer \
         morse-station-remote-update.service \
-        morse-station-remote-update.timer; do
+        morse-station-remote-update.timer \
+        morse-station-sync.service \
+        morse-station-sync.timer; do
         install -m 0644 "$APP_DIR/systemd/$source" "$user_unit_dir/$source"
     done
 

@@ -60,6 +60,8 @@ class SystemdUnitTests(unittest.TestCase):
         self.assertIn("morse-station-update.timer", updater)
         self.assertIn("morse-station-remote-update.service", updater)
         self.assertIn("morse-station-remote-update.timer", updater)
+        self.assertIn("morse-station-sync.service", updater)
+        self.assertIn("morse-station-sync.timer", updater)
         self.assertIn("systemctl --user daemon-reload", updater)
         self.assertGreaterEqual(updater.count("install_update_services"), 3)
         self.assertIn('"rolled-back" "update-service-install-failed" 42', updater)

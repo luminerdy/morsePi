@@ -18,6 +18,9 @@
 - Extended the 30-minute station sync to publish fresh station status and
   refresh Pappy's family cache. Opening Activity also requests a current cloud
   refresh; message workers publish their milestones on their own schedule.
+- Extended the hardened updater's self-refresh list to install the shared sync
+  service/timer definitions too, so remote stations receive this schedule as
+  part of a complete release rather than needing a separate house visit.
 - Extended generated IAM policies so every station can write only its own
   activity prefix, Pappy alone can read all family activity/status prefixes,
   and no station receives delete permission.
