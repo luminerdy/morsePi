@@ -35,10 +35,15 @@ correctness checks. Each is encoded as an automated test per
   up, 350 ms down, 900 ms up) decodes as `.-` then letter break.
 - **AC-008** (FR-020 / FR-021) A simulated student who aces everything still
   cannot unlock a group before the 3 h rest elapses, nor a third group in
-  one local-time day. During that Learning Now period, Progress uses the new
-  letters' Learn progress as its primary percentage and labels the already
-  mastered current set separately so `100%` does not imply the new letters are
-  already in Send/Read/Listen/Echo.
+  one local-time day. Finishing yesterday's incomplete group today does not
+  consume today's introduction allowance. When legacy group records
+  collectively show that every letter in a regrouped curriculum set was
+  introduced earlier, the set inherits the latest of those per-letter
+  first-introduction times rather than starting a new rest timer today. During
+  that Learning Now period, Progress uses the new letters' Learn progress as
+  its primary percentage and labels the already mastered current set separately
+  so `100%` does not imply the new letters are already in
+  Send/Read/Listen/Echo.
 - **AC-009** (NFR-006) Kill -9 during a progress save leaves either the old
   or new file readable — 1,000-iteration crash test.
 - **AC-010** (DR-008) A copy of a real current `data/` tree loads without

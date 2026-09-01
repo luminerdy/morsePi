@@ -82,7 +82,12 @@ from the current code (legacy status per requirement is tracked in
 - **FR-020** A newly introduced letter SHALL require, before counting toward
   the next unlock: ≥ 10 Learn attempts, strength ≥ 70, a rest period ≥ 3 h,
   and (once words unlock) ≥ 5 correct word attempts.
-- **FR-021** At most 2 new letter groups SHALL be introduced per calendar day.
+- **FR-021** At most 2 genuinely new letter groups SHALL be introduced per
+  local calendar day. Completing a group on a later day SHALL NOT consume that
+  later day's allowance; the three-hour rest and daily introduction count begin
+  when the letters first appear. Migrated or regrouped curriculum history SHALL
+  preserve each letter's original introduction time so familiar carryover work
+  is not treated as a new group.
 - **FR-022** The unlock table SHALL exist in exactly one module consumed by
   all features. *(Delta: `7818254` unified the table within `app.py`
   (`letter_unlock_groups` now generates steps and the letter list), but a

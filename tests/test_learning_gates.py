@@ -251,6 +251,68 @@ class LearningGateTests(unittest.TestCase):
         self.assertEqual(["S", "O"], saved_state["groups"]["SO"]["letters"])
         self.assertEqual("2026-06-21", saved_state["last_learning_start_date"])
 
+    def test_carryover_completion_does_not_consume_todays_group_allowance(self):
+        state = {
+            "groups": {
+                "SO": {
+                    "first_learning_date": "2000-01-01",
+                    "first_learning_started_at": "2000-01-01T09:00:00",
+                    "letters": ["S", "O"],
+                }
+            }
+        }
+
+        self.assertEqual(0, app_module.learning_groups_started_today(state))
+
+    def test_daily_group_limit_counts_only_current_curriculum_groups(self):
+        today = app_module.today_key()
+        state = {
+            "groups": {
+                "SO": {"first_learning_date": today, "letters": ["S", "O"]},
+                "RK": {"first_learning_date": today, "letters": ["R", "K"]},
+                "PF": {"first_learning_date": today, "letters": ["P", "F"]},
+            }
+        }
+
+        self.assertEqual(2, app_module.learning_groups_started_today(state))
+
+    def test_legacy_groups_preserve_regrouped_letter_introduction_time(self):
+        state = {
+            "groups": {
+                "PF": {
+                    "first_learning_date": "2026-08-28",
+                    "first_learning_started_at": "2026-08-28T19:37:27+00:00",
+                    "letters": ["P", "F"],
+                },
+                "WY": {
+                    "first_learning_date": "2026-08-21",
+                    "first_learning_started_at": "2026-08-21T20:10:07+00:00",
+                    "letters": ["W", "Y"],
+                },
+                "BG": {
+                    "first_learning_date": "2026-08-28",
+                    "first_learning_started_at": "2026-08-28T19:37:32+00:00",
+                    "letters": ["B", "G"],
+                },
+                "PFYG": {
+                    "first_learning_date": app_module.today_key(),
+                    "first_learning_started_at": f"{app_module.today_key()}T09:00:00",
+                    "letters": ["P", "F", "Y", "G"],
+                },
+            }
+        }
+
+        changed = app_module.normalize_learning_group_history(state)
+
+        self.assertTrue(changed)
+        self.assertEqual("2026-08-28", state["groups"]["PFYG"]["first_learning_date"])
+        self.assertEqual(
+            "2026-08-28T19:37:32+00:00",
+            state["groups"]["PFYG"]["first_learning_started_at"],
+        )
+        self.assertEqual(0, app_module.learning_groups_started_today(state))
+        self.assertFalse(app_module.normalize_learning_group_history(state))
+
     def test_completed_learning_group_graduates_when_current_set_dips(self):
         progress = {}
 
