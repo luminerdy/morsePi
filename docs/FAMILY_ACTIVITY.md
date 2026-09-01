@@ -55,7 +55,10 @@ An event means the named operation reached its confirmed checkpoint:
 ## Permissions
 
 - Every station may write only its own activity prefix.
-- Pappy may list/read activity and status objects for all three stations.
+- Pappy's IAM user is the only member of the
+  `morsepi-family-activity-readers` group, whose inline policy may list/read
+  activity and status objects for all three stations. Keeping this read policy
+  on a group avoids IAM's smaller per-user inline-policy size limit.
 - Grandkid stations cannot read the family activity feed.
 - No station policy grants S3 delete access.
 

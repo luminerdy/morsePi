@@ -1,6 +1,9 @@
+import json
 import unittest
 
 from scripts.apply_station_sync_policies import (
+    apply_reader_group_policy,
+    build_family_activity_reader_policy,
     build_policy,
     put_user_policy,
     snapshot_object_arns,
@@ -85,6 +88,15 @@ class ApplyStationSyncPoliciesTests(unittest.TestCase):
         )
         self.assertNotIn("pappy-test-station/activity", own_activity["Resource"])
 
+    def test_pappy_inline_policy_stays_below_iam_user_quota(self):
+        policy = build_policy(
+            "morsepi-backups-luminerdy",
+            ["pappy", "astrid", "liara", "campbell", "olivea"],
+            station_id="pappy-test-station",
+        )
+
+        self.assertLessEqual(len(json.dumps(policy, separators=(",", ":"))), 2048)
+
     def test_only_pappy_policy_reads_family_activity_and_status(self):
         pappy = build_policy("example-bucket", ["pappy"], station_id="pappy-test-station")
         grandkid = build_policy(
@@ -95,9 +107,29 @@ class ApplyStationSyncPoliciesTests(unittest.TestCase):
 
         pappy_sids = {statement["Sid"] for statement in pappy["Statement"]}
         grandkid_sids = {statement["Sid"] for statement in grandkid["Statement"]}
-        self.assertIn("ReadFamilyActivityAndStatus", pappy_sids)
-        self.assertIn("ListFamilyActivityAndStatus", pappy_sids)
+        reader = build_family_activity_reader_policy("example-bucket")
+        reader_sids = {statement["Sid"] for statement in reader["Statement"]}
+        self.assertNotIn("ReadFamilyActivityAndStatus", pappy_sids)
+        self.assertIn("ReadFamilyActivityAndStatus", reader_sids)
+        self.assertIn("ListFamilyActivityAndStatus", reader_sids)
         self.assertNotIn("ReadFamilyActivityAndStatus", grandkid_sids)
+
+    def test_reader_group_dry_run_is_pappy_only_and_has_no_delete(self):
+        result = apply_reader_group_policy(
+            "example-bucket",
+            "setup-profile",
+            dry_run=True,
+            aws_executable="aws.cmd",
+        )
+
+        commands = result["commands"]
+        self.assertIn("morsepi-family-activity-readers", commands[0])
+        self.assertIn("morsepi-pappy-test-station", commands[2])
+        self.assertNotIn("morsepi-astrid-liara-station", commands[2])
+        self.assertNotIn("s3:DeleteObject", json.dumps(result["policy"]))
+        prefixes = result["policy"]["Statement"][0]["Condition"]["StringLike"]["s3:prefix"]
+        self.assertIn("stations/astrid-liara-station/activity", prefixes)
+        self.assertIn("stations/astrid-liara-station/activity/*", prefixes)
 
 
 if __name__ == "__main__":

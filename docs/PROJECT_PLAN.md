@@ -24,6 +24,12 @@
 - Extended generated IAM policies so every station can write only its own
   activity prefix, Pappy alone can read all family activity/status prefixes,
   and no station receives delete permission.
+- Kept Pappy below IAM's 2,048-byte inline-user-policy quota by placing its
+  exact family activity/status read grants on a dedicated reader group. Pappy
+  is its only member; station-owned writes remain on each user's own policy.
+- Live IAM rehearsal caught that AWS CLI list requests normalize a trailing
+  slash away. The reader policy now permits each exact `activity` list prefix
+  plus `activity/*`; status remains exact-object read only.
 - Added FR-064, DR-023, API-029, SEC-023, AC-040, and TEST-025 plus focused
   regression coverage for privacy allowlists, deterministic replay, offline
   recovery, partial refresh, message/progress/update publishers, and IAM scope.
