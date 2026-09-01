@@ -2856,10 +2856,89 @@ def correct_word_attempts_since(started_at):
 
 def learning_groups_started_today(state):
     today = today_key()
+    canonical_keys = {step_key(step) for step in letter_unlock_steps}
     return sum(
-        1 for group_state in state.get("groups", {}).values()
+        1 for key, group_state in state.get("groups", {}).items()
+        if key in canonical_keys
         if str(group_state.get("first_learning_date", "")) == today
     )
+
+
+def recorded_group_started_at(group_state):
+    started_at = parse_attempt_time(group_state.get("first_learning_started_at"))
+    if started_at is not None:
+        return started_at
+
+    learned_date = str(group_state.get("first_learning_date", ""))
+    if not learned_date:
+        return None
+
+    try:
+        return datetime.fromisoformat(f"{learned_date}T00:00:00")
+    except ValueError:
+        return None
+
+
+def comparable_local_time(value):
+    if value.tzinfo is not None:
+        return value.astimezone().replace(tzinfo=None)
+    return value
+
+
+def canonical_group_introduction(step, groups):
+    canonical_key = step_key(step)
+    first_seen_by_letter = []
+
+    for letter in step["letters"]:
+        candidates = []
+        for key, group_state in groups.items():
+            if key == canonical_key or letter not in group_state.get("letters", []):
+                continue
+
+            started_at = recorded_group_started_at(group_state)
+            if started_at is not None:
+                candidates.append(started_at)
+
+        if not candidates:
+            return None
+
+        first_seen_by_letter.append(min(candidates, key=comparable_local_time))
+
+    return max(first_seen_by_letter, key=comparable_local_time)
+
+
+def normalize_learning_group_history(state):
+    groups = state.get("groups", {})
+    changed = False
+
+    for step in letter_unlock_steps:
+        canonical_key = step_key(step)
+        derived_started_at = canonical_group_introduction(step, groups)
+        if derived_started_at is None:
+            continue
+
+        group_state = groups.get(canonical_key)
+        current_started_at = recorded_group_started_at(group_state or {})
+        current_time = comparable_local_time(current_started_at) if current_started_at is not None else None
+        derived_time = comparable_local_time(derived_started_at)
+        if current_time is not None and current_time <= derived_time:
+            continue
+
+        local_started_at = (
+            derived_started_at.astimezone()
+            if derived_started_at.tzinfo is not None
+            else derived_started_at
+        )
+        if group_state is None:
+            group_state = {"letters": list(step["letters"])}
+            groups[canonical_key] = group_state
+
+        group_state["letters"] = list(step["letters"])
+        group_state["first_learning_date"] = local_started_at.date().isoformat()
+        group_state["first_learning_started_at"] = derived_started_at.isoformat(timespec="seconds")
+        changed = True
+
+    return changed
 
 
 def next_unlock_wait_status(active_letters, state, latest_group_state):
@@ -3054,7 +3133,7 @@ def get_practice_letter_state():
     unlock_wait_status = None
     state = load_learning_state()
     today = today_key()
-    changed = False
+    changed = normalize_learning_group_history(state)
 
     for index, step in enumerate(letter_unlock_steps):
         key = step_key(step)

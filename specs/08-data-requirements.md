@@ -122,3 +122,9 @@
   or selected answer, correctness, clear count, miss reason, timing events,
   and derived timing summary. These records SHALL be syncable and count toward
   effort reporting, but SHALL not be replayed into `practice_progress.json`.
+- **DR-022** Curriculum-group migration SHALL preserve legacy learning-state
+  records and derive a canonical group's effective introduction time when older
+  records collectively cover every letter in that group. For each letter, use
+  its earliest recorded introduction; the canonical group begins when the last
+  of its letters was first introduced. The migration SHALL be idempotent and
+  SHALL never move an introduction time forward.

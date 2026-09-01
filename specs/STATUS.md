@@ -5,7 +5,7 @@ knows what it inherits. This file is updated on each re-review; requirement
 files only carry *(Delta: …)* notes, not status history.
 
 - **Baseline review:** `33df851` (2026-07-02)
-- **Latest legacy-code re-review:** Hardened remote update reporting (2026-08-29)
+- **Latest legacy-code re-review:** Balanced carryover progression timing (2026-09-01)
 - **Spec package location:** root `specs/`
 
 ## Changes landed since baseline
@@ -53,6 +53,7 @@ files only carry *(Delta: …)* notes, not status history.
 | C/W/H/L Words catalog expansion | 2026-08-10 working tree | FR-056/AC-034 — C/W/H/L now adds 24 practice words; a student who completed the prior 56-word catalog sees 56/80 words complete (70%) until the new words are practiced. Station release rollout remains pending. |
 | Warm-Up Review + practice feedback clarity | main `a251bd3`; release/pi `8b0cc7c` | FR-059/AC-035/NFR-017/AC-021 — Daily offers a 10-signal active-letter review after 3+ days away, Practice menu provides a manual Warm-Up button, shows letter plus Morse pattern, rotates learned letters after a readable success pause, keeps reviewing after the 10-signal goal, logs timing/effort attempts, leaves mastery/unlocks/Daily count unchanged, keeps Learning Now higher priority, and keeps raw dot/dash Morse out of bottom-left feedback text. Pappy is deployed on `release/pi` `8b0cc7c` and passed a Pi-local `/touch` health check. |
 | Signal Drop learning game | main `f8aa8d7`...`b88181f`; release/pi `a24ed0a`...`ff97d20` | FR-063/NFR-022/DR-021/API-028/AC-038/TEST-023 — Send and Read games use active letters only, weight established/recent/weak review pools, clear duplicate targets, adapt speed within bounds, and log bonus effort without changing mastery or Daily counts. Follow-up releases added reliable physical-key feedback, a taller 800x480 playfield with right-side controls, and persistent red keyed-miss targets that remain available for retry. The current 260-test suite passes; Pappy is deployed beyond these changes through application release `179ae62`. |
+| Balanced carryover progression timing | 2026-09-01 working tree | FR-020/FR-021/DR-022/AC-008/TEST-001 — daily limits count only canonical groups introduced that day; completing an older group does not consume today's allowance. Idempotent legacy-history normalization derives regrouped-set timing from each letter's first introduction and never moves a start forward. Pappy rehearsal backdated `P F Y G` from September 1 to August 28, activated the earned set, left `B V J X` mastery-gated, and the 272-test Pi suite passed. |
 
 **Note 1 (FR-012):** over-limit text is silently **truncated** (`limited_text`),
 not rejected; only bodies > 16 KB get a hard 413. The OOM DoS is closed

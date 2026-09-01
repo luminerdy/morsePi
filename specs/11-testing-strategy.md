@@ -2,7 +2,8 @@
 
 - **TEST-001** Unit tests for the pure domain: `morse.py` round-trips,
   Farnsworth math (AC-006), dot/dash classification (AC-007), gate logic
-  (AC-008), strength formula, badge/coach derivations. Target ≥ 90% coverage
+  (AC-008), carryover and legacy curriculum-group timing normalization,
+  strength formula, badge/coach derivations. Target ≥ 90% coverage
   of `learning/` — this is where the product lives.
 - **TEST-002** Contract tests per API-* endpoint via Flask test client + mock
   hardware: happy path, validation rejection, auth rejection, oversize
