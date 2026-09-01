@@ -2453,13 +2453,14 @@ def daily_next_action(state):
                     "detail": next_need.capitalize()
                 }
 
-        return {
-            "label": "Learn",
-            "mode": "learn",
-            "href": "/touch/practice/run?mode=learn",
-            "title": f"Learn {letters}",
-            "detail": "New signals are waiting. Learn them before they join the other practice modes."
-        }
+        if not learning_wait:
+            return {
+                "label": "Learn",
+                "mode": "learn",
+                "href": "/touch/practice/run?mode=learn",
+                "title": f"Learn {letters}",
+                "detail": "New signals are waiting. Learn them before they join the other practice modes."
+            }
 
     warmup = state.get("warmup_review") or {}
     if warmup.get("due"):
