@@ -291,6 +291,16 @@ correctness checks. Each is encoded as an automated test per
   exists, or whose age exceeds two hours, is removed and the sync completes;
   normal completion removes its own lock. This recovery preserves immutable
   attempt merge, conflict quarantine, and recent-activity safeguards.
+- **AC-040** (FR-064 / DR-023 / API-029 / SEC-023) A station that is offline
+  when an update, progress upload, or message operation completes retains one
+  pending activity event and uploads it after connectivity returns. Replaying
+  the same operation ten times leaves one cloud event and one Pappy history
+  row. Pappy rejects an event whose path station and payload station differ,
+  preserves its prior cache when one station refresh fails, and shows the
+  failure without exposing event data before a valid adult PIN is submitted.
+  At 800x480 the unlocked page shows all three latest station summaries and a
+  scrollable chronological list with working All, Updates, Progress, Messages,
+  and Problems filters and no page-level scrolling or overlap.
 
 ## Coverage rule
 

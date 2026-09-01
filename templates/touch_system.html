@@ -3,7 +3,7 @@
 <head>
     <title>Admin System - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260621-4">
-    <link rel="stylesheet" href="/static/touch.css?v=20260830-2">
+    <link rel="stylesheet" href="/static/touch.css?v=20260901-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body class="touch-ui">
@@ -13,7 +13,12 @@
                 <p class="eyebrow">Admin System</p>
                 <h1><a class="touch-student-link" href="/touch/students?next=/touch/daily">{{ current_student.name }}</a></h1>
             </div>
-            <a class="touch-top-link" href="/touch/menu">Menu</a>
+            <div class="touch-top-actions">
+                {% if family_activity_reader %}
+                    <a class="touch-top-link" href="/touch/system/activity">Activity</a>
+                {% endif %}
+                <a class="touch-top-link" href="/touch/menu">Menu</a>
+            </div>
         </header>
 
         <main class="touch-system-layout">

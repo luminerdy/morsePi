@@ -94,3 +94,10 @@ belongs in the rebuilt repo's `SECURITY.md` (DOC-04).
   Job documents SHALL contain only declarative action names and optional
   validated parameters; no command line or script body from AWS SHALL be
   executed.
+- **SEC-023** *(V2)* A station SHALL write activity events only below its own
+  station prefix. Only the designated family activity reader SHALL list or read
+  other approved station activity and status prefixes. Activity records and the
+  Pappy cache SHALL omit message text, student display names, raw attempts,
+  timing events, credentials, PINs, network names, and IP addresses. The Family
+  Activity touch page SHALL require the adult PIN before any cached or cloud
+  activity data is rendered.

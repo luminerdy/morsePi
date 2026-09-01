@@ -67,6 +67,38 @@ class ApplyStationSyncPoliciesTests(unittest.TestCase):
             "arn:aws:s3:::example-bucket/students/pappy/attempts/*",
         ], student_object_arns("example-bucket", ["pappy"]))
 
+    def test_each_station_can_write_only_its_own_activity_prefix(self):
+        policy = build_policy(
+            "example-bucket",
+            ["astrid", "liara"],
+            station_id="astrid-liara-station",
+        )
+        own_activity = next(
+            statement for statement in policy["Statement"]
+            if statement["Sid"] == "WriteOwnStationActivity"
+        )
+
+        self.assertEqual("s3:PutObject", own_activity["Action"])
+        self.assertEqual(
+            "arn:aws:s3:::example-bucket/stations/astrid-liara-station/activity/*",
+            own_activity["Resource"],
+        )
+        self.assertNotIn("pappy-test-station/activity", own_activity["Resource"])
+
+    def test_only_pappy_policy_reads_family_activity_and_status(self):
+        pappy = build_policy("example-bucket", ["pappy"], station_id="pappy-test-station")
+        grandkid = build_policy(
+            "example-bucket",
+            ["astrid", "liara"],
+            station_id="astrid-liara-station",
+        )
+
+        pappy_sids = {statement["Sid"] for statement in pappy["Statement"]}
+        grandkid_sids = {statement["Sid"] for statement in grandkid["Statement"]}
+        self.assertIn("ReadFamilyActivityAndStatus", pappy_sids)
+        self.assertIn("ListFamilyActivityAndStatus", pappy_sids)
+        self.assertNotIn("ReadFamilyActivityAndStatus", grandkid_sids)
+
 
 if __name__ == "__main__":
     unittest.main()

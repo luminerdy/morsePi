@@ -1,7 +1,7 @@
 # MorsePi Architecture
 
-This document shows the current project and AWS architecture as of the live
-AWS IoT Jobs remote-update rehearsal. Solid lines are implemented paths.
+This document shows the current project and AWS architecture as of the
+September 2026 family-activity release. Solid lines are implemented paths.
 Dashed lines are disabled, partial, or optional support paths.
 
 ## Project Architecture
@@ -20,6 +20,7 @@ flowchart TB
         Services["systemd services and timers<br/>app, supervised kiosk, backup, status,<br/>update, message sync"]
         RemoteWorker["Remote update worker<br/>AWS IoT Jobs poller"]
         Recovery["PIN-gated System screen<br/>Wi-Fi, keyboard, desktop, update"]
+        Activity["PIN-gated Family Activity<br/>check-ins, updates, sync, messages"]
         Keyer["Telegraph key<br/>GPIO17"]
         LED["Status LED<br/>GPIO27"]
         Speaker["USB speaker"]
@@ -37,6 +38,7 @@ flowchart TB
         RemoteWorker --> Services
         RemoteWorker --> Data
         Recovery --> Services
+        Activity --> Services
     end
 
     Student --> Touch
@@ -79,9 +81,9 @@ flowchart LR
 
     subgraph AWS["AWS account - us-east-1"]
         subgraph Bucket["Private versioned S3 bucket"]
-            PPrefix["stations/pappy-test-station/<br/>backups, status, snapshots,<br/>outbox, inbox, receipts, attempts"]
-            ALPrefix["stations/astrid-liara-station/<br/>backups, status, snapshots,<br/>outbox, inbox, receipts, attempts"]
-            COPrefix["stations/campbell-olivea-station/<br/>backups, status, snapshots,<br/>outbox, inbox, receipts, attempts"]
+            PPrefix["stations/pappy-test-station/<br/>backups, status, snapshots,<br/>messages, activity"]
+            ALPrefix["stations/astrid-liara-station/<br/>backups, status, snapshots,<br/>messages, activity"]
+            COPrefix["stations/campbell-olivea-station/<br/>backups, status, snapshots,<br/>messages, activity"]
             Family["family/<br/>directory and sanitized<br/>student summaries"]
         end
 
@@ -102,6 +104,8 @@ flowchart LR
     Pappy -->|"upload/read approved<br/>student attempt records"| PPrefix
     AL -->|"upload/read approved<br/>student attempt records"| ALPrefix
     CO -->|"upload/read approved<br/>student attempt records"| COPrefix
+    Pappy -->|"PIN-gated read of<br/>family activity/status"| ALPrefix
+    Pappy -->|"PIN-gated read of<br/>family activity/status"| COPrefix
 
     PPrefix -->|"S3 object-created event"| Lambda
     ALPrefix -->|"S3 object-created event"| Lambda
@@ -128,6 +132,8 @@ flowchart LR
 
 - Each station can access its own station S3 prefix, sanitized `family/` data,
   and only the approved student-attempt prefixes needed for its roster.
+- Activity permissions are narrower: each station writes only its own activity
+  prefix, and Pappy alone reads the three activity/status prefixes.
 - Stations cannot read another station's raw backups or create AWS resources.
 - S3 invokes Lambda using a bucket- and account-scoped permission.
 - Lambda independently validates station, sender, receiver, message limits,
@@ -184,6 +190,19 @@ flowchart LR
 5. The worker records local status and marks the AWS Job `SUCCEEDED` or
    `FAILED`.
 
+### Family Activity
+
+1. Progress, message, and update workers create privacy-limited events only
+   after reaching their confirmed checkpoint.
+2. Offline events remain in the station's pending queue and retry without
+   duplication during later cloud work.
+3. The normal 30-minute sync uploads a fresh station status; message events
+   also follow the shorter message-sync schedule.
+4. Pappy refreshes and caches all three activity/status prefixes. A station
+   outage preserves its last known cache and is shown as a warning.
+5. The adult opens the PIN-gated Family Activity screen. No message text,
+   student display name, detailed score, or raw key timing enters this feed.
+
 Current remote-update rollout:
 
 | Station | AWS IoT Thing | Remote-update timer | Status |
@@ -197,5 +216,6 @@ Related details:
 - [Cloud messaging design](CLOUD_MESSAGING_DESIGN.md)
 - [AWS backup and sync design](AWS_BACKUP_SYNC_DESIGN.md)
 - [AWS setup reference](AWS_SETUP_REFERENCE.md)
+- [Family activity](FAMILY_ACTIVITY.md)
 - [Remote backup, status, and update runbook](REMOTE_BACKUP_STATUS_RUNBOOK.md)
 - [Security and family data](../SECURITY.md)

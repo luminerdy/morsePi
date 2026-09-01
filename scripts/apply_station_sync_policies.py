@@ -48,34 +48,78 @@ def student_object_arns(bucket, student_ids):
     return arns
 
 
-def build_policy(bucket, student_ids):
-    return {
-        "Version": "2012-10-17",
-        "Statement": [
+def family_activity_list_prefixes():
+    prefixes = []
+    for station_id in STATIONS:
+        prefixes.extend([
+            f"stations/{station_id}/activity/*",
+            f"stations/{station_id}/status/*",
+        ])
+    return prefixes
+
+
+def family_activity_object_arns(bucket):
+    arns = []
+    for station_id in STATIONS:
+        arns.extend([
+            f"arn:aws:s3:::{bucket}/stations/{station_id}/activity/*",
+            f"arn:aws:s3:::{bucket}/stations/{station_id}/status/station_status.json",
+        ])
+    return arns
+
+
+def build_policy(bucket, student_ids, station_id=None):
+    statements = [
+        {
+            "Sid": "ListFamilySnapshotsAndRosteredStudentAttempts",
+            "Effect": "Allow",
+            "Action": "s3:ListBucket",
+            "Resource": f"arn:aws:s3:::{bucket}",
+            "Condition": {
+                "StringLike": {
+                    "s3:prefix": snapshot_list_prefixes() + student_list_prefixes(student_ids)
+                }
+            },
+        },
+        {
+            "Sid": "ReadFamilyProgressSnapshots",
+            "Effect": "Allow",
+            "Action": "s3:GetObject",
+            "Resource": snapshot_object_arns(bucket),
+        },
+        {
+            "Sid": "ReadWriteRosteredStudentAttempts",
+            "Effect": "Allow",
+            "Action": ["s3:GetObject", "s3:PutObject"],
+            "Resource": student_object_arns(bucket, student_ids),
+        },
+    ]
+    if station_id:
+        statements.append({
+            "Sid": "WriteOwnStationActivity",
+            "Effect": "Allow",
+            "Action": "s3:PutObject",
+            "Resource": f"arn:aws:s3:::{bucket}/stations/{station_id}/activity/*",
+        })
+    if station_id == "pappy-test-station":
+        statements.extend([
             {
-                "Sid": "ListFamilySnapshotsAndRosteredStudentAttempts",
+                "Sid": "ListFamilyActivityAndStatus",
                 "Effect": "Allow",
                 "Action": "s3:ListBucket",
                 "Resource": f"arn:aws:s3:::{bucket}",
-                "Condition": {
-                    "StringLike": {
-                        "s3:prefix": snapshot_list_prefixes() + student_list_prefixes(student_ids)
-                    }
-                },
+                "Condition": {"StringLike": {"s3:prefix": family_activity_list_prefixes()}},
             },
             {
-                "Sid": "ReadFamilyProgressSnapshots",
+                "Sid": "ReadFamilyActivityAndStatus",
                 "Effect": "Allow",
                 "Action": "s3:GetObject",
-                "Resource": snapshot_object_arns(bucket),
+                "Resource": family_activity_object_arns(bucket),
             },
-            {
-                "Sid": "ReadWriteRosteredStudentAttempts",
-                "Effect": "Allow",
-                "Action": ["s3:GetObject", "s3:PutObject"],
-                "Resource": student_object_arns(bucket, student_ids),
-            },
-        ],
+        ])
+    return {
+        "Version": "2012-10-17",
+        "Statement": statements,
     }
 
 
@@ -88,7 +132,7 @@ def put_user_policy(
     runner=subprocess.run,
     aws_executable="aws",
 ):
-    policy = build_policy(bucket, station["students"])
+    policy = build_policy(bucket, station["students"], station_id=station_id)
     command = [
         aws_executable,
         "iam",

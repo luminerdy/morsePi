@@ -663,6 +663,84 @@ class RouteRenderTests(unittest.TestCase):
         self.assertNotIn("data-test-sound", html)
         self.assertIn('href="/touch/system/operators"', html)
 
+    def test_touch_system_links_family_activity_only_on_reader_station(self):
+        self.write_station_config({
+            "station_id": "pappy-test-station",
+            "family_activity_reader": True,
+        })
+        reader_html = self.client.get("/touch/system").get_data(as_text=True)
+
+        self.write_station_config({
+            "station_id": "astrid-liara-station",
+            "family_activity_reader": False,
+        })
+        other_html = self.client.get("/touch/system").get_data(as_text=True)
+
+        self.assertIn('href="/touch/system/activity"', reader_html)
+        self.assertNotIn('href="/touch/system/activity"', other_html)
+
+    def test_family_activity_is_pin_locked_and_does_not_render_cached_details(self):
+        self.write_station_config({
+            "admin_pin": "2745",
+            "station_id": "pappy-test-station",
+            "family_activity_reader": True,
+        })
+
+        response = self.client.get("/touch/system/activity")
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Private family view", html)
+        self.assertIn("data-touch-pin-pad", html)
+        self.assertNotIn("Practice progress uploaded", html)
+
+    def test_family_activity_valid_pin_refreshes_and_renders_feed(self):
+        self.write_station_config({
+            "admin_pin": "2745",
+            "station_id": "pappy-test-station",
+            "family_activity_reader": True,
+            "family_students": [
+                {"id": "pappy", "name": "Pappy"},
+                {"id": "astrid", "name": "Astrid"},
+            ],
+        })
+        cache = {
+            "events": [{
+                "category": "messages",
+                "details": {
+                    "message_id": "message-1",
+                    "recipient_student_id": "astrid",
+                    "sender_student_id": "pappy",
+                },
+                "event_type": "message_received",
+                "level": "success",
+                "occurred_at": "2026-09-01T12:00:00+00:00",
+                "station_id": "astrid-liara-station",
+            }],
+            "refreshed_at": "2026-09-01T12:01:00+00:00",
+            "refresh_errors": [],
+            "stations": [{
+                "id": "astrid-liara-station",
+                "name": "Astrid / Liara",
+                "status": {
+                    "checked_at": "2026-09-01T12:00:00+00:00",
+                    "git_commit": "abcdef123456",
+                    "update": {},
+                },
+            }],
+        }
+
+        with patch.object(app_module, "refresh_family_activity_view", return_value=(cache, "")):
+            response = self.client.post("/touch/system/activity", data={"admin_pin": "2745"})
+        html = response.get_data(as_text=True)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Message received", html)
+        self.assertIn("Pappy to Astrid.", html)
+        self.assertIn("Astrid / Liara", html)
+        self.assertIn("abcdef1", html)
+        self.assertIn('data-activity-filter="problems"', html)
+
     def test_touch_operator_manager_lists_family_with_current_roster_checked(self):
         self.write_station_config({
             "admin_pin": "1234",

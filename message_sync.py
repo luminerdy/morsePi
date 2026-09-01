@@ -4,6 +4,7 @@ import tempfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path, PurePosixPath
 
+from family_activity import flush_activity_events, new_activity_event, queue_activity_event
 from message_cloud import (
     MessageValidationError,
     advance_message_state,
@@ -191,6 +192,19 @@ def sync_station(data_dir, config, store):
         "receipts_uploaded": 0,
         "statuses_applied": 0,
     }
+    flush_activity_events(data_dir, store)
+
+    def queue_event(event_type, source_id, details, occurred_at=None):
+        queue_activity_event(
+            data_dir,
+            new_activity_event(
+                station_id,
+                event_type,
+                source_id,
+                occurred_at=occurred_at,
+                details=details,
+            ),
+        )
 
     for student_id in local_students:
         summary = load_json(local_summary_path(data_dir, student_id), None)
@@ -222,6 +236,15 @@ def sync_station(data_dir, config, store):
                 payload,
             )
             counts["messages_uploaded"] += 1
+            queue_event(
+                "message_sent",
+                payload["message_id"],
+                {
+                    "message_id": payload["message_id"],
+                    "sender_student_id": payload["sender_student_id"],
+                    "recipient_student_id": payload["recipient_student_id"],
+                },
+            )
 
     for student_id in local_students:
         prefix = f"stations/{station_id}/messages/inbox/{student_id}/"
@@ -249,6 +272,15 @@ def sync_station(data_dir, config, store):
                 continue
             save_message_copy(inbox_dir(data_dir, student_id), local_message_from_cloud(payload))
             counts["messages_downloaded"] += 1
+            queue_event(
+                "message_received",
+                message_id,
+                {
+                    "message_id": message_id,
+                    "sender_student_id": payload["sender_student_id"],
+                    "recipient_student_id": payload["recipient_student_id"],
+                },
+            )
 
     for student_id in local_students:
         for message in list_messages(inbox_dir(data_dir, student_id)):
@@ -262,6 +294,16 @@ def sync_station(data_dir, config, store):
             )
             store.put_json(key, receipt)
             counts["receipts_uploaded"] += 1
+            queue_event(
+                f"message_{message['state']}",
+                f"{message['message_id']}:{message['state']}",
+                {
+                    "message_id": message["message_id"],
+                    "sender_student_id": message["sender_student_id"],
+                    "recipient_student_id": message["recipient_student_id"],
+                },
+                occurred_at=occurred_at,
+            )
 
     sent_prefix = f"stations/{station_id}/messages/status/sent/"
     for key in store.list_keys(sent_prefix):
@@ -330,4 +372,5 @@ def sync_station(data_dir, config, store):
                 save_message_copy(inbox_dir(data_dir, student_id), updated)
                 counts["statuses_applied"] += 1
 
+    flush_activity_events(data_dir, store)
     return counts

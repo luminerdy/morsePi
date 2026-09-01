@@ -5,6 +5,7 @@ from uuid import uuid4
 
 from flask import Flask, render_template, request, redirect, url_for, jsonify, g, has_request_context
 from gpiozero import Button, LED
+from family_activity import load_activity_cache, refresh_family_activity
 from morse import text_to_morse, morse_to_text
 from morse_display import morse_visual
 from paths import data_path
@@ -32,7 +33,7 @@ from message_store import (
     save_message_copy,
     validate_message_text,
 )
-from message_sync import load_family_learning_summary, refresh_local_learning_summary
+from message_sync import AwsCliObjectStore, load_family_learning_summary, refresh_local_learning_summary
 from practice_attempts import append_practice_attempt, normalize_timing_events, rounded_ms, set_attempts_path, timing_summary
 from rhythm_coach import rhythm_coach
 from practice_progress import all_mode_details, choose_next_letter, load_progress, mode_score, overall_score, progress_summary, record_attempt, save_progress, set_progress_path
@@ -3524,6 +3525,111 @@ def refresh_family_progress_view():
     return run_system_command(command, timeout=30)
 
 
+def family_activity_reader_enabled(config=None):
+    config = config if isinstance(config, dict) else load_station_config()
+    if "family_activity_reader" in config:
+        return bool(config.get("family_activity_reader"))
+    return str(config.get("station_id") or "").strip() == "pappy-test-station"
+
+
+def refresh_family_activity_view():
+    config = load_station_config()
+    cached = load_activity_cache(student_profile_store.DATA_DIR)
+    if not family_activity_reader_enabled(config):
+        return cached, "reader-disabled"
+
+    s3_uri = config.get("activity_s3_uri") or config.get("backup_s3_uri") or ""
+    if not s3_uri:
+        return cached, "cloud-not-configured"
+
+    try:
+        return refresh_family_activity(
+            student_profile_store.DATA_DIR,
+            config,
+            AwsCliObjectStore(s3_uri),
+        ), ""
+    except Exception:
+        return cached, "refresh-failed"
+
+
+def family_activity_view(cache):
+    station_names = {
+        item.get("id"): item.get("name") or item.get("id")
+        for item in cache.get("stations", [])
+        if isinstance(item, dict)
+    }
+    profile_names = {
+        profile["id"]: profile["name"]
+        for profile in configured_family_profiles()
+    }
+    titles = {
+        "software_update_succeeded": "Software updated",
+        "software_update_failed": "Software update needs attention",
+        "progress_uploaded": "Practice progress uploaded",
+        "message_sent": "Message sent",
+        "message_received": "Message received",
+        "message_opened": "Message opened",
+        "message_decoded": "Message decoded",
+    }
+
+    def student_name(student_id):
+        return profile_names.get(str(student_id or ""), "an operator")
+
+    events = []
+    for event in cache.get("events", []):
+        if not isinstance(event, dict):
+            continue
+        event_type = str(event.get("event_type") or "")
+        details = event.get("details") if isinstance(event.get("details"), dict) else {}
+        if event_type == "progress_uploaded":
+            detail = f"{details.get('uploaded', 0)} new practice records are backed up."
+        elif event_type.startswith("message_"):
+            sender = student_name(details.get("sender_student_id"))
+            recipient = student_name(details.get("recipient_student_id"))
+            detail = f"{sender} to {recipient}."
+        elif event_type.startswith("software_update_"):
+            commit = str(details.get("ending_commit") or details.get("target_commit") or "")[:7]
+            reason = str(details.get("reason") or "").strip()
+            detail = f"Version {commit}." if commit else "The station reported its update result."
+            if reason and event_type == "software_update_failed":
+                detail = reason[:100]
+        else:
+            detail = "Station activity received."
+        events.append({
+            "category": event.get("category", "all"),
+            "detail": detail,
+            "level": event.get("level", "info"),
+            "occurred_at": event.get("occurred_at", ""),
+            "relative": relative_time_label(event.get("occurred_at")),
+            "station": station_names.get(event.get("station_id"), event.get("station_id", "Unknown")),
+            "title": titles.get(event_type, "Station activity"),
+        })
+
+    stations = []
+    for item in cache.get("stations", []):
+        if not isinstance(item, dict):
+            continue
+        status = item.get("status") if isinstance(item.get("status"), dict) else {}
+        update = status.get("update") if isinstance(status.get("update"), dict) else {}
+        latest = next(
+            (event for event in events if event["station"] == (item.get("name") or item.get("id"))),
+            None,
+        )
+        stations.append({
+            "commit": str(status.get("git_commit") or update.get("ending_commit") or "")[:7] or "Unknown",
+            "last_contact": relative_time_label(status.get("checked_at")),
+            "latest": latest["title"] if latest else "No activity yet",
+            "name": item.get("name") or item.get("id") or "Station",
+        })
+
+    return {
+        "events": events,
+        "refreshed": relative_time_label(cache.get("refreshed_at")),
+        "refresh_errors": cache.get("refresh_errors", []),
+        "stations": stations,
+    }
+
+
 def first_command_line(command, default="Unknown"):
     result = run_system_command(command)
     if result["stdout"]:
@@ -5095,9 +5201,36 @@ def touch_timing():
 def touch_system():
     return render_template(
         "touch_system.html",
+        family_activity_reader=family_activity_reader_enabled(),
         system=system_status(),
         system_status_message=request.args.get("system_status", ""),
         system_error=request.args.get("system_error", ""),
+    )
+
+
+@app.route("/touch/system/activity", methods=["GET", "POST"])
+def touch_system_activity():
+    unlocked = False
+    activity_error = ""
+    refresh_error = ""
+    activity = {}
+
+    if request.method == "POST":
+        if not admin_pin_valid(request.form.get("admin_pin", "")):
+            activity_error = "admin-pin"
+        elif not family_activity_reader_enabled():
+            activity_error = "reader-disabled"
+        else:
+            cache, refresh_error = refresh_family_activity_view()
+            activity = family_activity_view(cache)
+            unlocked = True
+
+    return render_template(
+        "touch_family_activity.html",
+        activity=activity,
+        activity_error=activity_error,
+        refresh_error=refresh_error,
+        unlocked=unlocked,
     )
 
 

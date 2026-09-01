@@ -88,7 +88,9 @@ class SystemdUnitTests(unittest.TestCase):
 
         self.assertIn("scripts/student_attempt_sync.py --sync", service)
         self.assertIn("scripts/progress_snapshot.py", service)
+        self.assertIn("scripts/station_status.py", service)
         self.assertIn("scripts/family_progress.py", service)
+        self.assertIn("scripts/family_activity.py", service)
 
     def test_student_sync_timer_catches_up_after_boot(self):
         timer = (ROOT / "systemd" / "morse-station-sync.timer").read_text(encoding="utf-8")

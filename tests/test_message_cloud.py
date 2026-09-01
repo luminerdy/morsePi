@@ -210,6 +210,10 @@ class CloudMessageTests(unittest.TestCase):
         route_key(self.store, outbox_key)
         result = sync_station(astrid_data, astrid_config, self.store)
         self.assertEqual(1, result["messages_downloaded"])
+        activity_keys = [key for key in self.store.objects if "/activity/" in key]
+        activity_types = {self.store.objects[key]["event_type"] for key in activity_keys}
+        self.assertIn("message_sent", activity_types)
+        self.assertIn("message_received", activity_types)
 
         downloaded = load_message(inbox_dir(astrid_data, "astrid"), payload["message_id"])
         opened = open_message(downloaded)
@@ -225,6 +229,12 @@ class CloudMessageTests(unittest.TestCase):
         sender_copy = load_message(outbox_dir(pappy_data, "pappy"), payload["message_id"])
         self.assertEqual("opened", sender_copy["state"])
         self.assertEqual("opened", sender_copy["cloud_state"])
+        activity_types = {
+            value["event_type"]
+            for key, value in self.store.objects.items()
+            if "/activity/" in key
+        }
+        self.assertIn("message_opened", activity_types)
 
     def test_learning_snapshot_is_not_rewritten_when_current(self):
         first = write_local_learning_summary(
