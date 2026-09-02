@@ -13,36 +13,15 @@
                 <p class="eyebrow">Admin System</p>
                 <h1>Family Activity</h1>
             </div>
-            <a class="touch-top-link" href="/touch/system">System</a>
+            <div class="touch-top-actions">
+                <a class="touch-top-link" href="/touch/system">System</a>
+                <form method="post" action="/touch/admin/exit" class="touch-admin-exit-form">
+                    <button type="submit" class="touch-top-link touch-admin-exit">Exit Admin</button>
+                </form>
+            </div>
         </header>
 
-        {% if not unlocked %}
-            <main class="touch-activity-lock">
-                <section class="touch-activity-intro">
-                    <span>Private family view</span>
-                    <strong>Enter the admin PIN</strong>
-                    <p>See station check-ins, updates, progress uploads, and message activity.</p>
-                </section>
-                <form method="post" class="touch-activity-pin">
-                    {% if activity_error %}
-                        <div class="feedback-box error">
-                            {% if activity_error == "admin-pin" %}PIN not accepted. Try again.{% else %}Activity is not enabled here.{% endif %}
-                        </div>
-                    {% endif %}
-                    <input name="admin_pin" type="password" autocomplete="off" inputmode="numeric" class="touch-pin-input" data-touch-pin-input>
-                    <div class="touch-pin-display" data-touch-pin-display aria-live="polite">PIN</div>
-                    <div class="touch-pin-pad compact" data-touch-pin-pad aria-label="Admin PIN keypad">
-                        {% for digit in ["1", "2", "3", "4", "5", "6", "7", "8", "9"] %}
-                            <button type="button" class="touch-pin-key" data-touch-pin-digit="{{ digit }}">{{ digit }}</button>
-                        {% endfor %}
-                        <button type="button" class="touch-pin-key utility" data-touch-pin-clear>Clear</button>
-                        <button type="button" class="touch-pin-key" data-touch-pin-digit="0">0</button>
-                        <button type="button" class="touch-pin-key utility" data-touch-pin-back>Back</button>
-                    </div>
-                    <button type="submit" class="button primary">Unlock &amp; Refresh</button>
-                </form>
-            </main>
-        {% else %}
+        {% if unlocked %}
             <main class="touch-activity-layout{% if refresh_error or activity.refresh_errors %} has-warning{% endif %}">
                 <section class="touch-activity-stations" aria-label="Station status">
                     {% for station in activity.stations %}

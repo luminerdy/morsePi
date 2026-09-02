@@ -45,6 +45,18 @@
     grid-template-rows: 54px minmax(0, 1fr);
 }
 
+.touch-admin-exit-form {
+    margin: 0;
+}
+
+.touch-admin-exit {
+    border: 1px solid #b42318;
+    background: #fff4f2;
+    color: #b42318;
+    font: inherit;
+    cursor: pointer;
+}
+
 .touch-screen:has(.signal-drop-layout) {
     grid-template-rows: 54px minmax(0, 1fr);
 }

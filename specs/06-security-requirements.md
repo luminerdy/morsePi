@@ -101,3 +101,11 @@ belongs in the rebuilt repo's `SECURITY.md` (DOC-04).
   timing events, credentials, PINs, network names, and IP addresses. The Family
   Activity touch page SHALL require the adult PIN before any cached or cloud
   activity data is rendered.
+- **SEC-024** *(V1)* A touch admin session SHALL be represented by an
+  unguessable opaque token whose authorization state and last-activity time are
+  held by the running server. The cookie SHALL be `HttpOnly` and `SameSite=Lax`
+  and SHALL contain neither the PIN nor privileged data. The PIN SHALL NOT be
+  placed in a URL, page markup, browser storage, or reusable hidden field.
+  Expired and explicitly ended tokens SHALL fail closed. Existing failed-PIN
+  throttling SHALL remain in force, and changing or resetting the PIN MAY
+  require fresh PIN confirmation even during a session.

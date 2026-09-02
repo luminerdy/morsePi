@@ -16,7 +16,12 @@
             {% if settings_error == "admin-pin" %}
                 <div class="touch-settings-alert" role="alert">Enter the admin PIN, then choose a setting.</div>
             {% endif %}
-            <a class="touch-top-link" href="/touch/menu">Menu</a>
+            <div class="touch-top-actions">
+                <a class="touch-top-link" href="/touch/system">System</a>
+                <form method="post" action="/touch/admin/exit" class="touch-admin-exit-form">
+                    <button type="submit" class="touch-top-link touch-admin-exit">Exit Admin</button>
+                </form>
+            </div>
         </header>
 
         <main class="touch-settings-layout">
@@ -31,20 +36,6 @@
 
                 <label for="tone_hz">Tone <span>{{ timing.tone_hz }} Hz</span></label>
                 <input type="range" id="tone_hz" name="tone_hz" min="400" max="1000" step="25" value="{{ timing.tone_hz }}">
-                {% if admin_pin_required %}
-                    <label for="touch_timing_admin_pin">Admin PIN</label>
-                    <input id="touch_timing_admin_pin" name="admin_pin" type="password" autocomplete="off" inputmode="numeric" class="touch-pin-input" data-touch-pin-input>
-                    <div class="touch-pin-display" data-touch-pin-display aria-live="polite">PIN</div>
-                    <div class="touch-pin-pad compact wide" data-touch-pin-pad aria-label="Admin PIN keypad">
-                        {% for digit in ["1", "2", "3", "4", "5", "6", "7", "8", "9"] %}
-                            <button type="button" class="touch-pin-key" data-touch-pin-digit="{{ digit }}">{{ digit }}</button>
-                        {% endfor %}
-                        <button type="button" class="touch-pin-key utility" data-touch-pin-clear>Clear</button>
-                        <button type="button" class="touch-pin-key" data-touch-pin-digit="0">0</button>
-                        <button type="button" class="touch-pin-key utility" data-touch-pin-back>Back</button>
-                    </div>
-                {% endif %}
-
                 <button type="submit" class="button primary full-width">Save Timing</button>
             </form>
 
@@ -55,9 +46,6 @@
                 </div>
                 <form method="post" action="/station-volume" class="touch-volume-form">
                     <input type="hidden" name="next" value="/touch/timing">
-                    {% if admin_pin_required %}
-                        <input name="admin_pin" type="hidden" data-touch-pin-copy>
-                    {% endif %}
                     <div class="touch-volume-grid">
                         <button type="submit" name="station_volume" value="0" class="button secondary">Mute</button>
                         <button type="submit" name="station_volume" value="15" class="button secondary">Quiet</button>
