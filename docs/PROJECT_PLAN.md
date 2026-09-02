@@ -12,6 +12,11 @@
 - Added immediate-render, single-flight, status-authentication, and
   non-renewing-poll regression tests. All 292 tests pass on Pappy; the fix is
   main `1702d37`, release/pi `3fe47db`.
+- Investigated four GitHub CI failure emails after the admin-session change.
+  The application tests passed, but one new test assumed the generic Ubuntu
+  runner included the Pi-only `nmcli` utility. Isolated that external check in
+  the test at main `3eb36f7`; GitHub Actions run `33644577847` completed
+  successfully. No application or station behavior changed.
 - Replaced repeated touch PIN prompts with one server-owned admin session for
   Admin System, Family Activity, operator management, timing, volume, and
   system actions.
