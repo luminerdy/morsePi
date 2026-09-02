@@ -2,6 +2,16 @@
 
 ## 2026-09-02 - Bounded touch admin sessions
 
+- Fixed an Activity-page lockup discovered during live testing. The route had
+  waited synchronously for every AWS list/download before rendering, which
+  made the single-process app appear frozen.
+- Activity now renders the latest valid cache immediately, shows a visible
+  background-refresh message, starts only one cloud refresh at a time, and
+  reloads after completion. Its status polling does not extend the admin idle
+  timeout. A failed refresh leaves the cached history visible.
+- Added immediate-render, single-flight, status-authentication, and
+  non-renewing-poll regression tests. All 292 tests pass on Pappy; the fix is
+  main `1702d37`, release/pi `3fe47db`.
 - Replaced repeated touch PIN prompts with one server-owned admin session for
   Admin System, Family Activity, operator management, timing, volume, and
   system actions.
