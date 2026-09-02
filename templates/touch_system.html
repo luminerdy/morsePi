@@ -15,7 +15,7 @@
             </div>
             <div class="touch-top-actions">
                 {% if admin_unlocked and family_activity_reader %}
-                    <a class="touch-top-link" href="/touch/system/activity">Activity</a>
+                    <a class="touch-top-link" href="/touch/system/activity?refresh=1">Activity</a>
                 {% endif %}
                 {% if admin_unlocked %}
                     <form method="post" action="/touch/admin/exit" class="touch-admin-exit-form">

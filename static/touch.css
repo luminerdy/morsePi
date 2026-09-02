@@ -2045,6 +2045,18 @@
     font-weight: 900;
 }
 
+.touch-activity-warning.refreshing {
+    color: #164e63;
+    background: #ecfeff;
+    border-color: #67e8f9;
+}
+
+.touch-activity-warning.success {
+    color: #166534;
+    background: #f0fdf4;
+    border-color: #86efac;
+}
+
 .touch-activity-feed {
     min-height: 0;
     display: grid;

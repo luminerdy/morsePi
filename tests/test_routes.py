@@ -72,6 +72,7 @@ class RouteRenderTests(unittest.TestCase):
         app_module.ADMIN_PIN_PATH = self.data_dir / "admin_pin.txt"
         app_module.reset_admin_pin_lockout()
         app_module.clear_admin_sessions()
+        app_module.reset_family_activity_refresh_state()
         app_module.station_volume = app_module.DEFAULT_STATION_VOLUME
         app_module.play_daily_celebration_in_background = self.record_daily_celebration
         self.daily_celebration_called = False
@@ -113,6 +114,7 @@ class RouteRenderTests(unittest.TestCase):
         app_module.practice_feedback = self.original_practice_feedback
         app_module.reset_admin_pin_lockout()
         app_module.clear_admin_sessions()
+        app_module.reset_family_activity_refresh_state()
         self.temp_dir.cleanup()
 
     def unlock_admin(self, pin="1234", next_url="/touch/system"):
@@ -754,8 +756,8 @@ class RouteRenderTests(unittest.TestCase):
         })
         other_html = self.client.get("/touch/system").get_data(as_text=True)
 
-        self.assertIn('href="/touch/system/activity"', reader_html)
-        self.assertNotIn('href="/touch/system/activity"', other_html)
+        self.assertIn('href="/touch/system/activity?refresh=1"', reader_html)
+        self.assertNotIn('href="/touch/system/activity?refresh=1"', other_html)
 
     def test_family_activity_is_pin_locked_and_does_not_render_cached_details(self):
         self.write_station_config({
@@ -769,7 +771,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertEqual(302, response.status_code)
         self.assertIn("system_error=admin-session", response.headers["Location"])
 
-    def test_family_activity_valid_pin_refreshes_and_renders_feed(self):
+    def test_family_activity_session_renders_cached_feed_without_cloud_wait(self):
         self.write_station_config({
             "admin_pin": "2745",
             "station_id": "pappy-test-station",
@@ -806,7 +808,9 @@ class RouteRenderTests(unittest.TestCase):
         }
 
         self.unlock_admin("2745", "/touch/system/activity")
-        with patch.object(app_module, "refresh_family_activity_view", return_value=(cache, "")):
+        with patch.object(app_module, "load_activity_cache", return_value=cache), patch.object(
+            app_module, "refresh_family_activity_view"
+        ) as refresh:
             response = self.client.get("/touch/system/activity")
         html = response.get_data(as_text=True)
 
@@ -816,6 +820,40 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("Astrid / Liara", html)
         self.assertIn("abcdef1", html)
         self.assertIn('data-activity-filter="problems"', html)
+        refresh.assert_not_called()
+
+    def test_family_activity_refresh_is_background_single_flight(self):
+        self.write_station_config({
+            "admin_pin": "2745",
+            "station_id": "pappy-test-station",
+            "family_activity_reader": True,
+        })
+        self.unlock_admin("2745", "/touch/system/activity")
+
+        with patch.object(app_module.threading, "Thread") as thread:
+            response = self.client.get("/touch/system/activity?refresh=1")
+            second = app_module.start_family_activity_refresh()
+
+        html = response.get_data(as_text=True)
+        self.assertEqual(200, response.status_code)
+        self.assertIn("Refreshing station activity", html)
+        self.assertIn("/touch/system/activity/status", html)
+        self.assertEqual(1, thread.call_count)
+        self.assertFalse(second)
+
+    def test_family_activity_status_requires_session_and_does_not_extend_it(self):
+        self.write_station_config({"admin_pin": "2745"})
+        locked = self.client.get("/touch/system/activity/status")
+        self.assertEqual(401, locked.status_code)
+
+        self.unlock_admin("2745")
+        cookie = self.client.get_cookie(app_module.ADMIN_SESSION_COOKIE)
+        original_activity = app_module.admin_session_store[cookie.value]
+        response = self.client.get("/touch/system/activity/status")
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("complete", response.get_json()["status"])
+        self.assertEqual(original_activity, app_module.admin_session_store[cookie.value])
 
     def test_touch_operator_manager_lists_family_with_current_roster_checked(self):
         self.write_station_config({

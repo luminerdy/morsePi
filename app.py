@@ -88,6 +88,12 @@ admin_pin_lockout = {
 }
 admin_session_store = {}
 admin_sessions_lock = threading.Lock()
+family_activity_refresh_state = {
+    "running": False,
+    "completed": 0,
+    "error": "",
+}
+family_activity_refresh_lock = threading.Lock()
 
 app.config["MAX_CONTENT_LENGTH"] = MAX_REQUEST_BYTES
 app.jinja_env.filters["morse_visual"] = morse_visual
@@ -3646,6 +3652,38 @@ def refresh_family_activity_view():
         return cached, "refresh-failed"
 
 
+def family_activity_refresh_snapshot():
+    with family_activity_refresh_lock:
+        return dict(family_activity_refresh_state)
+
+
+def reset_family_activity_refresh_state():
+    with family_activity_refresh_lock:
+        family_activity_refresh_state.update({
+            "running": False,
+            "completed": 0,
+            "error": "",
+        })
+
+
+def start_family_activity_refresh():
+    with family_activity_refresh_lock:
+        if family_activity_refresh_state["running"]:
+            return False
+        family_activity_refresh_state["running"] = True
+        family_activity_refresh_state["error"] = ""
+
+    def worker():
+        _, refresh_error = refresh_family_activity_view()
+        with family_activity_refresh_lock:
+            family_activity_refresh_state["running"] = False
+            family_activity_refresh_state["completed"] += 1
+            family_activity_refresh_state["error"] = refresh_error
+
+    threading.Thread(target=worker, daemon=True).start()
+    return True
+
+
 def family_activity_view(cache):
     station_names = {
         item.get("id"): item.get("name") or item.get("id")
@@ -5329,15 +5367,33 @@ def touch_system_activity():
     if not family_activity_reader_enabled():
         return redirect(url_for("touch_system", system_error="reader-disabled"))
 
-    cache, refresh_error = refresh_family_activity_view()
+    refreshing = request.args.get("refresh") == "1"
+    if refreshing:
+        start_family_activity_refresh()
+    refresh_state = family_activity_refresh_snapshot()
+    cache = load_activity_cache(student_profile_store.DATA_DIR)
     activity = family_activity_view(cache)
 
     return render_template(
         "touch_family_activity.html",
         activity=activity,
-        refresh_error=refresh_error,
+        refresh_error=refresh_state["error"],
+        refreshing=refreshing or refresh_state["running"],
+        refresh_status=request.args.get("refresh_status", ""),
         unlocked=True,
     )
+
+
+@app.route("/touch/system/activity/status")
+def touch_system_activity_status():
+    if not admin_session_active(refresh=False):
+        return jsonify({"status": "locked"}), 401
+    refresh_state = family_activity_refresh_snapshot()
+    return jsonify({
+        "status": "refreshing" if refresh_state["running"] else "complete",
+        "completed": refresh_state["completed"],
+        "error": bool(refresh_state["error"]),
+    })
 
 
 @app.route("/touch/system/operators", methods=["GET", "POST"])

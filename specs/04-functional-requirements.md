@@ -421,8 +421,11 @@ from the current code (legacy status per requirement is tracked in
   activity, failures, and a chronological history filterable by Updates,
   Progress, Messages, and Problems. A cloud refresh failure SHALL retain and
   display the latest valid local cache rather than replacing it with an empty
-  view. Events SHALL distinguish an operation queued or uploaded to AWS from an
-  operation confirmed by the remote device.
+  view. Opening Activity SHALL render that cache without waiting for AWS; a
+  requested cloud refresh SHALL run in the background with visible status and
+  SHALL NOT block the app or start a duplicate refresh. Events SHALL
+  distinguish an operation queued or uploaded to AWS from an operation
+  confirmed by the remote device.
 - **FR-065** *(V1)* A valid adult PIN entered from the touch interface SHALL
   start one bounded admin session that authorizes Admin System, Family
   Activity, operator management, timing, volume, and Admin System actions

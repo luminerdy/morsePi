@@ -102,7 +102,9 @@
   event IDs, offline pending retention, successful flush, replay idempotency,
   event-detail privacy allowlists, message/progress/update integration, partial
   cloud refresh with cache preservation, reader-only IAM policy generation,
-  PIN-gated routes, client-side filters, and an 800x480 screenshot rehearsal.
+  PIN-gated routes, immediate cached rendering, single-flight background
+  refresh/status, client-side completion reload and filters, and an 800x480
+  screenshot rehearsal.
 - **TEST-026** Admin-session tests cover correct and incorrect unlocks, opaque
   cookie flags, route and action authorization, sliding activity renewal,
   timeout, explicit exit, student-flow relock, process-restart invalidation,
