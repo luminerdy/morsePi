@@ -1,5 +1,25 @@
 # Pappy's Internet Telegraph Project Plan
 
+## 2026-09-02 - Bounded touch admin sessions
+
+- Replaced repeated touch PIN prompts with one server-owned admin session for
+  Admin System, Family Activity, operator management, timing, volume, and
+  system actions.
+- Kept the PIN out of URLs, page markup, browser storage, and cookies. The
+  browser receives only an opaque random `HttpOnly`, `SameSite=Lax` token.
+- Added a sliding 10-minute idle limit plus automatic relock on Exit Admin,
+  app restart, or return to a student touch screen. Existing failed-PIN
+  throttling remains active.
+- Added a persistent **Exit Admin** control to every unlocked touch admin page
+  and removed the repeated PIN pads and hidden PIN copies from action forms.
+- Preserved direct-PIN compatibility for the existing desktop administration
+  forms while requiring a bounded session for protected touch GET routes.
+- Added FR-065, API-030, SEC-024, AC-041, and TEST-026. All 290 tests pass on
+  Pappy, and both locked and unlocked Admin System views were rehearsed at
+  800x480 with zero page scrolling.
+- Promoted main `7135fa7` to release/pi `b543895`; Pappy updated through the
+  normal station updater and reports active app/browser services.
+
 ## 2026-09-01 - Private family station activity
 
 - Chose an encouragement-safe operational history on Pappy before adding email
@@ -1124,15 +1144,6 @@ Create or refine these GitHub issues next:
 13. Add student/operator names to `Words I Know` once the student has learned
     every letter in that name; for example, `PAPPY` should appear as soon as
     `P` is learned because the remaining letters are already available.
-14. Replace repeated PIN prompts with a bounded adult admin session. A valid
-    PIN should unlock Admin System, Family Activity, operator management, and
-    admin actions for the active session. Show a persistent **Exit Admin**
-    control and automatically lock after 10 minutes without admin activity,
-    reboot, or return to the student flow. Keep the session token server-owned
-    or securely cookie-backed; do not place the PIN in a cookie, URL, browser
-    storage, or page markup. Changing/resetting the admin PIN may still require
-    fresh PIN confirmation.
-
 ## Progress Log
 
 ### Daily Wrap-Up Checklist
