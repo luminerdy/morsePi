@@ -298,6 +298,10 @@ correctness checks. Each is encoded as an automated test per
   row. Pappy rejects an event whose path station and payload station differ,
   preserves its prior cache when one station refresh fails, and shows the
   failure without exposing event data before a valid adult PIN is submitted.
+  Opening Activity renders the prior cache within one second, visibly reports
+  a background refresh, keeps other app routes responsive, and reloads after
+  completion. Repeated opens while refresh is running start no second cloud
+  job.
   At 800x480 the unlocked page shows all three latest station summaries and a
   scrollable chronological list with working All, Updates, Progress, Messages,
   and Problems filters and no page-level scrolling or overlap.

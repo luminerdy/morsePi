@@ -14,6 +14,7 @@
                 <h1>Family Activity</h1>
             </div>
             <div class="touch-top-actions">
+                <a class="touch-top-link" href="/touch/system/activity?refresh=1">Refresh</a>
                 <a class="touch-top-link" href="/touch/system">System</a>
                 <form method="post" action="/touch/admin/exit" class="touch-admin-exit-form">
                     <button type="submit" class="touch-top-link touch-admin-exit">Exit Admin</button>
@@ -22,7 +23,7 @@
         </header>
 
         {% if unlocked %}
-            <main class="touch-activity-layout{% if refresh_error or activity.refresh_errors %} has-warning{% endif %}">
+            <main class="touch-activity-layout{% if refreshing or refresh_status or refresh_error or activity.refresh_errors %} has-warning{% endif %}">
                 <section class="touch-activity-stations" aria-label="Station status">
                     {% for station in activity.stations %}
                         <article class="touch-activity-station">
@@ -40,7 +41,11 @@
                     <span>Refreshed {{ activity.refreshed }}</span>
                 </nav>
 
-                {% if refresh_error or activity.refresh_errors %}
+                {% if refreshing %}
+                    <div class="touch-activity-warning refreshing" role="status">Refreshing station activity... You can keep using the app.</div>
+                {% elif refresh_status == "updated" %}
+                    <div class="touch-activity-warning success" role="status">Activity updated.</div>
+                {% elif refresh_error or activity.refresh_errors %}
                     <div class="touch-activity-warning">Some stations could not be refreshed. Showing their last known activity.</div>
                 {% endif %}
 
@@ -74,6 +79,27 @@
             event.hidden = filter !== "all" && event.dataset.activityCategory !== filter;
         });
     }));
+
+    {% if refreshing %}
+    const checkRefresh = async () => {
+        try {
+            const response = await fetch("/touch/system/activity/status", {cache: "no-store"});
+            if (response.status === 401) {
+                window.location.replace("/touch/system?system_error=admin-session");
+                return;
+            }
+            const result = await response.json();
+            if (result.status === "complete") {
+                window.location.replace(`/touch/system/activity?refresh_status=${result.error ? "failed" : "updated"}`);
+                return;
+            }
+        } catch (error) {
+            // Keep the cached view usable and try the status check again.
+        }
+        window.setTimeout(checkRefresh, 1000);
+    };
+    window.setTimeout(checkRefresh, 600);
+    {% endif %}
 })();
 </script>
 {% endif %}
