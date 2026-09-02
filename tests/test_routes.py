@@ -698,10 +698,11 @@ class RouteRenderTests(unittest.TestCase):
         app_module.restart_wifi_in_background = lambda: called.__setitem__("restart", True)
         self.unlock_admin()
 
-        response = self.client.post(
-            "/touch/system/action",
-            data={"action": "restart-wifi"},
-        )
+        with patch.object(app_module.shutil, "which", return_value="/usr/bin/nmcli"):
+            response = self.client.post(
+                "/touch/system/action",
+                data={"action": "restart-wifi"},
+            )
 
         self.assertEqual(302, response.status_code)
         self.assertIn("system_status=wifi-restarting", response.headers["Location"])
