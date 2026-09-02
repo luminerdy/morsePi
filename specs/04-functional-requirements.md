@@ -423,6 +423,13 @@ from the current code (legacy status per requirement is tracked in
   display the latest valid local cache rather than replacing it with an empty
   view. Events SHALL distinguish an operation queued or uploaded to AWS from an
   operation confirmed by the remote device.
+- **FR-065** *(V1)* A valid adult PIN entered from the touch interface SHALL
+  start one bounded admin session that authorizes Admin System, Family
+  Activity, operator management, timing, volume, and Admin System actions
+  without asking for the PIN again. The session SHALL use a sliding 10-minute
+  idle timeout, provide a persistent `Exit Admin` control on admin pages, and
+  end on explicit exit, app restart, timeout, or navigation into a student
+  practice flow. Ending a session SHALL leave student progress unchanged.
 
 ## Student identity
 

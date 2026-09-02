@@ -24,7 +24,12 @@
                     {% endif %}
                 </div>
             {% endif %}
-            <a class="touch-top-link" href="/touch/system">System</a>
+            <div class="touch-top-actions">
+                <a class="touch-top-link" href="/touch/system">System</a>
+                <form method="post" action="/touch/admin/exit" class="touch-admin-exit-form">
+                    <button type="submit" class="touch-top-link touch-admin-exit">Exit Admin</button>
+                </form>
+            </div>
         </header>
 
         <main>
@@ -42,19 +47,6 @@
                 </section>
 
                 <section class="touch-operator-admin">
-                    {% if admin_pin_required %}
-                        <label for="operator_admin_pin">Admin PIN</label>
-                        <input id="operator_admin_pin" name="admin_pin" type="password" autocomplete="off" inputmode="numeric" class="touch-pin-input" data-touch-pin-input>
-                        <div class="touch-pin-display" data-touch-pin-display aria-live="polite">PIN</div>
-                        <div class="touch-pin-pad compact" data-touch-pin-pad aria-label="Admin PIN keypad">
-                            {% for digit in ["1", "2", "3", "4", "5", "6", "7", "8", "9"] %}
-                                <button type="button" class="touch-pin-key" data-touch-pin-digit="{{ digit }}">{{ digit }}</button>
-                            {% endfor %}
-                            <button type="button" class="touch-pin-key utility" data-touch-pin-clear>Clear</button>
-                            <button type="button" class="touch-pin-key" data-touch-pin-digit="0">0</button>
-                            <button type="button" class="touch-pin-key utility" data-touch-pin-back>Back</button>
-                        </div>
-                    {% endif %}
                     <button type="submit" class="button primary">Save Operators</button>
                     <a href="/touch/system" class="button secondary">Cancel</a>
                 </section>

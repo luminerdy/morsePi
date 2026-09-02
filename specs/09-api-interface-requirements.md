@@ -142,3 +142,10 @@ General rules:
   `scripts/family_activity.py` SHALL support scheduled/manual cache refresh and
   exit successfully without cloud access when the station is not configured as
   the family activity reader.
+- **API-030** *(V1)* `POST /touch/admin/unlock` SHALL validate the adult PIN,
+  start an opaque server-owned admin session, and redirect only to an approved
+  local admin route. `POST /touch/admin/exit` SHALL revoke the current token,
+  clear its cookie, and return to the student menu. Protected touch admin GET
+  routes SHALL redirect an unauthenticated request to `/touch/system`; admin
+  action POST routes SHALL reject it without performing the action. Successful
+  requests within the session SHALL refresh its 10-minute idle timer.

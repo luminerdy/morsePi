@@ -71,6 +71,7 @@ class RouteRenderTests(unittest.TestCase):
         app_module.STATION_CONFIG_PATH = self.data_dir / "station_config.json"
         app_module.ADMIN_PIN_PATH = self.data_dir / "admin_pin.txt"
         app_module.reset_admin_pin_lockout()
+        app_module.clear_admin_sessions()
         app_module.station_volume = app_module.DEFAULT_STATION_VOLUME
         app_module.play_daily_celebration_in_background = self.record_daily_celebration
         self.daily_celebration_called = False
@@ -111,7 +112,14 @@ class RouteRenderTests(unittest.TestCase):
         app_module.practice_target = self.original_practice_target
         app_module.practice_feedback = self.original_practice_feedback
         app_module.reset_admin_pin_lockout()
+        app_module.clear_admin_sessions()
         self.temp_dir.cleanup()
+
+    def unlock_admin(self, pin="1234", next_url="/touch/system"):
+        return self.client.post(
+            "/touch/admin/unlock",
+            data={"admin_pin": pin, "next": next_url},
+        )
 
     def record_daily_celebration(self):
         self.daily_celebration_called = True
@@ -282,6 +290,7 @@ class RouteRenderTests(unittest.TestCase):
 
     def test_touch_timing_includes_speaker_volume_presets(self):
         self.write_station_config({"admin_pin": "1234"})
+        self.unlock_admin(next_url="/touch/timing")
 
         response = self.client.get("/touch/timing")
         html = response.get_data(as_text=True)
@@ -291,8 +300,9 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn('action="/station-volume"', html)
         self.assertIn('name="station_volume" value="0"', html)
         self.assertIn('name="station_volume" value="35"', html)
-        self.assertIn("data-touch-pin-copy", html)
-        self.assertIn('class="touch-pin-pad compact wide"', html)
+        self.assertNotIn("data-touch-pin-copy", html)
+        self.assertNotIn("data-touch-pin-pad", html)
+        self.assertIn("Exit Admin", html)
 
     def test_touch_settings_pin_failure_returns_to_usable_timing_screen(self):
         self.write_station_config({"admin_pin": "1234"})
@@ -316,7 +326,6 @@ class RouteRenderTests(unittest.TestCase):
             },
         )
         timing_page = self.client.get(denied_volume.headers["Location"])
-        html = timing_page.get_data(as_text=True)
 
         self.assertEqual(302, denied_volume.status_code)
         self.assertEqual(
@@ -328,9 +337,8 @@ class RouteRenderTests(unittest.TestCase):
             "/touch/timing?settings_error=admin-pin",
             denied_timing.headers["Location"],
         )
-        self.assertEqual(200, timing_page.status_code)
-        self.assertIn("Enter the admin PIN, then choose a setting.", html)
-        self.assertIn('href="/touch/menu"', html)
+        self.assertEqual(302, timing_page.status_code)
+        self.assertIn("system_error=admin-session", timing_page.headers["Location"])
         self.assertEqual(35, app_module.station_volume_percent())
 
     def test_touch_shutdown_confirm_page_does_not_require_admin_pin(self):
@@ -661,7 +669,77 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("data-touch-pin-clear", html)
         self.assertIn("data-touch-pin-back", html)
         self.assertNotIn("data-test-sound", html)
+        self.assertNotIn('href="/touch/system/operators"', html)
+        self.assertIn("Enter Admin", html)
+
+    def test_touch_admin_unlock_sets_opaque_cookie_and_removes_repeated_pin_pad(self):
+        self.write_station_config({"admin_pin": "1234"})
+
+        response = self.unlock_admin()
+        cookie = response.headers.get("Set-Cookie", "")
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual("/touch/system", response.headers["Location"])
+        self.assertIn(f"{app_module.ADMIN_SESSION_COOKIE}=", cookie)
+        self.assertIn("HttpOnly", cookie)
+        self.assertIn("SameSite=Lax", cookie)
+        self.assertNotIn("1234", cookie)
+
+        html = self.client.get("/touch/system").get_data(as_text=True)
+        self.assertIn("Exit Admin", html)
         self.assertIn('href="/touch/system/operators"', html)
+        self.assertNotIn("data-touch-pin-pad", html)
+
+    def test_touch_admin_session_authorizes_action_without_reentering_pin(self):
+        self.write_station_config({"admin_pin": "1234"})
+        called = {"restart": False}
+        app_module.restart_wifi_in_background = lambda: called.__setitem__("restart", True)
+        self.unlock_admin()
+
+        response = self.client.post(
+            "/touch/system/action",
+            data={"action": "restart-wifi"},
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("system_status=wifi-restarting", response.headers["Location"])
+        self.assertTrue(called["restart"])
+
+    def test_touch_admin_session_expires_after_ten_idle_minutes(self):
+        self.write_station_config({"admin_pin": "1234"})
+        self.unlock_admin()
+        cookie = self.client.get_cookie(app_module.ADMIN_SESSION_COOKIE)
+        app_module.admin_session_store[cookie.value] = app_module.time() - app_module.ADMIN_SESSION_IDLE_SECONDS
+
+        response = self.client.get("/touch/system/operators")
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("system_error=admin-session", response.headers["Location"])
+        self.assertTrue(any(
+            f"{app_module.ADMIN_SESSION_COOKIE}=;" in value
+            for value in response.headers.getlist("Set-Cookie")
+        ))
+        self.assertIsNone(self.client.get_cookie(app_module.ADMIN_SESSION_COOKIE))
+
+    def test_touch_admin_exit_and_student_navigation_revoke_session(self):
+        self.write_station_config({"admin_pin": "1234"})
+        self.unlock_admin()
+
+        exit_response = self.client.post("/touch/admin/exit")
+        self.assertEqual("/touch/menu", exit_response.headers["Location"])
+        self.assertIsNone(self.client.get_cookie(app_module.ADMIN_SESSION_COOKIE))
+
+        self.unlock_admin()
+        self.client.get("/touch/daily")
+        response = self.client.get("/touch/system/operators")
+        self.assertIn("system_error=admin-session", response.headers["Location"])
+
+    def test_touch_admin_unlock_rejects_external_next_url(self):
+        self.write_station_config({"admin_pin": "1234"})
+
+        response = self.unlock_admin(next_url="https://example.com")
+
+        self.assertEqual("/touch/system", response.headers["Location"])
 
     def test_touch_system_links_family_activity_only_on_reader_station(self):
         self.write_station_config({
@@ -687,12 +765,9 @@ class RouteRenderTests(unittest.TestCase):
         })
 
         response = self.client.get("/touch/system/activity")
-        html = response.get_data(as_text=True)
 
-        self.assertEqual(200, response.status_code)
-        self.assertIn("Private family view", html)
-        self.assertIn("data-touch-pin-pad", html)
-        self.assertNotIn("Practice progress uploaded", html)
+        self.assertEqual(302, response.status_code)
+        self.assertIn("system_error=admin-session", response.headers["Location"])
 
     def test_family_activity_valid_pin_refreshes_and_renders_feed(self):
         self.write_station_config({
@@ -730,8 +805,9 @@ class RouteRenderTests(unittest.TestCase):
             }],
         }
 
+        self.unlock_admin("2745", "/touch/system/activity")
         with patch.object(app_module, "refresh_family_activity_view", return_value=(cache, "")):
-            response = self.client.post("/touch/system/activity", data={"admin_pin": "2745"})
+            response = self.client.get("/touch/system/activity")
         html = response.get_data(as_text=True)
 
         self.assertEqual(200, response.status_code)
@@ -762,6 +838,7 @@ class RouteRenderTests(unittest.TestCase):
             },
         })
 
+        self.unlock_admin()
         response = self.client.get("/touch/system/operators")
         html = response.get_data(as_text=True)
 
@@ -771,7 +848,8 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn('value="campbell" checked', html)
         self.assertIn('value="olivea" checked', html)
         self.assertNotIn('value="guest"', html)
-        self.assertIn("data-touch-pin-pad", html)
+        self.assertNotIn("data-touch-pin-pad", html)
+        self.assertIn("Exit Admin", html)
 
     def test_touch_operator_manager_rejects_bad_pin_without_changes(self):
         config = {

@@ -14,13 +14,47 @@
                 <h1><a class="touch-student-link" href="/touch/students?next=/touch/daily">{{ current_student.name }}</a></h1>
             </div>
             <div class="touch-top-actions">
-                {% if family_activity_reader %}
+                {% if admin_unlocked and family_activity_reader %}
                     <a class="touch-top-link" href="/touch/system/activity">Activity</a>
                 {% endif %}
-                <a class="touch-top-link" href="/touch/menu">Menu</a>
+                {% if admin_unlocked %}
+                    <form method="post" action="/touch/admin/exit" class="touch-admin-exit-form">
+                        <button type="submit" class="touch-top-link touch-admin-exit">Exit Admin</button>
+                    </form>
+                {% else %}
+                    <a class="touch-top-link" href="/touch/menu">Menu</a>
+                {% endif %}
             </div>
         </header>
 
+        {% if not admin_unlocked %}
+        <main class="touch-activity-lock">
+            <section class="touch-activity-intro">
+                <span>Adult settings</span>
+                <strong>Enter the admin PIN</strong>
+                <p>One unlock gives access for 10 minutes while you are using admin screens.</p>
+            </section>
+            <form method="post" action="/touch/admin/unlock" class="touch-activity-pin">
+                <input type="hidden" name="next" value="{{ admin_next }}">
+                {% if system_error %}
+                    <div class="feedback-box error">
+                        {% if system_error == "admin-pin" %}PIN not accepted. Try again.{% elif system_error == "admin-session" %}Admin session ended. Enter the PIN again.{% else %}Admin access is needed.{% endif %}
+                    </div>
+                {% endif %}
+                <input name="admin_pin" type="password" autocomplete="off" inputmode="numeric" class="touch-pin-input" data-touch-pin-input>
+                <div class="touch-pin-display" data-touch-pin-display aria-live="polite">PIN</div>
+                <div class="touch-pin-pad compact" data-touch-pin-pad aria-label="Admin PIN keypad">
+                    {% for digit in ["1", "2", "3", "4", "5", "6", "7", "8", "9"] %}
+                        <button type="button" class="touch-pin-key" data-touch-pin-digit="{{ digit }}">{{ digit }}</button>
+                    {% endfor %}
+                    <button type="button" class="touch-pin-key utility" data-touch-pin-clear>Clear</button>
+                    <button type="button" class="touch-pin-key" data-touch-pin-digit="0">0</button>
+                    <button type="button" class="touch-pin-key utility" data-touch-pin-back>Back</button>
+                </div>
+                <button type="submit" class="button primary">Enter Admin</button>
+            </form>
+        </main>
+        {% else %}
         <main class="touch-system-layout">
             <section class="touch-system-status">
                 <div class="touch-system-card">
@@ -111,6 +145,8 @@
                     <div class="feedback-box error">
                         {% if system_error == "admin-pin" %}
                             Admin PIN needed.
+                        {% elif system_error == "admin-session" %}
+                            Admin session ended. Enter the PIN again.
                         {% elif system_error == "missing-nmcli" %}
                             Wi-Fi tool is missing.
                         {% elif system_error == "missing-keyboard" %}
@@ -126,19 +162,6 @@
                 {% endif %}
 
                 <form method="post" action="/touch/system/action" class="touch-system-form">
-                    {% if admin_pin_required %}
-                        <label for="system_admin_pin">Admin PIN</label>
-                        <input id="system_admin_pin" name="admin_pin" type="password" autocomplete="off" inputmode="numeric" class="touch-pin-input" data-touch-pin-input>
-                        <div class="touch-pin-display" data-touch-pin-display aria-live="polite">PIN</div>
-                        <div class="touch-pin-pad" data-touch-pin-pad aria-label="Admin PIN keypad">
-                            {% for digit in ["1", "2", "3", "4", "5", "6", "7", "8", "9"] %}
-                                <button type="button" class="touch-pin-key" data-touch-pin-digit="{{ digit }}">{{ digit }}</button>
-                            {% endfor %}
-                            <button type="button" class="touch-pin-key utility" data-touch-pin-clear>Clear</button>
-                            <button type="button" class="touch-pin-key" data-touch-pin-digit="0">0</button>
-                            <button type="button" class="touch-pin-key utility" data-touch-pin-back>Back</button>
-                        </div>
-                    {% endif %}
                     <div class="touch-system-action-grid">
                         <a href="/touch/system/operators" class="button secondary">Manage Operators</a>
                         <button type="submit" name="action" value="open-keyboard" class="button secondary">Open Keyboard</button>
@@ -150,6 +173,7 @@
                 </form>
             </section>
         </main>
+        {% endif %}
     </div>
 <script src="/static/app.js?v=20260830-2"></script>
 </body>

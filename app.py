@@ -64,6 +64,7 @@ import hmac
 
 app = Flask(__name__)
 SESSION_COOKIE = "morse_practice_session_id"
+ADMIN_SESSION_COOKIE = "morse_admin_session"
 STATION_CONFIG_PATH = data_path("station_config.json")
 ADMIN_PIN_PATH = data_path("admin_pin.txt")
 FAMILY_PROGRESS_PATH = data_path("family_progress", "latest.json")
@@ -80,10 +81,13 @@ MAX_STUDENT_NAME_CHARS = 40
 ADMIN_PIN_MAX_FAILURES = 5
 ADMIN_PIN_FAILURE_WINDOW_SECONDS = 15 * 60
 ADMIN_PIN_LOCKOUT_SECONDS = 60
+ADMIN_SESSION_IDLE_SECONDS = 10 * 60
 admin_pin_lockout = {
     "failures": [],
     "locked_until": 0.0,
 }
+admin_session_store = {}
+admin_sessions_lock = threading.Lock()
 
 app.config["MAX_CONTENT_LENGTH"] = MAX_REQUEST_BYTES
 app.jinja_env.filters["morse_visual"] = morse_visual
@@ -130,6 +134,16 @@ def configure_student_storage():
     learning_state_path = student_data_path(requested_student_id, "learning_state.json")
     g.practice_session_id = safe_session_id(request.cookies.get(SESSION_COOKIE, ""))
 
+    if (
+        request.method == "GET"
+        and request.path.startswith("/touch")
+        and not request.path.startswith("/touch/system")
+        and request.path != "/touch/timing"
+        and request.cookies.get(ADMIN_SESSION_COOKIE)
+    ):
+        revoke_admin_session(request.cookies.get(ADMIN_SESSION_COOKIE))
+        g.clear_admin_session_cookie = True
+
 
 @app.after_request
 def persist_practice_session(response):
@@ -149,6 +163,16 @@ def persist_practice_session(response):
         g.practice_session_id = new_practice_session_id()
 
     response.set_cookie(SESSION_COOKIE, g.practice_session_id, max_age=60 * 60 * 12, samesite="Lax")
+    if getattr(g, "clear_admin_session_cookie", False):
+        response.delete_cookie(ADMIN_SESSION_COOKIE, samesite="Lax")
+    elif getattr(g, "refresh_admin_session_cookie", ""):
+        response.set_cookie(
+            ADMIN_SESSION_COOKIE,
+            g.refresh_admin_session_cookie,
+            max_age=ADMIN_SESSION_IDLE_SECONDS,
+            httponly=True,
+            samesite="Lax",
+        )
     return response
 
 
@@ -159,6 +183,7 @@ def inject_student_context():
         "student_profiles": getattr(g, "student_profiles", load_profiles()),
         "all_student_profiles": getattr(g, "all_student_profiles", load_profiles()),
         "admin_pin_required": admin_pin_required(),
+        "admin_session_active": admin_session_active(refresh=False),
         "student_creation_allowed": student_creation_allowed(),
     }
 
@@ -598,6 +623,75 @@ def admin_pin_valid(value):
 
     record_admin_pin_failure()
     return False
+
+
+def clear_admin_sessions():
+    with admin_sessions_lock:
+        admin_session_store.clear()
+
+
+def revoke_admin_session(token):
+    token = str(token or "").strip()
+    if not token:
+        return
+    with admin_sessions_lock:
+        admin_session_store.pop(token, None)
+
+
+def admin_session_active(refresh=True, now=None):
+    if not admin_pin_required():
+        return True
+
+    token = str(request.cookies.get(ADMIN_SESSION_COOKIE, "") or "").strip()
+    if not token:
+        return False
+
+    now = time() if now is None else now
+    with admin_sessions_lock:
+        last_active = admin_session_store.get(token)
+        if last_active is None or now - last_active >= ADMIN_SESSION_IDLE_SECONDS:
+            admin_session_store.pop(token, None)
+            g.clear_admin_session_cookie = True
+            return False
+        if refresh:
+            admin_session_store[token] = now
+            g.refresh_admin_session_cookie = token
+    return True
+
+
+def start_admin_session(response, now=None):
+    token = uuid4().hex
+    with admin_sessions_lock:
+        admin_session_store[token] = time() if now is None else now
+    response.set_cookie(
+        ADMIN_SESSION_COOKIE,
+        token,
+        max_age=ADMIN_SESSION_IDLE_SECONDS,
+        httponly=True,
+        samesite="Lax",
+    )
+    return response
+
+
+def end_admin_session(response):
+    revoke_admin_session(request.cookies.get(ADMIN_SESSION_COOKIE))
+    response.delete_cookie(ADMIN_SESSION_COOKIE, samesite="Lax")
+    return response
+
+
+def approved_admin_next():
+    requested = request.form.get("next", "")
+    allowed = {
+        "/touch/system",
+        "/touch/system/activity",
+        "/touch/system/operators",
+        "/touch/timing",
+    }
+    return requested if requested in allowed else url_for("touch_system")
+
+
+def legacy_or_session_admin_authorized():
+    return admin_session_active() or admin_pin_valid(request.form.get("admin_pin", ""))
 
 
 
@@ -5191,16 +5285,34 @@ def touch_key():
 
 @app.route("/touch/timing")
 def touch_timing():
+    if not admin_session_active():
+        return redirect(url_for("touch_system", next="/touch/timing", system_error="admin-session"))
     return render_home_template(
         "touch_timing.html",
         settings_error=request.args.get("settings_error", ""),
     )
 
 
+@app.route("/touch/admin/unlock", methods=["POST"])
+def touch_admin_unlock():
+    next_url = approved_admin_next()
+    if not admin_pin_valid(request.form.get("admin_pin", "")):
+        return redirect(url_for("touch_system", system_error="admin-pin", next=next_url))
+
+    return start_admin_session(redirect(next_url))
+
+
+@app.route("/touch/admin/exit", methods=["POST"])
+def touch_admin_exit():
+    return end_admin_session(redirect(url_for("touch_menu")))
+
+
 @app.route("/touch/system")
 def touch_system():
     return render_template(
         "touch_system.html",
+        admin_unlocked=admin_session_active(),
+        admin_next=request.args.get("next", "/touch/system"),
         family_activity_reader=family_activity_reader_enabled(),
         system=system_status(),
         system_status_message=request.args.get("system_status", ""),
@@ -5210,32 +5322,35 @@ def touch_system():
 
 @app.route("/touch/system/activity", methods=["GET", "POST"])
 def touch_system_activity():
-    unlocked = False
-    activity_error = ""
-    refresh_error = ""
-    activity = {}
+    if request.method == "POST" and admin_pin_valid(request.form.get("admin_pin", "")):
+        return start_admin_session(redirect(url_for("touch_system_activity")))
+    if not admin_session_active():
+        return redirect(url_for("touch_system", next="/touch/system/activity", system_error="admin-session"))
+    if not family_activity_reader_enabled():
+        return redirect(url_for("touch_system", system_error="reader-disabled"))
 
-    if request.method == "POST":
-        if not admin_pin_valid(request.form.get("admin_pin", "")):
-            activity_error = "admin-pin"
-        elif not family_activity_reader_enabled():
-            activity_error = "reader-disabled"
-        else:
-            cache, refresh_error = refresh_family_activity_view()
-            activity = family_activity_view(cache)
-            unlocked = True
+    cache, refresh_error = refresh_family_activity_view()
+    activity = family_activity_view(cache)
 
     return render_template(
         "touch_family_activity.html",
         activity=activity,
-        activity_error=activity_error,
         refresh_error=refresh_error,
-        unlocked=unlocked,
+        unlocked=True,
     )
 
 
 @app.route("/touch/system/operators", methods=["GET", "POST"])
 def touch_system_operators():
+    if request.method == "POST":
+        authorized = legacy_or_session_admin_authorized()
+    else:
+        authorized = admin_session_active()
+    if not authorized:
+        if request.method == "POST" and request.form.get("admin_pin"):
+            return redirect(url_for("touch_system_operators", operator_error="admin-pin"))
+        return redirect(url_for("touch_system", next="/touch/system/operators", system_error="admin-session"))
+
     operators = [
         profile
         for profile in configured_family_profiles()
@@ -5244,9 +5359,6 @@ def touch_system_operators():
     operator_ids = {profile["id"] for profile in operators}
 
     if request.method == "POST":
-        if not admin_pin_valid(request.form.get("admin_pin", "")):
-            return redirect(url_for("touch_system_operators", operator_error="admin-pin"))
-
         requested_ids = {
             slugify_student_id(student_id)
             for student_id in request.form.getlist("student_ids")
@@ -5279,8 +5391,9 @@ def touch_system_operators():
 
 @app.route("/touch/system/action", methods=["POST"])
 def touch_system_action():
-    if not admin_pin_valid(request.form.get("admin_pin", "")):
-        return redirect(url_for("touch_system", system_error="admin-pin"))
+    if not legacy_or_session_admin_authorized():
+        error = "admin-pin" if request.form.get("admin_pin") else "admin-session"
+        return redirect(url_for("touch_system", system_error=error))
 
     action = request.form.get("action", "")
 
@@ -5346,7 +5459,7 @@ def audio_reset():
 def set_station_volume():
     global station_volume
 
-    if not admin_pin_valid(request.form.get("admin_pin", "")):
+    if not legacy_or_session_admin_authorized():
         return denied_settings_response()
 
     volume_percent = normalize_station_volume(request.form.get("station_volume"))
@@ -5358,7 +5471,7 @@ def set_station_volume():
 
 @app.route("/timing-settings", methods=["POST"])
 def set_timing_settings():
-    if not admin_pin_valid(request.form.get("admin_pin", "")):
+    if not legacy_or_session_admin_authorized():
         return denied_settings_response()
 
     morse_timing.update(normalize_morse_timing({

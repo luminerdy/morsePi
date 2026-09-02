@@ -301,6 +301,15 @@ correctness checks. Each is encoded as an automated test per
   At 800x480 the unlocked page shows all three latest station summaries and a
   scrollable chronological list with working All, Updates, Progress, Messages,
   and Problems filters and no page-level scrolling or overlap.
+- **AC-041** (FR-065 / API-030 / SEC-024) On a PIN-configured 800x480 station,
+  one correct PIN opens Admin System and sets an opaque `HttpOnly`,
+  `SameSite=Lax` cookie that does not contain the PIN. System actions, Family
+  Activity, operator changes, timing, and volume then work without another PIN
+  prompt and refresh a sliding 10-minute idle timer. A wrong PIN retains the
+  existing lockout behavior. Exit Admin, a student-flow navigation, an idle
+  timeout, or an app restart revokes access; a later action performs no change
+  until the PIN is entered again. Every unlocked admin page keeps an obvious
+  Exit Admin control visible without page scrolling or overlap.
 
 ## Coverage rule
 
