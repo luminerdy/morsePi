@@ -1554,7 +1554,13 @@ class RouteRenderTests(unittest.TestCase):
 
         self.assertEqual(302, response.status_code)
         self.assertEqual("I", draft["text"])
-        self.assertEqual(42, len(app_module.word_practice_bank))
+        self.assertNotIn("I", app_module.word_practice_bank)
+        starter_words = [
+            word
+            for word in app_module.word_practice_bank
+            if set(word) <= set("ETANIMSO")
+        ]
+        self.assertEqual(42, len(starter_words))
 
     def test_touch_message_composer_separates_word_retry_from_message_clear(self):
         self.unlock_messages("pappy")
