@@ -2,6 +2,10 @@
 
 ## 2026-09-05 - Astrid/Liara station update recovery
 
+- Added the single-letter word `I` to the shared message vocabulary as soon as
+  both operators know that starter letter. It appears as `Ready` in the message
+  Word Bank and may be selected or keyed as `..`, while the scored Words
+  practice catalog and its 42-word completion milestone remain unchanged.
 - Brought the Astrid/Liara station onto the home network at
   `10.10.10.137` and audited its release checkout, update timers, sync
   reports, services, and AWS IoT Jobs poller before changing it.

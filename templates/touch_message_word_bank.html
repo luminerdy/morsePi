@@ -42,14 +42,14 @@
                                         <button class="word-status-{{ item.status }}" name="word" value="{{ item.word }}" type="submit">
                                             <strong>{{ item.word }}</strong>
                                             <small>{{ item.morse | morse_visual }}</small>
-                                            <em>{% if item.status == "done" %}Done{% elif item.status == "tried" %}Tried{% else %}New{% endif %}</em>
+                                            <em>{% if item.status == "ready" %}Ready{% elif item.status == "done" %}Done{% elif item.status == "tried" %}Tried{% else %}New{% endif %}</em>
                                         </button>
                                     </form>
                                 {% else %}
                                     <div class="touch-word-bank-tile word-status-{{ item.status }}">
                                         <strong>{{ item.word }}</strong>
                                         <small>{{ item.morse | morse_visual }}</small>
-                                        <em>{% if item.status == "done" %}Done{% elif item.status == "tried" %}Tried{% else %}New{% endif %}</em>
+                                        <em>{% if item.status == "ready" %}Ready{% elif item.status == "done" %}Done{% elif item.status == "tried" %}Tried{% else %}New{% endif %}</em>
                                     </div>
                                 {% endif %}
                             {% endfor %}

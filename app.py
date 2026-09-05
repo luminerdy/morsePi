@@ -305,6 +305,7 @@ word_practice_bank = [
     "COLD", "HOLD", "DUCK", "LUCK", "LOCK", "ROCK", "ROLL", "TELL",
     "HELLO", "WORLD", "WORD", "CODE", "HOME", "HOUSE", "CLOCK"
 ]
+message_word_bank = ["I"] + word_practice_bank
 word_practice_phases = ("unfinished", "unfinished", "unfinished", "review", "review")
 
 
@@ -4319,7 +4320,7 @@ def mutate_message_draft(draft, action, recipient):
 
     if action == "append-word":
         word = str(request.form.get("word") or "").strip().upper()
-        if word not in available_message_words(word_practice_bank, allowed):
+        if word not in available_message_words(message_word_bank, allowed):
             raise MessageValidationError("That word is not available.")
         text = f"{text} {word}" if text else word
         pending_space = False
@@ -4328,7 +4329,7 @@ def mutate_message_draft(draft, action, recipient):
         if not raw_morse or "/" in raw_morse:
             raise MessageValidationError("Key one complete word, then try Add Word again.")
         word = morse_to_text(raw_morse).strip().upper()
-        available_words = available_message_words(word_practice_bank, allowed)
+        available_words = available_message_words(message_word_bank, allowed)
         if not word.isalpha() or word not in available_words:
             raise MessageValidationError("Key one of your available Words, then try again.")
         text = f"{text} {word}" if text else word
@@ -4354,7 +4355,7 @@ def mutate_message_draft(draft, action, recipient):
             raise MessageValidationError("Choose a word to change.")
         if action == "replace-word":
             word = str(request.form.get("word") or "").strip().upper()
-            if word not in available_message_words(word_practice_bank, allowed):
+            if word not in available_message_words(message_word_bank, allowed):
                 raise MessageValidationError("That word is not available.")
             words[index] = word
         elif action == "delete-word":
@@ -4435,7 +4436,7 @@ def word_bank_groups(allowed_letters, attempts=None):
         step_letters = set(step["letters"])
         words = [
             word
-            for word in word_practice_bank
+            for word in message_word_bank
             if word not in seen
             and all(character in step_letters for character in word)
             and all(character in allowed for character in word)
@@ -4452,7 +4453,9 @@ def word_bank_groups(allowed_letters, attempts=None):
                         "attempts": word_stats.get(word, {}).get("attempts", 0),
                         "correct": word_stats.get(word, {}).get("correct", 0),
                         "status": (
-                            "done"
+                            "ready"
+                            if word not in word_practice_bank
+                            else "done"
                             if word_stats.get(word, {}).get("correct", 0)
                             else "tried"
                             if word_stats.get(word, {}).get("attempts", 0)
@@ -4756,7 +4759,7 @@ def touch_message_compose():
     draft_words = message_word_tiles(draft.get("text", ""))
     if edit_word_index < 0 or edit_word_index >= len(draft_words):
         edit_word_index = None
-    available_words = available_message_words(word_practice_bank, recipient["allowed_letters"])
+    available_words = available_message_words(message_word_bank, recipient["allowed_letters"])
 
     return render_template(
         "touch_message_compose.html",
@@ -4803,7 +4806,7 @@ def touch_message_word_bank():
         "touch_message_word_bank.html",
         recipient=recipient,
         groups=word_bank_groups(allowed_letters),
-        word_count=len(available_message_words(word_practice_bank, allowed_letters)),
+        word_count=len(available_message_words(message_word_bank, allowed_letters)),
         action=action,
         word_index=word_index,
         back_url=back_url,

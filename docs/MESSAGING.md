@@ -27,7 +27,7 @@ Guest Operator cannot send or receive messages.
 
 1. Open Messages from Daily or the touch menu.
 2. Choose an eligible recipient.
-3. Add short known words with touch tiles, or key one complete practiced word
+3. Add short known words with touch tiles, or key one complete available word
    and tap Add Word.
 4. Tap a letter tile to replace or remove it; Undo and Clear are also available.
 5. Review the letters and Morse code, then use Play to hear the message and see
