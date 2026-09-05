@@ -1444,8 +1444,10 @@ class RouteRenderTests(unittest.TestCase):
 
         self.assertEqual(200, browse_response.status_code)
         self.assertIn("Words I Know", browse_html)
-        self.assertIn("42", browse_html)
+        self.assertIn("43", browse_html)
         self.assertIn("First Words", browse_html)
+        self.assertIn('name="word" value="I"', choose_html)
+        self.assertIn(">Ready<", choose_html)
         self.assertIn("word-status-done", browse_html)
         self.assertIn("word-status-tried", browse_html)
         self.assertIn(">Done<", browse_html)
@@ -1539,6 +1541,20 @@ class RouteRenderTests(unittest.TestCase):
 
         self.assertEqual(302, second_response.status_code)
         self.assertEqual("ME SO", draft["text"])
+
+    def test_touch_message_supports_single_letter_i_without_changing_words_practice(self):
+        self.unlock_messages("pappy")
+        self.unlock_messages("astrid")
+
+        response = self.client.post(
+            "/touch/messages/draft",
+            data={"recipient_id": "astrid", "action": "append-keyed-word", "morse": ".."},
+        )
+        draft = json.loads(self.student_file("pappy", "message_draft.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual("I", draft["text"])
+        self.assertEqual(42, len(app_module.word_practice_bank))
 
     def test_touch_message_composer_separates_word_retry_from_message_clear(self):
         self.unlock_messages("pappy")

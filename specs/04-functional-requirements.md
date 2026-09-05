@@ -245,7 +245,10 @@ from the current code (legacy status per requirement is tracked in
 - **FR-041** The 800x480 composer SHALL work without a keyboard. It SHALL
   support (a) touch word tiles filtered to the allowable letters and (b)
   physical-key entry that captures and decodes one complete word from the
-  student's available Words practice set before adding it to the draft. The
+  student's available message vocabulary before adding it to the draft. The
+  message vocabulary MAY include useful single-letter words such as `I` as
+  soon as both operators know the required letter, without adding that item to
+  scored Words practice or changing Words completion totals. The
   sender SHALL be able to open a scrollable touch Word Bank that lists all
   available shared words grouped by unlock set and choose a word from that
   list. The Word Bank SHALL also be reachable from Words practice as `Words I
