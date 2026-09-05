@@ -1,5 +1,27 @@
 # Pappy's Internet Telegraph Project Plan
 
+## 2026-09-05 - Astrid/Liara station update recovery
+
+- Brought the Astrid/Liara station onto the home network at
+  `10.10.10.137` and audited its release checkout, update timers, sync
+  reports, services, and AWS IoT Jobs poller before changing it.
+- Found the update blocker: `scripts/install_boot_splash.sh` had only an
+  accidental executable-bit change and no content change. The older updater
+  correctly protected the tracked change instead of overwriting it.
+- Restored the repository file mode, then completed the protected update from
+  `cecbb77` to release/pi `ec0a145`. The update created and uploaded a
+  pre-update backup, passed all 292 tests, restarted the app, uploaded station
+  status and progress, and reported 3/3 family stations available.
+- Ran the current hardened updater a second time to refresh its copied update
+  wrapper and systemd units and to install the supervised Chromium kiosk.
+  App, browser, scheduled update, IoT remote update, progress sync, and message
+  sync services are active; installed helpers match the repository and the
+  checkout has no tracked changes.
+- Rehearsed the normal automatic-update service and IoT poller after recovery.
+  The updater reports `current` at `ec0a145`, and AWS IoT Jobs reports
+  `no-pending-job`. Student data and station-specific configuration were
+  preserved throughout.
+
 ## 2026-09-02 - Bounded touch admin sessions
 
 - Fixed an Activity-page lockup discovered during live testing. The route had
