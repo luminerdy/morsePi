@@ -232,10 +232,13 @@ Promote a tested release from the laptop:
 ```bash
 git fetch origin
 git checkout release/pi
-git merge --ff-only main
+git cherry-pick <tested-main-commit>
 git push origin release/pi
 git checkout main
 ```
+
+GitHub CI runs on `release/pi` itself. Wait for that exact promoted commit to
+pass before creating an AWS IoT update Job.
 
 Useful environment variables:
 

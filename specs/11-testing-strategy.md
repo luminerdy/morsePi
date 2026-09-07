@@ -108,12 +108,16 @@
 - **TEST-026** Admin-session tests cover correct and incorrect unlocks, opaque
   cookie flags, route and action authorization, sliding activity renewal,
   timeout, explicit exit, student-flow relock, process-restart invalidation,
-  no-PIN development behavior, and an 800x480 touch rehearsal across System,
-  Activity, Operators, and Timing.
+  no-PIN development behavior, deployed fail-closed behavior, adult reporting
+  pages, and an 800x480 touch rehearsal across System, Activity, Operators,
+  and Timing.
+- **TEST-027** Backup recovery tests verify required station and student files,
+  per-file size/checksum metadata, successful extraction, tamper rejection,
+  extra-file/path rejection, station identity, and retention.
 
 ## CI pipeline (per TR-011)
 
-On every PR and push to main:
+On every PR and push to `main` or `release/pi`:
 
 1. `ruff check` + `ruff format --check`
 2. `pytest` with coverage gate (≥ 80% on `learning/` and `morse.py`)
@@ -122,5 +126,9 @@ On every PR and push to main:
 5. Performance guard (TEST-010)
 6. Message unit/contract tests (TEST-011/012 when Phase 7 begins)
 7. Message sync integration tests (TEST-013 when Phase 7B begins)
+
+The required release job SHALL fail when any discovered test is skipped so a
+missing dependency or failed module import cannot produce a green deployment
+revision.
 
 Matrix: Linux (primary), plus Windows/macOS import-and-unit smoke for AC-012.

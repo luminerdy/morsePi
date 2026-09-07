@@ -22,8 +22,9 @@ correctness checks. Each is encoded as an automated test per
   ***Fails today.***
 - **AC-004** (SEC-002 / SEC-003) With no PIN configured, admin endpoints
   return 403 and startup logs a warning; 5 wrong PINs lock admin for 15 min.
-  ***Partially passes today:*** configured PINs use constant-time comparison and
-  5 wrong PINs trigger a short in-memory lockout. Mandatory PIN, persistent
+  ***Partially passes today:*** deployed systemd services fail closed when no
+  PIN is configured; configured PINs use constant-time comparison and 5 wrong
+  PINs trigger a short in-memory lockout. Startup warning, persistent
   logging, and the full 15-minute production lockout remain open.
 - **AC-005** (SEC-005) `POST /api/play` with `next=https://evil.example`
   redirects to `/`. ***Passes as of `7818254`*** (all routes use
@@ -310,7 +311,8 @@ correctness checks. Each is encoded as an automated test per
 - **AC-041** (FR-065 / API-030 / SEC-024) On a PIN-configured 800x480 station,
   one correct PIN opens Admin System and sets an opaque `HttpOnly`,
   `SameSite=Lax` cookie that does not contain the PIN. System actions, Family
-  Activity, operator changes, timing, and volume then work without another PIN
+  Activity, operator changes, timing, volume, Rhythm Trends, Session Recovery,
+  and Family Progress then work without another PIN
   prompt and refresh a sliding 10-minute idle timer. A wrong PIN retains the
   existing lockout behavior. Exit Admin, a student-flow navigation, an idle
   timeout, or an app restart revokes access; a later action performs no change

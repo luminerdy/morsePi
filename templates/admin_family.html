@@ -51,9 +51,6 @@
                 {% endif %}
 
                 <form method="post" action="/admin/family" class="family-refresh-form">
-                    {% if admin_pin_required %}
-                        <input name="admin_pin" type="password" autocomplete="current-password" inputmode="numeric" placeholder="PIN">
-                    {% endif %}
                     <button type="submit" class="button primary">Refresh Family Progress</button>
                 </form>
 

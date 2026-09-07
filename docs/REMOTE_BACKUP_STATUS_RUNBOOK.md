@@ -195,10 +195,13 @@ Promote a tested release from the laptop:
 ```bash
 git fetch origin
 git checkout release/pi
-git merge --ff-only main
+git cherry-pick <tested-main-commit>
 git push origin release/pi
 git checkout main
 ```
+
+The branches intentionally have different commit histories. GitHub CI must
+pass on the exact `release/pi` commit before requesting station updates.
 
 Trigger reachable grandkid stations from the laptop:
 

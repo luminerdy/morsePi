@@ -1,6 +1,6 @@
 import argparse
+import hashlib
 import json
-import shutil
 import subprocess
 import zipfile
 from datetime import datetime, timezone
@@ -22,6 +22,8 @@ INCLUDE_PATHS = [
     "student_profiles.json",
     "timing_settings.json",
     "volume_settings.json",
+    "station_config.json",
+    "family_registry.json",
     "students",
 ]
 
@@ -77,12 +79,23 @@ def iter_backup_sources(data_dir):
                 yield path, Path("data") / relative / path.relative_to(source)
 
 
+def file_digest(payload):
+    return hashlib.sha256(payload).hexdigest()
+
+
 def build_manifest(data_dir, files, station_id="unknown-station"):
     return {
         "created_at": datetime.now(timezone.utc).isoformat(),
         "data_dir": str(data_dir),
-        "files": [str(archive_path).replace("\\", "/") for archive_path in files],
-        "format": "morse-station-data-backup-v1",
+        "files": [
+            {
+                "path": str(archive_path).replace("\\", "/"),
+                "sha256": file_digest(payload),
+                "size": len(payload),
+            }
+            for archive_path, payload in files
+        ],
+        "format": "morse-station-data-backup-v2",
         "station_id": station_id,
     }
 
@@ -96,16 +109,18 @@ def create_backup(data_dir=DEFAULT_DATA_DIR, backup_dir=DEFAULT_BACKUP_DIR, labe
     safe_label = "".join(ch if ch.isalnum() or ch in ("-", "_") else "-" for ch in label).strip("-") or "auto"
     safe_station = "".join(ch if ch.isalnum() or ch in ("-", "_") else "-" for ch in station_id).strip("-") or "unknown-station"
     backup_path = backup_dir / f"{timestamp_key()}-{safe_station}-{safe_label}.zip"
-    sources = list(iter_backup_sources(data_dir))
-    archive_paths = [archive_path for _, archive_path in sources]
+    sources = [
+        (archive_path, source.read_bytes())
+        for source, archive_path in iter_backup_sources(data_dir)
+    ]
 
     with zipfile.ZipFile(backup_path, "w", compression=zipfile.ZIP_DEFLATED) as backup_zip:
-        for source, archive_path in sources:
-            backup_zip.write(source, archive_path.as_posix())
+        for archive_path, payload in sources:
+            backup_zip.writestr(archive_path.as_posix(), payload)
 
         backup_zip.writestr(
             "manifest.json",
-            json.dumps(build_manifest(data_dir, archive_paths, station_id), indent=2, sort_keys=True),
+            json.dumps(build_manifest(data_dir, sources, station_id), indent=2, sort_keys=True),
         )
 
     return backup_path
@@ -178,7 +193,46 @@ def restore_backup(backup_path, restore_root):
     restore_root.mkdir(parents=True, exist_ok=True)
 
     with zipfile.ZipFile(backup_path) as backup_zip:
-        backup_zip.extractall(restore_root)
+        try:
+            manifest = json.loads(backup_zip.read("manifest.json"))
+        except (KeyError, json.JSONDecodeError) as exc:
+            raise ValueError("Backup manifest is missing or invalid.") from exc
+
+        backup_format = manifest.get("format")
+        if backup_format == "morse-station-data-backup-v2":
+            expected = {
+                entry["path"]: entry
+                for entry in manifest.get("files", [])
+                if isinstance(entry, dict) and entry.get("path")
+            }
+        elif backup_format == "morse-station-data-backup-v1":
+            expected = {
+                name: None
+                for name in manifest.get("files", [])
+                if isinstance(name, str) and name
+            }
+        else:
+            raise ValueError("Backup format is not supported for restore.")
+        archive_files = {
+            info.filename: info
+            for info in backup_zip.infolist()
+            if not info.is_dir() and info.filename != "manifest.json"
+        }
+        if set(archive_files) != set(expected):
+            raise ValueError("Backup contents do not match the manifest.")
+
+        for name, info in archive_files.items():
+            relative = Path(name)
+            if relative.is_absolute() or ".." in relative.parts or not relative.parts or relative.parts[0] != "data":
+                raise ValueError(f"Unsafe backup path: {name}")
+            payload = backup_zip.read(info)
+            entry = expected[name]
+            if entry is not None:
+                if len(payload) != entry.get("size") or file_digest(payload) != entry.get("sha256"):
+                    raise ValueError(f"Backup integrity check failed: {name}")
+            destination = restore_root / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(payload)
 
     return restore_root
 

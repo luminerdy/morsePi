@@ -585,7 +585,9 @@ def configured_admin_pin():
 
 
 def admin_pin_required():
-    return bool(configured_admin_pin())
+    configured = bool(configured_admin_pin())
+    require_configured = os.environ.get("MORSE_REQUIRE_ADMIN_PIN", "").strip().lower()
+    return configured or require_configured in {"1", "true", "yes", "on"}
 
 
 def reset_admin_pin_lockout():
@@ -618,7 +620,7 @@ def record_admin_pin_failure(now=None):
 def admin_pin_valid(value):
     required_pin = configured_admin_pin()
     if not required_pin:
-        return True
+        return not admin_pin_required()
 
     if admin_pin_locked():
         return False
@@ -693,6 +695,9 @@ def approved_admin_next():
         "/touch/system/activity",
         "/touch/system/operators",
         "/touch/timing",
+        "/admin/sessions",
+        "/admin/rhythm",
+        "/admin/family",
     }
     return requested if requested in allowed else url_for("touch_system")
 
@@ -5260,10 +5265,10 @@ def touch_progress():
 
 @app.route("/admin/sessions", methods=["GET", "POST"])
 def admin_sessions():
-    if request.method == "POST":
-        if not admin_pin_valid(request.form.get("admin_pin", "")):
-            return redirect(url_for("admin_sessions", recovery_error="admin-pin"))
+    if not admin_session_active():
+        return redirect(url_for("touch_system", next="/admin/sessions", system_error="admin-session"))
 
+    if request.method == "POST":
         result = recover_practice_session(
             request.form.get("session_id", ""),
             request.form.get("action", ""),
@@ -5290,6 +5295,9 @@ def admin_sessions():
 
 @app.route("/admin/rhythm")
 def admin_rhythm():
+    if not admin_session_active():
+        return redirect(url_for("touch_system", next="/admin/rhythm", system_error="admin-session"))
+
     return render_template(
         "admin_rhythm.html",
         rhythm=summarize_rhythm_over_time(),
@@ -5298,13 +5306,13 @@ def admin_rhythm():
 
 @app.route("/admin/family", methods=["GET", "POST"])
 def admin_family():
+    if not admin_session_active():
+        return redirect(url_for("touch_system", next="/admin/family", system_error="admin-session"))
+
     refresh_status = request.args.get("refresh_status", "")
     refresh_error = request.args.get("refresh_error", "")
 
     if request.method == "POST":
-        if not admin_pin_valid(request.form.get("admin_pin", "")):
-            return redirect(url_for("admin_family", refresh_error="admin-pin"))
-
         result = refresh_family_progress_view()
         if result["ok"]:
             return redirect(url_for("admin_family", refresh_status="updated"))
