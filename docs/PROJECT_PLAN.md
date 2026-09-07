@@ -22,9 +22,18 @@
 - Added a repository-rooted test runner. GitHub CI now tests both `main` and
   `release/pi` and fails a full release run if any test is skipped.
 - Verification: all 299 tests pass with zero skips in the pinned local
-  environment. Pappy completed the first canary update to `76fc286`; the
-  updater then gained an explicit app-user-unit refresh so remote stations
-  receive the production PIN requirement through the normal update path.
+  environment and in GitHub CI on both branches. Pappy completed the canary
+  update through final release `15591e1`; app and browser are active, the
+  installed unit contains `MORSE_REQUIRE_ADMIN_PIN=1`, and an unauthenticated
+  Rhythm request returns to the Admin System unlock.
+- Created and uploaded a v2 canary backup containing 37 files, verified every
+  checksum entry, restored it to a temporary directory, and confirmed the
+  restored station configuration hash matches the live file.
+- The canary exposed the updater's one-run self-refresh behavior: a release
+  that changes the updater installs that new wrapper at the end of the first
+  run, so an already-current second pass applies newly added installer logic.
+  Pappy completed that pass. Treat eliminating this lag as part of the staged
+  updater redesign before relying on one-shot fleet helper migrations.
 
 ### Prioritized next blocks
 

@@ -13,7 +13,7 @@ files only carry *(Delta: …)* notes, not status history.
 
 | Change | Commits | Spec impact |
 |---|---|---|
-| First project-review hardening block | 2026-09-07 working tree | SEC-002/API-003/API-017/API-025/AC-004/AC-041/FR-033/DR-006/TEST-026/TEST-027 — all adult report pages now share the bounded admin session; deployed units fail closed without a configured PIN; verified v2 backups include station identity and private registry with per-file checksums; CI covers both development and deployed branches and rejects skipped tests |
+| First project-review hardening block | main `080d344` + `14e0cb0`; release/pi `76fc286` + `15591e1`; Pappy canary 2026-09-07 | SEC-002/API-003/API-017/API-025/AC-004/AC-041/FR-033/DR-006/TEST-026/TEST-027 — all adult report pages now share the bounded admin session; deployed units fail closed without a configured PIN; verified v2 backups include station identity and private registry with per-file checksums; CI covers both development and deployed branches and rejects skipped tests. Pappy passed service/route checks plus a 37-file backup and temporary restore identity comparison. |
 | Input caps: 16 KB request body (`MAX_CONTENT_LENGTH`), message ≤ 160, Morse ≤ 600, answer ≤ 20, word ≤ 20, student name ≤ 40 chars | `7818254` | FR-012, SEC-004 — largely met (see note 1) |
 | All `next` redirects routed through `safe_next_url()`, with tests | `7818254` | SEC-005 — **met**; AC-005 passes |
 | Unlock table unified: `letter_unlock_groups` in `app.py` now generates steps + letter list | `7818254` | FR-022 — partial (duplicate `LETTER_UNLOCKS` remains in `practice_progress.py`) |
