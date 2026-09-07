@@ -92,18 +92,12 @@
                                                 <option value="{{ profile.id }}">{{ profile.name }}</option>
                                             {% endfor %}
                                         </select>
-                                        {% if admin_pin_required %}
-                                            <input name="admin_pin" type="password" autocomplete="current-password" inputmode="numeric" placeholder="PIN">
-                                        {% endif %}
                                         <button class="button primary" type="submit">Move Session</button>
                                     </form>
 
                                     <form method="post" action="/admin/sessions">
                                         <input type="hidden" name="action" value="discard">
                                         <input type="hidden" name="session_id" value="{{ session.id }}">
-                                        {% if admin_pin_required %}
-                                            <input name="admin_pin" type="password" autocomplete="current-password" inputmode="numeric" placeholder="PIN">
-                                        {% endif %}
                                         <button class="button secondary danger-button" type="submit">Discard Session</button>
                                     </form>
                                 </div>

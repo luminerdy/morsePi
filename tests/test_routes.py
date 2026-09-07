@@ -692,6 +692,26 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn('href="/touch/system/operators"', html)
         self.assertNotIn("data-touch-pin-pad", html)
 
+    def test_touch_admin_unlock_accepts_approved_desktop_admin_page(self):
+        self.write_station_config({"admin_pin": "1234"})
+
+        response = self.unlock_admin(next_url="/admin/rhythm")
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual("/admin/rhythm", response.headers["Location"])
+        self.assertEqual(200, self.client.get("/admin/rhythm").status_code)
+
+    def test_deployed_admin_features_fail_closed_without_configured_pin(self):
+        with patch.dict(os.environ, {"MORSE_REQUIRE_ADMIN_PIN": "1"}):
+            response = self.client.get("/admin/rhythm")
+            unlock = self.unlock_admin(pin="")
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("system_error=admin-session", response.headers["Location"])
+        self.assertEqual(302, unlock.status_code)
+        self.assertIn("system_error=admin-pin", unlock.headers["Location"])
+        self.assertIsNone(self.client.get_cookie(app_module.ADMIN_SESSION_COOKIE))
+
     def test_touch_admin_session_authorizes_action_without_reentering_pin(self):
         self.write_station_config({"admin_pin": "1234"})
         called = {"restart": False}
@@ -3298,7 +3318,7 @@ class RouteRenderTests(unittest.TestCase):
         pappy_progress = json.loads(self.student_file("pappy", "practice_progress.json").read_text(encoding="utf-8"))
         self.assertEqual({}, pappy_progress)
 
-    def test_admin_sessions_requires_admin_pin_when_configured(self):
+    def test_admin_sessions_requires_admin_session_when_configured(self):
         session_id = "0123456789abcdef0123456789abcdef"
         self.write_station_config({"admin_pin": "1234"})
         self.write_text_file(
@@ -3324,8 +3344,19 @@ class RouteRenderTests(unittest.TestCase):
         )
 
         self.assertEqual(302, response.status_code)
-        self.assertIn("recovery_error=admin-pin", response.headers["Location"])
+        self.assertIn("system_error=admin-session", response.headers["Location"])
         self.assertTrue(self.student_file("pappy", "practice_attempts.jsonl").exists())
+
+        self.unlock_admin()
+        allowed = self.client.post(
+            "/admin/sessions",
+            data={
+                "action": "discard",
+                "session_id": session_id,
+            },
+        )
+        self.assertIn("recovery_status=discarded", allowed.headers["Location"])
+        self.assertFalse(self.student_file("pappy", "practice_attempts.jsonl").exists())
 
     def test_admin_family_renders_latest_progress_snapshot(self):
         app_module.FAMILY_PROGRESS_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -3371,16 +3402,17 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("Current", html)
         self.assertIn("S O", html)
 
-    def test_admin_family_refresh_requires_admin_pin_when_configured(self):
+    def test_admin_family_requires_admin_session_when_configured(self):
         self.write_station_config({"admin_pin": "1234"})
 
-        response = self.client.post(
-            "/admin/family",
-            data={"admin_pin": "9999"},
-        )
+        response = self.client.get("/admin/family")
 
         self.assertEqual(302, response.status_code)
-        self.assertIn("refresh_error=admin-pin", response.headers["Location"])
+        self.assertIn("system_error=admin-session", response.headers["Location"])
+
+        self.unlock_admin(next_url="/admin/family")
+        allowed = self.client.get("/admin/family")
+        self.assertEqual(200, allowed.status_code)
 
     def test_reset_pappy_backs_up_student_and_legacy_without_touching_other_students(self):
         self.write_text_file("pappy", "practice_attempts.jsonl", "pappy attempts\n")

@@ -9,8 +9,9 @@ belongs in the rebuilt repo's `SECURITY.md` (DOC-04).
   No exceptions for "it's just a kiosk."
 - **SEC-002** *(MVP)* Admin PIN SHALL be mandatory (refuse to start admin
   features without one), compared with `secrets.compare_digest`, and never
-  logged. *(Delta: legacy still allows optional-and-blank PIN for development,
-  but configured PINs use constant-time comparison.)*
+  logged. *(Status: deployed systemd services fail closed when the PIN is
+  absent; direct development runs retain explicit no-PIN behavior. Configured
+  PINs use constant-time comparison.)*
 - **SEC-003** *(MVP)* PIN attempts SHALL be rate-limited: ≥ 5 failures in
   15 min locks admin actions. *(Delta: legacy now applies an in-memory
   60-second lockout after 5 failures in 15 minutes; persistent logging and a

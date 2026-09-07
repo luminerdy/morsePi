@@ -39,8 +39,12 @@
   fallback/template after stations have migrated.
 - **DR-006** Backup archive: zip named `<UTCstamp>-<station>-<label>.zip`
   containing `data/…` relative paths + `manifest.json`
-  (`format: morse-station-data-backup-v1`); restore SHALL validate the
-  manifest before extracting.
+  (`format: morse-station-data-backup-v2`). Each manifest file entry SHALL
+  contain its relative path, byte size, and SHA-256 checksum. Restore SHALL
+  reject missing, extra, changed, absolute, or parent-traversal paths before
+  writing any archive payload outside the selected restore directory. Legacy
+  v1 archives remain restorable with manifest/path validation but cannot gain
+  checksums retroactively.
 - **DR-007** Retention: 30 local backup zips (configurable); student reset
   backups kept indefinitely; attempt logs never truncated by the app (only
   by explicit admin export/archive — V2).

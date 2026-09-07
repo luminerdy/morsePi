@@ -35,8 +35,12 @@ Use Raspberry Pi Imager.
 Recommended OS:
 
 ```text
-Raspberry Pi OS with desktop, 64-bit
+Raspberry Pi OS with desktop, 64-bit (Debian 13 / Trixie)
 ```
+
+The deployed Pappy station was verified on Debian 13.6 (Trixie), `aarch64`, on
+2026-09-07. Record the image release used for each new station so later package
+or display differences can be reproduced.
 
 In Raspberry Pi Imager, open advanced options and set:
 
@@ -115,6 +119,7 @@ Clone the repo into the expected project path:
 cd /home/morse
 git clone https://github.com/luminerdy/morsePi.git morse-station
 cd /home/morse/morse-station
+git checkout release/pi
 ```
 
 Run the dependency checker after cloning:
@@ -129,7 +134,8 @@ If the folder already exists, update it instead:
 
 ```bash
 cd /home/morse/morse-station
-git pull
+git checkout release/pi
+git pull --ff-only origin release/pi
 ```
 
 ## 5. Configure USB Speaker Output
@@ -412,6 +418,12 @@ The backup script keeps the newest 30 backups by default. To keep a different nu
 python3 scripts/backup_data.py --label manual --keep 60
 ```
 
+Recovery archives use the verified v2 format. They include student work,
+timing and volume settings, station configuration, and the private family
+registry when present. The manifest records a SHA-256 checksum and size for
+every file. Treat each archive as sensitive because station configuration can
+contain an admin PIN and family routing details.
+
 If AWS CLI credentials are configured and `data/station_config.json` has `backup_s3_uri`, upload a backup to S3:
 
 ```bash
@@ -487,13 +499,19 @@ journalctl --user -u morse-station-message-sync.service -n 50 --no-pager
 
 The disabled worker prints `Message sync disabled.` and exits successfully.
 
-Restore into a temporary folder for inspection:
+Restore into a temporary folder for integrity verification and inspection:
 
 ```bash
 python3 scripts/backup_data.py --restore data/backups/<backup-file>.zip --restore-root /tmp/morse-restore-check
 ```
 
-To restore onto a station, stop the app, inspect the extracted files, then copy the restored `data/` contents back into `/home/morse/morse-station/data/`. Do not overwrite live student data without first making a fresh manual backup.
+The restore command refuses archives with missing, added, changed, or unsafe
+paths. Historical v1 archives remain restorable with path and manifest checks,
+but only new v2 archives have per-file integrity checksums. To restore onto a
+station, stop the app and sync timers, make a fresh
+manual backup, inspect the verified files, then copy the restored `data/`
+contents back into `/home/morse/morse-station/data/`. AWS credentials and
+device certificates are not in this archive and must be provisioned separately.
 
 ## 10. Update the Station
 
@@ -534,10 +552,15 @@ Promote a tested release from the laptop:
 ```bash
 git fetch origin
 git checkout release/pi
-git merge --ff-only main
+git cherry-pick <tested-main-commit>
 git push origin release/pi
 git checkout main
 ```
+
+`main` and `release/pi` intentionally have different commit histories
+because station releases are cherry-picked. Do not use
+`git merge --ff-only main` for promotion. GitHub CI must pass on the exact
+`release/pi` commit before a fleet update is requested.
 
 Install the updater script and timer:
 
@@ -637,31 +660,29 @@ The update script creates a pre-update backup, optionally uploads it to S3, fast
 
 ## 11. Run the App at Boot with systemd
 
-The station should run as a system service so it starts automatically after the Pi boots.
-
-If you do not have sudo access during setup, use the user service instead:
+The supported station configuration uses the `morse` user service. The
+updater and browser supervisor target this service, and it runs inside the
+desktop user's audio session. Do not also enable the legacy system-wide
+`/etc/systemd/system/morse-station.service`; running both creates duplicate
+app processes.
 
 ```bash
 mkdir -p /home/morse/.config/systemd/user
 install -m 0644 /home/morse/morse-station/systemd/morse-station.user.service /home/morse/.config/systemd/user/morse-station.service
 systemctl --user daemon-reload
-systemctl --user enable morse-station
-systemctl --user restart morse-station
-systemctl --user status morse-station
+sudo loginctl enable-linger morse
+systemctl --user enable --now morse-station.service
+systemctl --user status morse-station.service
 ```
 
-The user service starts when the `morse` user session starts. On a station Pi with desktop auto-login enabled, that means the app and browser come up together after reboot.
-
-Copy the service file from the repo:
-
-```bash
-sudo install -m 0644 /home/morse/morse-station/systemd/morse-station.service /etc/systemd/system/morse-station.service
-```
+The unit requires an admin PIN on deployed stations. Complete the admin-PIN
+step before starting it. Linger starts the app after boot even before a desktop
+login; desktop auto-login remains required for the visible Chromium kiosk.
 
 If your USB speaker is not `default:CARD=UACDemoV10`, edit the service and add an environment line under `[Service]`:
 
 ```bash
-sudo systemctl edit morse-station
+systemctl --user edit morse-station.service
 ```
 
 Example override:
@@ -671,30 +692,22 @@ Example override:
 Environment=MORSE_AUDIO_DEVICE=plughw:<card>,<device>
 ```
 
-Enable and start it:
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable morse-station
-sudo systemctl restart morse-station
-```
-
 Check status:
 
 ```bash
-systemctl status morse-station
+systemctl --user status morse-station.service
 ```
 
 View logs:
 
 ```bash
-journalctl -u morse-station -f
+journalctl --user -u morse-station.service -f
 ```
 
 Stop it before running hardware test scripts:
 
 ```bash
-sudo systemctl stop morse-station
+systemctl --user stop morse-station.service
 ```
 
 ## 12. Install the Supervised Browser Kiosk
@@ -758,7 +771,7 @@ If using manual app startup, press `Ctrl+C` in the terminal running `app.py`.
 If using systemd:
 
 ```bash
-sudo systemctl stop morse-station
+systemctl --user stop morse-station.service
 ```
 
 You can also check for Python processes:

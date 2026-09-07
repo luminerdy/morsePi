@@ -1,5 +1,50 @@
 # Pappy's Internet Telegraph Project Plan
 
+## 2026-09-07 - Project review and first hardening block
+
+- Completed a critical repository, code, recovery, security, and independent
+  rebuild review. The full findings, benefits, priorities, and completion
+  criteria are in
+  [PROJECT_REVIEW_2026-09-07.md](PROJECT_REVIEW_2026-09-07.md).
+- Standardized the documented station runtime on the `morse` user service,
+  selected `release/pi` explicitly during setup, and corrected release
+  promotion to the repository's actual cherry-pick workflow.
+- Extended the bounded admin session to Session Recovery, Rhythm Trends, and
+  Family Progress. Deployed units now fail closed when their required PIN is
+  missing, while a valid admin session avoids repeated PIN entry.
+- Upgraded new recovery archives to `morse-station-data-backup-v2`. Backups
+  now include station configuration and the private family registry and record
+  per-file sizes and SHA-256 checksums. Restore rejects changed, missing,
+  extra, or unsafe paths while retaining path-validated support for historical
+  v1 archives.
+- Expanded Git exclusions for runtime status, activity, update, backup, PIN,
+  snapshot, and recovery data.
+- Added a repository-rooted test runner. GitHub CI now tests both `main` and
+  `release/pi` and fails a full release run if any test is skipped.
+- Verification: all 299 tests pass with zero skips in the pinned local
+  environment. No station deployment has been requested from this block yet.
+
+### Prioritized next blocks
+
+1. Add CSRF protection to every state-changing browser route and complete the
+   production admin-PIN startup warning/lockout behavior.
+2. Convert durable JSON writes to atomic replacement, quarantine damaged JSON,
+   and coordinate app and sync writers with one shared boundary.
+3. Build and rehearse an idempotent blank-SD installer on a spare Pi, including
+   dependency checks and duplicate-service detection.
+4. Stage and validate releases before activation, then define dependency,
+   migration, helper-unit, and data rollback boundaries.
+5. Add dependency audit, secret scanning, linting, and a Pi canary gate before
+   fleet rollout.
+6. Finish the private-family-registry migration on every station, then replace
+   tracked names, UUIDs, and family-specific examples without changing deployed
+   identities.
+7. Extract curriculum, storage, hardware/audio, administration, and app
+   creation from the Flask monolith in small compatibility-preserving changes.
+8. Parameterize the optional AWS family deployment so another builder can
+   create an independent account, bucket, identities, routes, and verification
+   without editing this family's source.
+
 ## 2026-09-05 - Astrid/Liara station update recovery
 
 - Added the single-letter word `I` to the shared message vocabulary as soon as

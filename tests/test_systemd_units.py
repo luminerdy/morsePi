@@ -6,6 +6,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class SystemdUnitTests(unittest.TestCase):
+    def test_deployed_app_units_require_an_admin_pin(self):
+        for filename in ("morse-station.user.service", "morse-station.service"):
+            service = (ROOT / "systemd" / filename).read_text(encoding="utf-8")
+            self.assertIn("Environment=MORSE_REQUIRE_ADMIN_PIN=1", service)
+
     def test_browser_service_supervises_chromium(self):
         service = (ROOT / "systemd" / "morse-station-browser.service").read_text(encoding="utf-8")
         launcher = (ROOT / "systemd" / "start-morse-browser.sh").read_text(encoding="utf-8")

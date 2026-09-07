@@ -38,6 +38,14 @@ class BackupDataTests(unittest.TestCase):
             json.dumps({"station_volume": 35}),
             encoding="utf-8",
         )
+        (self.data_dir / "station_config.json").write_text(
+            json.dumps({"station_id": "pappy-station"}),
+            encoding="utf-8",
+        )
+        (self.data_dir / "family_registry.json").write_text(
+            json.dumps({"students": [{"id": "pappy", "uuid": "example-uuid"}]}),
+            encoding="utf-8",
+        )
         (self.student_dir / "practice_progress.json").write_text("{}", encoding="utf-8")
         (self.student_dir / "learning_state.json").write_text("{}", encoding="utf-8")
         (self.student_dir / "practice_attempts.jsonl").write_text("attempt\n", encoding="utf-8")
@@ -63,13 +71,21 @@ class BackupDataTests(unittest.TestCase):
         self.assertIn("data/student_profiles.json", names)
         self.assertIn("data/timing_settings.json", names)
         self.assertIn("data/volume_settings.json", names)
+        self.assertIn("data/station_config.json", names)
+        self.assertIn("data/family_registry.json", names)
         self.assertIn("data/students/pappy/practice_progress.json", names)
         self.assertIn("data/students/pappy/learning_state.json", names)
         self.assertIn("data/students/pappy/practice_attempts.jsonl", names)
         self.assertIn("data/students/pappy/bonus_attempts.jsonl", names)
         self.assertNotIn("data/backups/do-not-recurse.txt", names)
-        self.assertEqual("morse-station-data-backup-v1", manifest["format"])
+        self.assertEqual("morse-station-data-backup-v2", manifest["format"])
         self.assertEqual("unknown-station", manifest["station_id"])
+        manifest_files = {entry["path"]: entry for entry in manifest["files"]}
+        self.assertEqual(
+            len((self.data_dir / "station_config.json").read_bytes()),
+            manifest_files["data/station_config.json"]["size"],
+        )
+        self.assertEqual(64, len(manifest_files["data/station_config.json"]["sha256"]))
 
     def test_create_backup_uses_station_id_in_manifest_and_filename(self):
         backup_path = create_backup(self.data_dir, self.backup_dir, "manual", station_id="liara-station")
@@ -133,6 +149,50 @@ class BackupDataTests(unittest.TestCase):
 
         self.assertTrue((restore_root / "data" / "student_profiles.json").exists())
         self.assertTrue((restore_root / "data" / "students" / "pappy" / "bonus_attempts.jsonl").exists())
+
+    def test_restore_backup_rejects_tampered_file(self):
+        backup_path = create_backup(self.data_dir, self.backup_dir, "manual")
+        tampered_path = self.backup_dir / "tampered.zip"
+        with zipfile.ZipFile(backup_path) as source, zipfile.ZipFile(tampered_path, "w") as target:
+            for info in source.infolist():
+                payload = source.read(info.filename)
+                if info.filename == "data/student_profiles.json":
+                    payload += b"tampered"
+                target.writestr(info, payload)
+
+        with self.assertRaisesRegex(ValueError, "integrity check failed"):
+            restore_backup(tampered_path, self.base / "tampered-restore")
+
+    def test_restore_backup_rejects_unlisted_file(self):
+        backup_path = create_backup(self.data_dir, self.backup_dir, "manual")
+        tampered_path = self.backup_dir / "extra-file.zip"
+        with zipfile.ZipFile(backup_path) as source, zipfile.ZipFile(tampered_path, "w") as target:
+            for info in source.infolist():
+                target.writestr(info, source.read(info.filename))
+            target.writestr("../outside.txt", "unsafe")
+
+        with self.assertRaisesRegex(ValueError, "contents do not match"):
+            restore_backup(tampered_path, self.base / "extra-restore")
+
+    def test_restore_backup_accepts_path_validated_legacy_v1_archive(self):
+        backup_path = self.backup_dir / "legacy-v1.zip"
+        legacy_file = "data/students/pappy/practice_progress.json"
+        manifest = {
+            "format": "morse-station-data-backup-v1",
+            "files": [legacy_file],
+            "station_id": "pappy-station",
+        }
+        with zipfile.ZipFile(backup_path, "w") as backup_zip:
+            backup_zip.writestr(legacy_file, "{}")
+            backup_zip.writestr("manifest.json", json.dumps(manifest))
+
+        restore_root = self.base / "legacy-restore"
+        restore_backup(backup_path, restore_root)
+
+        self.assertEqual(
+            "{}",
+            (restore_root / legacy_file).read_text(encoding="utf-8"),
+        )
 
     def test_rotate_backups_keeps_newest_files(self):
         for index in range(3):

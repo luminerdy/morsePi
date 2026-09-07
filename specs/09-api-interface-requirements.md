@@ -20,8 +20,8 @@ General rules:
   `/touch/system`, `/touch/system/operators`, `/touch/shutdown`
 - **API-003** *(V2)* `GET /admin/sessions` 🔒
 - **API-017** *(V2)* `GET /admin/rhythm` 🔒 — per-student rhythm trend report
-  (FR-037). *(Delta: legacy page added in `674fdd8` is unauthenticated; the
-  rebuild PIN-gates it.)*
+  (FR-037). The bounded admin session also protects `/admin/sessions` and
+  `/admin/family`; locked requests return to the touch Admin System unlock.
 - **API-025** *(V2)* `GET /admin/family`; `POST /admin/family` 🔒 — read the
   latest local family progress file and refresh it from cloud station
   snapshots on adult demand.

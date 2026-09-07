@@ -148,10 +148,12 @@ from the current code (legacy status per requirement is tracked in
 
 ## Operations
 
-- **FR-033** *(MVP)* A backup command SHALL zip profiles, timing settings, and
-  all student data with a manifest (format id, station id, UTC created time,
-  file list), keep the newest N archives (default 30), and support restore
-  into a target directory.
+- **FR-033** *(MVP)* A backup command SHALL zip profiles, timing and volume
+  settings, station configuration, the private family registry when present,
+  and all student data with a manifest (format id, station id, UTC created
+  time, file path, byte size, and SHA-256 checksum), keep the newest N archives
+  (default 30), and support verified restore into a target directory. AWS
+  credentials and device certificates SHALL be re-provisioned separately.
 - **FR-034** *(V2)* When configured, backups and a status document SHALL
   upload to `s3://<bucket>/stations/<station-id>/{backups,status,snapshots}/`.
 - **FR-035** *(V2)* The auto-updater SHALL: pull only from the dedicated

@@ -1,6 +1,6 @@
 # morsePi
 
-Last updated: 2026-09-01
+Last updated: 2026-09-07
 
 Pappy's Internet Telegraph is a Raspberry Pi Morse code learning station. It lets students type messages, see Morse code, hear Morse code, tap a physical telegraph key, and practice beginner letters with immediate feedback.
 
@@ -121,8 +121,11 @@ Run the regression test bank on the Pi with mock GPIO:
 
 ```bash
 cd /home/morse/morse-station
-GPIOZERO_PIN_FACTORY=mock python3 -m unittest discover -s tests
+GPIOZERO_PIN_FACTORY=mock python3 scripts/run_tests.py
 ```
+
+GitHub release CI uses `--fail-on-skips` and runs for both `main` and
+`release/pi`, so the deployed revision cannot silently omit a test module.
 
 These tests use temporary progress files and do not modify student practice data. The current bank covers data backups, station status reporting, timing summaries, learning gates, alphabet progress, stale Learning Now cleanup, Daily Mission summary rules, Practice Coach recommendations, derived badges, rendered touch pages, profile cookie separation, admin reset behavior, practice POST routes, Signal Sprint bonus routes, Daily celebration, local messaging, duplicate-safe three-station cloud delivery contracts, family progress snapshots, admin PIN tooling, rollout/update helpers, rhythm coaching, and student-attempt sync including stale-lock recovery after power loss.
 
@@ -152,11 +155,13 @@ systemd/                Optional Linux service file
 
 See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) for milestones and next steps.
 
-Current next focus: verify Campbell/Olivea catches up after reconnecting, let
-students unlock the kid-facing Messages UI naturally through `S` and `O`, and
-add a low-cost AWS IoT command that can request an immediate remote update.
-Cross-station UUID progress merge and live S3 message/decoded-receipt delivery
-have passed between Pappy and Astrid/Liara.
+Current next focus: complete the prioritized hardening plan in
+[the September project review](docs/PROJECT_REVIEW_2026-09-07.md). The first
+release block standardizes the user-service install path, protects all adult
+data pages with the bounded admin session, improves verified recovery archives,
+and validates the deployed release branch in CI. Cross-station UUID progress
+merge, AWS IoT remote updates, and live S3 message/decoded-receipt delivery are
+already implemented and have passed family-station rehearsals.
 
 ## License
 

@@ -5,6 +5,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
+Environment=MORSE_REQUIRE_ADMIN_PIN=1
 WorkingDirectory=/home/morse/morse-station
 ExecStart=/usr/bin/python3 /home/morse/morse-station/app.py
 Restart=on-failure
