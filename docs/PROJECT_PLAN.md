@@ -22,7 +22,9 @@
 - Added a repository-rooted test runner. GitHub CI now tests both `main` and
   `release/pi` and fails a full release run if any test is skipped.
 - Verification: all 299 tests pass with zero skips in the pinned local
-  environment. No station deployment has been requested from this block yet.
+  environment. Pappy completed the first canary update to `76fc286`; the
+  updater then gained an explicit app-user-unit refresh so remote stations
+  receive the production PIN requirement through the normal update path.
 
 ### Prioritized next blocks
 

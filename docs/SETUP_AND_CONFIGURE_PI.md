@@ -656,7 +656,11 @@ affect the local station.
 
 Future remote rollout: AWS IoT Jobs can trigger `/home/morse/morse-station/scripts/update_station.sh` through the local `morse-station-update.service` on demand. Systems Manager could also trigger the same script if we decide the monthly device cost is worth the extra Linux fleet-management features.
 
-The update script creates a pre-update backup, optionally uploads it to S3, fast-forwards from GitHub only when safe, compile-checks and tests the app, restarts the service, verifies health, rolls back on failure, and refreshes station status/progress snapshots.
+The update script creates a pre-update backup, optionally uploads it to S3,
+fast-forwards from GitHub only when safe, compile-checks and tests the app,
+refreshes the supported app/update/sync user units, restarts the service,
+verifies health, rolls back on failure, and refreshes station status/progress
+snapshots.
 
 ## 11. Run the App at Boot with systemd
 
