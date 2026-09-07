@@ -163,6 +163,7 @@ install_update_services() {
 
     mkdir -p "$user_unit_dir" "$bin_dir"
     install -m 0755 "$APP_DIR/systemd/update-morse-station.sh" "$bin_dir/update-morse-station.sh"
+    install -m 0644 "$APP_DIR/systemd/morse-station.user.service" "$user_unit_dir/morse-station.service"
 
     for source in \
         morse-station-update.service \

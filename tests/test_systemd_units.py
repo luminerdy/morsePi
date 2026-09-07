@@ -61,6 +61,10 @@ class SystemdUnitTests(unittest.TestCase):
 
         self.assertIn("install_update_services()", updater)
         self.assertIn('install -m 0755 "$APP_DIR/systemd/update-morse-station.sh"', updater)
+        self.assertIn(
+            'install -m 0644 "$APP_DIR/systemd/morse-station.user.service" "$user_unit_dir/morse-station.service"',
+            updater,
+        )
         self.assertIn("morse-station-update.service", updater)
         self.assertIn("morse-station-update.timer", updater)
         self.assertIn("morse-station-remote-update.service", updater)
