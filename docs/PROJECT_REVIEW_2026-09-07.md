@@ -27,10 +27,13 @@ reporting pages with the bounded admin session; requires a configured PIN in
 deployed service units; expands runtime-data exclusions; creates checksum-backed
 v2 recovery archives with station identity/private registry; preserves safe
 legacy-v1 restore; and runs zero-skip CI on both `main` and `release/pi`.
-All 299 tests pass locally with the pinned dependencies. REV-001, REV-002,
+All 299 tests pass locally with the pinned dependencies and in both GitHub
+branch checks. Pappy completed the `15591e1` canary with active app/browser,
+installed required-PIN setting, protected adult route, and a checksum-backed
+37-file backup restored with matching station identity. REV-001, REV-002,
 REV-003, REV-004, and REV-006 are improved but remain open until their stated
 end-to-end completion criteria (blank-SD, CSRF, anonymization, spare-SD restore,
-and release/canary proof) are met.
+and repeatable fleet release proof) are met.
 
 This was a targeted source, configuration, workflow, and documentation review,
 not a penetration test, dependency vulnerability scan, exhaustive Git-history
@@ -180,6 +183,10 @@ Recommendation: stage code and validate it before activation; define backward
 compatible migrations and rollback of runtime helpers. Specify how dependency
 changes are delivered. Add trusted immutable release manifests or signatures
 after the gated promotion path is stable.
+The September 7 canary also showed that updater changes take effect in the
+installed wrapper only after the first run; an already-current second pass was
+needed to apply newly added app-unit installation logic. Remove this one-run
+lag as part of the staged activation design.
 Benefit: future changes to dependencies, storage, or services do not strand a
 remote station. Effort: L. Done: failed migration/helper/health rehearsals restore
 a known working combination of code, services, and compatible data.
