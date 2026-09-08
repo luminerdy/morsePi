@@ -14,6 +14,7 @@ if __package__ in (None, ""):
 from family_activity import flush_activity_events, new_activity_event, queue_activity_event
 from message_sync import AwsCliObjectStore
 from paths import data_path
+from durable_storage import atomic_write_json, atomic_write_text, station_transaction, read_json as durable_read_json
 from scripts.backup_data import DEFAULT_CONFIG_PATH, load_station_config
 from student_identity import StudentIdentityError, enrich_student_identity, validate_identity_pair
 
@@ -65,22 +66,13 @@ def parse_utc(value):
 
 
 def read_json(path, default):
-    path = Path(path)
-    if not path.exists():
-        return default
-
-    try:
-        loaded = json.loads(path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
-        return default
-
-    return loaded
+    return durable_read_json(path, default)
 
 
 def write_json(path, value):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, indent=2, sort_keys=True), encoding="utf-8")
+    atomic_write_json(path, value)
     return path
 
 
@@ -505,7 +497,7 @@ def download_cloud_attempts_by_prefix(store, students):
 
 def sync_state(data_dir=DEFAULT_DATA_DIR, config_path=DEFAULT_CONFIG_PATH, check_cloud=True, store=None):
     data_dir = Path(data_dir)
-    config = load_station_config(config_path)
+    config = durable_read_json(config_path, {}, dict)
     station_id = str(config.get("station_id") or "unknown-station")
     all_profiles = load_profiles(data_dir)
     students = load_station_students(config, all_profiles)
@@ -634,7 +626,7 @@ def write_conflicts(data_dir, conflicts):
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     path = Path(data_dir) / "sync_conflicts" / f"{timestamp}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(conflicts, indent=2, sort_keys=True), encoding="utf-8")
+    atomic_write_json(path, conflicts)
     return path
 
 
@@ -664,9 +656,8 @@ def write_merged_attempt_logs(data_dir, students, merged_attempts):
             )
             path = student_dir / filename
             if records:
-                path.write_text(
+                atomic_write_text(path,
                     "\n".join(jsonl_payload(record) for record in records) + "\n",
-                    encoding="utf-8",
                 )
             elif path.exists():
                 path.unlink()
@@ -724,7 +715,7 @@ def rebuild_practice_progress(data_dir, students):
 
         progress = build_practice_progress(attempts)
         output = student_dir / "practice_progress.json"
-        output.write_text(json.dumps(progress, indent=2, sort_keys=True), encoding="utf-8")
+        atomic_write_json(output, progress)
         rebuilt[student_id] = len(attempts)
     return rebuilt
 
@@ -818,10 +809,7 @@ def rebuild_learning_state(data_dir, students):
 
         output = student_dir / "learning_state.json"
         if groups:
-            output.write_text(
-                json.dumps({"groups": groups, "last_learning_start_date": last_learning_start_date}, indent=2, sort_keys=True),
-                encoding="utf-8",
-            )
+            atomic_write_json(output, {"groups": groups, "last_learning_start_date": last_learning_start_date})
             rebuilt[student_id] = len(groups)
         elif output.exists():
             output.unlink()
@@ -856,15 +844,23 @@ def full_sync_attempts(data_dir=DEFAULT_DATA_DIR, config_path=DEFAULT_CONFIG_PAT
     if cloud_errors:
         raise RuntimeError("Cloud download errors must be fixed before applying merged attempts.")
 
-    merged, merge_conflicts, downloaded = merge_attempt_maps(state["attempts_by_key"], cloud_attempts)
-    conflict_path = write_conflicts(data_dir, merge_conflicts)
-    if merge_conflicts:
-        raise RuntimeError(f"Cloud attempt conflicts written to {conflict_path}; merged logs were not applied.")
+    with station_transaction(data_dir):
+        latest = sync_state(data_dir, config_path, check_cloud=False)
+        if latest["roster"] != state["roster"] or latest["station_id"] != state["station_id"]:
+            raise RuntimeError("Station roster changed during download; retry sync.")
+        if latest["malformed_records"] or latest["conflicts"]:
+            raise RuntimeError("Local attempts need recovery; sync did not replace logs.")
+        if not state["attempts_by_key"].keys() <= latest["attempts_by_key"].keys():
+            raise RuntimeError("Local attempts were removed during download; retry after recovery.")
+        merged, merge_conflicts, downloaded = merge_attempt_maps(latest["attempts_by_key"], cloud_attempts)
+        conflict_path = write_conflicts(data_dir, merge_conflicts)
+        if merge_conflicts:
+            raise RuntimeError(f"Cloud attempt conflicts written to {conflict_path}; merged logs were not applied.")
 
-    backup_path = backup_sync_files(data_dir, state["roster"])
-    written = write_merged_attempt_logs(data_dir, state["roster"], merged)
-    rebuilt = rebuild_practice_progress(data_dir, state["roster"])
-    rebuilt_learning = rebuild_learning_state(data_dir, state["roster"])
+        backup_path = backup_sync_files(data_dir, state["roster"])
+        written = write_merged_attempt_logs(data_dir, state["roster"], merged)
+        rebuilt = rebuild_practice_progress(data_dir, state["roster"])
+        rebuilt_learning = rebuild_learning_state(data_dir, state["roster"])
     return {
         "backup_path": str(backup_path) if backup_path else "",
         "cloud_attempts": len(cloud_attempts),
@@ -923,7 +919,7 @@ def guarded_full_sync(
 def write_report(report, output_path=DEFAULT_OUTPUT_PATH):
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
+    atomic_write_json(output_path, report)
     return output_path
 
 

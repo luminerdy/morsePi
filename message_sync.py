@@ -1,4 +1,5 @@
 import json
+from durable_storage import station_transaction
 import subprocess
 import tempfile
 from datetime import datetime, timedelta, timezone
@@ -179,6 +180,18 @@ def apply_sender_receipt(message, receipt):
     return updated, changed
 
 
+def apply_local_receipt(data_dir, directory, message_id, receipt, sender=False):
+    with station_transaction(data_dir):
+        latest = load_message(directory, message_id)
+        if not latest:
+            return False
+        updated, changed = (apply_sender_receipt(latest, receipt) if sender
+                            else advance_message_state(latest, receipt))
+        if changed:
+            save_message_copy(directory, updated)
+        return changed
+
+
 def sync_station(data_dir, config, store):
     data_dir = Path(data_dir)
     station_id = require_slug(config.get("station_id"), "station ID")
@@ -268,9 +281,10 @@ def sync_station(data_dir, config, store):
             except MessageValidationError:
                 continue
             message_id = payload["message_id"]
-            if load_message(inbox_dir(data_dir, student_id), message_id):
-                continue
-            save_message_copy(inbox_dir(data_dir, student_id), local_message_from_cloud(payload))
+            with station_transaction(data_dir):
+                if load_message(inbox_dir(data_dir, student_id), message_id):
+                    continue
+                save_message_copy(inbox_dir(data_dir, student_id), local_message_from_cloud(payload))
             counts["messages_downloaded"] += 1
             queue_event(
                 "message_received",
@@ -334,9 +348,7 @@ def sync_station(data_dir, config, store):
             )
         except MessageValidationError:
             continue
-        updated, changed = apply_sender_receipt(message, receipt)
-        if changed:
-            save_message_copy(outbox_dir(data_dir, sender_id), updated)
+        if apply_local_receipt(data_dir, outbox_dir(data_dir, sender_id), message_id, receipt, sender=True):
             counts["statuses_applied"] += 1
 
     for student_id in local_students:
@@ -367,9 +379,7 @@ def sync_station(data_dir, config, store):
                 )
             except MessageValidationError:
                 continue
-            updated, changed = advance_message_state(message, receipt)
-            if changed:
-                save_message_copy(inbox_dir(data_dir, student_id), updated)
+            if apply_local_receipt(data_dir, inbox_dir(data_dir, student_id), message_id, receipt):
                 counts["statuses_applied"] += 1
 
     flush_activity_events(data_dir, store)

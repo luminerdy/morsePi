@@ -1,4 +1,5 @@
 import json
+from durable_storage import atomic_write_json, read_json, append_jsonl
 import os
 from datetime import datetime, timezone
 from pathlib import Path
@@ -21,20 +22,8 @@ def utc_now():
     return datetime.now(timezone.utc).isoformat()
 
 
-def atomic_write_json(path, value):
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_name(f".{path.name}.{uuid4().hex}.tmp")
-    temporary.write_text(json.dumps(value, indent=2, sort_keys=True), encoding="utf-8")
-    os.replace(temporary, path)
-
-
 def load_json(path, default=None):
-    try:
-        loaded = json.loads(Path(path).read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
-        return default
-    return loaded
+    return read_json(path, default, dict)
 
 
 def normalize_message_text(value):
@@ -331,8 +320,7 @@ def append_event(data_dir, student_id, event):
     record.setdefault("timestamp", utc_now())
     path = events_path(data_dir, student_id)
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps(record, sort_keys=True) + "\n")
+    append_jsonl(path, record)
     return record
 
 

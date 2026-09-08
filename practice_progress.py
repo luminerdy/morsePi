@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from paths import data_path
+from durable_storage import atomic_write_json, read_json
 
 PROGRESS_PATH = data_path("practice_progress.json")
 DEFAULT_MODE = "send"
@@ -58,7 +59,7 @@ def load_all_progress():
 
     if PROGRESS_PATH.exists():
         try:
-            progress = json.loads(PROGRESS_PATH.read_text(encoding="utf-8"))
+            progress = read_json(PROGRESS_PATH, {}, dict)
         except (json.JSONDecodeError, OSError):
             progress = {}
 
@@ -79,10 +80,7 @@ def load_progress_for_update(letters):
 
 def save_progress(progress):
     PROGRESS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    PROGRESS_PATH.write_text(
-        json.dumps(progress, indent=2, sort_keys=True),
-        encoding="utf-8"
-    )
+    atomic_write_json(PROGRESS_PATH, progress)
 
 
 def normalize_record(record):

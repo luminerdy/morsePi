@@ -6,6 +6,8 @@ from uuid import uuid4
 from flask import Flask, render_template, request, redirect, url_for, jsonify, g, has_request_context
 from gpiozero import Button, LED
 from browser_security import install_request_protection
+from durable_storage import (atomic_write_json, atomic_write_text, append_jsonl,
+                             read_json, station_transaction, StorageBusy, StorageCorruption)
 from family_activity import load_activity_cache, refresh_family_activity
 from morse import text_to_morse, morse_to_text
 from morse_display import morse_visual
@@ -64,7 +66,6 @@ import shutil
 import hmac
 
 app = Flask(__name__)
-install_request_protection(app)
 SESSION_COOKIE = "morse_practice_session_id"
 ADMIN_SESSION_COOKIE = "morse_admin_session"
 STATION_CONFIG_PATH = data_path("station_config.json")
@@ -106,21 +107,56 @@ def mark_app_activity():
         return
     try:
         APP_ACTIVITY_PATH.parent.mkdir(parents=True, exist_ok=True)
-        APP_ACTIVITY_PATH.write_text(
+        atomic_write_text(APP_ACTIVITY_PATH,
             json.dumps({
                 "last_activity_at": datetime.now(timezone.utc).isoformat(),
                 "method": request.method,
                 "path": request.path,
             }, indent=2, sort_keys=True),
-            encoding="utf-8",
         )
     except OSError:
         pass
 
 
 @app.before_request
+def acquire_station_storage():
+    if request.path.startswith("/static/"):
+        return
+    transaction = station_transaction(student_profile_store.DATA_DIR)
+    transaction.__enter__()
+    g.storage_transaction = transaction
+
+
+@app.teardown_request
+def release_station_storage(error=None):
+    transaction = g.pop("storage_transaction", None)
+    if transaction is not None:
+        transaction.__exit__(None, None, None)
+
+
+@app.errorhandler(StorageBusy)
+@app.errorhandler(StorageCorruption)
+def storage_unavailable(error):
+    g.storage_failed = True
+    app.logger.error("%s", error)
+    message = ("Saving progress. Please try again shortly." if isinstance(error, StorageBusy)
+               else "Stored data needs recovery. Please ask the station owner for help.")
+    if request.is_json or request.headers.get("X-CSRF-Token"):
+        return jsonify(error="storage", message=message), 503
+    return ('<!doctype html><html><meta name="viewport" content="width=device-width">'
+            '<h1>Station temporarily unavailable</h1><p>' + message + '</p>'
+            '<a href="/touch">Try again</a></html>'), 503
+
+
+install_request_protection(app)
+
+
+@app.before_request
 def configure_student_storage():
     global learning_state_path
+
+    if request.path.startswith("/static/"):
+        return
 
     mark_app_activity()
     ensure_station_configured_profiles()
@@ -155,6 +191,8 @@ def configure_student_storage():
 
 @app.after_request
 def persist_practice_session(response):
+    if getattr(g, "storage_failed", False) or request.path.startswith("/static/"):
+        return response
     current_student = getattr(g, "current_student", {})
     if current_student and not current_student.get("disposable"):
         try:
@@ -336,7 +374,7 @@ def safe_session_id(value):
 
 def load_station_config():
     try:
-        loaded = json.loads(STATION_CONFIG_PATH.read_text(encoding="utf-8"))
+        loaded = read_json(STATION_CONFIG_PATH, {}, dict)
     except (json.JSONDecodeError, OSError):
         return {}
 
@@ -354,19 +392,7 @@ def save_station_config(config, backup_label="roster"):
         )
         shutil.copy2(STATION_CONFIG_PATH, backup_path)
 
-    temporary_path = STATION_CONFIG_PATH.with_name(
-        f".{STATION_CONFIG_PATH.name}.{uuid4().hex}.tmp"
-    )
-    try:
-        temporary_path.write_text(
-            json.dumps(config, indent=2) + "\n",
-            encoding="utf-8",
-        )
-        if STATION_CONFIG_PATH.exists():
-            shutil.copymode(STATION_CONFIG_PATH, temporary_path)
-        temporary_path.replace(STATION_CONFIG_PATH)
-    finally:
-        temporary_path.unlink(missing_ok=True)
+    atomic_write_json(STATION_CONFIG_PATH, config)
 
     return backup_path
 
@@ -457,7 +483,7 @@ def message_access_allowed():
 
 def load_student_json(student_id, filename, default):
     try:
-        loaded = json.loads(student_data_path(student_id, filename).read_text(encoding="utf-8"))
+        loaded = read_json(student_data_path(student_id, filename), {}, dict)
     except (json.JSONDecodeError, OSError):
         return default
     return loaded
@@ -930,7 +956,7 @@ def normalize_station_volume(value):
 def load_station_volume_percent():
     if VOLUME_SETTINGS_PATH.exists():
         try:
-            loaded = json.loads(VOLUME_SETTINGS_PATH.read_text(encoding="utf-8"))
+            loaded = read_json(VOLUME_SETTINGS_PATH, {}, dict)
         except (json.JSONDecodeError, OSError):
             loaded = {}
     else:
@@ -944,10 +970,7 @@ def load_station_volume_percent():
 
 def save_station_volume_settings():
     VOLUME_SETTINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    VOLUME_SETTINGS_PATH.write_text(
-        json.dumps({"station_volume": station_volume_percent()}, indent=2, sort_keys=True),
-        encoding="utf-8"
-    )
+    atomic_write_json(VOLUME_SETTINGS_PATH, {"station_volume": station_volume_percent()})
 
 
 def default_morse_timing_settings():
@@ -974,7 +997,7 @@ def normalize_morse_timing(settings):
 def load_morse_timing_settings():
     if TIMING_SETTINGS_PATH.exists():
         try:
-            loaded = json.loads(TIMING_SETTINGS_PATH.read_text(encoding="utf-8"))
+            loaded = read_json(TIMING_SETTINGS_PATH, {}, dict)
         except (json.JSONDecodeError, OSError):
             loaded = {}
     else:
@@ -985,10 +1008,7 @@ def load_morse_timing_settings():
 
 def save_morse_timing_settings():
     TIMING_SETTINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    TIMING_SETTINGS_PATH.write_text(
-        json.dumps(normalize_morse_timing(morse_timing), indent=2, sort_keys=True),
-        encoding="utf-8"
-    )
+    atomic_write_json(TIMING_SETTINGS_PATH, normalize_morse_timing(morse_timing))
 
 
 def get_morse_timing():
@@ -1502,9 +1522,8 @@ def write_attempt_records(path, attempts):
             pass
         return
 
-    path.write_text(
+    atomic_write_text(path,
         "\n".join(json.dumps(attempt, sort_keys=True) for attempt in attempts) + "\n",
-        encoding="utf-8"
     )
 
 
@@ -2091,8 +2110,7 @@ def append_bonus_attempt(record):
     normalized["timing_events"] = normalize_timing_events(normalized.get("timing_events", []))
     normalized["timing_summary"] = timing_summary(normalized["timing_events"])
 
-    with path.open("a", encoding="utf-8") as attempts_file:
-        attempts_file.write(json.dumps(normalized, sort_keys=True) + "\n")
+    append_jsonl(path, normalized)
 
     return normalized
 
@@ -2113,8 +2131,7 @@ def append_word_attempt(record):
     normalized["timing_events"] = normalize_timing_events(normalized.get("timing_events", []))
     normalized["timing_summary"] = timing_summary(normalized["timing_events"])
 
-    with path.open("a", encoding="utf-8") as attempts_file:
-        attempts_file.write(json.dumps(normalized, sort_keys=True) + "\n")
+    append_jsonl(path, normalized)
 
     return normalized
 
@@ -3147,7 +3164,7 @@ def load_learning_state():
         }
 
     try:
-        loaded = json.loads(learning_state_path.read_text(encoding="utf-8"))
+        loaded = read_json(learning_state_path, {}, dict)
     except (json.JSONDecodeError, OSError):
         loaded = {}
 
@@ -3159,10 +3176,7 @@ def load_learning_state():
 
 def save_learning_state(state):
     learning_state_path.parent.mkdir(parents=True, exist_ok=True)
-    learning_state_path.write_text(
-        json.dumps(state, indent=2, sort_keys=True),
-        encoding="utf-8"
-    )
+    atomic_write_json(learning_state_path, state)
 
 
 def days_since(date_text):
@@ -4207,7 +4221,7 @@ def run_shutdown_sync_cycle():
 
     try:
         SHUTDOWN_SYNC_STATUS_PATH.parent.mkdir(parents=True, exist_ok=True)
-        SHUTDOWN_SYNC_STATUS_PATH.write_text(json.dumps(status, indent=2, sort_keys=True), encoding="utf-8")
+        atomic_write_json(SHUTDOWN_SYNC_STATUS_PATH, status)
     except OSError:
         pass
 

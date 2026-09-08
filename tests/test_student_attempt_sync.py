@@ -59,6 +59,47 @@ class PrefixDownloadStore(MemoryStore):
 
 
 class StudentAttemptSyncTests(unittest.TestCase):
+    def test_attempt_added_during_download_is_preserved_and_uploaded_next_sync(self):
+        from durable_storage import append_jsonl, station_transaction
+        attempt = {
+            "attempt_id": "a" * 32, "student_id": "astrid",
+            "station_id": "pappy-test-station", "target": "E", "mode": "send",
+            "correct": True, "timestamp": "2026-09-08T12:00:00+00:00",
+        }
+        self.write_jsonl("practice_attempts.jsonl", [attempt])
+        original_download = sync_module.download_cloud_attempts
+        late = dict(attempt, attempt_id="b" * 32, target="T")
+        store = MemoryStore()
+
+        def download_then_practice(*args):
+            result = original_download(*args)
+            with station_transaction(self.data_dir):
+                append_jsonl(self.student_dir / "practice_attempts.jsonl", late)
+            return result
+
+        with patch.object(sync_module, "download_cloud_attempts", side_effect=download_then_practice):
+            full_sync_attempts(self.data_dir, self.config, store=store)
+        records = [json.loads(line) for line in (self.student_dir / "practice_attempts.jsonl").read_text().splitlines()]
+        self.assertEqual({record["attempt_id"] for record in records}, {attempt["attempt_id"], late["attempt_id"]})
+        full_sync_attempts(self.data_dir, self.config, store=store)
+        self.assertIn(f'students/astrid/attempts/practice/{late["attempt_id"]}.json', store.objects)
+
+    def test_removed_attempts_during_download_are_not_resurrected(self):
+        attempt = {"attempt_id": "a" * 32, "student_id": "astrid", "target": "E",
+                   "mode": "send", "correct": True, "timestamp": "2026-09-08T12:00:00+00:00"}
+        self.write_jsonl("practice_attempts.jsonl", [attempt])
+        original_download = sync_module.download_cloud_attempts
+
+        def download_then_reset(*args):
+            result = original_download(*args)
+            (self.student_dir / "practice_attempts.jsonl").unlink()
+            return result
+
+        with patch.object(sync_module, "download_cloud_attempts", side_effect=download_then_reset):
+            with self.assertRaisesRegex(RuntimeError, "removed during download"):
+                full_sync_attempts(self.data_dir, self.config, store=MemoryStore())
+        self.assertFalse((self.student_dir / "practice_attempts.jsonl").exists())
+
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
         self.base = Path(self.temp_dir.name)
