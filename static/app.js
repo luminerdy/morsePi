@@ -170,7 +170,7 @@ async function browserBeep(audioCtx, durationMs, playback = null) {
 
 async function triggerDailyCelebration() {
     try {
-        await fetch("/touch/daily/celebrate", { method: "POST" });
+        await csrfFetch("/touch/daily/celebrate", { method: "POST" });
     } catch (error) {
         console.log("Unable to trigger daily celebration", error);
     }
@@ -225,7 +225,7 @@ async function resetSoundState() {
     await releaseBrowserAudioContext();
 
     try {
-        await fetch("/audio-reset", {
+        await csrfFetch("/audio-reset", {
             method: "POST"
         });
     } catch (error) {
@@ -380,7 +380,7 @@ async function playWordCard() {
     browserPlayback = playback;
 
     try {
-        const response = await fetch("/words/prompt-station", {
+        const response = await csrfFetch("/words/prompt-station", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -403,7 +403,7 @@ async function stopWordPlayback() {
     cancelWordAutoAdvance();
 
     try {
-        await fetch("/words/stop", { method: "POST" });
+        await csrfFetch("/words/stop", { method: "POST" });
     } catch (error) {
         console.log("Unable to stop word playback", error);
     }
@@ -480,7 +480,7 @@ async function playPracticePromptOnStation() {
     const mode = getPracticeMode();
 
     try {
-        await fetch(`/practice/prompt-station?mode=${encodeURIComponent(mode)}`, {
+        await csrfFetch(`/practice/prompt-station?mode=${encodeURIComponent(mode)}`, {
             method: "POST"
         });
     } catch (error) {
@@ -495,7 +495,7 @@ function triggerPracticePromptLed() {
         return Promise.resolve();
     }
 
-    return fetch(`/practice/prompt-led?mode=${encodeURIComponent(mode)}&delay_ms=100`, {
+    return csrfFetch(`/practice/prompt-led?mode=${encodeURIComponent(mode)}&delay_ms=100`, {
         method: "POST"
     }).catch(error => {
         console.log("Unable to flash prompt LED", error);
@@ -515,7 +515,7 @@ async function updateLiveKey() {
     }
 
     try {
-        const response = await fetch("/live-key");
+        const response = await csrfFetch("/live-key");
         const data = await response.json();
         const observedMorse = normalizeMorse(data.morse || "");
 
@@ -524,7 +524,7 @@ async function updateLiveKey() {
             lastObservedPhysicalMorse = observedMorse;
 
             if (wakeOnly) {
-                await fetch("/clear-key", { method: "POST" });
+                await csrfFetch("/clear-key", { method: "POST" });
                 lastObservedPhysicalMorse = "";
                 resetLiveKeyDisplay();
                 return;
@@ -563,7 +563,7 @@ async function clearKeyInput() {
         return;
     }
 
-    await fetch("/clear-key", {
+    await csrfFetch("/clear-key", {
         method: "POST"
     });
 
@@ -899,7 +899,7 @@ async function checkWordAnswer(actualMorse, expectedMorse, target, decoded = "")
 
 async function recordWordResult(target, correct, actualMorse, expectedMorse, decoded, elapsedMs) {
     try {
-        const response = await fetch("/words/result", {
+        const response = await csrfFetch("/words/result", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -1065,7 +1065,7 @@ async function recordPracticeResult(target, correct, answer = "") {
         : normalizeMorse(keyboardKeyerActive ? keyboardMorse : (liveMorse ? (liveMorse.dataset.morse || "") : ""));
 
     try {
-        const response = await fetch(bonus ? "/bonus/result" : "/practice/result", {
+        const response = await csrfFetch(bonus ? "/bonus/result" : "/practice/result", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -1097,7 +1097,7 @@ async function recordPracticeResult(target, correct, answer = "") {
 async function loadNextPracticePrompt() {
     try {
         const bonus = getBonusConfig();
-        const response = await fetch(bonus ? "/bonus/next" : `/practice/next?mode=${encodeURIComponent(getPracticeMode())}`, {
+        const response = await csrfFetch(bonus ? "/bonus/next" : `/practice/next?mode=${encodeURIComponent(getPracticeMode())}`, {
             method: "POST"
         });
         const data = await response.json();
@@ -1136,7 +1136,7 @@ async function loadNextPracticePrompt() {
 
 async function retryPracticePrompt() {
     try {
-        const response = await fetch(`/practice/retry?mode=${encodeURIComponent(getPracticeMode())}`, {
+        const response = await csrfFetch(`/practice/retry?mode=${encodeURIComponent(getPracticeMode())}`, {
             method: "POST"
         });
         const data = await response.json();
@@ -1644,7 +1644,7 @@ function initializeSignalDrop() {
 
     async function requestTarget() {
         const reviewLetter = reviewQueue.length ? reviewQueue.shift() : "";
-        const response = await fetch("/signal-drop/next", {
+        const response = await csrfFetch("/signal-drop/next", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ review_letter: reviewLetter })
@@ -1693,7 +1693,7 @@ function initializeSignalDrop() {
     }
 
     async function recordResult(target, values) {
-        const response = await fetch("/signal-drop/result", {
+        const response = await csrfFetch("/signal-drop/result", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -2209,7 +2209,7 @@ function initializeTouchIdleExperience() {
         resetTimers();
 
         try {
-            await fetch("/clear-key", { method: "POST" });
+            await csrfFetch("/clear-key", { method: "POST" });
         } catch (error) {
             console.log("Unable to clear screensaver wake key", error);
         }
@@ -2225,7 +2225,7 @@ function initializeTouchIdleExperience() {
         }
 
         try {
-            const response = await fetch("/live-key");
+            const response = await csrfFetch("/live-key");
             const data = await response.json();
             if (normalizeMorse(data.morse || "")) {
                 await wakeFromPhysicalKey();
@@ -2237,7 +2237,7 @@ function initializeTouchIdleExperience() {
 
     const startKeyerWatch = async () => {
         try {
-            await fetch("/clear-key", { method: "POST" });
+            await csrfFetch("/clear-key", { method: "POST" });
         } catch (error) {
             console.log("Unable to prepare screensaver wake key", error);
         }
@@ -2347,7 +2347,7 @@ async function submitMessageKeyAttempt(actualMorse) {
     messageKeyLastMorse = normalized;
     const elapsedMs = messageKeyStartedAt === null ? null : Math.round(performance.now() - messageKeyStartedAt);
     try {
-        const response = await fetch("/touch/messages/key/result", {
+        const response = await csrfFetch("/touch/messages/key/result", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -2434,7 +2434,7 @@ function scheduleMessageKeyAutoCheck(rawMorse) {
 }
 
 async function messageKeyAction(panel, action) {
-    const response = await fetch("/touch/messages/key/action", {
+    const response = await csrfFetch("/touch/messages/key/action", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -2502,7 +2502,7 @@ function initializeMessageControls() {
     const composer = document.querySelector("[data-message-compose]");
     const messageKeyPanel = document.querySelector("[data-message-key]");
     if ((composer && document.getElementById("messageKeyedWordMorse")) || messageKeyPanel) {
-        fetch("/clear-key", { method: "POST" }).catch(error => {
+        csrfFetch("/clear-key", { method: "POST" }).catch(error => {
             console.log("Unable to clear message key", error);
         });
     }
@@ -2519,7 +2519,7 @@ function initializeMessageControls() {
         button.addEventListener("click", async () => {
             button.disabled = true;
             try {
-                await fetch("/touch/messages/play-draft", {
+                await csrfFetch("/touch/messages/play-draft", {
                     method: "POST",
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
                     body: new URLSearchParams({ recipient_id: button.dataset.recipientId || "" })
@@ -2536,7 +2536,7 @@ function initializeMessageControls() {
             const scope = button.dataset.scope || "message";
             button.disabled = true;
             try {
-                await fetch(`/touch/messages/inbox/${encodeURIComponent(messageId)}/play`, {
+                await csrfFetch(`/touch/messages/inbox/${encodeURIComponent(messageId)}/play`, {
                     method: "POST",
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
                     body: new URLSearchParams({ scope })
@@ -2623,3 +2623,19 @@ document.addEventListener("DOMContentLoaded", () => {
         setInterval(updateLiveKey, 300);
     }
 });
+async function csrfFetch(resource, options = {}) {
+    const headers = new Headers(options.headers || {});
+    const method = (options.method || "GET").toUpperCase();
+    if (!["GET", "HEAD", "OPTIONS"].includes(method)) {
+        headers.set("X-CSRF-Token", document.querySelector('meta[name="csrf-token"]').content);
+    }
+    const response = await fetch(resource, { ...options, headers });
+    if (response.status === 403 && response.headers.get("Content-Type")?.includes("application/json")) {
+        const result = await response.clone().json();
+        if (result.error === "csrf") {
+            window.location.reload();
+            throw new Error("Page expired; reloading before another action.");
+        }
+    }
+    return response;
+}

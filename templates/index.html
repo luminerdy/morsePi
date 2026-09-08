@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260802-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -38,6 +39,7 @@
                     </div>
 
                     <form method="post" action="/">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <label class="sr-only" for="message">Message</label>
                         <textarea id="message" name="message" autofocus placeholder="Type a message">{{ message }}</textarea>
 
@@ -82,6 +84,7 @@
                         </button>
 
                         <form method="post" action="/play" class="inline-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit"
                                     class="button primary"
                                     {% if not morse %}disabled{% endif %}>
@@ -90,6 +93,7 @@
                         </form>
 
                         <form method="post" action="/stop-playback" class="inline-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="button secondary">
                                 Stop Station
                             </button>
@@ -138,6 +142,7 @@
                     </div>
 
                     <form method="post" action="/station-volume">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <label class="sr-only" for="station_volume">Station volume</label>
                         <input
                             type="range"
@@ -164,6 +169,7 @@
                     </div>
 
                     <form method="post" action="/timing-settings">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <label for="character_wpm">Character speed</label>
                         <input
                             type="range"
@@ -225,6 +231,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260802-4"></script>
+<script src="/static/app.js?v=20260908-security"></script>
 </body>
 </html>

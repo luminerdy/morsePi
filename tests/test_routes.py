@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 from pathlib import Path
+from flask.testing import FlaskClient
 
 
 os.environ.setdefault("GPIOZERO_PIN_FACTORY", "mock")
@@ -23,8 +24,60 @@ else:
     IMPORT_ERROR = None
 
 
+class BrowserClient(FlaskClient):
+    """Submit the cookie-bound token like a page rendered in the browser."""
+    def open(self, *args, **kwargs):
+        if kwargs.get("method", "GET").upper() not in {"GET", "HEAD", "OPTIONS"}:
+            cookie = self.get_cookie("morse_browser_token")
+            if cookie is None:
+                super().open("/students")
+                cookie = self.get_cookie("morse_browser_token")
+            headers = dict(kwargs.pop("headers", {}) or {})
+            headers.setdefault("X-CSRF-Token", cookie.value)
+            kwargs["headers"] = headers
+        return super().open(*args, **kwargs)
+
+
+if app_module is not None:
+    app_module.app.test_client_class = BrowserClient
+
+
 @unittest.skipIf(app_module is None, f"app dependencies unavailable: {IMPORT_ERROR}")
 class RouteRenderTests(unittest.TestCase):
+    def test_all_post_routes_reject_missing_csrf_before_actions(self):
+        import re
+        client = FlaskClient(app_module.app)
+        for rule in app_module.app.url_map.iter_rules():
+            if "POST" not in rule.methods:
+                continue
+            path = re.sub(r"<[^>]+>", "example", rule.rule)
+            with self.subTest(path=path):
+                self.assertEqual(client.post(path).status_code, 403)
+
+    def test_pin_lockout_survives_memory_loss_and_expires(self):
+        self.data_dir.mkdir(parents=True, exist_ok=True)
+        self.ADMIN_test_pin = "1234"
+        with patch.object(app_module, "configured_admin_pin", return_value=self.ADMIN_test_pin):
+            for _ in range(5):
+                self.assertFalse(app_module.admin_pin_valid("wrong"))
+            until = app_module.admin_pin_lockout["locked_until"]
+            app_module.admin_pin_lockout.clear()
+            self.assertFalse(app_module.admin_pin_valid(self.ADMIN_test_pin))
+            self.assertGreater(until, app_module.time() + 890)
+            with patch.object(app_module, "time", return_value=until + 1):
+                self.assertTrue(app_module.admin_pin_valid(self.ADMIN_test_pin))
+        saved = json.loads((self.data_dir / "admin_lockout.json").read_text())
+        self.assertEqual(saved["failures"], [])
+        self.assertEqual(saved["locked_until"], 0)
+
+    def test_corrupt_lockout_fails_closed_and_missing_pin_is_visible(self):
+        (self.data_dir / "admin_lockout.json").write_text("broken")
+        with patch.object(app_module, "configured_admin_pin", return_value="1234"):
+            self.assertFalse(app_module.admin_pin_valid("1234"))
+        with patch.dict(os.environ, {"MORSE_REQUIRE_ADMIN_PIN": "1"}):
+            page = self.client.get("/touch/system").text
+        self.assertIn("Admin PIN needs setup", page)
+
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
         self.base = Path(self.temp_dir.name)
@@ -87,6 +140,7 @@ class RouteRenderTests(unittest.TestCase):
         self.client = app_module.app.test_client()
 
     def tearDown(self):
+        app_module.reset_admin_pin_lockout()
         student_profiles.DATA_DIR = self.original_student_paths["DATA_DIR"]
         student_profiles.STUDENTS_DIR = self.original_student_paths["STUDENTS_DIR"]
         student_profiles.PROFILES_PATH = self.original_student_paths["PROFILES_PATH"]
@@ -112,7 +166,6 @@ class RouteRenderTests(unittest.TestCase):
         app_module.get_current_key_morse = self.original_get_current_key_morse
         app_module.practice_target = self.original_practice_target
         app_module.practice_feedback = self.original_practice_feedback
-        app_module.reset_admin_pin_lockout()
         app_module.clear_admin_sessions()
         app_module.reset_family_activity_refresh_state()
         self.temp_dir.cleanup()
@@ -1026,6 +1079,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertFalse(app_module.admin_pin_valid("1234"))
 
         app_module.admin_pin_lockout["locked_until"] = app_module.time() - 1
+        app_module.save_admin_pin_lockout()
         self.assertTrue(app_module.admin_pin_valid("1234"))
         self.assertFalse(app_module.admin_pin_locked())
 
@@ -1170,7 +1224,7 @@ class RouteRenderTests(unittest.TestCase):
         self.assertIn("data-word-clear", words_html)
         self.assertIn('/touch/words?word=ME&phase=1', words_html)
         self.assertNotIn("autoplay=1", words_html)
-        self.assertIn('app.js?v=20260830-2', words_html)
+        self.assertIn('app.js?v=20260908-security', words_html)
         self.assertNotIn(">Read</a>", words_html)
         self.assertIn('class="morse-visual"', words_html)
         self.assertIn('aria-label="dot dash"', words_html)

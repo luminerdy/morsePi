@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Family Activity - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260621-4">
     <link rel="stylesheet" href="/static/touch.css?v=20260901-1">
@@ -17,6 +18,7 @@
                 <a class="touch-top-link" href="/touch/system/activity?refresh=1">Refresh</a>
                 <a class="touch-top-link" href="/touch/system">System</a>
                 <form method="post" action="/touch/admin/exit" class="touch-admin-exit-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="touch-top-link touch-admin-exit">Exit Admin</button>
                 </form>
             </div>
@@ -66,7 +68,7 @@
             </main>
         {% endif %}
     </div>
-<script src="/static/app.js?v=20260830-2"></script>
+<script src="/static/app.js?v=20260908-security"></script>
 {% if unlocked %}
 <script>
 (() => {

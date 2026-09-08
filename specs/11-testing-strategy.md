@@ -117,6 +117,12 @@
 
 ## CI pipeline (per TR-011)
 
+- **TEST-028** Request security: missing/forged/other-browser tokens fail on
+  all unsafe methods; every legacy POST route rejects absent tokens before
+  executing. All POST templates include tokens; browser JSON requests carry
+  the header. Route tests use real tokens. Persistent PIN tests cover restart,
+  expiry, corruption, and visible missing-configuration guidance.
+
 On every PR and push to `main` or `release/pi`:
 
 1. `ruff check` + `ruff format --check`

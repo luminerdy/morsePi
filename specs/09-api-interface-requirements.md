@@ -9,6 +9,10 @@ General rules:
 - Errors use proper HTTP codes: 400 validation, 403 auth, 409 state conflict,
   413 too large.
 - All POSTs are CSRF-protected (SEC-001).
+  Legacy clients first load a page with its browser cookie; forms submit
+  `csrf_token`, JSON clients send the page meta token as `X-CSRF-Token`.
+  PUT/PATCH/DELETE are protected too. Rejection is 403, with JSON error `csrf`
+  for header/JSON clients and a touch-friendly recovery page for forms.
 - 🔒 marks PIN-protected endpoints (SEC-002/003).
 
 ## Pages (HTML)

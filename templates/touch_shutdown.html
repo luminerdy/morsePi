@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Power Off - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260621-4">
     <link rel="stylesheet" href="/static/touch.css?v=20260901-1">
@@ -34,6 +35,7 @@
                 <section class="touch-shutdown-actions">
                     <a class="button secondary" href="/touch/menu">Keep Practicing</a>
                     <form method="post" action="/touch/shutdown">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="confirm" value="shutdown">
                         <button class="button danger-button" type="submit">Power Off</button>
                     </form>

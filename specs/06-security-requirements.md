@@ -7,15 +7,21 @@ belongs in the rebuilt repo's `SECURITY.md` (DOC-04).
 
 - **SEC-001** *(MVP)* All state-changing endpoints SHALL require a CSRF token.
   No exceptions for "it's just a kiosk."
+  *(Delta 2026-09-08: every POST/PUT/PATCH/DELETE is checked before route
+  execution using a signed browser-bound token, carried in forms or the
+  X-CSRF-Token header. Missing, forged, other-browser, and pre-restart tokens
+  are rejected with 403. Tokens never appear in URLs. HTML is not cached.)*
 - **SEC-002** *(MVP)* Admin PIN SHALL be mandatory (refuse to start admin
   features without one), compared with `secrets.compare_digest`, and never
   logged. *(Status: deployed systemd services fail closed when the PIN is
   absent; direct development runs retain explicit no-PIN behavior. Configured
   PINs use constant-time comparison.)*
 - **SEC-003** *(MVP)* PIN attempts SHALL be rate-limited: ≥ 5 failures in
-  15 min locks admin actions. *(Delta: legacy now applies an in-memory
-  60-second lockout after 5 failures in 15 minutes; persistent logging and a
-  longer production lockout remain open.)*
+  15 min locks admin actions. *(Delta 2026-09-08: five failures in 15 minutes
+  block PIN authentication for 15 minutes. Failure times and lockout expiry
+  persist in an atomically replaced private admin_lockout.json; restarting
+  does not clear them. Corrupt state fails closed. Logs contain no PIN.
+  Missing-PIN and locked states have visible admin-screen guidance.)*
 - **SEC-004** *(MVP)* All user input SHALL be length-capped and validated
   server-side before processing (see FR-012; student names ≤ 40 chars;
   PIN ≤ 32; request bodies ≤ 16 KB). *(Status: largely implemented in legacy

@@ -11,6 +11,13 @@ files only carry *(Delta: …)* notes, not status history.
 
 ## Changes landed since baseline
 
+2026-09-08: SEC-001/AC-003 and SEC-003 are now implemented: signed browser-bound
+tokens cover all unsafe HTTP methods; forms and JSON clients submit tokens;
+five failures cause a durable 15-minute PIN lockout. TEST-028 includes all
+legacy POST routes plus adversarial token and restart/expiry/corruption checks.
+The full local suite passes 306 tests with no skips. Production missing-PIN
+startup logging and admin-screen guidance complete SEC-002's fail-closed UX.
+
 | Change | Commits | Spec impact |
 |---|---|---|
 | First project-review hardening block | main `080d344` + `14e0cb0`; release/pi `76fc286` + `15591e1`; Pappy canary 2026-09-07 | SEC-002/API-003/API-017/API-025/AC-004/AC-041/FR-033/DR-006/TEST-026/TEST-027 — all adult report pages now share the bounded admin session; deployed units fail closed without a configured PIN; verified v2 backups include station identity and private registry with per-file checksums; CI covers both development and deployed branches and rejects skipped tests. Pappy passed service/route checks plus a 37-file backup and temporary restore identity comparison. |
@@ -104,8 +111,8 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-065 bounded touch admin session | ✅ | One server-owned session covers System, Activity, Operators, Timing, Volume, and actions; 10-minute idle, Exit Admin, student navigation, and restart all relock |
 | SEC-023 family activity scope | ✅ | Each station writes only its own event prefix; Pappy alone reads exact approved activity/status paths through a dedicated reader group; no delete grant is present |
 | SEC-024 admin session secrecy | ✅ | Opaque random `HttpOnly`, `SameSite=Lax` cookie; PIN never enters the cookie, URL, page markup, hidden fields, or browser storage |
-| SEC-001 CSRF | ❌ | No tokens anywhere |
-| SEC-002/003 mandatory PIN + lockout | 🟡 | Deployed systemd units fail closed without a PIN; direct development remains optional. Configured PINs use constant-time comparison and a short in-memory lockout after repeated failures; persistent 15-minute production lockout remains open |
+| SEC-001 CSRF | ✅ | Signed browser-bound tokens required on all unsafe HTTP methods, including forms and JSON requests |
+| SEC-002/003 mandatory PIN + lockout | ✅ | Deployed units fail closed without PIN; visible setup guidance; five failures in 15 minutes cause a persistent 15-minute authentication lockout; direct development retains optional PIN |
 | SEC-004 input validation | 🟡 | See FR-012 note |
 | SEC-005 safe redirects | ✅ | Fixed + tested at `7818254` |
 | SEC-006 production WSGI | ❌ | Flask dev server (now single-threaded) |
@@ -130,8 +137,8 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 |---|---|---|---|
 | AC-001 concurrency | ❌ | 🟡 | Passes only because server is single-threaded; root cause open |
 | AC-002 oversize → 413 | ❌ | 🟡 | OOM closed by truncation; 413-rejection semantics still fail |
-| AC-003 CSRF | ❌ | ❌ | |
-| AC-004 mandatory PIN + lockout | ❌ | 🟡 | Constant-time compare and short lockout implemented; mandatory PIN, logging, and full production lockout remain open |
+| AC-003 CSRF | ❌ | ✅ | All legacy POST routes reject missing tokens; forged/other-browser tokens rejected |
+| AC-004 mandatory PIN + lockout | ❌ | ✅ | Production missing-PIN gate/guidance and durable 15-minute lockout; logs omit PIN values |
 | AC-005 external redirect rejected | ❌ | ✅ | Covered by new legacy tests |
 | AC-006…AC-012 | n/a | n/a | Rebuild-phase criteria |
 | AC-013 rhythm scoring | — | ✅ | Covered by `tests/test_practice_attempts.py` |

@@ -43,7 +43,7 @@ class TouchScreensaverTests(unittest.TestCase):
 
         self.assertNotIn("/api/play", implementation)
         self.assertNotIn("prompt-led", implementation)
-        self.assertIn('fetch("/clear-key", { method: "POST" })', implementation)
+        self.assertIn('csrfFetch("/clear-key", { method: "POST" })', implementation)
         self.assertIn("notePhysicalKey: wakeFromPhysicalKey", implementation)
         self.assertIn("event.stopImmediatePropagation()", implementation)
 
@@ -57,7 +57,7 @@ class TouchScreensaverTests(unittest.TestCase):
             if path.name == "touch_shutdown.html":
                 self.assertNotIn("/static/app.js", source, path.name)
             else:
-                self.assertIn("/static/app.js?v=20260830-2", source, path.name)
+                self.assertIn("/static/app.js?v=20260908-security", source, path.name)
 
     def test_overlay_is_full_screen_and_safe_at_800_by_480(self):
         self.assertRegex(
