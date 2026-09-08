@@ -12,6 +12,13 @@ This file is the dated development log. Current priorities live in the
   and error states, digit/Clear interaction, and all controls inside the viewport.
   Measured keys about 95x52px; error-state submit ends at y=439 on 480px screen.
   Screenshots remain in ignored dist/, not published with student names.
+- Main/release CI passed (34276481903 / 34276565679). Pappy installed 704c975
+  successfully with app/browser active and verified new CSS. Remote jobs
+  morsepi-pin-astrid-liara-20260908 and morsepi-pin-campbell-olivea-20260908
+  replace prior package jobs and target the same full release; installation
+  awaits remote confirmation. Release also carries the prior safe media removal.
+- Historical media retained in ignored data/backups/private-historical-media.zip
+  so branch switches do not erase the local archival copy.
 
 ## 2026-09-08 - Privacy audit and staged cleanup
 
