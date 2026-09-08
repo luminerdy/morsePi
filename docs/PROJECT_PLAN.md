@@ -1,5 +1,25 @@
 # Pappy's Internet Telegraph Project Plan
 
+## 2026-09-08 - Durable storage and app/sync coordination
+
+- Replaced core JSON and merged attempt-log writes with flushed temporary
+  files and atomic replacement. Unchanged files avoid unnecessary SD writes.
+  Attempt appends flush before returning and reject torn trailing records.
+- Malformed JSON retains its original and a digest-named quarantine copy;
+  the app gives a recovery message instead of silently showing empty progress.
+- Added a shared reentrant OS lock around app requests and local sync commits.
+  Network downloads stay outside the sync lock. Progress sync re-reads local
+  attempts after downloading; new practice survives and uploads next cycle.
+  Concurrent removals or roster changes abort the merge. Message receipts
+  re-read current decoding state before saving.
+- Added real-process contention/death tests, failed flush/replace tests,
+  corruption UI checks, download-race tests, and receipt preservation tests.
+  Updated Lambda packaging for the new shared storage import.
+- Scope: individual-file durability and app/sync coordination. Full multi-file
+  crash recovery, remaining maintenance writers, and a transactional store
+  remain open. Do not delete .storage.lock to recover a running worker.
+- Next: spare-SD installation/recovery rehearsal and staged updater rollback.
+
 ## 2026-09-08 - Browser request and PIN hardening
 
 - Added signed browser-bound CSRF checks before all unsafe request methods,

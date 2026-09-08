@@ -19,6 +19,13 @@
 - **NFR-006** *(MVP)* Power loss at any moment SHALL NOT corrupt stored state:
   all JSON writes atomic (write-temp + rename); JSONL appends are
   line-atomic; a torn final line is skipped on read, not fatal.
+  *(Delta 2026-09-08: core progress, learning state, profiles, settings,
+  message JSON, and merged logs use fsync plus same-directory replacement;
+  Linux also flushes the parent directory. Attempts flush before returning.
+  Readers can inspect complete historical lines, but appending to a torn
+  final line and merging malformed logs stop for recovery instead of silently
+  discarding evidence. This is single-file durability, not a multi-file
+  transaction or protection against defective storage hardware.)*
 - **NFR-007** *(MVP)* The service SHALL auto-start on boot and auto-restart on
   crash (systemd, `Restart=on-failure`).
 - **NFR-008** *(MVP)* Absence of speaker, LED, or key SHALL degrade gracefully

@@ -117,6 +117,13 @@
 
 ## CI pipeline (per TR-011)
 
+- **TEST-029** Durable storage: failed flush/replace retains the prior file;
+  damaged JSON is preserved and fails closed; torn logs are not extended;
+  two real processes do not lose updates; process termination releases locks;
+  sync retains practice added during download and refuses concurrent removal;
+  receipts preserve local decode state. Router archive imports include the
+  shared storage dependency.
+
 - **TEST-028** Request security: missing/forged/other-browser tokens fail on
   all unsafe methods; every legacy POST route rejects absent tokens before
   executing. All POST templates include tokens; browser JSON requests carry

@@ -15,6 +15,9 @@ data/station_status.json
 data/app_activity.json
 data/admin_pin.txt
 data/admin_lockout.json
+data/.storage.lock
+data/**/quarantine/
+data/**/.pending-*
 data/family_activity/
 data/family_progress/
 data/update/

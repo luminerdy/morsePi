@@ -143,3 +143,23 @@
   successful upload. Deterministic IDs SHALL make repeated worker runs
   idempotent. The Pappy cache `morsepi-family-activity-cache-v1` SHALL retain
   validated events, per-station latest status, refresh time, and refresh errors.
+# Storage Hardening Contract (2026-09-08)
+
+- **DR-024** Core JSON replacement SHALL preserve the previous complete file
+  until a flushed temporary file is ready. Malformed JSON SHALL retain its
+  original bytes and a digest-named quarantine copy; it SHALL NOT become empty
+  progress or default configuration silently.
+- The app and progress/message sync workers SHALL share an OS-owned station
+  lock for local read/modify/write operations. App lock wait is bounded to two
+  seconds with a retry/recovery response. Process death releases the lock;
+  the persistent lock file itself must never be removed during operation.
+- Progress sync SHALL download outside the lock, then re-read current attempts
+  before backup, merge, and rebuild. Attempts created during download remain
+  locally and upload on a later sync. Roster changes, removed attempts, or
+  malformed logs during download abort local replacement.
+- Message receipts SHALL merge against the latest saved message under the
+  same lock, preserving local decoding progress. Network calls are outside
+  these sync commit transactions.
+- Existing pre-merge backups remain necessary: a group of file replacements
+  is not a single atomic transaction. Offline migration/admin scripts must
+  run with the app stopped unless they participate in the station lock.

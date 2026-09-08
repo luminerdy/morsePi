@@ -1,4 +1,5 @@
 import json
+from durable_storage import append_jsonl
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
@@ -184,7 +185,6 @@ def append_practice_attempt(record):
     normalized["timing_events"] = normalize_timing_events(normalized.get("timing_events", []))
     normalized["timing_summary"] = timing_summary(normalized["timing_events"])
 
-    with ATTEMPTS_PATH.open("a", encoding="utf-8") as attempts_file:
-        attempts_file.write(json.dumps(normalized, sort_keys=True) + "\n")
+    append_jsonl(ATTEMPTS_PATH, normalized)
 
     return normalized

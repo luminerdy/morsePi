@@ -44,6 +44,16 @@ if app_module is not None:
 
 @unittest.skipIf(app_module is None, f"app dependencies unavailable: {IMPORT_ERROR}")
 class RouteRenderTests(unittest.TestCase):
+    def test_corrupt_progress_is_preserved_and_recovery_page_is_usable(self):
+        path = self.student_file("pappy", "practice_progress.json")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('{"E":')
+        response = self.client.get("/touch/daily")
+        self.assertEqual(response.status_code, 503)
+        self.assertIn("Stored data needs recovery", response.text)
+        self.assertEqual(path.read_text(), '{"E":')
+        self.assertEqual(len(list((path.parent / "quarantine").glob("*.corrupt"))), 1)
+
     def test_all_post_routes_reject_missing_csrf_before_actions(self):
         import re
         client = FlaskClient(app_module.app)
@@ -83,6 +93,9 @@ class RouteRenderTests(unittest.TestCase):
         self.base = Path(self.temp_dir.name)
         self.data_dir = self.base / "data"
         self.students_dir = self.data_dir / "students"
+        activity_patch = patch.object(app_module, "APP_ACTIVITY_PATH", self.data_dir / "app_activity.json")
+        activity_patch.start()
+        self.addCleanup(activity_patch.stop)
 
         self.original_student_paths = {
             "DATA_DIR": student_profiles.DATA_DIR,

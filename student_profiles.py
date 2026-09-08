@@ -1,4 +1,5 @@
 import json
+from durable_storage import atomic_write_json, read_json
 import re
 import shutil
 from datetime import datetime
@@ -74,7 +75,7 @@ def load_profiles():
         save_profiles(default_profiles())
 
     try:
-        profiles = json.loads(PROFILES_PATH.read_text(encoding="utf-8"))
+        profiles = read_json(PROFILES_PATH, default_profiles(), list)
     except (json.JSONDecodeError, OSError):
         profiles = default_profiles()
 
@@ -115,10 +116,7 @@ def load_profiles():
 
 def save_profiles(profiles):
     PROFILES_PATH.parent.mkdir(parents=True, exist_ok=True)
-    PROFILES_PATH.write_text(
-        json.dumps(profiles, indent=2, sort_keys=True),
-        encoding="utf-8"
-    )
+    atomic_write_json(PROFILES_PATH, profiles)
 
     for profile in profiles:
         write_student_profile_metadata(profile)
@@ -132,7 +130,7 @@ def load_student_profile_metadata():
 
     for profile_path in sorted(STUDENTS_DIR.glob(f"*/{PROFILE_METADATA}")):
         try:
-            profile = json.loads(profile_path.read_text(encoding="utf-8"))
+            profile = read_json(profile_path, {}, dict)
         except (json.JSONDecodeError, OSError):
             continue
 
@@ -155,10 +153,7 @@ def write_student_profile_metadata(profile):
 
     profile_path = student_dir(student_id) / PROFILE_METADATA
     profile_path.parent.mkdir(parents=True, exist_ok=True)
-    profile_path.write_text(
-        json.dumps(normalize_profile(profile), indent=2, sort_keys=True),
-        encoding="utf-8"
-    )
+    atomic_write_json(profile_path, normalize_profile(profile))
 
 
 def profile_for_id(student_id):

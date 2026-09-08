@@ -42,6 +42,20 @@ class MemoryObjectStore:
 
 
 class CloudMessageTests(unittest.TestCase):
+    def test_receipt_preserves_latest_local_decode_work(self):
+        from message_sync import apply_local_receipt
+        message, _ = self.cloud_message()
+        directory = inbox_dir(self.root, "astrid")
+        receipt = new_receipt(message, "opened", "astrid-liara-station", message["created_at"])
+        message["decode"]["solved_positions"] = [0]
+        message["decode"]["hint_levels"] = {"1": 1}
+        save_message_copy(directory, message)
+        apply_local_receipt(self.root, directory, message["message_id"], receipt)
+        updated = load_message(directory, message["message_id"])
+        self.assertEqual(updated["decode"]["solved_positions"], [0])
+        self.assertEqual(updated["decode"]["hint_levels"], {"1": 1})
+        self.assertEqual(updated["state"], "opened")
+
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
         self.root = Path(self.temp_dir.name)

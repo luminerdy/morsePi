@@ -11,6 +11,12 @@ files only carry *(Delta: …)* notes, not status history.
 
 ## Changes landed since baseline
 
+2026-09-08 storage block: DR-024/TEST-029 add flushed atomic core writes,
+quarantine without silent defaulting, a cross-process app/sync transaction,
+final re-reading of attempts after download, and receipt merges against current
+local messages. NFR-006 remains partial for full multi-file recovery and the
+remaining standalone maintenance scripts; the app remains single-process.
+
 2026-09-08: SEC-001/AC-003 and SEC-003 are now implemented: signed browser-bound
 tokens cover all unsafe HTTP methods; forms and JSON clients submit tokens;
 five failures cause a durable 15-minute PIN lockout. TEST-028 includes all
@@ -93,7 +99,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | FR-047...FR-050 durable delivery | ✅ | S3 routing, duplicate-safe station download, durable offline storage, and decoded receipts passed the live three-station rehearsal |
 | NFR-004 concurrency safety | 🟡 | `threaded=False` serializes requests; module-global state remains, will regress under any threaded server |
 | NFR-005 runs off-Pi w/o env vars | ❌ | Still needs `GPIOZERO_PIN_FACTORY=mock` |
-| NFR-006 atomic writes | ❌ | Plain `write_text`, no temp+rename |
+| NFR-006 atomic writes | 🟡 | Core app progress/settings/profiles/messages and sync replacements flush then atomically replace; damaged JSON quarantined; cross-process app/sync exclusion. Multi-file recovery and remaining maintenance writers still need work |
 | NFR-017 centered Morse display | ✅ | Shared server/browser renderer covers app displays and printable handout while preserving canonical ASCII Morse |
 | NFR-019 remote maintenance cost | 🟡 | AWS IoT Jobs path is designed for pennies-per-month normal use and avoids fixed per-device SSM cost; documentation review guardrail added, but ongoing AWS billing observation is still operational work |
 | FR-051 mixed Words opening | ✅ | The opening bank interleaves familiar two- and three-letter words; eligibility remains active-letter filtered |
