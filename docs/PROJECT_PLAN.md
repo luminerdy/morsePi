@@ -17,6 +17,19 @@
   those expected-commit jobs before claiming remote success.
 - Next: atomic progress/settings/message writes and shared app/sync exclusion;
   spare-SD installer rehearsal; staged updater activation and rollback.
+- Verification complete: 306 tests pass with zero skips locally; GitHub CI
+  passed main 6160eba (run 34221566329) and release/pi 5386847
+  (run 34221700245). JavaScript syntax check passed.
+- Pappy updated through its normal updater from 0213f9d to 5386847, reporting
+  succeeded, clean tracked checkout, active app/browser, and successful health
+  checks. Live operator-selection form submitted successfully; Clear stayed
+  responsive; a token-free live POST returned 403.
+- Superseded yesterday's still-queued jobs with
+  morsepi-security-astrid-liara-20260908 and
+  morsepi-security-campbell-olivea-20260908, both targeting full commit
+  5386847ff11fcf9b99a85c22114c812d8f790edb. Both remain QUEUED awaiting
+  reconnection. Keep release/pi fixed until receipts are checked, or explicitly
+  supersede these expected-commit jobs when promoting the next release.
 
 ## 2026-09-07 - Project review and first hardening block
 
@@ -55,8 +68,8 @@
 
 ### Prioritized next blocks
 
-1. Add CSRF protection to every state-changing browser route and complete the
-   production admin-PIN startup warning/lockout behavior.
+1. Completed September 8: CSRF protection across unsafe browser requests and
+   production admin-PIN startup warning/persistent lockout behavior.
 2. Convert durable JSON writes to atomic replacement, quarantine damaged JSON,
    and coordinate app and sync writers with one shared boundary.
 3. Build and rehearse an idempotent blank-SD installer on a spare Pi, including

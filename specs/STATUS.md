@@ -17,6 +17,10 @@ five failures cause a durable 15-minute PIN lockout. TEST-028 includes all
 legacy POST routes plus adversarial token and restart/expiry/corruption checks.
 The full local suite passes 306 tests with no skips. Production missing-PIN
 startup logging and admin-screen guidance complete SEC-002's fail-closed UX.
+Main 6160eba and release/pi 5386847 both passed GitHub CI. Pappy's protected
+updater installed 5386847 and reports active app/browser and successful health
+checks; live form submission and token-free POST rejection were verified.
+Remote station jobs are queued, so their deployment is not yet confirmed.
 
 | Change | Commits | Spec impact |
 |---|---|---|
