@@ -8,6 +8,9 @@ These dated entries are not numbered release tags.
 
 ### Improved
 
+- Larger admin PIN buttons and digits, with the complete error-state form still
+  visible on the 7-inch screen.
+
 - Application organized into a domain-based `morsepi/` package; station launch
   commands and data locations remain compatible. Browser asset URLs are unchanged.
 

@@ -3,6 +3,16 @@
 This file is the dated development log. Current priorities live in the
 [product roadmap](product/ROADMAP.md); older entries may be superseded.
 
+## 2026-09-08 - Larger admin PIN touch buttons
+
+- Main admin unlock panel widened from 270px to 330px; keys increased from
+  30px to 52px high with 24px digits and 16px utility labels. Other compact
+  forms unchanged. CSS cache version advanced on touch pages.
+- All 322 tests passed. Browser checks at 800x480 and 1280x800 verified normal
+  and error states, digit/Clear interaction, and all controls inside the viewport.
+  Measured keys about 95x52px; error-state submit ends at y=439 on 480px screen.
+  Screenshots remain in ignored dist/, not published with student names.
+
 ## 2026-09-08 - Privacy audit and staged cleanup
 
 - Verified no data/ files tracked. Corrected the earlier broad assurance:

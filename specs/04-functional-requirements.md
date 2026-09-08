@@ -450,3 +450,9 @@ from the current code (legacy status per requirement is tracked in
   Canonical family legacy IDs SHALL be reserved: generic profile creation using
   the same display name SHALL receive a distinct suffixed ID and new UUID rather
   than assuming the existing family identity.
+## Admin PIN touch targets (2026-09-08)
+
+The main admin unlock keypad uses buttons at least 52px high with 24px digits
+and a 330px panel in the 800x480 touch layout. Clear, Back, the masked PIN,
+error feedback, and Enter Admin must remain visible without scrolling. This
+does not alter PIN validation or enlarge the legacy add-student form keypad.
