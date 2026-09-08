@@ -16,6 +16,9 @@ morsepi/ with domain folders. Root launcher/import bridges preserve deployed
 updater compatibility. Data paths and schemas are unchanged; cloud packaging
 uses package dependencies. This does not complete the proposed route/service
 decomposition or change the application's concurrency model.
+TEST-030 and the full suite pass: 322 tests without skips; main/release CI pass.
+Pappy's old updater installed f5e29fb and serves packaged pages/assets. Remote
+package jobs are queued; root bridges remain until updater adoption is confirmed.
 
 2026-09-08 product-documentation transition: audience navigation, product README,
 roadmap, changelog, contribution guide, and manual release policy are present.

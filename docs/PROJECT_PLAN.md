@@ -15,8 +15,19 @@ This file is the dated development log. Current priorities live in the
   Package init does not start the app; Lambda ZIP includes its package dependencies.
 - Verification: 322 local tests pass without skips, including compatibility,
   path invariants, packaged assets, and isolated cloud-router ZIP imports.
-- Next: CI and Pappy canary; confirm remote updater adoption before retiring
-  root import bridges. Full route/service decomposition remains separate work.
+- GitHub CI passed main c5eb881 (34238591925) and release/pi f5e29fb
+  (34238899642). The release tree matches tested main; merge history was
+  reconciled after confirming prior code trees matched before this change.
+- Pappy's existing updater installed f5e29fb successfully, with clean checkout,
+  app/browser active, and HTTP 200 for home, touch students, JS, and CSS.
+- Replaced queued storage jobs with morsepi-package-astrid-liara-20260908 and
+  morsepi-package-campbell-olivea-20260908, targeting
+  f5e29fbf75ef5a9b848bf372ce876a68fade0e4b. Await remote receipts before claiming
+  fleet completion. No cloud Lambda deployment was required or performed.
+- Next: confirm remote updater adoption before retiring root import bridges.
+  Full route/service decomposition remains separate work. Physical key/audio
+  behavior should be confirmed during normal practice; this pass tested package
+  compatibility, rendering, and update health, not new hardware behavior.
 
 ## 2026-09-08 - Product documentation transition
 
