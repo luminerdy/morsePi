@@ -116,3 +116,11 @@ belongs in the rebuilt repo's `SECURITY.md` (DOC-04).
   Expired and explicitly ended tokens SHALL fail closed. Existing failed-PIN
   throttling SHALL remain in force, and changing or resetting the PIN MAY
   require fresh PIN confirmation even during a session.
+## Public artifact privacy (2026-09-08 clarification)
+
+Live student records, identifiers, and family-derived screenshots must not be
+used as public examples. Ignoring data/ is insufficient: review tracked config,
+tests, docs, and image content too. Migration of existing identity registries
+must be verified before replacing public fallback values. Do not rename live
+identities to sanitize documentation. See the privacy guide for staged cleanup
+and the separate decision required for historical Git content.

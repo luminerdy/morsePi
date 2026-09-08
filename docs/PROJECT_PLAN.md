@@ -3,6 +3,32 @@
 This file is the dated development log. Current priorities live in the
 [product roadmap](product/ROADMAP.md); older entries may be superseded.
 
+## 2026-09-08 - Larger admin PIN touch buttons
+
+- Main admin unlock panel widened from 270px to 330px; keys increased from
+  30px to 52px high with 24px digits and 16px utility labels. Other compact
+  forms unchanged. CSS cache version advanced on touch pages.
+- All 322 tests passed. Browser checks at 800x480 and 1280x800 verified normal
+  and error states, digit/Clear interaction, and all controls inside the viewport.
+  Measured keys about 95x52px; error-state submit ends at y=439 on 480px screen.
+  Screenshots remain in ignored dist/, not published with student names.
+
+## 2026-09-08 - Privacy audit and staged cleanup
+
+- Verified no data/ files tracked. Corrected the earlier broad assurance:
+  historical screenshots included real student names and progress, and tracked
+  registry/configuration/code/docs/tests retain family identifiers.
+- Confirmed local station private registry. Latest remote backup evidence
+  (September 6 and August 29) has no private registry entry; do not assume
+  migration is complete until new evidence arrives. Backups inspected only,
+  not restored; downloaded copies remain in ignored local backups.
+- Removed July screenshot PNGs and unused portrait concepts from tracking;
+  local copies retained and ignored. Kept the screenshot index as a privacy note.
+- Public fallback anonymization deferred to protect deployed identity mappings.
+  Documented remaining code/config/cloud dependencies and generic artwork work.
+  Active installer artwork and Git history remain unchanged; no fleet release
+  or student reset is part of this first cleanup stage.
+
 ## 2026-09-08 - Application package organization
 
 - Moved implementation into morsepi/ domain folders and moved browser assets
@@ -15,8 +41,19 @@ This file is the dated development log. Current priorities live in the
   Package init does not start the app; Lambda ZIP includes its package dependencies.
 - Verification: 322 local tests pass without skips, including compatibility,
   path invariants, packaged assets, and isolated cloud-router ZIP imports.
-- Next: CI and Pappy canary; confirm remote updater adoption before retiring
-  root import bridges. Full route/service decomposition remains separate work.
+- GitHub CI passed main c5eb881 (34238591925) and release/pi f5e29fb
+  (34238899642). The release tree matches tested main; merge history was
+  reconciled after confirming prior code trees matched before this change.
+- Pappy's existing updater installed f5e29fb successfully, with clean checkout,
+  app/browser active, and HTTP 200 for home, touch students, JS, and CSS.
+- Replaced queued storage jobs with morsepi-package-astrid-liara-20260908 and
+  morsepi-package-campbell-olivea-20260908, targeting
+  f5e29fbf75ef5a9b848bf372ce876a68fade0e4b. Await remote receipts before claiming
+  fleet completion. No cloud Lambda deployment was required or performed.
+- Next: confirm remote updater adoption before retiring root import bridges.
+  Full route/service decomposition remains separate work. Physical key/audio
+  behavior should be confirmed during normal practice; this pass tested package
+  compatibility, rendering, and update health, not new hardware behavior.
 
 ## 2026-09-08 - Product documentation transition
 
