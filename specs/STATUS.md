@@ -11,6 +11,13 @@ files only carry *(Delta: …)* notes, not status history.
 
 ## Changes landed since baseline
 
+2026-09-08 privacy review: live data/ is untracked, but public identity cleanup
+is incomplete. Removed historical screenshot PNGs and unused portrait concepts
+from main; older commits and release branches retain prior copies. Remote private
+registry migration lacks current backup evidence. Public fallback identities and
+active installer artwork remain pending a compatibility-safe cleanup. This is
+not a claim that the public repository is fully anonymized.
+
 2026-09-08 package organization: implementation and browser assets now live under
 morsepi/ with domain folders. Root launcher/import bridges preserve deployed
 updater compatibility. Data paths and schemas are unchanged; cloud packaging

@@ -9,6 +9,11 @@ This is the prioritized forward plan. Requirements live in
 
 ## Now: Trustworthy Household Stations
 
+Privacy prerequisite: complete the [public identity cleanup sequence](../PRIVACY_AND_FAMILY_DATA.md)
+after remote private-registry evidence arrives. The live data directory is ignored,
+but public fallback identities and history are not yet anonymized. July screenshots
+and unused portrait concepts have been removed from the current tree.
+
 | Priority | Outcome | Completion evidence |
 |---|---|---|
 | P0 | Verify remote rollout of the latest security/storage work | Both deployed stations confirm the expected commit and healthy services; queued jobs are not completion |

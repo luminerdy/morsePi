@@ -6,6 +6,42 @@ real identities should live in station-local data, not in public examples.
 
 ## Private Files
 
+Important: ignored live data does not mean the whole repository is anonymous.
+The tracked fallback registry still contains deployed identities, and historical
+docs/tests/configuration include family names. Earlier screenshots exposed names
+and progress; the July screenshot set and unused portrait concepts were removed
+from the current tree on 2026-09-08. Git history still retains them.
+
+### Cleanup Status - 2026-09-08
+
+- No live files under `data/` are tracked.
+- The local station's private registry was confirmed present over SSH.
+- Latest remote backup evidence, dated September 6 and August 29, respectively,
+  contains no `data/family_registry.json`. This is not proof of current device
+  absence, but is insufficient evidence to replace the public fallback.
+- Pending package-update jobs run the registry migration. After reconnection,
+  inspect a new backup for a valid private registry before anonymizing it.
+- Active boot/desktop assets remain deployed resources and use family-derived
+  cartoon artwork. Replace public defaults with generic artwork in a separate
+  compatibility-safe change; do not remove installer source assets blindly.
+- No history rewrite or force-push has been performed. That requires a separate
+  coordinated decision for clones and deployed branches, and cannot guarantee
+  deletion of externally retained copies.
+
+### Remaining Sequence
+
+1. Confirm private registries from each remote station after its update.
+2. Move family station lists out of operational defaults into private config;
+   ensure status/activity/sync and policy tooling consume that config.
+3. Make cloud packaging accept the private deployment registry rather than
+   accidentally shipping fictional identities to the existing family router.
+4. Replace public registry, configuration examples, tests, documentation names,
+   UUIDs, and station identifiers with a consistent fictional family.
+5. Review remaining images and printable artifacts visually; publish only sample
+   progress and generic artwork. Decide separately about repository history.
+
+Do not change live student IDs or UUIDs as an anonymization shortcut.
+
 These files are station-specific and ignored by Git:
 
 - `data/station_config.json`

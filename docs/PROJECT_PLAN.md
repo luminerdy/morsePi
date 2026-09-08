@@ -3,6 +3,22 @@
 This file is the dated development log. Current priorities live in the
 [product roadmap](product/ROADMAP.md); older entries may be superseded.
 
+## 2026-09-08 - Privacy audit and staged cleanup
+
+- Verified no data/ files tracked. Corrected the earlier broad assurance:
+  historical screenshots included real student names and progress, and tracked
+  registry/configuration/code/docs/tests retain family identifiers.
+- Confirmed local station private registry. Latest remote backup evidence
+  (September 6 and August 29) has no private registry entry; do not assume
+  migration is complete until new evidence arrives. Backups inspected only,
+  not restored; downloaded copies remain in ignored local backups.
+- Removed July screenshot PNGs and unused portrait concepts from tracking;
+  local copies retained and ignored. Kept the screenshot index as a privacy note.
+- Public fallback anonymization deferred to protect deployed identity mappings.
+  Documented remaining code/config/cloud dependencies and generic artwork work.
+  Active installer artwork and Git history remain unchanged; no fleet release
+  or student reset is part of this first cleanup stage.
+
 ## 2026-09-08 - Application package organization
 
 - Moved implementation into morsepi/ domain folders and moved browser assets
