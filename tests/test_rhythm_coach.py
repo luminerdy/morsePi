@@ -1,6 +1,6 @@
 import unittest
 
-from rhythm_coach import rhythm_coach
+from morsepi.learning.rhythm_coach import rhythm_coach
 
 
 class RhythmCoachTests(unittest.TestCase):

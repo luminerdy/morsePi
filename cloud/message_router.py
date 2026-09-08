@@ -1,6 +1,6 @@
 from pathlib import PurePosixPath
 
-from message_cloud import (
+from morsepi.messaging.message_cloud import (
     MessageValidationError,
     aggregate_learning_summaries,
     new_receipt,

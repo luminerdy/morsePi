@@ -6,9 +6,9 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from family_activity import refresh_family_activity
-from message_sync import AwsCliObjectStore
-from paths import data_path
+from morsepi.services.family_activity import refresh_family_activity
+from morsepi.messaging.message_sync import AwsCliObjectStore
+from morsepi.storage.paths import data_path
 from scripts.backup_data import DEFAULT_CONFIG_PATH, load_station_config
 
 

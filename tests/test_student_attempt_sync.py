@@ -60,7 +60,7 @@ class PrefixDownloadStore(MemoryStore):
 
 class StudentAttemptSyncTests(unittest.TestCase):
     def test_attempt_added_during_download_is_preserved_and_uploaded_next_sync(self):
-        from durable_storage import append_jsonl, station_transaction
+        from morsepi.storage.durable_storage import append_jsonl, station_transaction
         attempt = {
             "attempt_id": "a" * 32, "student_id": "astrid",
             "station_id": "pappy-test-station", "target": "E", "mode": "send",

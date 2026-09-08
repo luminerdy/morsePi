@@ -3,10 +3,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from message_cloud import MessageValidationError, cloud_message_from_local
-from message_store import create_message
+from morsepi.messaging.message_cloud import MessageValidationError, cloud_message_from_local
+from morsepi.messaging.message_store import create_message
 from scripts.migrate_student_uuids import migrate
-from student_identity import (
+from morsepi.students.student_identity import (
     StudentIdentityError,
     enrich_student_identity,
     load_family_registry,

@@ -11,6 +11,12 @@ files only carry *(Delta: …)* notes, not status history.
 
 ## Changes landed since baseline
 
+2026-09-08 package organization: implementation and browser assets now live under
+morsepi/ with domain folders. Root launcher/import bridges preserve deployed
+updater compatibility. Data paths and schemas are unchanged; cloud packaging
+uses package dependencies. This does not complete the proposed route/service
+decomposition or change the application's concurrency model.
+
 2026-09-08 product-documentation transition: audience navigation, product README,
 roadmap, changelog, contribution guide, and manual release policy are present.
 Existing guide paths remain stable. Rebuild-only sequencing is labeled; no

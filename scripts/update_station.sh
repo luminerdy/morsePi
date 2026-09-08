@@ -111,6 +111,10 @@ write_status_and_snapshots() {
 }
 
 run_update_checks() {
+    # Include packaged modules; retain the root checks for older releases.
+    if [ -d morsepi ]; then
+        python3 -m compileall -q morsepi || return $?
+    fi
     python3 -m py_compile \
         app.py \
         morse.py \

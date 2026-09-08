@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def load_word_bank():
-    module = ast.parse((ROOT / "app.py").read_text(encoding="utf-8"))
+    module = ast.parse((ROOT / "morsepi" / "app.py").read_text(encoding="utf-8"))
     for node in module.body:
         if isinstance(node, ast.Assign):
             for target in node.targets:

@@ -145,3 +145,10 @@ missing dependency or failed module import cannot produce a green deployment
 revision.
 
 Matrix: Linux (primary), plus Windows/macOS import-and-unit smoke for AC-012.
+# Package compatibility (TEST-030)
+
+The suite must verify root-launcher delegation, shared module identity across
+temporary compatibility imports, unchanged default/overridden data paths and
+registry fallback, packaged template/static presence, and isolated cloud ZIP
+imports. Package code must not import the temporary root bridges. Existing route
+rendering and learning/sync tests continue against canonical package imports.

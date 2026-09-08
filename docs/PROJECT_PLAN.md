@@ -3,6 +3,21 @@
 This file is the dated development log. Current priorities live in the
 [product roadmap](product/ROADMAP.md); older entries may be superseded.
 
+## 2026-09-08 - Application package organization
+
+- Moved implementation into morsepi/ domain folders and moved browser assets
+  into the package. Operational commands, cloud components, and services remain
+  separate. Imports in application, scripts, cloud, and tests use package paths.
+- Root files now delegate to the package. Preserve them until every station's
+  updater no longer requires its historical root-file compile list. They alias
+  module objects rather than copying mutable state. app.py stays a launcher.
+- Data/config roots, static URLs, student schemas, and learning rules unchanged.
+  Package init does not start the app; Lambda ZIP includes its package dependencies.
+- Verification: 322 local tests pass without skips, including compatibility,
+  path invariants, packaged assets, and isolated cloud-router ZIP imports.
+- Next: CI and Pappy canary; confirm remote updater adoption before retiring
+  root import bridges. Full route/service decomposition remains separate work.
+
 ## 2026-09-08 - Product documentation transition
 
 - Replaced the build-stage README with product benefits, audience entry points,

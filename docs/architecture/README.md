@@ -1,5 +1,7 @@
 # System Architecture
 
+- [Repository package map and compatibility](REPOSITORY.md)
+
 - [Application, station hardware, and AWS diagram](../ARCHITECTURE.md)
 - [Backup and sync design](../AWS_BACKUP_SYNC_DESIGN.md)
 - [Student attempt synchronization](../STUDENT_PROGRESS_SYNC_DESIGN.md)

@@ -2,13 +2,13 @@ import unittest
 from pathlib import Path
 
 from flask import Flask, render_template_string
-from browser_security import install_request_protection
+from morsepi.security.browser_security import install_request_protection
 
 
 class RequestProtectionTests(unittest.TestCase):
     def setUp(self):
         self.app = Flask(__name__)
-        self.app.template_folder = str(Path(__file__).resolve().parents[1] / "templates")
+        self.app.template_folder = str(Path(__file__).resolve().parents[1] / "morsepi" / "templates")
         install_request_protection(self.app)
         self.calls = []
 
@@ -45,7 +45,7 @@ class RequestProtectionTests(unittest.TestCase):
 
     def test_every_template_post_form_has_a_token(self):
         import re
-        root = Path(__file__).resolve().parents[1] / "templates"
+        root = Path(__file__).resolve().parents[1] / "morsepi" / "templates"
         for path in root.glob("*.html"):
             for form in re.findall(r'<form\b[^>]*method="post".*?</form>', path.read_text(encoding="utf-8"), re.S):
                 self.assertIn('name="csrf_token"', form, path.name)

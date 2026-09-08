@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 from scripts.progress_snapshot import build_snapshot, write_snapshot
-from student_identity import student_uuid_for_id
+from morsepi.students.student_identity import student_uuid_for_id
 
 
 class ProgressSnapshotTests(unittest.TestCase):

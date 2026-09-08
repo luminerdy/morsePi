@@ -1,6 +1,6 @@
 import unittest
 
-from practice_attempts import MAX_TIMING_EVENTS, normalize_timing_events, timing_summary
+from morsepi.learning.practice_attempts import MAX_TIMING_EVENTS, normalize_timing_events, timing_summary
 
 
 class TimingSummaryTests(unittest.TestCase):

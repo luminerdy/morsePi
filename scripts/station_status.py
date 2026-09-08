@@ -9,9 +9,9 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from family_activity import flush_activity_events, new_activity_event, queue_activity_event
-from message_sync import AwsCliObjectStore
-from paths import data_path
+from morsepi.services.family_activity import flush_activity_events, new_activity_event, queue_activity_event
+from morsepi.messaging.message_sync import AwsCliObjectStore
+from morsepi.storage.paths import data_path
 from scripts.backup_data import DEFAULT_CONFIG_PATH, load_station_config, resolve_station_id, upload_status_to_s3
 
 

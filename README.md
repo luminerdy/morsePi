@@ -63,8 +63,10 @@ testing in addition to automated tests.
 - [Security](SECURITY.md) and [privacy](docs/PRIVACY_AND_FAMILY_DATA.md)
 - [Requirements and implementation status](specs/README.md)
 
-The code remains in the existing root Python modules, with `templates/`,
-`static/`, `tests/`, `scripts/`, `systemd/`, and `cloud/` supporting the station.
-Documentation navigation does not change installation paths.
+Application code and browser assets live under `morsepi/`, grouped by learning,
+messaging, students, storage, security, services, and Morse helpers. `scripts/`,
+`systemd/`, `cloud/`, and `tests/` remain separate. Root Python files are temporary
+compatibility bridges for deployed updaters; `app.py` remains the station launcher.
+See the [repository map](docs/architecture/REPOSITORY.md).
 
 Licensed under the [MIT License](LICENSE).

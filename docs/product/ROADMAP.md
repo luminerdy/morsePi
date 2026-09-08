@@ -18,6 +18,10 @@ This is the prioritized forward plan. Requirements live in
 
 ## Next: Repeatable Releases
 
+- Confirm package-aware updater adoption on every station, then retire temporary
+  root import bridges. The domain package migration is implemented; do not remove
+  compatibility files while older fleet updaters still check those paths.
+
 - Define the first numbered pilot release after the installation/recovery
   rehearsal; publish exact revision, compatibility, known issues, and recovery steps.
 - Apply the [release policy](RELEASES.md) to manual release preparation before

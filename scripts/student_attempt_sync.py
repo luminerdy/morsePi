@@ -11,12 +11,12 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from family_activity import flush_activity_events, new_activity_event, queue_activity_event
-from message_sync import AwsCliObjectStore
-from paths import data_path
-from durable_storage import atomic_write_json, atomic_write_text, station_transaction, read_json as durable_read_json
+from morsepi.services.family_activity import flush_activity_events, new_activity_event, queue_activity_event
+from morsepi.messaging.message_sync import AwsCliObjectStore
+from morsepi.storage.paths import data_path
+from morsepi.storage.durable_storage import atomic_write_json, atomic_write_text, station_transaction, read_json as durable_read_json
 from scripts.backup_data import DEFAULT_CONFIG_PATH, load_station_config
-from student_identity import StudentIdentityError, enrich_student_identity, validate_identity_pair
+from morsepi.students.student_identity import StudentIdentityError, enrich_student_identity, validate_identity_pair
 
 
 DEFAULT_DATA_DIR = data_path()

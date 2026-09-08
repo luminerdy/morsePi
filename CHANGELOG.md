@@ -8,6 +8,9 @@ These dated entries are not numbered release tags.
 
 ### Improved
 
+- Application organized into a domain-based `morsepi/` package; station launch
+  commands and data locations remain compatible. Browser asset URLs are unchanged.
+
 - More reliable progress, settings, and message saving, with coordination
   between practice and synchronization to preserve new attempts.
 - Damaged JSON is preserved for recovery instead of silently becoming empty

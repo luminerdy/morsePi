@@ -1,18 +1,5 @@
-import os
-from pathlib import Path
+"""Temporary bridge for pre-package station updaters and imports."""
+import importlib
+import sys
 
-
-APP_ROOT = Path(__file__).resolve().parent
-
-
-def data_dir():
-    configured = os.environ.get("MORSE_DATA_DIR", "").strip()
-    if configured:
-        return Path(configured).expanduser().resolve()
-
-    return APP_ROOT / "data"
-
-
-def data_path(*parts):
-    return data_dir().joinpath(*parts)
-
+sys.modules[__name__] = importlib.import_module("morsepi.storage.paths")

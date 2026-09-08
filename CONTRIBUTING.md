@@ -47,7 +47,8 @@ issues according to [SECURITY.md](SECURITY.md).
 
 ## Repository Boundaries
 
-Root Python modules, `templates/`, and `static/` implement the app; `scripts/`
+The `morsepi/` package includes application modules, templates, and static assets; `scripts/`
 and `systemd/` operate stations; `cloud/` contains cloud components and policy
 templates; `tests/` contains regression tests. `archive/` is reference material.
-Do not move runtime files as part of documentation cleanup.
+Use package imports for new code. Root bridges are temporary updater compatibility
+only. See the [repository map](docs/architecture/REPOSITORY.md) before changing paths.

@@ -1,5 +1,8 @@
 # MorsePi Architecture
 
+Source layout: see the [domain package map](architecture/REPOSITORY.md).
+The September 8 package move changes source locations, not the system flows below.
+
 This document shows the current project and AWS architecture as of the
 September 2026 family-activity release. Solid lines are implemented paths.
 Dashed lines are disabled, partial, or optional support paths.

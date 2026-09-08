@@ -12,9 +12,9 @@ from flask.testing import FlaskClient
 os.environ.setdefault("GPIOZERO_PIN_FACTORY", "mock")
 
 try:
-    app_module = importlib.import_module("app")
-    student_identity = importlib.import_module("student_identity")
-    student_profiles = importlib.import_module("student_profiles")
+    app_module = importlib.import_module("morsepi.app")
+    student_identity = importlib.import_module("morsepi.students.student_identity")
+    student_profiles = importlib.import_module("morsepi.students.student_profiles")
 except ModuleNotFoundError as error:
     app_module = None
     student_identity = None

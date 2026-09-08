@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 from cloud.message_router import DIRECTORY_KEY, route_key
-from message_cloud import (
+from morsepi.messaging.message_cloud import (
     FAMILY_DIRECTORY_FORMAT,
     MessageValidationError,
     cloud_message_from_local,
@@ -12,7 +12,7 @@ from message_cloud import (
     new_learning_summary,
     new_receipt,
 )
-from message_store import (
+from morsepi.messaging.message_store import (
     create_message,
     inbox_dir,
     load_message,
@@ -20,7 +20,7 @@ from message_store import (
     outbox_dir,
     save_message_copy,
 )
-from message_sync import refresh_local_learning_summary, sync_station, write_local_learning_summary
+from morsepi.messaging.message_sync import refresh_local_learning_summary, sync_station, write_local_learning_summary
 
 
 class MemoryObjectStore:
@@ -43,7 +43,7 @@ class MemoryObjectStore:
 
 class CloudMessageTests(unittest.TestCase):
     def test_receipt_preserves_latest_local_decode_work(self):
-        from message_sync import apply_local_receipt
+        from morsepi.messaging.message_sync import apply_local_receipt
         message, _ = self.cloud_message()
         directory = inbox_dir(self.root, "astrid")
         receipt = new_receipt(message, "opened", "astrid-liara-station", message["created_at"])
