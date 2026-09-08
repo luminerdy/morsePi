@@ -1,5 +1,9 @@
 # 02 — MVP Scope
 
+Scope note (2026-09-08): this is the historical rebuild's minimum delivery
+sequence, not the current product feature list. Several later-tier features
+already ship. See [STATUS.md](STATUS.md) and the [product overview](../README.md).
+
 The MVP is the smallest station a child can learn from and an admin can safely
 leave unattended.
 

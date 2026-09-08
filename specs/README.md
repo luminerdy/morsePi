@@ -1,8 +1,14 @@
-# MorsePi Rebuild Specs
+# morsePi Product Requirements
 
-These specs define the target behavior for rebuilding MorsePi from explicit requirements rather than assumptions hidden in the current Flask monolith.
+These specs define explicit product requirements, including requirements for
+the current station and target improvements originally written for a rebuild.
+Stable IDs support implementation and testing without assumptions hidden in code.
 
-The legacy codebase does not meet every requirement yet. Use [STATUS.md](STATUS.md) to see what the current code satisfies, partially satisfies, or leaves open.
+The current code does not meet every requirement yet. Use [STATUS.md](STATUS.md)
+to distinguish implemented, partial, and planned behavior. The MVP scope and
+rebuild roadmap describe rebuild sequencing, not a list of today's available
+features. Use the [product README](../README.md) for that introduction and the
+[product roadmap](../docs/product/ROADMAP.md) for current priorities.
 
 ## Spec Order
 

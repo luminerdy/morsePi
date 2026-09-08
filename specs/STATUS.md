@@ -1,7 +1,7 @@
-# Spec Compliance Status — Legacy Codebase
+# Product Requirement Status
 
-Tracks how far the **current legacy code** satisfies the spec, so the rebuild
-knows what it inherits. This file is updated on each re-review; requirement
+Tracks how far the **current code** satisfies the spec, including open rebuild
+targets. This file is updated on each re-review; requirement
 files only carry *(Delta: …)* notes, not status history.
 
 - **Baseline review:** `33df851` (2026-07-02)
@@ -10,6 +10,12 @@ files only carry *(Delta: …)* notes, not status history.
 - **Spec package location:** root `specs/`
 
 ## Changes landed since baseline
+
+2026-09-08 product-documentation transition: audience navigation, product README,
+roadmap, changelog, contribution guide, and manual release policy are present.
+Existing guide paths remain stable. Rebuild-only sequencing is labeled; no
+requirement is marked implemented merely because documentation was reorganized.
+Numbered releases and automated release publishing remain future work.
 
 2026-09-08 storage block: DR-024/TEST-029 add flushed atomic core writes,
 quarantine without silent defaulting, a cross-process app/sync transaction,

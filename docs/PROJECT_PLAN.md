@@ -1,5 +1,24 @@
 # Pappy's Internet Telegraph Project Plan
 
+This file is the dated development log. Current priorities live in the
+[product roadmap](product/ROADMAP.md); older entries may be superseded.
+
+## 2026-09-08 - Product documentation transition
+
+- Replaced the build-stage README with product benefits, audience entry points,
+  standalone versus optional AWS capabilities, and honest family-pilot scope.
+- Added audience indexes, roadmap, release policy, changelog, and contributor
+  instructions. Preserved established guide and runtime paths for compatibility.
+- Labeled historical requirements and rebuild scope; stable spec IDs remain.
+- Decision: navigation first, selective consolidation later. No application or
+  fleet behavior change and no numbered release claimed. Keep release/pi fixed
+  for pending jobs; product documentation is published on main.
+- Verification: 100 relative file links checked across 15 product documents;
+  git diff whitespace checks passed. Runtime tests were not rerun because this
+  change affects documentation only; no station restart or deployment performed.
+- Next: continue install/recovery rehearsal, then prepare the
+  first numbered pilot release with evidence and known limitations.
+
 ## 2026-09-08 - Durable storage and app/sync coordination
 
 - Replaced core JSON and merged attempt-log writes with flushed temporary
