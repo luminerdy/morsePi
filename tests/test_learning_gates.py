@@ -9,7 +9,7 @@ from pathlib import Path
 os.environ.setdefault("GPIOZERO_PIN_FACTORY", "mock")
 
 try:
-    app_module = importlib.import_module("app")
+    app_module = importlib.import_module("morsepi.app")
 except ModuleNotFoundError as error:
     app_module = None
     IMPORT_ERROR = error

@@ -8,9 +8,9 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from paths import data_path
+from morsepi.storage.paths import data_path
 from scripts.backup_data import DEFAULT_CONFIG_PATH, load_station_config, resolve_station_id, upload_snapshot_to_s3
-from student_identity import enrich_student_identity
+from morsepi.students.student_identity import enrich_student_identity
 
 
 DEFAULT_DATA_DIR = data_path()

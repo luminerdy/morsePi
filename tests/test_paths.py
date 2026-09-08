@@ -3,8 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import paths
-
+import morsepi.storage.paths as paths
 
 class PathTests(unittest.TestCase):
     def test_default_data_dir_is_anchored_to_app_root(self):

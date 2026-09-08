@@ -76,7 +76,7 @@ class SystemdUnitTests(unittest.TestCase):
         self.assertIn('"rolled-back" "update-service-install-failed" 42', updater)
 
     def test_exit_kiosk_stops_supervision_before_closing_chromium(self):
-        app_source = (ROOT / "app.py").read_text(encoding="utf-8")
+        app_source = (ROOT / "morsepi" / "app.py").read_text(encoding="utf-8")
         function = app_source[app_source.index("def exit_kiosk_in_background()") :]
         function = function[: function.index("\ndef shutdown_sync_commands()")]
 

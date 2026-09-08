@@ -1,7 +1,7 @@
-# Spec Compliance Status — Legacy Codebase
+# Product Requirement Status
 
-Tracks how far the **current legacy code** satisfies the spec, so the rebuild
-knows what it inherits. This file is updated on each re-review; requirement
+Tracks how far the **current code** satisfies the spec, including open rebuild
+targets. This file is updated on each re-review; requirement
 files only carry *(Delta: …)* notes, not status history.
 
 - **Baseline review:** `33df851` (2026-07-02)
@@ -11,11 +11,29 @@ files only carry *(Delta: …)* notes, not status history.
 
 ## Changes landed since baseline
 
+2026-09-08 package organization: implementation and browser assets now live under
+morsepi/ with domain folders. Root launcher/import bridges preserve deployed
+updater compatibility. Data paths and schemas are unchanged; cloud packaging
+uses package dependencies. This does not complete the proposed route/service
+decomposition or change the application's concurrency model.
+
+2026-09-08 product-documentation transition: audience navigation, product README,
+roadmap, changelog, contribution guide, and manual release policy are present.
+Existing guide paths remain stable. Rebuild-only sequencing is labeled; no
+requirement is marked implemented merely because documentation was reorganized.
+Numbered releases and automated release publishing remain future work.
+
 2026-09-08 storage block: DR-024/TEST-029 add flushed atomic core writes,
 quarantine without silent defaulting, a cross-process app/sync transaction,
 final re-reading of attempts after download, and receipt merges against current
 local messages. NFR-006 remains partial for full multi-file recovery and the
 remaining standalone maintenance scripts; the app remains single-process.
+Verification: 317 tests pass without skips; main 07f1ead and release/pi
+6e64aed passed GitHub CI. Pappy installed 6e64aed through the normal updater
+and serves HTTP 200 with app/browser active. Both remote storage jobs remain
+queued. A transient invalid-profile read blocked the first old-code migration;
+checks and retry succeeded without repair. Migration exclusion and consistent
+pre-update backups remain part of the updater hardening track.
 
 2026-09-08: SEC-001/AC-003 and SEC-003 are now implemented: signed browser-bound
 tokens cover all unsafe HTTP methods; forms and JSON clients submit tokens;
@@ -23,6 +41,10 @@ five failures cause a durable 15-minute PIN lockout. TEST-028 includes all
 legacy POST routes plus adversarial token and restart/expiry/corruption checks.
 The full local suite passes 306 tests with no skips. Production missing-PIN
 startup logging and admin-screen guidance complete SEC-002's fail-closed UX.
+Main 6160eba and release/pi 5386847 both passed GitHub CI. Pappy's protected
+updater installed 5386847 and reports active app/browser and successful health
+checks; live form submission and token-free POST rejection were verified.
+Remote station jobs are queued, so their deployment is not yet confirmed.
 
 | Change | Commits | Spec impact |
 |---|---|---|
@@ -48,7 +70,7 @@ startup logging and admin-screen guidance complete SEC-002's fail-closed UX.
 | Student progress sync design, attempt IDs, dry-run report, full-sync path, and guarded timer foundation | 2026-08-26 | FR-054, DR-019 — guarded full sync now recovers a lock abandoned by power loss or older than two hours while preserving active-owner exclusion. Live Pappy recovery uploaded 907 missing attempts, rebuilt 1,192 practice plus 239 Words and 177 bonus attempts, created a pre-merge backup, and cleared the lock; batch upload remains a performance follow-up. |
 | Local family Morse messaging with shared-letter validation, word-tile/whole-word keyer composition, review, playback, inbox, guided decoding, effort, and badges | 2026-08-02 working tree | FR-039...FR-046 — met for Phase 7A; FR-047...FR-050 remain partial pending cross-station transport |
 | Message Word Bank and word-level draft editing | 2026-09-05 working tree | FR-041/FR-042/AC-015 — composer links to a scrollable shared Word Bank, Words practice links to `Words I Know`, word tiles show ready/new/tried/done status, and useful message-only words such as `I` do not inflate scored Words totals. Draft words are selectable and can be replaced, removed, or moved without clearing the draft. |
-| Durable S3/Lambda message routing, station sync worker, remote receipts, and three-station rehearsal | `29a665d`; activated 2026-08-02 | FR-047...FR-050, FR-052, FR-053, API-023, and AC-018...AC-020/AC-023 — met; Pappy and Astrid/Liara enabled at ten minutes, Campbell/Olivea remains disabled |
+| Durable S3/Lambda message routing, station sync worker, remote receipts, and three-station rehearsal | `29a665d`; Campbell recovery `8ab0307` | FR-047...FR-050, FR-052, FR-053, API-023, and AC-018...AC-020/AC-023 — routing is implemented; Pappy and Astrid/Liara are enabled. Campbell's disabled flag prevented two local sends from reaching S3; fixed update and `enable-message-sync` Jobs are durably queued for its next boot so the saved outbox can be recovered. |
 | Project and AWS architecture diagrams | 2026-08-08 working tree | DOC-03 — updated for the current three-station system, deployed S3/Lambda message routing, progress sync, AWS IoT Jobs remote update path, trust boundaries, rollout status, and optional Systems Manager support |
 | Station boot splash branding | 2026-08-06 working tree | NFR-018 — static 800x480 boot splash asset and reversible Plymouth `pix` installer added; live reboot verification remains open |
 | Student sync learning-state rebuild | 2026-08-06 working tree | FR-054/DR-019 — rebuild now treats completed learning groups as earned once historical attempts crossed the gate, while current skill strength may still regress for coaching |
@@ -163,7 +185,7 @@ Legend: ✅ met · 🟡 partial/mitigated · ❌ open · — not applicable to l
 | AC-028 touch settings PIN recovery | — | ✅ | Invalid settings PINs return to a usable 800x480 Timing screen |
 | AC-029 touch operator roster | — | ✅ | PIN, validation, backup, preservation, and picker behavior are route-tested |
 | AC-030 permanent student identity | — | ✅ | Registry/migration fixtures pass; 701 live attempts matched hashes and UUIDs, and a UUID-bearing message completed decoded receipt delivery |
-| AC-031 remote update Jobs | — | ✅ | Fake Jobs tests cover success, missing/blocked reports, expected-commit mismatch, fixed diagnostics, and unknown actions. Pappy live rehearsals proved rollback on failed checks, then live expected-commit IoT Job `morsepi-hardened-pappy-20260829-1456` succeeded with a fresh `already-current` report at `4aa22f5` |
+| AC-031 remote update Jobs | — | ✅ | Fake Jobs tests cover success, missing/blocked reports, expected-commit mismatch, fixed diagnostics, and unknown actions. Pappy live rehearsals proved rollback on failed checks; live expected-commit IoT Jobs then proved both `already-current` at `4aa22f5` and a real fast-forward update from `4aa22f5` to `e7f996b` |
 | AC-032 remote maintenance cost guardrail | — | 🟡 | Spec guardrail added; keep reviewing AWS docs/billing before activating any fixed monthly remote-admin service |
 | AC-033 D/U Words expansion | — | ✅ | Regression fixture covers 42/56 completion after D/U unlock; Pappy live page verified 42/56 after release update |
 | AC-034 C/W/H/L Words expansion | — | 🟡 | Regression fixture covers 56/80 completion after C/W/H/L unlock; release branch and Pappy contain the word pack, but live student unlock verification remains future testing |

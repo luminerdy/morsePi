@@ -70,3 +70,15 @@ morsepi/
 └── docs/
     └── journal/                # frozen legacy planning docs
 ```
+# Package transition (2026-09-08)
+
+The current implementation is being organized under `morsepi/` by learning,
+messaging, students, storage, security, services, and Morse helpers. Templates
+and static assets belong to the package. This is a structural change, not a
+rewrite of routes, concurrency, curriculum, or student data.
+
+The root `app.py` launch command remains supported. Temporary root import
+bridges preserve old updater file checks until the fleet has a package-aware
+updater. Data and tracked configuration stay at their existing repository-root
+locations, including MORSE_DATA_DIR overrides. Cloud packages must include all
+required package modules without importing the GPIO application at package init.

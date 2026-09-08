@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from family_activity import (
+from morsepi.services.family_activity import (
     EVENT_FORMAT,
     activity_event_key,
     flush_activity_events,

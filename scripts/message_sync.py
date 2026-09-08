@@ -6,8 +6,8 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from message_sync import AwsCliObjectStore, sync_station
-from paths import data_path
+from morsepi.messaging.message_sync import AwsCliObjectStore, sync_station
+from morsepi.storage.paths import data_path
 
 
 def main():

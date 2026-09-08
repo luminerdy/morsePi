@@ -1,7 +1,8 @@
 # 01 — Product Overview
 
 - **Product name:** Pappy's Internet Telegraph (morsePi)
-- **Spec status:** Draft v1.0 for rebuild — supersedes behavior implicit in the legacy Flask app.
+- **Spec status:** Product requirements with rebuild targets; implementation
+  status is tracked separately. Requirements are not evidence of completion.
 - **Package index:** [../README.md](../README.md)
 - **Legacy compliance status:** [STATUS.md](STATUS.md)
 

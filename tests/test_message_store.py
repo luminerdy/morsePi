@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from message_store import (
+from morsepi.messaging.message_store import (
     MessageValidationError,
     advance_hint,
     answer_message,

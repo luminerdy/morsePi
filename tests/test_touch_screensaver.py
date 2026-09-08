@@ -7,8 +7,8 @@ class TouchScreensaverTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.root = Path(__file__).resolve().parents[1]
-        cls.app_source = (cls.root / "static" / "app.js").read_text(encoding="utf-8")
-        cls.css_source = (cls.root / "static" / "touch.css").read_text(encoding="utf-8")
+        cls.app_source = (cls.root / "morsepi" / "static" / "app.js").read_text(encoding="utf-8")
+        cls.css_source = (cls.root / "morsepi" / "static" / "touch.css").read_text(encoding="utf-8")
 
     def test_idle_guess_reveal_and_reset_timing_match_spec(self):
         self.assertIn("const TOUCH_SCREENSAVER_IDLE_MS = 3 * 60 * 1000;", self.app_source)
@@ -48,7 +48,7 @@ class TouchScreensaverTests(unittest.TestCase):
         self.assertIn("event.stopImmediatePropagation()", implementation)
 
     def test_all_active_touch_pages_load_current_assets(self):
-        templates = sorted((self.root / "templates").glob("touch_*.html"))
+        templates = sorted((self.root / "morsepi" / "templates").glob("touch_*.html"))
         self.assertGreater(len(templates), 10)
 
         for path in templates:

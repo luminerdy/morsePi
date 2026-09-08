@@ -1,0 +1,1 @@
+"""morsePi storage package."""

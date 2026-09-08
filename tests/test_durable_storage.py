@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from durable_storage import (atomic_write_json, read_json, station_transaction,
+from morsepi.storage.durable_storage import (atomic_write_json, read_json, station_transaction,
                              append_jsonl, StorageBusy, StorageCorruption)
 
 
@@ -34,7 +34,7 @@ class DurableStorageTests(unittest.TestCase):
     def test_failed_replace_preserves_original_and_cleans_temporary(self):
         path = self.root / "progress.json"
         atomic_write_json(path, {"count": 5})
-        with patch("durable_storage.os.replace", side_effect=OSError("disk error")):
+        with patch("morsepi.storage.durable_storage.os.replace", side_effect=OSError("disk error")):
             with self.assertRaises(OSError):
                 atomic_write_json(path, {"count": 6})
         self.assertEqual(read_json(path), {"count": 5})
@@ -43,7 +43,7 @@ class DurableStorageTests(unittest.TestCase):
     def test_failed_flush_never_replaces_valid_file(self):
         path = self.root / "progress.json"
         atomic_write_json(path, {"count": 5})
-        with patch("durable_storage.os.fsync", side_effect=OSError("disk full")):
+        with patch("morsepi.storage.durable_storage.os.fsync", side_effect=OSError("disk full")):
             with self.assertRaises(OSError):
                 atomic_write_json(path, {"count": 6})
         self.assertEqual(read_json(path), {"count": 5})
@@ -75,7 +75,7 @@ class DurableStorageTests(unittest.TestCase):
             package_message_router.main()
         result = subprocess.run(
             [sys.executable, "-I", "-c",
-             "import sys; sys.path.insert(0, sys.argv[1]); import message_store", str(archive)],
+             "import sys; sys.path.insert(0, sys.argv[1]); import morsepi.messaging.message_store; import cloud.message_router", str(archive)],
             capture_output=True, text=True, timeout=15,
         )
         self.assertEqual(result.returncode, 0, result.stderr)

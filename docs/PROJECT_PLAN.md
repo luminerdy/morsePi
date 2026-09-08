@@ -1,5 +1,39 @@
 # Pappy's Internet Telegraph Project Plan
 
+This file is the dated development log. Current priorities live in the
+[product roadmap](product/ROADMAP.md); older entries may be superseded.
+
+## 2026-09-08 - Application package organization
+
+- Moved implementation into morsepi/ domain folders and moved browser assets
+  into the package. Operational commands, cloud components, and services remain
+  separate. Imports in application, scripts, cloud, and tests use package paths.
+- Root files now delegate to the package. Preserve them until every station's
+  updater no longer requires its historical root-file compile list. They alias
+  module objects rather than copying mutable state. app.py stays a launcher.
+- Data/config roots, static URLs, student schemas, and learning rules unchanged.
+  Package init does not start the app; Lambda ZIP includes its package dependencies.
+- Verification: 322 local tests pass without skips, including compatibility,
+  path invariants, packaged assets, and isolated cloud-router ZIP imports.
+- Next: CI and Pappy canary; confirm remote updater adoption before retiring
+  root import bridges. Full route/service decomposition remains separate work.
+
+## 2026-09-08 - Product documentation transition
+
+- Replaced the build-stage README with product benefits, audience entry points,
+  standalone versus optional AWS capabilities, and honest family-pilot scope.
+- Added audience indexes, roadmap, release policy, changelog, and contributor
+  instructions. Preserved established guide and runtime paths for compatibility.
+- Labeled historical requirements and rebuild scope; stable spec IDs remain.
+- Decision: navigation first, selective consolidation later. No application or
+  fleet behavior change and no numbered release claimed. Keep release/pi fixed
+  for pending jobs; product documentation is published on main.
+- Verification: 100 relative file links checked across 15 product documents;
+  git diff whitespace checks passed. Runtime tests were not rerun because this
+  change affects documentation only; no station restart or deployment performed.
+- Next: continue install/recovery rehearsal, then prepare the
+  first numbered pilot release with evidence and known limitations.
+
 ## 2026-09-08 - Durable storage and app/sync coordination
 
 - Replaced core JSON and merged attempt-log writes with flushed temporary
@@ -19,6 +53,20 @@
   crash recovery, remaining maintenance writers, and a transactional store
   remain open. Do not delete .storage.lock to recover a running worker.
 - Next: spare-SD installation/recovery rehearsal and staged updater rollback.
+- Verification: 317 local tests pass with zero skips. GitHub CI passed main
+  07f1ead (34229346558) and release/pi 6e64aed (34229456493).
+  Pappy's normal updater installed 6e64aed, reports succeeded and a clean
+  checkout; app/browser are active and the live home response is HTTP 200.
+- First canary attempt stopped safely before fetching: the old UUID migration
+  read a profile as invalid JSON. Both migration checks then passed without
+  repair, and the normal updater retry succeeded. This is consistent with a
+  transient old in-place write, not proven permanent corruption. No data reset.
+  Keep migration exclusion/consistent pre-update backups on the updater track.
+- Remote replacements morsepi-storage-astrid-liara-20260908 and
+  morsepi-storage-campbell-olivea-20260908 target full release
+  6e64aed6a4b1fcb54c19fe628174da35f29677c1. Both are QUEUED, not confirmed
+  installed. Prior security jobs were canceled as SUPERSEDED. Keep release/pi
+  fixed until receipts arrive or explicitly supersede expected-commit jobs.
 
 ## 2026-09-08 - Browser request and PIN hardening
 
@@ -37,6 +85,19 @@
   those expected-commit jobs before claiming remote success.
 - Next: atomic progress/settings/message writes and shared app/sync exclusion;
   spare-SD installer rehearsal; staged updater activation and rollback.
+- Verification complete: 306 tests pass with zero skips locally; GitHub CI
+  passed main 6160eba (run 34221566329) and release/pi 5386847
+  (run 34221700245). JavaScript syntax check passed.
+- Pappy updated through its normal updater from 0213f9d to 5386847, reporting
+  succeeded, clean tracked checkout, active app/browser, and successful health
+  checks. Live operator-selection form submitted successfully; Clear stayed
+  responsive; a token-free live POST returned 403.
+- Superseded yesterday's still-queued jobs with
+  morsepi-security-astrid-liara-20260908 and
+  morsepi-security-campbell-olivea-20260908, both targeting full commit
+  5386847ff11fcf9b99a85c22114c812d8f790edb. Both remain QUEUED awaiting
+  reconnection. Keep release/pi fixed until receipts are checked, or explicitly
+  supersede these expected-commit jobs when promoting the next release.
 
 ## 2026-09-07 - Project review and first hardening block
 
@@ -75,8 +136,8 @@
 
 ### Prioritized next blocks
 
-1. Add CSRF protection to every state-changing browser route and complete the
-   production admin-PIN startup warning/lockout behavior.
+1. Completed September 8: CSRF protection across unsafe browser requests and
+   production admin-PIN startup warning/persistent lockout behavior.
 2. Convert durable JSON writes to atomic replacement, quarantine damaged JSON,
    and coordinate app and sync writers with one shared boundary.
 3. Build and rehearse an idempotent blank-SD installer on a spare Pi, including
@@ -204,6 +265,13 @@
   setting, creates a private configuration backup, atomically enables message
   sync, installs/enables the repository-owned timer, starts one sync, and
   restores the original configuration if service startup fails.
+- Promoted the recovery to `release/pi` at `8ab0307` after all 264 discovered
+  tests passed. Queued durable Campbell Jobs
+  `morsepi-campbell-message-recovery-update-20260829` followed by
+  `morsepi-campbell-enable-message-sync-20260829`. Campbell did not poll during
+  the monitoring window and is likely powered off; AWS retains both Jobs for
+  its next boot. The earlier update must complete before the fixed enrollment
+  action can run, after which the saved local outbox should upload normally.
 
 - Confirmed Astrid/Liara was online and syncing data but remained at `cecbb77`
   after repeated update attempts. Its older updater treated a dirty-checkout
@@ -239,6 +307,24 @@
   `4aa22f5`, was consumed by Pappy, verified the fresh local report, and was
   marked `SUCCEEDED` by AWS with reason `already-current`. Both installed
   update services now report a 20-minute start timeout.
+- A second live expected-commit Job,
+  `morsepi-hardened-pappy-ff-20260829-1500`, proved a real hardened
+  fast-forward from `4aa22f5` to `e7f996b`. It ran the full 261-test Pi gate,
+  restarted and health-checked the app, wrote matching target/end commits,
+  left app/browser services active, and AWS reported `SUCCEEDED` with reason
+  `updated`.
+- Connected locally to Campbell/Olivea at its home network address and found
+  the app/AWS backup path healthy but the station still at `49ce373` with no
+  running Chromium kiosk, no browser supervisor, and no IoT update timer.
+- Ran the installed updater while local support was available. It uploaded a
+  pre-update backup, migrated identity configuration, fast-forwarded to
+  `e7f996b`, passed all 261 Pi tests, restarted with HTTP 200 health, and
+  installed the supervised browser. A second hardened current-release run
+  wrote the authoritative matching-commit report and refreshed update units.
+- Completed Campbell's station-local IoT Jobs configuration using its existing
+  narrow AWS identity, enabled the 15-minute timer, and confirmed a successful
+  AWS poll with `no-pending-job`. App, browser, local update timer, and IoT
+  update timer are all active; both timers are enabled.
 
 ## 2026-08-28 - Spec and implementation reconciliation
 

@@ -8,8 +8,8 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from paths import data_path
-from student_identity import (
+from morsepi.storage.paths import data_path
+from morsepi.students.student_identity import (
     TRACKED_REGISTRY_PATH,
     enrich_student_identity,
     family_registry_by_id,

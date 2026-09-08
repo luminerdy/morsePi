@@ -2,7 +2,7 @@ import re
 import unittest
 from pathlib import Path
 
-from morse_display import morse_accessible_label, morse_visual
+from morsepi.morse.display import morse_accessible_label, morse_visual
 
 
 class MorseDisplayTests(unittest.TestCase):
@@ -31,8 +31,8 @@ class MorseDisplayTests(unittest.TestCase):
     def test_live_decoded_readouts_do_not_start_with_morse_like_dashes(self):
         root = Path(__file__).resolve().parents[1]
         files = [
-            root / "static" / "app.js",
-            *sorted((root / "templates").glob("*.html")),
+            root / "morsepi" / "static" / "app.js",
+            *sorted((root / "morsepi" / "templates").glob("*.html")),
         ]
         placeholder_pattern = re.compile(r'(id="liveDecoded"[^>]*>\s*---|liveDecoded\.innerText\s*=\s*"---")')
 
@@ -45,7 +45,7 @@ class MorseDisplayTests(unittest.TestCase):
 
     def test_practice_feedback_does_not_embed_raw_morse_strings(self):
         root = Path(__file__).resolve().parents[1]
-        source = (root / "static" / "app.js").read_text(encoding="utf-8")
+        source = (root / "morsepi" / "static" / "app.js").read_text(encoding="utf-8")
 
         raw_morse_feedback = re.compile(
             r"setPracticeFeedback\([^;]*(expected_morse|expectedMorse)",

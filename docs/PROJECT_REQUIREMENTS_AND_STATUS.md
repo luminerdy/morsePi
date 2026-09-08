@@ -1,5 +1,10 @@
 # Pappy's Internet Telegraph — Project Requirements and Status
 
+> Historical build-stage document, retained for context. Statements such as
+> future messaging and Morse-password goals are not current product guidance.
+> Use the [product overview](../README.md), [requirements](../specs/README.md),
+> and [current roadmap](product/ROADMAP.md) instead.
+
 ## 1. Project Summary
 
 **Pappy's Internet Telegraph** is a Raspberry Pi-based Morse code learning station for 3rd–6th grade students.
