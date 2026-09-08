@@ -19,6 +19,20 @@
   crash recovery, remaining maintenance writers, and a transactional store
   remain open. Do not delete .storage.lock to recover a running worker.
 - Next: spare-SD installation/recovery rehearsal and staged updater rollback.
+- Verification: 317 local tests pass with zero skips. GitHub CI passed main
+  07f1ead (34229346558) and release/pi 6e64aed (34229456493).
+  Pappy's normal updater installed 6e64aed, reports succeeded and a clean
+  checkout; app/browser are active and the live home response is HTTP 200.
+- First canary attempt stopped safely before fetching: the old UUID migration
+  read a profile as invalid JSON. Both migration checks then passed without
+  repair, and the normal updater retry succeeded. This is consistent with a
+  transient old in-place write, not proven permanent corruption. No data reset.
+  Keep migration exclusion/consistent pre-update backups on the updater track.
+- Remote replacements morsepi-storage-astrid-liara-20260908 and
+  morsepi-storage-campbell-olivea-20260908 target full release
+  6e64aed6a4b1fcb54c19fe628174da35f29677c1. Both are QUEUED, not confirmed
+  installed. Prior security jobs were canceled as SUPERSEDED. Keep release/pi
+  fixed until receipts arrive or explicitly supersede expected-commit jobs.
 
 ## 2026-09-08 - Browser request and PIN hardening
 

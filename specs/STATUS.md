@@ -16,6 +16,12 @@ quarantine without silent defaulting, a cross-process app/sync transaction,
 final re-reading of attempts after download, and receipt merges against current
 local messages. NFR-006 remains partial for full multi-file recovery and the
 remaining standalone maintenance scripts; the app remains single-process.
+Verification: 317 tests pass without skips; main 07f1ead and release/pi
+6e64aed passed GitHub CI. Pappy installed 6e64aed through the normal updater
+and serves HTTP 200 with app/browser active. Both remote storage jobs remain
+queued. A transient invalid-profile read blocked the first old-code migration;
+checks and retry succeeded without repair. Migration exclusion and consistent
+pre-update backups remain part of the updater hardening track.
 
 2026-09-08: SEC-001/AC-003 and SEC-003 are now implemented: signed browser-bound
 tokens cover all unsafe HTTP methods; forms and JSON clients submit tokens;
