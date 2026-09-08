@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Review Message - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260802-1">
     <link rel="stylesheet" href="/static/touch.css?v=20260901-1">
@@ -43,6 +44,7 @@
                 <button class="button secondary" type="button" data-message-play-draft data-recipient-id="{{ recipient.id }}">Play</button>
                 {% if keying_complete %}
                     <form method="post" action="/touch/messages/send">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
                         <button class="button primary" type="submit">Send to {{ recipient.name }}</button>
                     </form>
@@ -52,6 +54,6 @@
             </section>
         </main>
     </div>
-<script src="/static/app.js?v=20260830-2"></script>
+<script src="/static/app.js?v=20260908-security"></script>
 </body>
 </html>

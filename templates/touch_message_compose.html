@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Build Message - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260802-1">
     <link rel="stylesheet" href="/static/touch.css?v=20260901-1">
@@ -79,18 +80,21 @@
                         <span>Change {{ draft_words[edit_word_index].word }}</span>
                         <a class="button primary" href="/touch/messages/word-bank?to={{ recipient.id }}&action=replace-word&word_index={{ edit_word_index }}">Replace</a>
                         <form method="post" action="/touch/messages/draft">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
                             <input type="hidden" name="action" value="move-word-left">
                             <input type="hidden" name="word_index" value="{{ edit_word_index }}">
                             <button class="button secondary" type="submit">Move Left</button>
                         </form>
                         <form method="post" action="/touch/messages/draft">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
                             <input type="hidden" name="action" value="move-word-right">
                             <input type="hidden" name="word_index" value="{{ edit_word_index }}">
                             <button class="button secondary" type="submit">Move Right</button>
                         </form>
                         <form method="post" action="/touch/messages/draft">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
                             <input type="hidden" name="action" value="delete-word">
                             <input type="hidden" name="word_index" value="{{ edit_word_index }}">
@@ -104,6 +108,7 @@
                         <div class="touch-letter-picker">
                             {% for letter in recipient.allowed_letters %}
                                 <form method="post" action="/touch/messages/draft">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                     <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
                                     <input type="hidden" name="action" value="replace">
                                     <input type="hidden" name="index" value="{{ edit_index }}">
@@ -113,6 +118,7 @@
                         </div>
                         <div class="touch-editor-actions">
                             <form method="post" action="/touch/messages/draft">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="index" value="{{ edit_index }}">
@@ -129,6 +135,7 @@
                         <div class="touch-keyed-word-actions">
                             <button class="button secondary" type="button" data-message-retry-word>Try Word Again</button>
                             <form method="post" action="/touch/messages/draft">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
                                 <input type="hidden" name="action" value="append-keyed-word">
                                 <input type="hidden" name="morse" id="messageKeyedWordMorse" value="">
@@ -144,6 +151,7 @@
                         <div>
                             {% for word in word_tiles %}
                                 <form method="post" action="/touch/messages/draft">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                     <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
                                     <input type="hidden" name="action" value="append-word">
                                     <button name="word" value="{{ word }}">{{ word }}</button>
@@ -156,6 +164,7 @@
                     <section class="touch-message-panel touch-compose-actions">
                         {% for action, label in [("undo", "Undo Word"), ("clear", "Clear Message")] %}
                             <form method="post" action="/touch/messages/draft">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
                                 <button class="button secondary" name="action" value="{{ action }}">{{ label }}</button>
                             </form>
@@ -166,6 +175,6 @@
             </main>
         {% endif %}
     </div>
-<script src="/static/app.js?v=20260830-2"></script>
+<script src="/static/app.js?v=20260908-security"></script>
 </body>
 </html>

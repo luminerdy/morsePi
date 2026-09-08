@@ -34,6 +34,14 @@ derived locally and is not authoritative cloud data.
 - Only the cloud router can copy accepted records between station prefixes.
 - Guest Operator cannot send, receive, or synchronize messages.
 - Adult actions remain protected by the local admin PIN.
+- Browser forms and background write requests require a signed, browser-bound
+  CSRF token. A restart invalidates open-page tokens; reload before retrying.
+  Rejected actions are never automatically replayed.
+- Five failed PIN attempts within 15 minutes block new admin authentication
+  for 15 minutes, including across restarts. Private `data/admin_lockout.json`
+  stores only failure times and expiry. A damaged file fails closed; the station
+  owner can remove that file locally over SSH and restart to recover access.
+  This local security state is not synchronized between stations.
 
 ## Retention And Recovery
 

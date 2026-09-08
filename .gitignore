@@ -14,6 +14,7 @@ data/family_registry.json
 data/station_status.json
 data/app_activity.json
 data/admin_pin.txt
+data/admin_lockout.json
 data/family_activity/
 data/family_progress/
 data/update/

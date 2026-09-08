@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Session Recovery - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260701-1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -84,6 +85,7 @@
 
                                 <div class="session-actions">
                                     <form method="post" action="/admin/sessions">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                         <input type="hidden" name="action" value="move">
                                         <input type="hidden" name="session_id" value="{{ session.id }}">
                                         <label for="target_{{ session.id }}">Move to</label>
@@ -96,6 +98,7 @@
                                     </form>
 
                                     <form method="post" action="/admin/sessions">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                         <input type="hidden" name="action" value="discard">
                                         <input type="hidden" name="session_id" value="{{ session.id }}">
                                         <button class="button secondary danger-button" type="submit">Discard Session</button>

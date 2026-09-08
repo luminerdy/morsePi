@@ -19,6 +19,10 @@ correctness checks. Each is encoded as an automated test per
   rejected.
 - **AC-003** (SEC-001) A cross-origin form POST to `/api/students/reset` with
   valid fields but no CSRF token returns 403 and no data changes.
+  Legacy verification enumerates every POST route. Forged and other-browser
+  tokens are rejected; valid forms and JSON requests continue normally.
+  Five failed PINs lock authentication for 15 minutes across process restarts;
+  expiry permits a valid PIN, and damaged lockout storage fails closed.
   ***Fails today.***
 - **AC-004** (SEC-002 / SEC-003) With no PIN configured, admin endpoints
   return 403 and startup logs a warning; 5 wrong PINs lock admin for 15 min.

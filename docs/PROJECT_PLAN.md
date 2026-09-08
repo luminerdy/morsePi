@@ -1,5 +1,23 @@
 # Pappy's Internet Telegraph Project Plan
 
+## 2026-09-08 - Browser request and PIN hardening
+
+- Added signed browser-bound CSRF checks before all unsafe request methods,
+  hidden tokens in every POST form, and a shared background-request helper.
+  Expired pages show a touch recovery link; background requests reload without
+  replaying a rejected action. HTML caching is disabled and JS assets versioned.
+- PIN failure history and 15-minute lockout now survive restarts via atomic
+  local storage. Missing PIN and lockout messages appear in Admin System;
+  startup warns when production admin configuration is missing.
+- Added adversarial token tests, enumeration of all app POST routes, template
+  coverage, and lockout restart/corruption/expiry tests. Existing route tests
+  submit real tokens, without disabling protection.
+- Yesterday's remote update jobs were still queued at today's AWS check;
+  their requested release was 0213f9d. New release promotion must account for
+  those expected-commit jobs before claiming remote success.
+- Next: atomic progress/settings/message writes and shared app/sync exclusion;
+  spare-SD installer rehearsal; staged updater activation and rollback.
+
 ## 2026-09-07 - Project review and first hardening block
 
 - Completed a critical repository, code, recovery, security, and independent

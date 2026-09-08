@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Touch Practice - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260802-1">
     <link rel="stylesheet" href="/static/touch.css?v=20260901-1">
@@ -74,11 +75,13 @@
                     <button type="button" class="button primary" id="listenReplay">Play Again</button>
                 {% else %}
                     <form method="post" action="/practice/play?mode={{ mode }}" class="inline-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="next" value="/touch/practice/run?mode={{ mode }}">
                         <button type="submit" class="button secondary">Play</button>
                     </form>
                 {% endif %}
                 <form method="post" action="/practice/new?mode={{ mode }}" class="inline-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="next" value="/touch/practice/run?mode={{ mode }}">
                     <button type="submit" class="button secondary">Next</button>
                 </form>
@@ -91,6 +94,7 @@
                     <button type="button" class="button primary" id="listenReplay">Play Again</button>
                 {% endif %}
                 <form method="post" action="/practice/new?mode={{ mode }}" class="inline-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="next" value="/touch/practice/run?mode={{ mode }}">
                     <button type="submit" class="button secondary">Next</button>
                 </form>
@@ -126,6 +130,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260830-2"></script>
+<script src="/static/app.js?v=20260908-security"></script>
 </body>
 </html>

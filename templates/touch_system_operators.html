@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Manage Operators - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260621-4">
     <link rel="stylesheet" href="/static/touch.css?v=20260901-1">
@@ -27,6 +28,7 @@
             <div class="touch-top-actions">
                 <a class="touch-top-link" href="/touch/system">System</a>
                 <form method="post" action="/touch/admin/exit" class="touch-admin-exit-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="touch-top-link touch-admin-exit">Exit Admin</button>
                 </form>
             </div>
@@ -34,6 +36,7 @@
 
         <main>
             <form method="post" action="/touch/system/operators" class="touch-operator-layout">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <section class="touch-operator-list" aria-label="Family operators">
                     {% for operator in operators %}
                         <label class="touch-operator-option">
@@ -53,6 +56,6 @@
             </form>
         </main>
     </div>
-<script src="/static/app.js?v=20260830-2"></script>
+<script src="/static/app.js?v=20260908-security"></script>
 </body>
 </html>

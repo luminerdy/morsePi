@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Word Bank - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260802-1">
     <link rel="stylesheet" href="/static/touch.css?v=20260901-1">
@@ -36,6 +37,7 @@
                             {% for item in group.words %}
                                 {% if recipient %}
                                     <form method="post" action="/touch/messages/draft">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                         <input type="hidden" name="recipient_id" value="{{ recipient.id }}">
                                         <input type="hidden" name="action" value="{{ action }}">
                                         {% if action == "replace-word" %}<input type="hidden" name="word_index" value="{{ word_index }}">{% endif %}
@@ -59,6 +61,6 @@
             </section>
         </main>
     </div>
-<script src="/static/app.js?v=20260830-2"></script>
+<script src="/static/app.js?v=20260908-security"></script>
 </body>
 </html>

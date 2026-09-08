@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Touch Message - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260802-1">
     <link rel="stylesheet" href="/static/touch.css?v=20260901-1">
@@ -26,6 +27,7 @@
         <main class="touch-message-layout">
             <section class="panel touch-panel">
                 <form method="post" action="/touch/message">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <label class="field-label" for="message">Text</label>
                     <textarea id="message" name="message" autofocus placeholder="Type a message">{{ message }}</textarea>
                     <button type="submit" class="button primary full-width">Convert</button>
@@ -47,10 +49,12 @@
                     <button type="button" class="button secondary" id="stopHereButton" disabled>Stop</button>
                     <button type="button" class="button secondary" data-test-sound>Sound</button>
                     <form method="post" action="/play" class="inline-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="next" value="/touch/message">
                         <button type="submit" class="button primary" {% if not morse %}disabled{% endif %}>Station</button>
                     </form>
                     <form method="post" action="/stop-playback" class="inline-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="next" value="/touch/message">
                         <button type="submit" class="button secondary">Stop Pi</button>
                     </form>
@@ -59,6 +63,6 @@
         </main>
     </div>
 
-<script src="/static/app.js?v=20260830-2"></script>
+<script src="/static/app.js?v=20260908-security"></script>
 </body>
 </html>

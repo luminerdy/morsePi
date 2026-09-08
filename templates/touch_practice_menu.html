@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Touch Practice - Pappy's Internet Telegraph</title>
     <link rel="stylesheet" href="/static/style.css?v=20260621-4">
     <link rel="stylesheet" href="/static/touch.css?v=20260901-1">
@@ -49,6 +50,6 @@
             <span>{{ overall.alphabet_progress }} letters · {{ overall.primary_mastery }}% {{ overall.primary_mastery_label }}</span>
         </footer>
     </div>
-<script src="/static/app.js?v=20260830-2"></script>
+<script src="/static/app.js?v=20260908-security"></script>
 </body>
 </html>

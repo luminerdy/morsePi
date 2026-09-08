@@ -5,6 +5,7 @@ from uuid import uuid4
 
 from flask import Flask, render_template, request, redirect, url_for, jsonify, g, has_request_context
 from gpiozero import Button, LED
+from browser_security import install_request_protection
 from family_activity import load_activity_cache, refresh_family_activity
 from morse import text_to_morse, morse_to_text
 from morse_display import morse_visual
@@ -63,6 +64,7 @@ import shutil
 import hmac
 
 app = Flask(__name__)
+install_request_protection(app)
 SESSION_COOKIE = "morse_practice_session_id"
 ADMIN_SESSION_COOKIE = "morse_admin_session"
 STATION_CONFIG_PATH = data_path("station_config.json")
@@ -80,7 +82,7 @@ MAX_WORD_CHARS = 20
 MAX_STUDENT_NAME_CHARS = 40
 ADMIN_PIN_MAX_FAILURES = 5
 ADMIN_PIN_FAILURE_WINDOW_SECONDS = 15 * 60
-ADMIN_PIN_LOCKOUT_SECONDS = 60
+ADMIN_PIN_LOCKOUT_SECONDS = 15 * 60
 ADMIN_SESSION_IDLE_SECONDS = 10 * 60
 admin_pin_lockout = {
     "failures": [],
@@ -189,6 +191,8 @@ def inject_student_context():
         "student_profiles": getattr(g, "student_profiles", load_profiles()),
         "all_student_profiles": getattr(g, "all_student_profiles", load_profiles()),
         "admin_pin_required": admin_pin_required(),
+        "admin_pin_missing": admin_pin_required() and not configured_admin_pin(),
+        "admin_pin_locked": admin_pin_locked(),
         "admin_session_active": admin_session_active(refresh=False),
         "student_creation_allowed": student_creation_allowed(),
     }
@@ -593,14 +597,54 @@ def admin_pin_required():
 def reset_admin_pin_lockout():
     admin_pin_lockout["failures"] = []
     admin_pin_lockout["locked_until"] = 0.0
+    save_admin_pin_lockout()
+
+
+def save_admin_pin_lockout():
+    path = ADMIN_PIN_PATH.with_name("admin_lockout.json")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
+                                         delete=False) as output:
+            temporary = Path(output.name)
+            json.dump(admin_pin_lockout, output)
+            output.flush()
+            os.fsync(output.fileno())
+        os.replace(temporary, path)
+    finally:
+        if temporary and temporary.exists():
+            temporary.unlink()
+
+
+def load_admin_pin_lockout():
+    path = ADMIN_PIN_PATH.with_name("admin_lockout.json")
+    try:
+        saved = json.loads(path.read_text(encoding="utf-8"))
+        failures = saved["failures"]
+        until = float(saved["locked_until"])
+        if not isinstance(failures, list) or not math.isfinite(until):
+            raise ValueError("Invalid lockout state")
+        failures = [float(value) for value in failures]
+        if not all(math.isfinite(value) for value in failures):
+            raise ValueError("Invalid failure timestamps")
+        admin_pin_lockout.update(failures=failures, locked_until=until)
+    except FileNotFoundError:
+        admin_pin_lockout.update(failures=[], locked_until=0.0)
+    except (OSError, ValueError, KeyError, TypeError):
+        # Damaged security state must not silently allow more PIN guesses.
+        admin_pin_lockout.update(failures=[], locked_until=time() + ADMIN_PIN_LOCKOUT_SECONDS)
+        app.logger.error("Admin lockout state unavailable; admin access remains locked")
 
 
 def admin_pin_locked(now=None):
+    load_admin_pin_lockout()
     now = time() if now is None else now
     return admin_pin_lockout.get("locked_until", 0.0) > now
 
 
 def record_admin_pin_failure(now=None):
+    load_admin_pin_lockout()
     now = time() if now is None else now
     cutoff = now - ADMIN_PIN_FAILURE_WINDOW_SECONDS
     failures = [
@@ -612,9 +656,12 @@ def record_admin_pin_failure(now=None):
     if len(failures) >= ADMIN_PIN_MAX_FAILURES:
         admin_pin_lockout["failures"] = []
         admin_pin_lockout["locked_until"] = now + ADMIN_PIN_LOCKOUT_SECONDS
+        save_admin_pin_lockout()
+        app.logger.warning("Admin PIN attempt limit reached; locked for 15 minutes")
         return
 
     admin_pin_lockout["failures"] = failures
+    save_admin_pin_lockout()
 
 
 def admin_pin_valid(value):
@@ -626,7 +673,7 @@ def admin_pin_valid(value):
         return False
 
     provided_pin = str(value or "").strip()
-    if hmac.compare_digest(provided_pin, required_pin):
+    if hmac.compare_digest(provided_pin.encode(), required_pin.encode()):
         reset_admin_pin_lockout()
         return True
 
@@ -6017,6 +6064,8 @@ def practice_check():
 
 
 if __name__ == "__main__":
+    if admin_pin_required() and not configured_admin_pin():
+        app.logger.error("Admin PIN is required but missing; configure the station PIN to enable administration")
     try:
         app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False, threaded=False)
     finally:
