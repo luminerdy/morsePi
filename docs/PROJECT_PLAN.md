@@ -3,6 +3,18 @@
 This file is the dated development log. Current priorities live in the
 [product roadmap](product/ROADMAP.md); older entries may be superseded.
 
+## 2026-09-12 - Distinguish recovered update errors
+
+- Pappy's current update report was healthy; Activity retained a September 9
+  pre-update-backup failure. Original journal details were unavailable.
+- Derived recovery from strictly later same-station update results, not generic
+  contacts. Recovered entries remain in All/Updates, neutral and explicitly
+  historical; uncleared issues remain in Problems. No events deleted.
+- Station summary uses latest dated update outcome rather than the last event
+  title. "Last update check OK" avoids claiming a stale station is online.
+- Added tests for chronology, same-station evidence, equal/invalid timestamps,
+  unsorted events, newer failures, and presentation. Specs and guide updated.
+
 ## 2026-09-08 - Larger admin PIN touch buttons
 
 - Main admin unlock panel widened from 270px to 330px; keys increased from
@@ -12,6 +24,13 @@ This file is the dated development log. Current priorities live in the
   and error states, digit/Clear interaction, and all controls inside the viewport.
   Measured keys about 95x52px; error-state submit ends at y=439 on 480px screen.
   Screenshots remain in ignored dist/, not published with student names.
+- Main/release CI passed (34276481903 / 34276565679). Pappy installed 704c975
+  successfully with app/browser active and verified new CSS. Remote jobs
+  morsepi-pin-astrid-liara-20260908 and morsepi-pin-campbell-olivea-20260908
+  replace prior package jobs and target the same full release; installation
+  awaits remote confirmation. Release also carries the prior safe media removal.
+- Historical media retained in ignored data/backups/private-historical-media.zip
+  so branch switches do not erase the local archival copy.
 
 ## 2026-09-08 - Privacy audit and staged cleanup
 

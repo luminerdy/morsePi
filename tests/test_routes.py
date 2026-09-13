@@ -44,6 +44,16 @@ if app_module is not None:
 
 @unittest.skipIf(app_module is None, f"app dependencies unavailable: {IMPORT_ERROR}")
 class RouteRenderTests(unittest.TestCase):
+    def test_activity_recovered_update_is_neutral_history(self):
+        cache = {"stations": [{"id": "station-a", "name": "Example", "status": {"checked_at": "2026-09-12T00:00:00Z", "update": {"status": "current", "updated_at": "2026-09-12T00:00:00Z"}}}], "events": [{"station_id": "station-a", "event_type": "software_update_failed", "occurred_at": "2026-09-10T00:00:00Z", "category": "problems", "level": "error", "details": {"reason": "pre-update-backup-failed"}}]}
+        with app_module.app.test_request_context():
+            view = app_module.family_activity_view(cache)
+        self.assertEqual(view["events"][0]["title"], "Earlier update issue - recovered")
+        self.assertEqual(view["events"][0]["category"], "updates")
+        self.assertEqual(view["events"][0]["level"], "info")
+        self.assertIn("pre-update-backup-failed", view["events"][0]["detail"])
+        self.assertEqual(view["stations"][0]["latest"], "Last update check OK")
+
     def test_corrupt_progress_is_preserved_and_recovery_page_is_usable(self):
         path = self.student_file("pappy", "practice_progress.json")
         path.parent.mkdir(parents=True, exist_ok=True)

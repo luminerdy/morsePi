@@ -12,6 +12,8 @@ from morsepi.services.family_activity import (
     queue_activity_event,
     refresh_family_activity,
     validate_activity_event,
+    latest_update_outcomes,
+    update_failure_recovered,
 )
 from scripts.family_activity import refresh_from_config
 
@@ -45,6 +47,34 @@ class MemoryStore:
 
 
 class FamilyActivityTests(unittest.TestCase):
+    def test_later_current_update_clears_older_failure_without_deleting_it(self):
+        failed = {"station_id": "station-a", "event_type": "software_update_failed", "occurred_at": "2026-09-10T00:00:00Z"}
+        cache = {"events": [failed], "stations": [{"id": "station-a", "status": {"update": {"status": "current", "updated_at": "2026-09-12T00:00:00Z"}}}]}
+        self.assertTrue(update_failure_recovered(failed, latest_update_outcomes(cache)))
+        self.assertEqual(cache["events"], [failed])
+
+    def test_checkin_wrong_station_and_invalid_time_do_not_clear_failure(self):
+        failed = {"station_id": "station-a", "event_type": "software_update_failed", "occurred_at": "2026-09-10T00:00:00Z"}
+        for state in [
+            {"checked_at": "2026-09-12T00:00:00Z"},
+            {"update": {"status": "current", "updated_at": "bad"}},
+            {"update": {"status": "current", "updated_at": "2026-09-09T00:00:00Z"}},
+        ]:
+            cache = {"events": [failed], "stations": [{"id": "station-a", "status": state}, {"id": "station-b", "status": {"update": {"status": "current", "updated_at": "2026-09-12T00:00:00Z"}}}]}
+            self.assertFalse(update_failure_recovered(failed, latest_update_outcomes(cache)))
+
+    def test_later_failure_overrides_success_even_when_events_are_unsorted(self):
+        failed = {"station_id": "station-a", "event_type": "software_update_failed", "occurred_at": "2026-09-12T00:00:00Z"}
+        success = {"station_id": "station-a", "event_type": "software_update_succeeded", "occurred_at": "2026-09-11T00:00:00Z"}
+        for events in [[failed, success], [success, failed]]:
+            self.assertFalse(update_failure_recovered(failed, latest_update_outcomes({"events": events})))
+
+    def test_equal_time_is_not_recovery_and_later_success_is(self):
+        failed = {"station_id": "station-a", "event_type": "software_update_failed", "occurred_at": "2026-09-10T00:00:00Z"}
+        for stamp, expected in [("2026-09-10T00:00:00Z", False), ("2026-09-11T00:00:00Z", True)]:
+            success = dict(failed, event_type="software_update_succeeded", occurred_at=stamp)
+            self.assertEqual(update_failure_recovered(failed, latest_update_outcomes({"events": [failed, success]})), expected)
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.data_dir = Path(self.temporary.name)

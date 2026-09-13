@@ -71,3 +71,10 @@ python scripts/apply_station_sync_policies.py --profile morsepi-setup-admin
 Email notifications remain a later, optional layer. The on-device history is
 the first source of truth and does not introduce SES, Lambda, or recurring
 notification cost.
+## Historical Update Issues
+
+"Earlier update issue - recovered" means a later update result from that same
+station passed. It stays in All/Updates as neutral history, not Problems. An
+uncleared issue remains under Problems; lack of recovery evidence does not prove
+the station is currently broken. "Last update check OK" describes the last
+reported update result, not live connectivity. Check the contact age as well.

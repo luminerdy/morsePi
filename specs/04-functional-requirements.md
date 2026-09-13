@@ -456,3 +456,11 @@ The main admin unlock keypad uses buttons at least 52px high with 24px digits
 and a 330px panel in the 800x480 touch layout. Clear, Back, the masked PIN,
 error feedback, and Enter Admin must remain visible without scrolling. This
 does not alter PIN validation or enlarge the legacy add-student form keypad.
+## Activity recovery evidence (2026-09-12)
+
+Retain historical update failures, but show them as recovered with neutral styling
+in Updates rather than Problems when a strictly later successful/current update
+result exists for the same station and no newer failure supersedes it. Generic
+check-ins, equal timestamps, invalid dates, and other stations are not recovery
+evidence. Station summaries use the latest dated update outcome and say "Last
+update check OK", not a claim of current online status. Original events are unchanged.

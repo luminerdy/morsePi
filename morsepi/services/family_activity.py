@@ -266,6 +266,51 @@ def empty_activity_cache(stations=None):
     }
 
 
+def latest_update_outcomes(cache):
+    """Use dated update results, never a generic check-in, as recovery evidence."""
+    outcomes = {}
+
+    def consider(station_id, state, stamp):
+        if state not in {"current", "succeeded", "failed", "blocked", "rolled-back"}:
+            return
+        try:
+            timestamp = parse_utc(stamp)
+        except (ValueError, TypeError):
+            return
+        if not station_id:
+            return
+        previous = outcomes.get(station_id)
+        successful = state in {"current", "succeeded"}
+        # On equal timestamps, retain failure rather than inventing recovery.
+        if previous is None or timestamp > previous["timestamp"] or (
+            timestamp == previous["timestamp"] and not successful
+        ):
+            outcomes[station_id] = {"timestamp": timestamp, "successful": successful}
+
+    for item in cache.get("stations", []):
+        if not isinstance(item, dict):
+            continue
+        status = item.get("status") if isinstance(item.get("status"), dict) else {}
+        update = status.get("update") if isinstance(status.get("update"), dict) else {}
+        consider(item.get("id"), update.get("status"), update.get("updated_at"))
+    for event in cache.get("events", []):
+        if not isinstance(event, dict):
+            continue
+        state = {"software_update_succeeded": "succeeded", "software_update_failed": "failed"}.get(event.get("event_type"))
+        consider(event.get("station_id"), state, event.get("occurred_at"))
+    return outcomes
+
+
+def update_failure_recovered(event, outcomes):
+    outcome = outcomes.get(event.get("station_id"))
+    if not outcome or not outcome["successful"]:
+        return False
+    try:
+        return outcome["timestamp"] > parse_utc(event.get("occurred_at"))
+    except (ValueError, TypeError):
+        return False
+
+
 def load_activity_cache(data_dir, stations=None):
     path = activity_dir(data_dir) / "cache.json"
     loaded = load_json(path, None)

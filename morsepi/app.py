@@ -8,7 +8,7 @@ from gpiozero import Button, LED
 from morsepi.security.browser_security import install_request_protection
 from morsepi.storage.durable_storage import (atomic_write_json, atomic_write_text, append_jsonl,
                              read_json, station_transaction, StorageBusy, StorageCorruption)
-from morsepi.services.family_activity import load_activity_cache, refresh_family_activity
+from morsepi.services.family_activity import load_activity_cache, refresh_family_activity, latest_update_outcomes, update_failure_recovered
 from morsepi.morse.codec import text_to_morse, morse_to_text
 from morsepi.morse.display import morse_visual
 from morsepi.storage.paths import data_path
@@ -3753,6 +3753,7 @@ def start_family_activity_refresh():
 
 
 def family_activity_view(cache):
+    update_outcomes = latest_update_outcomes(cache)
     station_names = {
         item.get("id"): item.get("name") or item.get("id")
         for item in cache.get("stations", [])
@@ -3764,7 +3765,7 @@ def family_activity_view(cache):
     }
     titles = {
         "software_update_succeeded": "Software updated",
-        "software_update_failed": "Software update needs attention",
+        "software_update_failed": "Update issue - not cleared",
         "progress_uploaded": "Practice progress uploaded",
         "message_sent": "Message sent",
         "message_received": "Message received",
@@ -3795,14 +3796,17 @@ def family_activity_view(cache):
                 detail = reason[:100]
         else:
             detail = "Station activity received."
+        recovered = event_type == "software_update_failed" and update_failure_recovered(event, update_outcomes)
+        if recovered:
+            detail = "Later update check passed. Earlier: " + detail
         events.append({
-            "category": event.get("category", "all"),
+            "category": "updates" if recovered else event.get("category", "all"),
             "detail": detail,
-            "level": event.get("level", "info"),
+            "level": "info" if recovered else event.get("level", "info"),
             "occurred_at": event.get("occurred_at", ""),
             "relative": relative_time_label(event.get("occurred_at")),
             "station": station_names.get(event.get("station_id"), event.get("station_id", "Unknown")),
-            "title": titles.get(event_type, "Station activity"),
+            "title": "Earlier update issue - recovered" if recovered else titles.get(event_type, "Station activity"),
         })
 
     stations = []
@@ -3815,10 +3819,12 @@ def family_activity_view(cache):
             (event for event in events if event["station"] == (item.get("name") or item.get("id"))),
             None,
         )
+        outcome = update_outcomes.get(item.get("id"))
+        update_label = ("Last update check OK" if outcome["successful"] else "Update needs attention") if outcome else None
         stations.append({
             "commit": str(status.get("git_commit") or update.get("ending_commit") or "")[:7] or "Unknown",
             "last_contact": relative_time_label(status.get("checked_at")),
-            "latest": latest["title"] if latest else "No activity yet",
+            "latest": update_label or (latest["title"] if latest else "No activity yet"),
             "name": item.get("name") or item.get("id") or "Station",
         })
 
