@@ -14,6 +14,11 @@ This file is the dated development log. Current priorities live in the
   title. "Last update check OK" avoids claiming a stale station is online.
 - Added tests for chronology, same-station evidence, equal/invalid timestamps,
   unsorted events, newer failures, and presentation. Specs and guide updated.
+- Verified 327 tests without skips. Main/release CI passed (34730200277 and
+  34730239871). Pappy installed c1b2891, app/browser active, HTTP 200.
+- Replaced still-queued PIN jobs with morsepi-activity-astrid-liara-20260912 and
+  morsepi-activity-campbell-olivea-20260912 targeting full release
+  c1b28915262e49ad440a846bd92eaca620e635c9. Remote installation not confirmed.
 
 ## 2026-09-08 - Larger admin PIN touch buttons
 
